@@ -1,0 +1,306 @@
+---
+swagger: "2.0"
+info:
+  description: "Interface to expose customer cUSD balances and perform authorization,\
+    \ settlement, and reporting."
+  version: "1.0.1"
+  title: "Celo UBI"
+  contact:
+    email: "aaron@keyko.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "virtserver.swaggerhub.com"
+basePath: "/aaronmboyd/celo-ubi/1.0.1"
+tags:
+- name: "Authorized"
+  description: "Secured authorized-only calls"
+- name: "Public"
+  description: "Operations available to the public"
+schemes:
+- "https"
+paths:
+  /health:
+    get:
+      tags:
+      - "Public"
+      summary: "Endpoint and health information"
+      operationId: "health"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "Health"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Public"
+  /user:
+    get:
+      tags:
+      - "Public"
+      summary: "Retrieve user information and balances"
+      description: "Get parsed Celo UBI Beneficiary details from the blockchain\n"
+      operationId: "getUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "query"
+        description: "pass a userId for looking up a user"
+        required: true
+        type: "number"
+      responses:
+        "200":
+          description: "User matching userId parameter"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Bad request"
+        "404":
+          description: "User not found"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Public"
+    post:
+      tags:
+      - "Authorized"
+      summary: "Add a new user and allocates their initial UBI disbursement"
+      description: "Adds an new user to the system"
+      operationId: "createUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "newUser"
+        description: "New user to add"
+        required: false
+        schema:
+          $ref: "#/definitions/NewUser"
+      responses:
+        "201":
+          description: "User created"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid input, object invalid"
+        "409":
+          description: "An existing user already exists"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Authorized"
+  /authorize:
+    post:
+      tags:
+      - "Authorized"
+      summary: "Create authorization"
+      description: "Create an authorization for a userId, transactionId, and value"
+      operationId: "Authorization"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "AuthorizationRequest"
+        description: "Authorization request details"
+        required: false
+        schema:
+          $ref: "#/definitions/AuthorizationRequest"
+      responses:
+        "202":
+          description: "Accepted - authorization successful"
+        "400":
+          description: "Invalid input, object invalid"
+        "422":
+          description: "Authorization unsuccessful"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Authorized"
+    delete:
+      tags:
+      - "Authorized"
+      summary: "Delete authorization"
+      description: "Delete an authorization for a userId and transactionId"
+      operationId: "deleteAuthorization"
+      parameters:
+      - name: "transactionId"
+        in: "query"
+        description: "pass a transactionId to clear"
+        required: true
+        type: "number"
+      responses:
+        "204":
+          description: "No Content - deletion successful"
+        "400":
+          description: "Invalid input, object invalid"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Authorized"
+  /settle:
+    post:
+      tags:
+      - "Authorized"
+      summary: "Create settlement"
+      description: "Create a settlement for a userId, transactionId, and settlement\
+        \ value"
+      operationId: "settlement"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "SettlementRequest"
+        description: "Settlement request details"
+        required: false
+        schema:
+          $ref: "#/definitions/SettlementRequest"
+      responses:
+        "202":
+          description: "Accepted - Settlement created"
+        "400":
+          description: "Invalid input, object invalid"
+        "422":
+          description: "Settlement unsuccessful"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Authorized"
+  /reconcile:
+    post:
+      tags:
+      - "Authorized"
+      summary: "Process reconciliation"
+      description: "Initiate reconciliation processes"
+      operationId: "reconciliation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "202":
+          description: "Accepted - reconciliation processed"
+        "422":
+          description: "Reconciliation unsuccessful"
+        "500":
+          description: "Server Error"
+      x-swagger-router-controller: "Authorized"
+definitions:
+  User:
+    type: "object"
+    required:
+    - "authorizationBalance"
+    - "availableBalance"
+    - "createdBlock"
+    - "userId"
+    properties:
+      userId:
+        type: "string"
+        example: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+      address:
+        type: "string"
+        example: "0x0000000000000000000000000000000000000001"
+      availableBalance:
+        type: "number"
+        example: 123.4500000000000028421709430404007434844970703125
+      authorizationBalance:
+        type: "number"
+        example: 67.8900000000000005684341886080801486968994140625
+      createdBlock:
+        type: "number"
+        example: 1322324355
+    example:
+      address: "0x0000000000000000000000000000000000000001"
+      authorizationBalance: 67.8900000000000005684341886080801486968994140625
+      createdBlock: 1322324355
+      userId: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+      availableBalance: 123.4500000000000028421709430404007434844970703125
+  AuthorizationRequest:
+    type: "object"
+    required:
+    - "authorizationAmount"
+    - "transactionId"
+    - "userId"
+    properties:
+      userId:
+        type: "string"
+        example: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+      transactionId:
+        type: "string"
+        example: "d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"
+      authorizationAmount:
+        type: "number"
+        example: 123.4500000000000028421709430404007434844970703125
+    example:
+      authorizationAmount: 123.4500000000000028421709430404007434844970703125
+      userId: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+      transactionId: "d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"
+  Authorization:
+    type: "object"
+    required:
+    - "authorizationAmount"
+    - "createdBlock"
+    - "expiresBlock"
+    - "transactionId"
+    properties:
+      transactionId:
+        type: "string"
+        example: "d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"
+      authorizationAmount:
+        type: "number"
+        example: 123.4500000000000028421709430404007434844970703125
+      createdBlock:
+        type: "integer"
+        example: 17745590
+      expiresBlock:
+        type: "integer"
+        example: 17788893
+  NewUser:
+    type: "object"
+    required:
+    - "userId"
+    properties:
+      userId:
+        type: "string"
+        example: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+    example:
+      userId: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+  SettlementRequest:
+    type: "object"
+    required:
+    - "settlementAmount"
+    - "transactionId"
+    - "userId"
+    properties:
+      userId:
+        type: "string"
+        example: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+      transactionId:
+        type: "string"
+        example: "d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"
+      settlementAmount:
+        type: "number"
+        example: 123.4500000000000028421709430404007434844970703125
+    example:
+      settlementAmount: 123.4500000000000028421709430404007434844970703125
+      userId: "cd88fba9-277b-4cc2-a99e-7a9f0926acd5"
+      transactionId: "d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"
+  inline_response_200:
+    type: "object"
+    properties:
+      timestamp:
+        type: "integer"
+        example: 188878475
+      blockNumber:
+        type: "integer"
+        example: 120909009
+    example:
+      blockNumber: 120909009
+      timestamp: 188878475
