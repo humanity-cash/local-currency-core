@@ -1,0 +1,3477 @@
+{
+  "contractName": "UBIReconciliationAccount",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "_cUSDToken",
+          "type": "address"
+        },
+        {
+          "internalType": "contract ERC20PresetMinterPauser",
+          "name": "_cUBIAuthToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_custodian",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "_userId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_ubiAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_txId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amt",
+          "type": "uint256"
+        }
+      ],
+      "name": "AuthorizationEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_custodianPrevious",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_custodianCurrent",
+          "type": "address"
+        }
+      ],
+      "name": "CustodianUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "_userId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_ubiAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_txId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amt",
+          "type": "uint256"
+        }
+      ],
+      "name": "DeauthorizationEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_custodian",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amt",
+          "type": "uint256"
+        }
+      ],
+      "name": "Reconciled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "_userId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_ubiAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_txId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_amt",
+          "type": "uint256"
+        }
+      ],
+      "name": "SettlementEvent",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "authorizationBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_txId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "authorize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "availableBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cUBIAuthToken",
+      "outputs": [
+        {
+          "internalType": "contract ERC20PresetMinterPauser",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cUSDToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "createdBlock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_txId",
+          "type": "string"
+        }
+      ],
+      "name": "deauthorize",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getAuthorizationAtKey",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAuthorizationKeys",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSettlementAtKey",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSettlementKeys",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_txId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_reconciliationAccount",
+          "type": "address"
+        }
+      ],
+      "name": "settle",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "userId",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reconcile",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_custodian",
+          "type": "address"
+        }
+      ],
+      "name": "setCustodian",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCustodian",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"_cUSDToken\",\"type\":\"address\"},{\"internalType\":\"contract ERC20PresetMinterPauser\",\"name\":\"_cUBIAuthToken\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_custodian\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"_userId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_ubiAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_txId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amt\",\"type\":\"uint256\"}],\"name\":\"AuthorizationEvent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_custodianPrevious\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_custodianCurrent\",\"type\":\"address\"}],\"name\":\"CustodianUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"_userId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_ubiAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_txId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amt\",\"type\":\"uint256\"}],\"name\":\"DeauthorizationEvent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_custodian\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amt\",\"type\":\"uint256\"}],\"name\":\"Reconciled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"_userId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_ubiAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_txId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_amt\",\"type\":\"uint256\"}],\"name\":\"SettlementEvent\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"authorizationBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_txId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"authorize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"availableBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cUBIAuthToken\",\"outputs\":[{\"internalType\":\"contract ERC20PresetMinterPauser\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cUSDToken\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createdBlock\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_txId\",\"type\":\"string\"}],\"name\":\"deauthorize\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_key\",\"type\":\"bytes32\"}],\"name\":\"getAuthorizationAtKey\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAuthorizationKeys\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCustodian\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_key\",\"type\":\"bytes32\"}],\"name\":\"getSettlementAtKey\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSettlementKeys\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reconcile\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_custodian\",\"type\":\"address\"}],\"name\":\"setCustodian\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_txId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_reconciliationAccount\",\"type\":\"address\"}],\"name\":\"settle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"userId\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Aaron Boyd <https://github.com/aaronmboyd>\",\"details\":\"This contract is a special version of a      UBIBeneficiary that additionally sweeps      cUSD to a known custodian address\",\"kind\":\"dev\",\"methods\":{\"authorizationBalance()\":{\"returns\":{\"_0\":\"uint256 authorization balance for this contract\"}},\"authorize(string,uint256)\":{\"params\":{\"_txId\":\"Dynamic string txId of the transaction to authorize\",\"_value\":\"uint256 transaction amount\"}},\"availableBalance()\":{\"returns\":{\"_0\":\"uint256 usable balance for this contract\"}},\"constructor\":{\"details\":\"Dummy userId of \\\"Reconciler\\\"\",\"params\":{\"_cUBIAuthToken\":\"cUBIAUTH token contract\",\"_cUSDToken\":\"cUSD token contract\",\"_custodian\":\"custodian address\"}},\"deauthorize(string)\":{\"details\":\"We don't need to specify the transaction size here because it is stored in the Authorization struct\",\"params\":{\"_txId\":\"Dynamic string txId of the transaction to de-authorize\"}},\"getAuthorizationAtKey(bytes32)\":{\"params\":{\"_key\":\"Map key of the Authorization to return\"}},\"getAuthorizationKeys()\":{\"details\":\"Note this is marked external, you cannot return dynamically sized data target is a Web3 caller for iterating Authorizations\"},\"getSettlementAtKey(bytes32)\":{\"params\":{\"_key\":\"Map key of the Settlement to return\"}},\"getSettlementKeys()\":{\"details\":\"Note this is marked external, you cannot return dynamically sized data target is a Web3 caller for iterating Settlements\"},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"setCustodian(address)\":{\"params\":{\"_custodian\":\"new custodian address\"}},\"settle(string,uint256,address)\":{\"details\":\"If there was an existing authorization for this txId, de-authorize it, for the original authorization amount, regardless of the current settlement amount\",\"params\":{\"_reconciliationAccount\":\"Reconciliation account to send the cUSD to during settlement\",\"_txId\":\"Dynamic string txId of the transaction to authorize\",\"_value\":\"uint256 transaction amount\"}},\"transferOwner(address)\":{\"details\":\"Adding transferOwner to facade implementation of UBIBeneficiary.transferOwnership from an interface object\",\"params\":{\"newOwner\":\"New owner address\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"Celo UBI reconciliation contract\",\"version\":1},\"userdoc\":{\"events\":{\"AuthorizationEvent(bytes32,address,string,uint256)\":{\"notice\":\"Triggered when an amount has been pre-authorized for a user\"},\"CustodianUpdated(address,address)\":{\"notice\":\"triggered when the custodian has been updated\"},\"DeauthorizationEvent(bytes32,address,string,uint256)\":{\"notice\":\"Triggered when an amount has been de-authorized for a user\"},\"Reconciled(address,uint256)\":{\"notice\":\"triggered when an amount has been reconciled\"},\"SettlementEvent(bytes32,address,string,uint256)\":{\"notice\":\"Triggered when an amount has been settled for a user\"}},\"kind\":\"user\",\"methods\":{\"authorizationBalance()\":{\"notice\":\"retrieve authorization balance for this contract\"},\"authorize(string,uint256)\":{\"notice\":\"Store a new authorization \"},\"availableBalance()\":{\"notice\":\"retrieve available balance for this contract\"},\"constructor\":\"constructor for UBIReconciliationAccount\",\"deauthorize(string)\":{\"notice\":\"External method deauthorization\"},\"getAuthorizationAtKey(bytes32)\":{\"notice\":\"Return the primitive attributes of an Authorization struct\"},\"getAuthorizationKeys()\":{\"notice\":\"Return array of authorizationsKeys\"},\"getCustodian()\":{\"notice\":\"Get the custodian address\"},\"getSettlementAtKey(bytes32)\":{\"notice\":\"Return the primitive attributes of an Settlement struct\"},\"getSettlementKeys()\":{\"notice\":\"Return array of settlementKeys\"},\"reconcile()\":{\"notice\":\"reconcile the cUSD balance of this account and send to the custodian\"},\"setCustodian(address)\":{\"notice\":\"update the custodian address\"},\"settle(string,uint256,address)\":{\"notice\":\"Perform a settlement by returning cUSD token to the reconciliation contract\"},\"transferOwner(address)\":{\"notice\":\"Transfer ownership of the UBIBeneficiary\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIReconciliationAccount.sol\":\"UBIReconciliationAccount\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"/home/boyd/git/keyko/celo-ubi-contract/contracts/IUBIBeneficiary.sol\":{\"keccak256\":\"0xd59018879be650f2886a6f9b775936eeb3f5e27fb0295fa4f3e79ec86bb4f21c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://12915319b33385d920f28d0faed8a570d0872494de7696655bae1435edbd5e40\",\"dweb:/ipfs/QmZcpToQSUU2sdFpWGEDyEvq722kLxruyaqLmoAGWnKPES\"]},\"/home/boyd/git/keyko/celo-ubi-contract/contracts/IUBIReconciliationAccount.sol\":{\"keccak256\":\"0xd0c4dd6448365dcf47c3d9a0ed951f049264bae14667f046626ea5ac123a2555\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://84aaa416e25a3214fb6910053421e0315ba37307941915d8762e5daef8338d28\",\"dweb:/ipfs/QmNw3nyD4BLTFZfKA1xcATpmFCtUk7uMj6uftUZyrBLVEe\"]},\"/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIBeneficiary.sol\":{\"keccak256\":\"0x0b9633ea62b76cdf77274cca3c3b9a4755f4f9a01bb7e0a17aec09b2a1d4b8c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f05b63e88388127f3caa744bcadfff426833a4d7e0f1f2f2031babfe904a1725\",\"dweb:/ipfs/QmPF838gkMfN7vtSbSNKauUEm3LuJoVPzuaJWYVqpaLAtK\"]},\"/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIReconciliationAccount.sol\":{\"keccak256\":\"0x516baee1e6c641c8f352d54a0f0cad21a02a8a3c26bd445b5e924c0ea14a704c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://130973d3ceeef84e7e0aa47eb15e956c8d375d1694f94f7d9c66d01cf32ac4ca\",\"dweb:/ipfs/Qme3NygJgQVkMxMr7CG2h28gNuTUJ7dNebnUmCYAxC26sF\"]},\"@openzeppelin/contracts/GSN/Context.sol\":{\"keccak256\":\"0xdb26cbf4d028490f49831a7865c2fe1b28db44b535ca8d343785a3b768aae183\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://840b14ce0315c47d49ba328f1f9fa7654ded1c9e1559e6c5e777a7b2dc28bf0a\",\"dweb:/ipfs/QmTLLabn4wcfGro9LEmUXUN2nwKqZSotXMvjDCLXEnLtZP\"]},\"@openzeppelin/contracts/access/AccessControl.sol\":{\"keccak256\":\"0x92f7900d382761c7faefeaced81c6b4f1aae909ed0551803bfe8f27101956360\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://407c0864143968542e5cf5aa7556916d2cf292b201e3dadb65662e9a3aa24187\",\"dweb:/ipfs/QmSnXzYAUaGLGr7uofRbgQraTJvatbjQLBPhyYiMd18oUJ\"]},\"@openzeppelin/contracts/access/Ownable.sol\":{\"keccak256\":\"0x4bd6402ca6b3419008c2b482aff54e66836e8cb4eba2680e42ac5884ae6424fc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8f9f711fb8d0d92aeea1c327e3845d13ca1fa8f142e47f8723cd5b3106fb29a3\",\"dweb:/ipfs/QmVQUReDW9f4zGqhizwHnyU8EntMs95tbASdqkGncnikba\"]},\"@openzeppelin/contracts/math/SafeMath.sol\":{\"keccak256\":\"0x9a9cf02622cd7a64261b10534fc3260449da25c98c9e96d1b4ae8110a20e5806\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2df142592d1dc267d9549049ee3317fa190d2f87eaa565f86ab05ec83f7ab8f5\",\"dweb:/ipfs/QmSkJtcfWo7c42KnL5hho6GFxK6HRNV91XABx1P7xDtfLV\"]},\"@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol\":{\"keccak256\":\"0xe30213b0851987b0455057cdfb65660c05805cbb05b12c0d61b0ff7a99cc36cc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1c61711ecc3ad53890dded63c27909a315ba3053c553be29acaa239bc6a7a0cf\",\"dweb:/ipfs/QmQjriBzSyAYQTm4NfWpnnoH8RhZrayyXm2zvpeHkxQnAk\"]},\"@openzeppelin/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x91e0bd6a6762d2a1700dab0849de8422611355100576c4beef1e80d82a4104a0\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://73bbd77af0a8b07255d2ffa20728bcf13b116007c9ddac5d37046cfabb0e1e02\",\"dweb:/ipfs/QmRgZgWCWCSMTTaok6o4QvWA6MgB4goS8qpb3sN7bAvaZ9\"]},\"@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol\":{\"keccak256\":\"0x657b0d90be17331364211d74359df2a734fac864f6e88c80de7626fa33090ffb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://09cca25fefa2354a424d55a97930c76b11dc50697ba62c85d7affc27a37e830c\",\"dweb:/ipfs/QmPTQBYXxQDSNmMKqwe4WnM8E7NwnpLnkFLSRH8hZRvrVK\"]},\"@openzeppelin/contracts/token/ERC20/ERC20Pausable.sol\":{\"keccak256\":\"0xbab4a97af2a6810a8ffc187205dfb331284949ea5b30caa5b9052828853bb149\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f53c98e31ed415c2a6f03d99809cd4f2f5fff92a13ee85022922a09df82ee459\",\"dweb:/ipfs/QmXiv4ysuQSRfoXqPpwA1QCreEnqfkrHDGyJTmifoni7dK\"]},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x5c26b39d26f7ed489e555d955dcd3e01872972e71fdd1528e93ec164e4f23385\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://efdc632af6960cf865dbc113665ea1f5b90eab75cc40ec062b2f6ae6da582017\",\"dweb:/ipfs/QmfAZFDuG62vxmAN9DnXApv7e7PMzPqi4RkqqZHLMSQiY5\"]},\"@openzeppelin/contracts/token/ERC20/SafeERC20.sol\":{\"keccak256\":\"0xf3b30f8a49631420635a8c35daacfcaa338012755f18a76fdd118730256f9a27\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0d7de652204c2ee291a61aa984103dfc7ae4392d651fbbc44a0079caee7c69a3\",\"dweb:/ipfs/Qmcw1cQnq9eWDnrCBwU3TNyqLfTMUFg5YKpYUkELoMPuUE\"]},\"@openzeppelin/contracts/utils/Address.sol\":{\"keccak256\":\"0xf5fa8cbdffa5ef8be49b246b5628facc30b71707e78a45d80d93b64eff3fe390\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://774e78a9ff32792cc95db4d2ceaf3a7965bb7f0bea5e6cb7cff182b450d44b37\",\"dweb:/ipfs/QmRRMC4uj7eAcLW7chynA3sNEYULMFazdLwQHKHQPyzAbA\"]},\"@openzeppelin/contracts/utils/EnumerableSet.sol\":{\"keccak256\":\"0xb2a11b236f073662f5a196995863f51c11d006bf7c3de158b316dfa1506c4b79\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8651649cf0b9efa18c3b01c030276fa320d41adbdc286833417e7f36e357b2f3\",\"dweb:/ipfs/QmafhM2Nd1aP43QVB1eRRZaqRXQKswNfQcWi8U8xjrxCfN\"]},\"@openzeppelin/contracts/utils/Pausable.sol\":{\"keccak256\":\"0x5d1b1dcbc0396f44c1c8d554857f71e3187503bf1e54062bf9ec6782e21f3a08\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9aa7fa580393aab7ca3d9f606f5ab7434d51e1c0f3632a593fca82c80ef8cc4c\",\"dweb:/ipfs/QmRy84N7QfkwBM2AeR7UB5G1PPHdRLi6s1iyzAwCzevcHe\"]},\"@openzeppelin/contracts/utils/ReentrancyGuard.sol\":{\"keccak256\":\"0x7ff0067f2d7df4187eaa1cb4800949b929602c9d9cb20fcaee6922a7613ef2fb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://78aa63fd7fbb8df2942b6c6e7bd89349507e306edbd5909ee8d9575c31be57e5\",\"dweb:/ipfs/Qmf6z9KWKCJCfEVokgTBhBVq5yHtE6is31N8AV5BHdMkqQ\"]}},\"version\":1}",
+  "bytecode": "0x60806040523480156200001157600080fd5b5060405162001ee538038062001ee5833981810160405260608110156200003757600080fd5b5080516020808301516040938401518451808601909552600a8552692932b1b7b731b4b632b960b11b928501929092529192839083906000620000796200012e565b600080546001600160a01b0319166001600160a01b0383169081178255604051929350917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a35060018055600280546001600160a01b038086166001600160a01b03199283161790925560038054928516929091169190911790554360045580516200011090600590602084019062000201565b5050505062000125816200013260201b60201c565b5050506200029d565b3390565b6200013c6200012e565b6000546001600160a01b039081169116146200019f576040805162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604482015290519081900360640190fd5b600a80546001600160a01b038381166001600160a01b0319831617928390556040805192821680845293909116602083015280517fb2acc6aeb8e34e039efca33cef7c32bbb131a9cf351b43e1296d793364f693ab9281900390910190a15050565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106200024457805160ff191683800117855562000274565b8280016001018555821562000274579182015b828111156200027457825182559160200191906001019062000257565b506200028292915062000286565b5090565b5b8082111562000282576000815560010162000287565b611c3880620002ad6000396000f3fe608060405234801561001057600080fd5b506004361061012c5760003560e01c8063715018a6116100ad578063ab2f0e5111610071578063ab2f0e51146104d7578063c561d4b7146104df578063f1e46269146104e7578063f2fde38b146104ef578063fe41c0da146105155761012c565b8063715018a6146103ac5780638214b4f0146103b45780638837bd5d146104225780638da5cb5b146104c75780638f0d7e35146104cf5761012c565b8063523a0623116100f4578063523a062314610215578063589759191461021d57806367fac0131461029a5780636b024330146103085780636b0b36a6146103105761012c565b80630ea86ad8146101315780633f346d4d14610155578063403f3731146101ad5780634593144c146101d55780634fb2e45d146101ef575b600080fd5b610139610592565b604080516001600160a01b039092168252519081900360200190f35b61015d6105a1565b60408051602080825283518183015283519192839290830191858101910280838360005b83811015610199578181015183820152602001610181565b505050509050019250505060405180910390f35b6101d3600480360360208110156101c357600080fd5b50356001600160a01b03166105f9565b005b6101dd61065d565b60408051918252519081900360200190f35b6101d36004803603602081101561020557600080fd5b50356001600160a01b0316610663565b61015d6106c4565b61022561071a565b6040805160208082528351818301528351919283929083019185019080838360005b8381101561025f578181015183820152602001610247565b50505050905090810190601f16801561028c5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6101d3600480360360408110156102b057600080fd5b810190602081018135600160201b8111156102ca57600080fd5b8201836020820111156102dc57600080fd5b803590602001918460018302840111600160201b831117156102fd57600080fd5b9193509150356107a8565b610139610a0b565b61032d6004803603602081101561032657600080fd5b5035610a1a565b6040518083815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610370578181015183820152602001610358565b50505050905090810190601f16801561039d5780820380516001836020036101000a031916815260200191505b50935050505060405180910390f35b6101d3610b06565b6101dd600480360360208110156103ca57600080fd5b810190602081018135600160201b8111156103e457600080fd5b8201836020820111156103f657600080fd5b803590602001918460018302840111600160201b8311171561041757600080fd5b509092509050610ba8565b61043f6004803603602081101561043857600080fd5b5035610c62565b60405180848152602001831515815260200180602001828103825283818151815260200191508051906020019080838360005b8381101561048a578181015183820152602001610472565b50505050905090810190601f1680156104b75780820380516001836020036101000a031916815260200191505b5094505050505060405180910390f35b610139610d4d565b6101d3610d5c565b6101dd610f30565b610139611053565b6101dd611062565b6101d36004803603602081101561050557600080fd5b50356001600160a01b03166110de565b6101d36004803603606081101561052b57600080fd5b810190602081018135600160201b81111561054557600080fd5b82018360208201111561055757600080fd5b803590602001918460018302840111600160201b8311171561057857600080fd5b9193509150803590602001356001600160a01b03166111d6565b6002546001600160a01b031681565b606060098054806020026020016040519081016040528092919081815260200182805480156105ef57602002820191906000526020600020905b8154815260200190600101908083116105db575b5050505050905090565b610601611485565b6000546001600160a01b03908116911614610651576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b61065a81611489565b50565b60045481565b61066b611485565b6000546001600160a01b039081169116146106bb576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b61065a816110de565b606060078054806020026020016040519081016040528092919081815260200182805480156105ef57602002820191906000526020600020908154815260200190600101908083116105db575050505050905090565b6005805460408051602060026001851615610100026000190190941693909304601f810184900484028201840190925281815292918301828280156107a05780601f10610775576101008083540402835291602001916107a0565b820191906000526020600020905b81548152906001019060200180831161078357829003601f168201915b505050505081565b6107b0611485565b6000546001600160a01b03908116911614610800576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415610846576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600181905550600083836040518083838082843760408051919093018190039020600081815260066020529290922054919550501592506108c5915050576040805162461bcd60e51b815260206004820152600f60248201526e4552525f415554485f45584953545360881b604482015290519081900360640190fd5b60008181526006602052604090206108e1600282018686611aa2565b506001808201805460ff191690558382556007805480830182556000919091527fa66cc928b5edb82af9bd49922954155ab7b0942694bea4ce44661d9a8736c6880183905560405160058054309391929182918491600290821615610100026000190190911604801561098b5780601f1061096957610100808354040283529182019161098b565b820191906000526020600020905b815481529060010190602001808311610977575b505091505060405180910390207fded52e9baec1da58e2276748c456d3de1acb844589e794895392b474b8a136e787878760405180806020018381526020018281038252858582818152602001925080828437600083820152604051601f909101601f1916909201829003965090945050505050a3505060018055505050565b6003546001600160a01b031681565b60006060610a26611b20565b6008600085815260200190815260200160002060405180604001604052908160008201548152602001600182018054600181600116156101000203166002900480601f016020809104026020016040519081016040528092919081815260200182805460018160011615610100020316600290048015610ae75780601f10610abc57610100808354040283529160200191610ae7565b820191906000526020600020905b815481529060010190602001808311610aca57829003601f168201915b5050505050815250509050806000015181602001519250925050915091565b610b0e611485565b6000546001600160a01b03908116911614610b5e576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a3600080546001600160a01b0319169055565b6000610bb2611485565b6000546001600160a01b03908116911614610c02576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415610c48576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600155610c578383611543565b600180559392505050565b6000806060610c6f611b3a565b60008581526006602090815260409182902082516060810184528154815260018083015460ff161515828501526002808401805487516101009482161594909402600019011691909104601f81018690048602830186018752808352929593949386019391929091830182828015610d285780601f10610cfd57610100808354040283529160200191610d28565b820191906000526020600020905b815481529060010190602001808311610d0b57829003601f168201915b5050509190925250508151602083015160409093015190989297509550909350505050565b6000546001600160a01b031690565b610d64611485565b6000546001600160a01b03908116911614610db4576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415610dfa576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600181905554604080516370a0823160e01b815230600482015290516000926001600160a01b0316916370a08231916024808301926020929190829003018186803b158015610e4a57600080fd5b505afa158015610e5e573d6000803e3d6000fd5b505050506040513d6020811015610e7457600080fd5b5051905080610ec5576040805162461bcd60e51b81526020600482015260186024820152774552525f4e4f5448494e475f544f5f5245434f4e43494c4560401b604482015290519081900360640190fd5b600a54600254610ee2916001600160a01b0391821691168361172b565b600a54604080516001600160a01b0390921682526020820183905280517fa195dbbb3e5a259873c9e9865d547e8693262a378559ad7efb64666191780b639281900390910190a15060018055565b600254604080516370a0823160e01b8152306004820152905160009283926001600160a01b03909116916370a0823191602480820192602092909190829003018186803b158015610f8057600080fd5b505afa158015610f94573d6000803e3d6000fd5b505050506040513d6020811015610faa57600080fd5b5051600354604080516370a0823160e01b815230600482015290519293506000926001600160a01b03909216916370a0823191602480820192602092909190829003018186803b158015610ffd57600080fd5b505afa158015611011573d6000803e3d6000fd5b505050506040513d602081101561102757600080fd5b505190506000611035611782565b905061104b816110458585611787565b90611787565b935050505090565b600a546001600160a01b031690565b600354604080516370a0823160e01b815230600482015290516000926001600160a01b0316916370a08231916024808301926020929190829003018186803b1580156110ad57600080fd5b505afa1580156110c1573d6000803e3d6000fd5b505050506040513d60208110156110d757600080fd5b5051905090565b6110e6611485565b6000546001600160a01b03908116911614611136576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b6001600160a01b03811661117b5760405162461bcd60e51b8152600401808060200182810382526026815260200180611b936026913960400191505060405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6111de611485565b6000546001600160a01b0390811691161461122e576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415611274576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600181905550600084846040518083838082843760408051919093018190039020600081815260086020529290922054919550501592506112f5915050576040805162461bcd60e51b81526020600482015260116024820152704552525f534554544c455f45584953545360781b604482015290519081900360640190fd5b60008181526006602052604090205415801590611324575060008181526006602052604090206001015460ff16155b15611335576113338585611543565b505b6009805460018181019092557f6e1540171b6c0c960b71a7020d9f60077f6af931a8bbf590da0223dacf75c7af018290556000828152600860205260409020906113829082018787611aa2565b5083815560025461139d906001600160a01b0316848661172b565b306001600160a01b0316600560405180828054600181600116156101000203166002900480156114045780601f106113e2576101008083540402835291820191611404565b820191906000526020600020905b8154815290600101906020018083116113f0575b505091505060405180910390207f4db0691b564b0128897bbc27abdf9aff03f8a8325f87658085962d90aabdd8fa88888860405180806020018381526020018281038252858582818152602001925080828437600083820152604051601f909101601f1916909201829003965090945050505050a350506001805550505050565b3390565b611491611485565b6000546001600160a01b039081169116146114e1576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b600a80546001600160a01b038381166001600160a01b0319831617928390556040805192821680845293909116602083015280517fb2acc6aeb8e34e039efca33cef7c32bbb131a9cf351b43e1296d793364f693ab9281900390910190a15050565b600061154d611485565b6000546001600160a01b0390811691161461159d576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b600083836040518083838082843760408051919093018190039020600081815260066020529290922080549296509450501515915061161a9050576040805162461bcd60e51b815260206004820152601260248201527111549497d055551217d393d517d1561254d560721b604482015290519081900360640190fd5b6001818101805460ff191690911790558054600354611646916001600160a01b0390911690339061172b565b306001600160a01b0316600560405180828054600181600116156101000203166002900480156116ad5780601f1061168b5761010080835404028352918201916116ad565b820191906000526020600020905b815481529060010190602001808311611699575b5050604080519182900382208654602084018190528284529183018a905293507f4235c71bfde7f4d62e8d4d67b17e9ec2cdff2d762b1b15b990c70f3e09b9df9e925089918991908060608101858580828437600083820152604051601f909101601f1916909201829003965090945050505050a354949350505050565b604080516001600160a01b038416602482015260448082018490528251808303909101815260649091019091526020810180516001600160e01b031663a9059cbb60e01b17905261177d9084906117d0565b505050565b600090565b60006117c983836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815250611881565b9392505050565b6060611825826040518060400160405280602081526020017f5361666545524332303a206c6f772d6c6576656c2063616c6c206661696c6564815250856001600160a01b03166119189092919063ffffffff16565b80519091501561177d5780806020019051602081101561184457600080fd5b505161177d5760405162461bcd60e51b815260040180806020018281038252602a815260200180611bd9602a913960400191505060405180910390fd5b600081848411156119105760405162461bcd60e51b81526004018080602001828103825283818151815260200191508051906020019080838360005b838110156118d55781810151838201526020016118bd565b50505050905090810190601f1680156119025780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b505050900390565b6060611927848460008561192f565b949350505050565b606061193a85611a9c565b61198b576040805162461bcd60e51b815260206004820152601d60248201527f416464726573733a2063616c6c20746f206e6f6e2d636f6e7472616374000000604482015290519081900360640190fd5b60006060866001600160a01b031685876040518082805190602001908083835b602083106119ca5780518252601f1990920191602091820191016119ab565b6001836020036101000a03801982511681845116808217855250505050505090500191505060006040518083038185875af1925050503d8060008114611a2c576040519150601f19603f3d011682016040523d82523d6000602084013e611a31565b606091505b50915091508115611a455791506119279050565b805115611a555780518082602001fd5b60405162461bcd60e51b81526020600482018181528651602484015286518793919283926044019190850190808383600083156118d55781810151838201526020016118bd565b3b151590565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10611ae35782800160ff19823516178555611b10565b82800160010185558215611b10579182015b82811115611b10578235825591602001919060010190611af5565b50611b1c929150611b5d565b5090565b604051806040016040528060008152602001606081525090565b604051806060016040528060008152602001600015158152602001606081525090565b5b80821115611b1c5760008155600101611b5e56fe5265656e7472616e637947756172643a207265656e7472616e742063616c6c004f776e61626c653a206e6577206f776e657220697320746865207a65726f20616464726573734f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65725361666545524332303a204552433230206f7065726174696f6e20646964206e6f742073756363656564a2646970667358221220f5eb85a7d2e73d7d7b92cc94cc4de8298d0d28a0f4f4dc2d88164455536d223564736f6c634300060c0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061012c5760003560e01c8063715018a6116100ad578063ab2f0e5111610071578063ab2f0e51146104d7578063c561d4b7146104df578063f1e46269146104e7578063f2fde38b146104ef578063fe41c0da146105155761012c565b8063715018a6146103ac5780638214b4f0146103b45780638837bd5d146104225780638da5cb5b146104c75780638f0d7e35146104cf5761012c565b8063523a0623116100f4578063523a062314610215578063589759191461021d57806367fac0131461029a5780636b024330146103085780636b0b36a6146103105761012c565b80630ea86ad8146101315780633f346d4d14610155578063403f3731146101ad5780634593144c146101d55780634fb2e45d146101ef575b600080fd5b610139610592565b604080516001600160a01b039092168252519081900360200190f35b61015d6105a1565b60408051602080825283518183015283519192839290830191858101910280838360005b83811015610199578181015183820152602001610181565b505050509050019250505060405180910390f35b6101d3600480360360208110156101c357600080fd5b50356001600160a01b03166105f9565b005b6101dd61065d565b60408051918252519081900360200190f35b6101d36004803603602081101561020557600080fd5b50356001600160a01b0316610663565b61015d6106c4565b61022561071a565b6040805160208082528351818301528351919283929083019185019080838360005b8381101561025f578181015183820152602001610247565b50505050905090810190601f16801561028c5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6101d3600480360360408110156102b057600080fd5b810190602081018135600160201b8111156102ca57600080fd5b8201836020820111156102dc57600080fd5b803590602001918460018302840111600160201b831117156102fd57600080fd5b9193509150356107a8565b610139610a0b565b61032d6004803603602081101561032657600080fd5b5035610a1a565b6040518083815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610370578181015183820152602001610358565b50505050905090810190601f16801561039d5780820380516001836020036101000a031916815260200191505b50935050505060405180910390f35b6101d3610b06565b6101dd600480360360208110156103ca57600080fd5b810190602081018135600160201b8111156103e457600080fd5b8201836020820111156103f657600080fd5b803590602001918460018302840111600160201b8311171561041757600080fd5b509092509050610ba8565b61043f6004803603602081101561043857600080fd5b5035610c62565b60405180848152602001831515815260200180602001828103825283818151815260200191508051906020019080838360005b8381101561048a578181015183820152602001610472565b50505050905090810190601f1680156104b75780820380516001836020036101000a031916815260200191505b5094505050505060405180910390f35b610139610d4d565b6101d3610d5c565b6101dd610f30565b610139611053565b6101dd611062565b6101d36004803603602081101561050557600080fd5b50356001600160a01b03166110de565b6101d36004803603606081101561052b57600080fd5b810190602081018135600160201b81111561054557600080fd5b82018360208201111561055757600080fd5b803590602001918460018302840111600160201b8311171561057857600080fd5b9193509150803590602001356001600160a01b03166111d6565b6002546001600160a01b031681565b606060098054806020026020016040519081016040528092919081815260200182805480156105ef57602002820191906000526020600020905b8154815260200190600101908083116105db575b5050505050905090565b610601611485565b6000546001600160a01b03908116911614610651576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b61065a81611489565b50565b60045481565b61066b611485565b6000546001600160a01b039081169116146106bb576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b61065a816110de565b606060078054806020026020016040519081016040528092919081815260200182805480156105ef57602002820191906000526020600020908154815260200190600101908083116105db575050505050905090565b6005805460408051602060026001851615610100026000190190941693909304601f810184900484028201840190925281815292918301828280156107a05780601f10610775576101008083540402835291602001916107a0565b820191906000526020600020905b81548152906001019060200180831161078357829003601f168201915b505050505081565b6107b0611485565b6000546001600160a01b03908116911614610800576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415610846576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600181905550600083836040518083838082843760408051919093018190039020600081815260066020529290922054919550501592506108c5915050576040805162461bcd60e51b815260206004820152600f60248201526e4552525f415554485f45584953545360881b604482015290519081900360640190fd5b60008181526006602052604090206108e1600282018686611aa2565b506001808201805460ff191690558382556007805480830182556000919091527fa66cc928b5edb82af9bd49922954155ab7b0942694bea4ce44661d9a8736c6880183905560405160058054309391929182918491600290821615610100026000190190911604801561098b5780601f1061096957610100808354040283529182019161098b565b820191906000526020600020905b815481529060010190602001808311610977575b505091505060405180910390207fded52e9baec1da58e2276748c456d3de1acb844589e794895392b474b8a136e787878760405180806020018381526020018281038252858582818152602001925080828437600083820152604051601f909101601f1916909201829003965090945050505050a3505060018055505050565b6003546001600160a01b031681565b60006060610a26611b20565b6008600085815260200190815260200160002060405180604001604052908160008201548152602001600182018054600181600116156101000203166002900480601f016020809104026020016040519081016040528092919081815260200182805460018160011615610100020316600290048015610ae75780601f10610abc57610100808354040283529160200191610ae7565b820191906000526020600020905b815481529060010190602001808311610aca57829003601f168201915b5050505050815250509050806000015181602001519250925050915091565b610b0e611485565b6000546001600160a01b03908116911614610b5e576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a3600080546001600160a01b0319169055565b6000610bb2611485565b6000546001600160a01b03908116911614610c02576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415610c48576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600155610c578383611543565b600180559392505050565b6000806060610c6f611b3a565b60008581526006602090815260409182902082516060810184528154815260018083015460ff161515828501526002808401805487516101009482161594909402600019011691909104601f81018690048602830186018752808352929593949386019391929091830182828015610d285780601f10610cfd57610100808354040283529160200191610d28565b820191906000526020600020905b815481529060010190602001808311610d0b57829003601f168201915b5050509190925250508151602083015160409093015190989297509550909350505050565b6000546001600160a01b031690565b610d64611485565b6000546001600160a01b03908116911614610db4576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415610dfa576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600181905554604080516370a0823160e01b815230600482015290516000926001600160a01b0316916370a08231916024808301926020929190829003018186803b158015610e4a57600080fd5b505afa158015610e5e573d6000803e3d6000fd5b505050506040513d6020811015610e7457600080fd5b5051905080610ec5576040805162461bcd60e51b81526020600482015260186024820152774552525f4e4f5448494e475f544f5f5245434f4e43494c4560401b604482015290519081900360640190fd5b600a54600254610ee2916001600160a01b0391821691168361172b565b600a54604080516001600160a01b0390921682526020820183905280517fa195dbbb3e5a259873c9e9865d547e8693262a378559ad7efb64666191780b639281900390910190a15060018055565b600254604080516370a0823160e01b8152306004820152905160009283926001600160a01b03909116916370a0823191602480820192602092909190829003018186803b158015610f8057600080fd5b505afa158015610f94573d6000803e3d6000fd5b505050506040513d6020811015610faa57600080fd5b5051600354604080516370a0823160e01b815230600482015290519293506000926001600160a01b03909216916370a0823191602480820192602092909190829003018186803b158015610ffd57600080fd5b505afa158015611011573d6000803e3d6000fd5b505050506040513d602081101561102757600080fd5b505190506000611035611782565b905061104b816110458585611787565b90611787565b935050505090565b600a546001600160a01b031690565b600354604080516370a0823160e01b815230600482015290516000926001600160a01b0316916370a08231916024808301926020929190829003018186803b1580156110ad57600080fd5b505afa1580156110c1573d6000803e3d6000fd5b505050506040513d60208110156110d757600080fd5b5051905090565b6110e6611485565b6000546001600160a01b03908116911614611136576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b6001600160a01b03811661117b5760405162461bcd60e51b8152600401808060200182810382526026815260200180611b936026913960400191505060405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6111de611485565b6000546001600160a01b0390811691161461122e576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b60026001541415611274576040805162461bcd60e51b815260206004820152601f6024820152600080516020611b73833981519152604482015290519081900360640190fd5b6002600181905550600084846040518083838082843760408051919093018190039020600081815260086020529290922054919550501592506112f5915050576040805162461bcd60e51b81526020600482015260116024820152704552525f534554544c455f45584953545360781b604482015290519081900360640190fd5b60008181526006602052604090205415801590611324575060008181526006602052604090206001015460ff16155b15611335576113338585611543565b505b6009805460018181019092557f6e1540171b6c0c960b71a7020d9f60077f6af931a8bbf590da0223dacf75c7af018290556000828152600860205260409020906113829082018787611aa2565b5083815560025461139d906001600160a01b0316848661172b565b306001600160a01b0316600560405180828054600181600116156101000203166002900480156114045780601f106113e2576101008083540402835291820191611404565b820191906000526020600020905b8154815290600101906020018083116113f0575b505091505060405180910390207f4db0691b564b0128897bbc27abdf9aff03f8a8325f87658085962d90aabdd8fa88888860405180806020018381526020018281038252858582818152602001925080828437600083820152604051601f909101601f1916909201829003965090945050505050a350506001805550505050565b3390565b611491611485565b6000546001600160a01b039081169116146114e1576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b600a80546001600160a01b038381166001600160a01b0319831617928390556040805192821680845293909116602083015280517fb2acc6aeb8e34e039efca33cef7c32bbb131a9cf351b43e1296d793364f693ab9281900390910190a15050565b600061154d611485565b6000546001600160a01b0390811691161461159d576040805162461bcd60e51b81526020600482018190526024820152600080516020611bb9833981519152604482015290519081900360640190fd5b600083836040518083838082843760408051919093018190039020600081815260066020529290922080549296509450501515915061161a9050576040805162461bcd60e51b815260206004820152601260248201527111549497d055551217d393d517d1561254d560721b604482015290519081900360640190fd5b6001818101805460ff191690911790558054600354611646916001600160a01b0390911690339061172b565b306001600160a01b0316600560405180828054600181600116156101000203166002900480156116ad5780601f1061168b5761010080835404028352918201916116ad565b820191906000526020600020905b815481529060010190602001808311611699575b5050604080519182900382208654602084018190528284529183018a905293507f4235c71bfde7f4d62e8d4d67b17e9ec2cdff2d762b1b15b990c70f3e09b9df9e925089918991908060608101858580828437600083820152604051601f909101601f1916909201829003965090945050505050a354949350505050565b604080516001600160a01b038416602482015260448082018490528251808303909101815260649091019091526020810180516001600160e01b031663a9059cbb60e01b17905261177d9084906117d0565b505050565b600090565b60006117c983836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f770000815250611881565b9392505050565b6060611825826040518060400160405280602081526020017f5361666545524332303a206c6f772d6c6576656c2063616c6c206661696c6564815250856001600160a01b03166119189092919063ffffffff16565b80519091501561177d5780806020019051602081101561184457600080fd5b505161177d5760405162461bcd60e51b815260040180806020018281038252602a815260200180611bd9602a913960400191505060405180910390fd5b600081848411156119105760405162461bcd60e51b81526004018080602001828103825283818151815260200191508051906020019080838360005b838110156118d55781810151838201526020016118bd565b50505050905090810190601f1680156119025780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b505050900390565b6060611927848460008561192f565b949350505050565b606061193a85611a9c565b61198b576040805162461bcd60e51b815260206004820152601d60248201527f416464726573733a2063616c6c20746f206e6f6e2d636f6e7472616374000000604482015290519081900360640190fd5b60006060866001600160a01b031685876040518082805190602001908083835b602083106119ca5780518252601f1990920191602091820191016119ab565b6001836020036101000a03801982511681845116808217855250505050505090500191505060006040518083038185875af1925050503d8060008114611a2c576040519150601f19603f3d011682016040523d82523d6000602084013e611a31565b606091505b50915091508115611a455791506119279050565b805115611a555780518082602001fd5b60405162461bcd60e51b81526020600482018181528651602484015286518793919283926044019190850190808383600083156118d55781810151838201526020016118bd565b3b151590565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10611ae35782800160ff19823516178555611b10565b82800160010185558215611b10579182015b82811115611b10578235825591602001919060010190611af5565b50611b1c929150611b5d565b5090565b604051806040016040528060008152602001606081525090565b604051806060016040528060008152602001600015158152602001606081525090565b5b80821115611b1c5760008155600101611b5e56fe5265656e7472616e637947756172643a207265656e7472616e742063616c6c004f776e61626c653a206e6577206f776e657220697320746865207a65726f20616464726573734f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65725361666545524332303a204552433230206f7065726174696f6e20646964206e6f742073756363656564a2646970667358221220f5eb85a7d2e73d7d7b92cc94cc4de8298d0d28a0f4f4dc2d88164455536d223564736f6c634300060c0033",
+  "immutableReferences": {},
+  "sourceMap": "380:1792:7:-:0;;;776:227;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;776:227:7;;;;;;;;;;;;1506:273:4;;;;;;;;;;;-1:-1:-1;;;1506:273:4;;;;;;;776:227:7;;;;;;-1:-1:-1;885:12:10;:10;:12::i;:::-;907:6;:18;;-1:-1:-1;;;;;;907:18:10;-1:-1:-1;;;;;907:18:10;;;;;;;940:43;;907:18;;-1:-1:-1;907:18:10;940:43;;907:6;;940:43;-1:-1:-1;1628:1:22;1743:22;;1647:9:4;:22;;-1:-1:-1;;;;;1647:22:4;;;-1:-1:-1;;;;;;1647:22:4;;;;;;;1679:13;:30;;;;;;;;;;;;;;;1734:12;1719;:27;1756:16;;;;:6;;:16;;;;;:::i;:::-;;1506:273;;;971:25:7::1;985:10;971:13;;;:25;;:::i;:::-;776:227:::0;;;380:1792;;590:104:8;677:10;590:104;:::o;1962:208:7:-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2061:9:7::1;::::0;;-1:-1:-1;;;;;2080:22:7;;::::1;-1:-1:-1::0;;;;;;2080:22:7;::::1;;::::0;;;;2117:46:::1;::::0;;2061:9;;::::1;2117:46:::0;;;2153:9;;;::::1;2117:46;::::0;::::1;::::0;;;::::1;::::0;;;;;;;;::::1;1339:1:10;1962:208:7::0;:::o;380:1792::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;380:1792:7;;;-1:-1:-1;380:1792:7;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "380:1792:7:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;794:23:4;;;:::i;:::-;;;;-1:-1:-1;;;;;794:23:4;;;;;;;;;;;;;;1994:117;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1540:112:7;;;;;;;;;;;;;;;;-1:-1:-1;1540:112:7;-1:-1:-1;;;;;1540:112:7;;:::i;:::-;;873:27:4;;;:::i;:::-;;;;;;;;;;;;;;;;8140:119;;;;;;;;;;;;;;;;-1:-1:-1;8140:119:4;-1:-1:-1;;;;;8140:119:4;;:::i;2333:123::-;;;:::i;906:20::-;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5966:546;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;5966:546:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;5966:546:4;;;;;;;;;;;;-1:-1:-1;5966:546:4;-1:-1:-1;5966:546:4;;:::i;823:44::-;;;:::i;3099:239::-;;;;;;;;;;;;;;;;-1:-1:-1;3099:239:4;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1689:145:10;;;:::i;5578:190:4:-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;5578:190:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;5578:190:4;;;;;;;;;;-1:-1:-1;5578:190:4;;-1:-1:-1;5578:190:4;-1:-1:-1;5578:190:4;:::i;2624:313::-;;;;;;;;;;;;;;;;-1:-1:-1;2624:313:4;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1066:77:10;;;:::i;1116:302:7:-;;;:::i;3740:326:4:-;;;:::i;1715:98:7:-;;;:::i;4222:135:4:-;;;:::i;1983:240:10:-;;;;;;;;;;;;;;;;-1:-1:-1;1983:240:10;-1:-1:-1;;;;;1983:240:10;;:::i;7030:851:4:-;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;7030:851:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;7030:851:4;;;;;;;;;;;;-1:-1:-1;7030:851:4;-1:-1:-1;7030:851:4;;;;;;-1:-1:-1;;;;;7030:851:4;;:::i;794:23::-;;;-1:-1:-1;;;;;794:23:4;;:::o;1994:117::-;2055:16;2090:14;2083:21;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1994:117;:::o;1540:112:7:-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;1620:25:7::1;1634:10;1620:13;:25::i;:::-;1540:112:::0;:::o;873:27:4:-;;;;:::o;8140:119::-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;8219:33:4::1;8243:8;8219:23;:33::i;2333:123::-:0;2397:16;2432:17;2425:24;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2333:123;:::o;906:20::-;;;;;;;;;;;;;;;-1:-1:-1;;906:20:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;5966:546::-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;1671:1:22::1;2260:7;;:19;;2252:63;;;::::0;;-1:-1:-1;;;2252:63:22;;::::1;;::::0;::::1;::::0;::::1;::::0;;;;-1:-1:-1;;;;;;;;;;;2252:63:22;;;;;;;;;;;;;::::1;;1671:1;2390:7;:18;;;;6111:11:4::2;6141:5;;6125:23;;;;;;;;;;::::0;;;;;::::2;::::0;;::::2;::::0;;6166:19:::2;::::0;;;:14:::2;:19;::::0;;;;;:25;6125:23;;-1:-1:-1;;6166:30:4;;-1:-1:-1;6158:58:4::2;::::0;-1:-1:-1;;6158:58:4::2;;::::0;;-1:-1:-1;;;6158:58:4;;::::2;;::::0;::::2;::::0;::::2;::::0;;;;-1:-1:-1;;;6158:58:4;;;;;;;;;;;;;::::2;;6227:29;6259:19:::0;;;:14:::2;:19;::::0;;;;6288:20:::2;:12;::::0;::::2;6303:5:::0;;6288:20:::2;:::i;:::-;-1:-1:-1::0;6318:20:4::2;::::0;;::::2;:28:::0;;-1:-1:-1;;6318:28:4::2;::::0;;6356:22;;;6388:17:::2;:27:::0;;;;::::2;::::0;;6341:5:::2;6388:27:::0;;;;;::::2;::::0;;;6450:24:::2;::::0;6466:6:::2;6450:24:::0;;6484:4:::2;::::0;6466:6;;6450:24;;;6466:6;;6450:24:::2;::::0;;::::2;;6318:28;6450:24;-1:-1:-1::0;;6450:24:4;;;::::2;;::::0;::::2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;6431:74;6491:5;;6498:6;6431:74;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;::::0;;::::2;::::0;::::2;::::0;::::2;::::0;;::::2;-1:-1:-1::0;;6431:74:4::2;::::0;;::::2;::::0;;::::2;::::0;-1:-1:-1;6431:74:4;;-1:-1:-1;;;;;6431:74:4::2;-1:-1:-1::0;;1628:1:22::1;2563:22:::0;;-1:-1:-1;;;5966:546:4:o;823:44::-;;;-1:-1:-1;;;;;823:44:4;;:::o;3099:239::-;3205:7;3214:13;3243:24;;:::i;:::-;3270:11;:17;3282:4;3270:17;;;;;;;;;;;3243:44;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3305:6;:12;;;3319:6;:11;;;3297:34;;;;;3099:239;;;:::o;1689:145:10:-;1280:12;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;1795:1:::1;1779:6:::0;;1758:40:::1;::::0;-1:-1:-1;;;;;1779:6:10;;::::1;::::0;1758:40:::1;::::0;1795:1;;1758:40:::1;1825:1;1808:19:::0;;-1:-1:-1;;;;;;1808:19:10::1;::::0;;1689:145::o;5578:190:4:-;5712:7;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;1671:1:22::1;2260:7;;:19;;2252:63;;;::::0;;-1:-1:-1;;;2252:63:22;;::::1;;::::0;::::1;::::0;::::1;::::0;;;;-1:-1:-1;;;;;;;;;;;2252:63:22;;;;;;;;;;;;;::::1;;1671:1;2390:7;:18:::0;5742:19:4::2;5755:5:::0;;5742:12:::2;:19::i;:::-;1628:1:22::1;2563:22:::0;;5735:26:4;5578:190;-1:-1:-1;;;5578:190:4:o;2624:313::-;2746:7;2767:4;2785:13;2823:25;;:::i;:::-;2851:20;;;;:14;:20;;;;;;;;;2823:48;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;2823:48:4;;;;;;;;;;;;;;;;;;;;;;;;;2851:20;;2823:48;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;2823:48:4;;;;-1:-1:-1;;2889:10:4;;2901:17;;;;2920:9;;;;;2889:10;;2901:17;;-1:-1:-1;2920:9:4;-1:-1:-1;2624:313:4;;-1:-1:-1;;;;2624:313:4:o;1066:77:10:-;1104:7;1130:6;-1:-1:-1;;;;;1130:6:10;;1066:77::o;1116:302:7:-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;1671:1:22::1;2260:7;;:19;;2252:63;;;::::0;;-1:-1:-1;;;2252:63:22;;::::1;;::::0;::::1;::::0;::::1;::::0;;;;-1:-1:-1;;;;;;;;;;;2252:63:22;;;;;;;;;;;;;::::1;;1671:1;2390:7;:18:::0;;;1210:9:7;:34:::2;::::0;;-1:-1:-1;;;1210:34:7;;1238:4:::2;1210:34;::::0;::::2;::::0;;;-1:-1:-1;;;;;;;1210:9:7::2;::::0;-1:-1:-1;;1210:34:7;;;;;::::2;::::0;;;;;;;;:9;:34;::::2;;::::0;::::2;;;;::::0;::::2;;;;;;;;;;;;::::0;::::2;;;;;;;;;;;;;;;;;;;::::0;::::2;;-1:-1:-1::0;1210:34:7;;-1:-1:-1;1262:15:7;1254:52:::2;;;::::0;;-1:-1:-1;;;1254:52:7;;::::2;;::::0;::::2;::::0;::::2;::::0;;;;-1:-1:-1;;;1254:52:7;;;;;;;;;;;;;::::2;;1339:9;::::0;1316::::2;::::0;:46:::2;::::0;-1:-1:-1;;;;;1316:9:7;;::::2;::::0;1339::::2;1350:11:::0;1316:22:::2;:46::i;:::-;1388:9;::::0;1377:34:::2;::::0;;-1:-1:-1;;;;;1388:9:7;;::::2;1377:34:::0;;::::2;::::0;::::2;::::0;;;;;::::2;::::0;;;;;;;;::::2;-1:-1:-1::0;1628:1:22::1;2563:22:::0;;1116:302:7:o;3740:326:4:-;3841:9;;:34;;;-1:-1:-1;;;3841:34:4;;3869:4;3841:34;;;;;;-1:-1:-1;;;;;;;;;3841:9:4;;;;-1:-1:-1;;3841:34:4;;;;;;;;;;;;;;;:9;:34;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;3841:34:4;3908:13;;:38;;;-1:-1:-1;;;3908:38:4;;3940:4;3908:38;;;;;;3841:34;;-1:-1:-1;;;;;;;;3908:13:4;;;;-1:-1:-1;;3908:38:4;;;;;3841:34;;3908:38;;;;;;;;:13;:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;3908:38:4;;-1:-1:-1;3956:17:4;3976:21;:19;:21::i;:::-;3956:41;-1:-1:-1;4015:44:4;3956:41;4015:29;:11;4031:12;4015:15;:29::i;:::-;:33;;:44::i;:::-;4008:51;;;;;3740:326;:::o;1715:98:7:-;1797:9;;-1:-1:-1;;;;;1797:9:7;;1715:98::o;4222:135:4:-;4312:13;;:38;;;-1:-1:-1;;;4312:38:4;;4344:4;4312:38;;;;;;-1:-1:-1;;;;;;;4312:13:4;;-1:-1:-1;;4312:38:4;;;;;;;;;;;;;;:13;:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;4312:38:4;;-1:-1:-1;4222:135:4;:::o;1983:240:10:-;1280:12;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;-1:-1:-1;;;;;2071:22:10;::::1;2063:73;;;;-1:-1:-1::0;;;2063:73:10::1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2172:6;::::0;;2151:38:::1;::::0;-1:-1:-1;;;;;2151:38:10;;::::1;::::0;2172:6;::::1;::::0;2151:38:::1;::::0;::::1;2199:6;:17:::0;;-1:-1:-1;;;;;;2199:17:10::1;-1:-1:-1::0;;;;;2199:17:10;;;::::1;::::0;;;::::1;::::0;;1983:240::o;7030:851:4:-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;1671:1:22::1;2260:7;;:19;;2252:63;;;::::0;;-1:-1:-1;;;2252:63:22;;::::1;;::::0;::::1;::::0;::::1;::::0;;;;-1:-1:-1;;;;;;;;;;;2252:63:22;;;;;;;;;;;;;::::1;;1671:1;2390:7;:18;;;;7198:11:4::2;7228:5;;7212:23;;;;;;;;;;::::0;;;;;::::2;::::0;;::::2;::::0;;7253:16:::2;::::0;;;:11:::2;:16;::::0;;;;;:22;7212:23;;-1:-1:-1;;7253:27:4;;-1:-1:-1;7245:57:4::2;::::0;-1:-1:-1;;7245:57:4::2;;::::0;;-1:-1:-1;;;7245:57:4;;::::2;;::::0;::::2;::::0;::::2;::::0;;;;-1:-1:-1;;;7245:57:4;;;;;;;;;;;;;::::2;;7437:1;7409:19:::0;;;:14:::2;:19;::::0;;;;:25;:29;;;;7408:78:::2;;-1:-1:-1::0;7444:19:4::2;::::0;;;:14:::2;:19;::::0;;;;:32:::2;;::::0;::::2;;:41;7408:78;7404:128;;;7502:19;7515:5;;7502:12;:19::i;:::-;;7404:128;7576:14;:24:::0;;::::2;::::0;;::::2;::::0;;;;::::2;::::0;;;-1:-1:-1;7641:16:4;;;:11:::2;7576:24;7641:16:::0;;;;;7667:22:::2;::::0;:14;::::2;7684:5:::0;;7667:22:::2;:::i;:::-;-1:-1:-1::0;7699:24:4;;;7733:9:::2;::::0;:54:::2;::::0;-1:-1:-1;;;;;7733:9:4::2;7756:22:::0;7699:24;7733:22:::2;:54::i;:::-;7819:24;::::0;7835:6:::2;7819:24:::0;;7853:4:::2;::::0;7819:24;;;7835:6;;7819:24:::2;-1:-1:-1::0;;7819:24:4::2;-1:-1:-1::0;7819:24:4;::::2;;;::::0;;;::::2;;::::0;::::2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;7803:71;7860:5;;7867:6;7803:71;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;::::0;;::::2;::::0;::::2;::::0;::::2;::::0;;::::2;-1:-1:-1::0;;7803:71:4::2;::::0;;::::2;::::0;;::::2;::::0;-1:-1:-1;7803:71:4;;-1:-1:-1;;;;;7803:71:4::2;-1:-1:-1::0;;1628:1:22::1;2563:22:::0;;-1:-1:-1;;;;7030:851:4:o;590:104:8:-;677:10;590:104;:::o;1962:208:7:-;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;2061:9:7::1;::::0;;-1:-1:-1;;;;;2080:22:7;;::::1;-1:-1:-1::0;;;;;;2080:22:7;::::1;;::::0;;;;2117:46:::1;::::0;;2061:9;;::::1;2117:46:::0;;;2153:9;;;::::1;2117:46;::::0;::::1;::::0;;;::::1;::::0;;;;;;;;::::1;1339:1:10;1962:208:7::0;:::o;4725:576:4:-;4797:7;1280:12:10;:10;:12::i;:::-;1270:6;;-1:-1:-1;;;;;1270:22:10;;;:6;;:22;1262:67;;;;;-1:-1:-1;;;1262:67:10;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;1262:67:10;;;;;;;;;;;;;;;4816:11:4::1;4846:5;;4830:23;;;;;;;;;;::::0;;;;;::::1;::::0;;::::1;::::0;;4863:35:::1;4901:19:::0;;;:14:::1;:19;::::0;;;;;4938;;4830:23;;-1:-1:-1;4901:19:4;-1:-1:-1;;4938:23:4;;;-1:-1:-1;4930:54:4::1;::::0;-1:-1:-1;4930:54:4::1;;::::0;;-1:-1:-1;;;4930:54:4;;::::1;;::::0;::::1;::::0;::::1;::::0;;;;-1:-1:-1;;;4930:54:4;;;;;;;;;;;;;::::1;;5023:4;4994:26:::0;;::::1;:33:::0;;-1:-1:-1;;4994:33:4::1;::::0;;::::1;::::0;;5076:19;;5037:13:::1;::::0;:59:::1;::::0;-1:-1:-1;;;;;5037:13:4;;::::1;::::0;5064:10:::1;::::0;5037:26:::1;:59::i;:::-;5145:24;::::0;5161:6:::1;5145:24:::0;;5191:4:::1;::::0;5145:24;;;5161:6;;5145:24:::1;-1:-1:-1::0;;5145:24:4::1;-1:-1:-1::0;5145:24:4;::::1;;;::::0;;;::::1;;::::0;::::1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1::0;;5145:24:4::1;::::0;;;;;::::1;::::0;;5229:19;;5111:147:::1;::::0;::::1;::::0;;;;;;;;;;;;5145:24;-1:-1:-1;5111:147:4::1;::::0;-1:-1:-1;5210:5:4;;;;5229:19;5145:24;5111:147;;;5210:5;;;;5111:147;::::1;;::::0;;::::1;::::0;::::1;::::0;::::1;::::0;;::::1;-1:-1:-1::0;;5111:147:4::1;::::0;;::::1;::::0;;::::1;::::0;-1:-1:-1;5111:147:4;;-1:-1:-1;;;;;5111:147:4::1;5275:19:::0;;4725:576;-1:-1:-1;;;;4725:576:4:o;696:175:17:-;805:58;;;-1:-1:-1;;;;;805:58:17;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;805:58:17;-1:-1:-1;;;805:58:17;;;778:86;;798:5;;778:19;:86::i;:::-;696:175;;;:::o;3507:88:4:-;3561:7;3507:88;:::o;1321:134:11:-;1379:7;1405:43;1409:1;1412;1405:43;;;;;;;;;;;;;;;;;:3;:43::i;:::-;1398:50;1321:134;-1:-1:-1;;;1321:134:11:o;2959:751:17:-;3404:69;;;;;;;;;;;;;;;;;;3378:23;;3404:69;;-1:-1:-1;;;;;3404:27:17;;;3432:4;;3404:27;:69::i;:::-;3487:17;;3378:95;;-1:-1:-1;3487:21:17;3483:221;;3627:10;3616:30;;;;;;;;;;;;;;;-1:-1:-1;3616:30:17;3608:85;;;;-1:-1:-1;;;3608:85:17;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1746:187:11;1832:7;1867:12;1859:6;;;;1851:29;;;;-1:-1:-1;;;1851:29:11;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;1902:5:11;;;1746:187::o;3573:194:18:-;3676:12;3707:53;3730:6;3738:4;3744:1;3747:12;3707:22;:53::i;:::-;3700:60;3573:194;-1:-1:-1;;;;3573:194:18:o;4920:958::-;5050:12;5082:18;5093:6;5082:10;:18::i;:::-;5074:60;;;;;-1:-1:-1;;;5074:60:18;;;;;;;;;;;;;;;;;;;;;;;;;;;;5205:12;5219:23;5246:6;-1:-1:-1;;;;;5246:11:18;5266:8;5277:4;5246:36;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;5246:36:18;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5204:78;;;;5296:7;5292:580;;;5326:10;-1:-1:-1;5319:17:18;;-1:-1:-1;5319:17:18;5292:580;5437:17;;:21;5433:429;;5695:10;5689:17;5755:15;5742:10;5738:2;5734:19;5727:44;5644:145;5827:20;;-1:-1:-1;;;5827:20:18;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;5827:20:18;;;;;;;;;;;;;;;;718:413;1078:20;1116:8;;;718:413::o;-1:-1:-1:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity 0.6.12;\n\nimport \"./IUBIReconciliationAccount.sol\";\nimport \"./UBIBeneficiary.sol\";\n\n/**\n * @title Celo UBI reconciliation contract\n *\n * @dev This contract is a special version of a\n *      UBIBeneficiary that additionally sweeps\n *      cUSD to a known custodian address\n *\n * @author Aaron Boyd <https://github.com/aaronmboyd>\n */\ncontract UBIReconciliationAccount is IUBIReconciliationAccount, UBIBeneficiary {\n    address private custodian;\n\n    /**\n     * @notice constructor for UBIReconciliationAccount\n     *\n     * @param _cUSDToken      cUSD token contract\n     * @param _cUBIAuthToken  cUBIAUTH token contract\n     * @param _custodian      custodian address\n     *\n     * @dev Dummy userId of \"Reconciler\"\n     */\n    constructor(\n        IERC20 _cUSDToken,\n        ERC20PresetMinterPauser _cUBIAuthToken,\n        address _custodian\n    ) public UBIBeneficiary(_cUSDToken, _cUBIAuthToken, \"Reconciler\") {\n        _setCustodian(_custodian);\n    }\n\n    /**\n     * @notice reconcile the cUSD balance of this account and send to the custodian\n     *\n     */\n    function reconcile() external override onlyOwner nonReentrant {\n        uint256 cUSDBalance = cUSDToken.balanceOf(address(this));\n        require(cUSDBalance > 0, \"ERR_NOTHING_TO_RECONCILE\");\n        cUSDToken.safeTransfer(custodian, cUSDBalance);\n        emit Reconciled(custodian, cUSDBalance);\n    }\n\n    /**\n     * @notice update the custodian address\n     *\n     * @param _custodian   new custodian address\n     */\n    function setCustodian(address _custodian) external override onlyOwner {\n        _setCustodian(_custodian);\n    }\n\n    /**\n     * @notice Get the custodian address\n     */\n    function getCustodian() external view override returns (address) {\n        return custodian;\n    }\n\n    /**\n     * @notice Internal implementaiton of update the custodian address\n     *\n     * @param _custodian   new custodian address\n     */\n    function _setCustodian(address _custodian) private onlyOwner {\n        address previousCustodian = custodian;\n        custodian = _custodian;\n        emit CustodianUpdated(previousCustodian, custodian);\n    }\n}\n",
+  "sourcePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIReconciliationAccount.sol",
+  "ast": {
+    "absolutePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIReconciliationAccount.sol",
+    "exportedSymbols": {
+      "UBIReconciliationAccount": [
+        1624
+      ]
+    },
+    "id": 1625,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1509,
+        "literals": [
+          "solidity",
+          "0.6",
+          ".12"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:7"
+      },
+      {
+        "absolutePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/IUBIReconciliationAccount.sol",
+        "file": "./IUBIReconciliationAccount.sol",
+        "id": 1510,
+        "nodeType": "ImportDirective",
+        "scope": 1625,
+        "sourceUnit": 199,
+        "src": "57:41:7",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIBeneficiary.sol",
+        "file": "./UBIBeneficiary.sol",
+        "id": 1511,
+        "nodeType": "ImportDirective",
+        "scope": 1625,
+        "sourceUnit": 741,
+        "src": "99:30:7",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 1513,
+              "name": "IUBIReconciliationAccount",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 198,
+              "src": "417:25:7",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_IUBIReconciliationAccount_$198",
+                "typeString": "contract IUBIReconciliationAccount"
+              }
+            },
+            "id": 1514,
+            "nodeType": "InheritanceSpecifier",
+            "src": "417:25:7"
+          },
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 1515,
+              "name": "UBIBeneficiary",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 740,
+              "src": "444:14:7",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_UBIBeneficiary_$740",
+                "typeString": "contract UBIBeneficiary"
+              }
+            },
+            "id": 1516,
+            "nodeType": "InheritanceSpecifier",
+            "src": "444:14:7"
+          }
+        ],
+        "contractDependencies": [
+          116,
+          198,
+          740,
+          1647,
+          2039,
+          4437
+        ],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 1512,
+          "nodeType": "StructuredDocumentation",
+          "src": "131:248:7",
+          "text": " @title Celo UBI reconciliation contract\n @dev This contract is a special version of a\n      UBIBeneficiary that additionally sweeps\n      cUSD to a known custodian address\n @author Aaron Boyd <https://github.com/aaronmboyd>"
+        },
+        "fullyImplemented": true,
+        "id": 1624,
+        "linearizedBaseContracts": [
+          1624,
+          740,
+          4437,
+          2039,
+          1647,
+          198,
+          116
+        ],
+        "name": "UBIReconciliationAccount",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 1518,
+            "mutability": "mutable",
+            "name": "custodian",
+            "nodeType": "VariableDeclaration",
+            "overrides": null,
+            "scope": 1624,
+            "src": "465:25:7",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 1517,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "465:7:7",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "private"
+          },
+          {
+            "body": {
+              "id": 1537,
+              "nodeType": "Block",
+              "src": "961:42:7",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1534,
+                        "name": "_custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1525,
+                        "src": "985:10:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 1533,
+                      "name": "_setCustodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1623,
+                      "src": "971:13:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_address_$returns$__$",
+                        "typeString": "function (address)"
+                      }
+                    },
+                    "id": 1535,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "971:25:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1536,
+                  "nodeType": "ExpressionStatement",
+                  "src": "971:25:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1519,
+              "nodeType": "StructuredDocumentation",
+              "src": "497:274:7",
+              "text": " @notice constructor for UBIReconciliationAccount\n @param _cUSDToken      cUSD token contract\n @param _cUBIAuthToken  cUBIAUTH token contract\n @param _custodian      custodian address\n @dev Dummy userId of \"Reconciler\""
+            },
+            "id": 1538,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "id": 1528,
+                    "name": "_cUSDToken",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1521,
+                    "src": "919:10:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$3049",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  {
+                    "argumentTypes": null,
+                    "id": 1529,
+                    "name": "_cUBIAuthToken",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1523,
+                    "src": "931:14:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ERC20PresetMinterPauser_$2371",
+                      "typeString": "contract ERC20PresetMinterPauser"
+                    }
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "5265636f6e63696c6572",
+                    "id": 1530,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "947:12:7",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_386ac3f6c52e8142fc036c1989038a4c75fb64a404f60555ef589288e930d70a",
+                      "typeString": "literal_string \"Reconciler\""
+                    },
+                    "value": "Reconciler"
+                  }
+                ],
+                "id": 1531,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1527,
+                  "name": "UBIBeneficiary",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 740,
+                  "src": "904:14:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_type$_t_contract$_UBIBeneficiary_$740_$",
+                    "typeString": "type(contract UBIBeneficiary)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "904:56:7"
+              }
+            ],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "overrides": null,
+            "parameters": {
+              "id": 1526,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1521,
+                  "mutability": "mutable",
+                  "name": "_cUSDToken",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1538,
+                  "src": "797:17:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$3049",
+                    "typeString": "contract IERC20"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 1520,
+                    "name": "IERC20",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 3049,
+                    "src": "797:6:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$3049",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1523,
+                  "mutability": "mutable",
+                  "name": "_cUBIAuthToken",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1538,
+                  "src": "824:38:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_ERC20PresetMinterPauser_$2371",
+                    "typeString": "contract ERC20PresetMinterPauser"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 1522,
+                    "name": "ERC20PresetMinterPauser",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 2371,
+                    "src": "824:23:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ERC20PresetMinterPauser_$2371",
+                      "typeString": "contract ERC20PresetMinterPauser"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1525,
+                  "mutability": "mutable",
+                  "name": "_custodian",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1538,
+                  "src": "872:18:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1524,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "872:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "787:109:7"
+            },
+            "returnParameters": {
+              "id": 1532,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "961:0:7"
+            },
+            "scope": 1624,
+            "src": "776:227:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              185
+            ],
+            "body": {
+              "id": 1576,
+              "nodeType": "Block",
+              "src": "1178:240:7",
+              "statements": [
+                {
+                  "assignments": [
+                    1548
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 1548,
+                      "mutability": "mutable",
+                      "name": "cUSDBalance",
+                      "nodeType": "VariableDeclaration",
+                      "overrides": null,
+                      "scope": 1576,
+                      "src": "1188:19:7",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      },
+                      "typeName": {
+                        "id": 1547,
+                        "name": "uint256",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "1188:7:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 1556,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "id": 1553,
+                            "name": "this",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": -28,
+                            "src": "1238:4:7",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_UBIReconciliationAccount_$1624",
+                              "typeString": "contract UBIReconciliationAccount"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_contract$_UBIReconciliationAccount_$1624",
+                              "typeString": "contract UBIReconciliationAccount"
+                            }
+                          ],
+                          "id": 1552,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "nodeType": "ElementaryTypeNameExpression",
+                          "src": "1230:7:7",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_address_$",
+                            "typeString": "type(address)"
+                          },
+                          "typeName": {
+                            "id": 1551,
+                            "name": "address",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "1230:7:7",
+                            "typeDescriptions": {
+                              "typeIdentifier": null,
+                              "typeString": null
+                            }
+                          }
+                        },
+                        "id": 1554,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "typeConversion",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "1230:13:7",
+                        "tryCall": false,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 1549,
+                        "name": "cUSDToken",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 257,
+                        "src": "1210:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_IERC20_$3049",
+                          "typeString": "contract IERC20"
+                        }
+                      },
+                      "id": 1550,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "balanceOf",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 2988,
+                      "src": "1210:19:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
+                        "typeString": "function (address) view external returns (uint256)"
+                      }
+                    },
+                    "id": 1555,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1210:34:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "1188:56:7"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 1560,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "id": 1558,
+                          "name": "cUSDBalance",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 1548,
+                          "src": "1262:11:7",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": ">",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "hexValue": "30",
+                          "id": 1559,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1276:1:7",
+                          "subdenomination": null,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          },
+                          "value": "0"
+                        },
+                        "src": "1262:15:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "4552525f4e4f5448494e475f544f5f5245434f4e43494c45",
+                        "id": 1561,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1279:26:7",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_22b48e788c13d6897c1733464aff6f4921406635714bc5d60cdbe7081423c2c2",
+                          "typeString": "literal_string \"ERR_NOTHING_TO_RECONCILE\""
+                        },
+                        "value": "ERR_NOTHING_TO_RECONCILE"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_22b48e788c13d6897c1733464aff6f4921406635714bc5d60cdbe7081423c2c2",
+                          "typeString": "literal_string \"ERR_NOTHING_TO_RECONCILE\""
+                        }
+                      ],
+                      "id": 1557,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        -18,
+                        -18
+                      ],
+                      "referencedDeclaration": -18,
+                      "src": "1254:7:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 1562,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1254:52:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1563,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1254:52:7"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1567,
+                        "name": "custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1518,
+                        "src": "1339:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 1568,
+                        "name": "cUSDBalance",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1548,
+                        "src": "1350:11:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 1564,
+                        "name": "cUSDToken",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 257,
+                        "src": "1316:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_IERC20_$3049",
+                          "typeString": "contract IERC20"
+                        }
+                      },
+                      "id": 1566,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "safeTransfer",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 3083,
+                      "src": "1316:22:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_contract$_IERC20_$3049_$_t_address_$_t_uint256_$returns$__$bound_to$_t_contract$_IERC20_$3049_$",
+                        "typeString": "function (contract IERC20,address,uint256)"
+                      }
+                    },
+                    "id": 1569,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1316:46:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1570,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1316:46:7"
+                },
+                {
+                  "eventCall": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1572,
+                        "name": "custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1518,
+                        "src": "1388:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 1573,
+                        "name": "cUSDBalance",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1548,
+                        "src": "1399:11:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "id": 1571,
+                      "name": "Reconciled",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 174,
+                      "src": "1377:10:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_uint256_$returns$__$",
+                        "typeString": "function (address,uint256)"
+                      }
+                    },
+                    "id": 1574,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1377:34:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1575,
+                  "nodeType": "EmitStatement",
+                  "src": "1372:39:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1539,
+              "nodeType": "StructuredDocumentation",
+              "src": "1009:102:7",
+              "text": " @notice reconcile the cUSD balance of this account and send to the custodian"
+            },
+            "functionSelector": "8f0d7e35",
+            "id": 1577,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 1543,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1542,
+                  "name": "onlyOwner",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 1988,
+                  "src": "1155:9:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1155:9:7"
+              },
+              {
+                "arguments": null,
+                "id": 1545,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1544,
+                  "name": "nonReentrant",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 4436,
+                  "src": "1165:12:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1165:12:7"
+              }
+            ],
+            "name": "reconcile",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1541,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1146:8:7"
+            },
+            "parameters": {
+              "id": 1540,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1134:2:7"
+            },
+            "returnParameters": {
+              "id": 1546,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1178:0:7"
+            },
+            "scope": 1624,
+            "src": "1116:302:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "baseFunctions": [
+              191
+            ],
+            "body": {
+              "id": 1590,
+              "nodeType": "Block",
+              "src": "1610:42:7",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1587,
+                        "name": "_custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1580,
+                        "src": "1634:10:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 1586,
+                      "name": "_setCustodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1623,
+                      "src": "1620:13:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_address_$returns$__$",
+                        "typeString": "function (address)"
+                      }
+                    },
+                    "id": 1588,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1620:25:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1589,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1620:25:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1578,
+              "nodeType": "StructuredDocumentation",
+              "src": "1424:111:7",
+              "text": " @notice update the custodian address\n @param _custodian   new custodian address"
+            },
+            "functionSelector": "403f3731",
+            "id": 1591,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 1584,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1583,
+                  "name": "onlyOwner",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 1988,
+                  "src": "1600:9:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1600:9:7"
+              }
+            ],
+            "name": "setCustodian",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1582,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1591:8:7"
+            },
+            "parameters": {
+              "id": 1581,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1580,
+                  "mutability": "mutable",
+                  "name": "_custodian",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1591,
+                  "src": "1562:18:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1579,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1562:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1561:20:7"
+            },
+            "returnParameters": {
+              "id": 1585,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1610:0:7"
+            },
+            "scope": 1624,
+            "src": "1540:112:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "baseFunctions": [
+              197
+            ],
+            "body": {
+              "id": 1600,
+              "nodeType": "Block",
+              "src": "1780:33:7",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 1598,
+                    "name": "custodian",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1518,
+                    "src": "1797:9:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "functionReturnParameters": 1597,
+                  "id": 1599,
+                  "nodeType": "Return",
+                  "src": "1790:16:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1592,
+              "nodeType": "StructuredDocumentation",
+              "src": "1658:52:7",
+              "text": " @notice Get the custodian address"
+            },
+            "functionSelector": "c561d4b7",
+            "id": 1601,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getCustodian",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1594,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1753:8:7"
+            },
+            "parameters": {
+              "id": 1593,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1736:2:7"
+            },
+            "returnParameters": {
+              "id": 1597,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1596,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1601,
+                  "src": "1771:7:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1595,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1771:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1770:9:7"
+            },
+            "scope": 1624,
+            "src": "1715:98:7",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 1622,
+              "nodeType": "Block",
+              "src": "2023:147:7",
+              "statements": [
+                {
+                  "assignments": [
+                    1610
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 1610,
+                      "mutability": "mutable",
+                      "name": "previousCustodian",
+                      "nodeType": "VariableDeclaration",
+                      "overrides": null,
+                      "scope": 1622,
+                      "src": "2033:25:7",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 1609,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "2033:7:7",
+                        "stateMutability": "nonpayable",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 1612,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "id": 1611,
+                    "name": "custodian",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1518,
+                    "src": "2061:9:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "2033:37:7"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 1615,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 1613,
+                      "name": "custodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1518,
+                      "src": "2080:9:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 1614,
+                      "name": "_custodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1604,
+                      "src": "2092:10:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "2080:22:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 1616,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2080:22:7"
+                },
+                {
+                  "eventCall": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1618,
+                        "name": "previousCustodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1610,
+                        "src": "2134:17:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 1619,
+                        "name": "custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1518,
+                        "src": "2153:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 1617,
+                      "name": "CustodianUpdated",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 181,
+                      "src": "2117:16:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$returns$__$",
+                        "typeString": "function (address,address)"
+                      }
+                    },
+                    "id": 1620,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "2117:46:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1621,
+                  "nodeType": "EmitStatement",
+                  "src": "2112:51:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1602,
+              "nodeType": "StructuredDocumentation",
+              "src": "1819:138:7",
+              "text": " @notice Internal implementaiton of update the custodian address\n @param _custodian   new custodian address"
+            },
+            "id": 1623,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 1607,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1606,
+                  "name": "onlyOwner",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 1988,
+                  "src": "2013:9:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "2013:9:7"
+              }
+            ],
+            "name": "_setCustodian",
+            "nodeType": "FunctionDefinition",
+            "overrides": null,
+            "parameters": {
+              "id": 1605,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1604,
+                  "mutability": "mutable",
+                  "name": "_custodian",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1623,
+                  "src": "1985:18:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1603,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1985:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1984:20:7"
+            },
+            "returnParameters": {
+              "id": 1608,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2023:0:7"
+            },
+            "scope": 1624,
+            "src": "1962:208:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "private"
+          }
+        ],
+        "scope": 1625,
+        "src": "380:1792:7"
+      }
+    ],
+    "src": "32:2141:7"
+  },
+  "legacyAST": {
+    "absolutePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIReconciliationAccount.sol",
+    "exportedSymbols": {
+      "UBIReconciliationAccount": [
+        1624
+      ]
+    },
+    "id": 1625,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1509,
+        "literals": [
+          "solidity",
+          "0.6",
+          ".12"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:7"
+      },
+      {
+        "absolutePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/IUBIReconciliationAccount.sol",
+        "file": "./IUBIReconciliationAccount.sol",
+        "id": 1510,
+        "nodeType": "ImportDirective",
+        "scope": 1625,
+        "sourceUnit": 199,
+        "src": "57:41:7",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/home/boyd/git/keyko/celo-ubi-contract/contracts/UBIBeneficiary.sol",
+        "file": "./UBIBeneficiary.sol",
+        "id": 1511,
+        "nodeType": "ImportDirective",
+        "scope": 1625,
+        "sourceUnit": 741,
+        "src": "99:30:7",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 1513,
+              "name": "IUBIReconciliationAccount",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 198,
+              "src": "417:25:7",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_IUBIReconciliationAccount_$198",
+                "typeString": "contract IUBIReconciliationAccount"
+              }
+            },
+            "id": 1514,
+            "nodeType": "InheritanceSpecifier",
+            "src": "417:25:7"
+          },
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 1515,
+              "name": "UBIBeneficiary",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 740,
+              "src": "444:14:7",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_UBIBeneficiary_$740",
+                "typeString": "contract UBIBeneficiary"
+              }
+            },
+            "id": 1516,
+            "nodeType": "InheritanceSpecifier",
+            "src": "444:14:7"
+          }
+        ],
+        "contractDependencies": [
+          116,
+          198,
+          740,
+          1647,
+          2039,
+          4437
+        ],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 1512,
+          "nodeType": "StructuredDocumentation",
+          "src": "131:248:7",
+          "text": " @title Celo UBI reconciliation contract\n @dev This contract is a special version of a\n      UBIBeneficiary that additionally sweeps\n      cUSD to a known custodian address\n @author Aaron Boyd <https://github.com/aaronmboyd>"
+        },
+        "fullyImplemented": true,
+        "id": 1624,
+        "linearizedBaseContracts": [
+          1624,
+          740,
+          4437,
+          2039,
+          1647,
+          198,
+          116
+        ],
+        "name": "UBIReconciliationAccount",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 1518,
+            "mutability": "mutable",
+            "name": "custodian",
+            "nodeType": "VariableDeclaration",
+            "overrides": null,
+            "scope": 1624,
+            "src": "465:25:7",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 1517,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "465:7:7",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "private"
+          },
+          {
+            "body": {
+              "id": 1537,
+              "nodeType": "Block",
+              "src": "961:42:7",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1534,
+                        "name": "_custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1525,
+                        "src": "985:10:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 1533,
+                      "name": "_setCustodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1623,
+                      "src": "971:13:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_address_$returns$__$",
+                        "typeString": "function (address)"
+                      }
+                    },
+                    "id": 1535,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "971:25:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1536,
+                  "nodeType": "ExpressionStatement",
+                  "src": "971:25:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1519,
+              "nodeType": "StructuredDocumentation",
+              "src": "497:274:7",
+              "text": " @notice constructor for UBIReconciliationAccount\n @param _cUSDToken      cUSD token contract\n @param _cUBIAuthToken  cUBIAUTH token contract\n @param _custodian      custodian address\n @dev Dummy userId of \"Reconciler\""
+            },
+            "id": 1538,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "id": 1528,
+                    "name": "_cUSDToken",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1521,
+                    "src": "919:10:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$3049",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  {
+                    "argumentTypes": null,
+                    "id": 1529,
+                    "name": "_cUBIAuthToken",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1523,
+                    "src": "931:14:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ERC20PresetMinterPauser_$2371",
+                      "typeString": "contract ERC20PresetMinterPauser"
+                    }
+                  },
+                  {
+                    "argumentTypes": null,
+                    "hexValue": "5265636f6e63696c6572",
+                    "id": 1530,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "947:12:7",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_386ac3f6c52e8142fc036c1989038a4c75fb64a404f60555ef589288e930d70a",
+                      "typeString": "literal_string \"Reconciler\""
+                    },
+                    "value": "Reconciler"
+                  }
+                ],
+                "id": 1531,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1527,
+                  "name": "UBIBeneficiary",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 740,
+                  "src": "904:14:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_type$_t_contract$_UBIBeneficiary_$740_$",
+                    "typeString": "type(contract UBIBeneficiary)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "904:56:7"
+              }
+            ],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "overrides": null,
+            "parameters": {
+              "id": 1526,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1521,
+                  "mutability": "mutable",
+                  "name": "_cUSDToken",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1538,
+                  "src": "797:17:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IERC20_$3049",
+                    "typeString": "contract IERC20"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 1520,
+                    "name": "IERC20",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 3049,
+                    "src": "797:6:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IERC20_$3049",
+                      "typeString": "contract IERC20"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1523,
+                  "mutability": "mutable",
+                  "name": "_cUBIAuthToken",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1538,
+                  "src": "824:38:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_ERC20PresetMinterPauser_$2371",
+                    "typeString": "contract ERC20PresetMinterPauser"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 1522,
+                    "name": "ERC20PresetMinterPauser",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 2371,
+                    "src": "824:23:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ERC20PresetMinterPauser_$2371",
+                      "typeString": "contract ERC20PresetMinterPauser"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 1525,
+                  "mutability": "mutable",
+                  "name": "_custodian",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1538,
+                  "src": "872:18:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1524,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "872:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "787:109:7"
+            },
+            "returnParameters": {
+              "id": 1532,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "961:0:7"
+            },
+            "scope": 1624,
+            "src": "776:227:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              185
+            ],
+            "body": {
+              "id": 1576,
+              "nodeType": "Block",
+              "src": "1178:240:7",
+              "statements": [
+                {
+                  "assignments": [
+                    1548
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 1548,
+                      "mutability": "mutable",
+                      "name": "cUSDBalance",
+                      "nodeType": "VariableDeclaration",
+                      "overrides": null,
+                      "scope": 1576,
+                      "src": "1188:19:7",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      },
+                      "typeName": {
+                        "id": 1547,
+                        "name": "uint256",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "1188:7:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 1556,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "id": 1553,
+                            "name": "this",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": -28,
+                            "src": "1238:4:7",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_UBIReconciliationAccount_$1624",
+                              "typeString": "contract UBIReconciliationAccount"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_contract$_UBIReconciliationAccount_$1624",
+                              "typeString": "contract UBIReconciliationAccount"
+                            }
+                          ],
+                          "id": 1552,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "nodeType": "ElementaryTypeNameExpression",
+                          "src": "1230:7:7",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_address_$",
+                            "typeString": "type(address)"
+                          },
+                          "typeName": {
+                            "id": 1551,
+                            "name": "address",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "1230:7:7",
+                            "typeDescriptions": {
+                              "typeIdentifier": null,
+                              "typeString": null
+                            }
+                          }
+                        },
+                        "id": 1554,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "typeConversion",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "1230:13:7",
+                        "tryCall": false,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 1549,
+                        "name": "cUSDToken",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 257,
+                        "src": "1210:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_IERC20_$3049",
+                          "typeString": "contract IERC20"
+                        }
+                      },
+                      "id": 1550,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "balanceOf",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 2988,
+                      "src": "1210:19:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
+                        "typeString": "function (address) view external returns (uint256)"
+                      }
+                    },
+                    "id": 1555,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1210:34:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "1188:56:7"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 1560,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "id": 1558,
+                          "name": "cUSDBalance",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 1548,
+                          "src": "1262:11:7",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": ">",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "hexValue": "30",
+                          "id": 1559,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1276:1:7",
+                          "subdenomination": null,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          },
+                          "value": "0"
+                        },
+                        "src": "1262:15:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "4552525f4e4f5448494e475f544f5f5245434f4e43494c45",
+                        "id": 1561,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1279:26:7",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_22b48e788c13d6897c1733464aff6f4921406635714bc5d60cdbe7081423c2c2",
+                          "typeString": "literal_string \"ERR_NOTHING_TO_RECONCILE\""
+                        },
+                        "value": "ERR_NOTHING_TO_RECONCILE"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_22b48e788c13d6897c1733464aff6f4921406635714bc5d60cdbe7081423c2c2",
+                          "typeString": "literal_string \"ERR_NOTHING_TO_RECONCILE\""
+                        }
+                      ],
+                      "id": 1557,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        -18,
+                        -18
+                      ],
+                      "referencedDeclaration": -18,
+                      "src": "1254:7:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 1562,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1254:52:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1563,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1254:52:7"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1567,
+                        "name": "custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1518,
+                        "src": "1339:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 1568,
+                        "name": "cUSDBalance",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1548,
+                        "src": "1350:11:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 1564,
+                        "name": "cUSDToken",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 257,
+                        "src": "1316:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_IERC20_$3049",
+                          "typeString": "contract IERC20"
+                        }
+                      },
+                      "id": 1566,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "safeTransfer",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 3083,
+                      "src": "1316:22:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_contract$_IERC20_$3049_$_t_address_$_t_uint256_$returns$__$bound_to$_t_contract$_IERC20_$3049_$",
+                        "typeString": "function (contract IERC20,address,uint256)"
+                      }
+                    },
+                    "id": 1569,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1316:46:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1570,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1316:46:7"
+                },
+                {
+                  "eventCall": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1572,
+                        "name": "custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1518,
+                        "src": "1388:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 1573,
+                        "name": "cUSDBalance",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1548,
+                        "src": "1399:11:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "id": 1571,
+                      "name": "Reconciled",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 174,
+                      "src": "1377:10:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_uint256_$returns$__$",
+                        "typeString": "function (address,uint256)"
+                      }
+                    },
+                    "id": 1574,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1377:34:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1575,
+                  "nodeType": "EmitStatement",
+                  "src": "1372:39:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1539,
+              "nodeType": "StructuredDocumentation",
+              "src": "1009:102:7",
+              "text": " @notice reconcile the cUSD balance of this account and send to the custodian"
+            },
+            "functionSelector": "8f0d7e35",
+            "id": 1577,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 1543,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1542,
+                  "name": "onlyOwner",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 1988,
+                  "src": "1155:9:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1155:9:7"
+              },
+              {
+                "arguments": null,
+                "id": 1545,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1544,
+                  "name": "nonReentrant",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 4436,
+                  "src": "1165:12:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1165:12:7"
+              }
+            ],
+            "name": "reconcile",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1541,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1146:8:7"
+            },
+            "parameters": {
+              "id": 1540,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1134:2:7"
+            },
+            "returnParameters": {
+              "id": 1546,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1178:0:7"
+            },
+            "scope": 1624,
+            "src": "1116:302:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "baseFunctions": [
+              191
+            ],
+            "body": {
+              "id": 1590,
+              "nodeType": "Block",
+              "src": "1610:42:7",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1587,
+                        "name": "_custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1580,
+                        "src": "1634:10:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 1586,
+                      "name": "_setCustodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1623,
+                      "src": "1620:13:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_address_$returns$__$",
+                        "typeString": "function (address)"
+                      }
+                    },
+                    "id": 1588,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1620:25:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1589,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1620:25:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1578,
+              "nodeType": "StructuredDocumentation",
+              "src": "1424:111:7",
+              "text": " @notice update the custodian address\n @param _custodian   new custodian address"
+            },
+            "functionSelector": "403f3731",
+            "id": 1591,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 1584,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1583,
+                  "name": "onlyOwner",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 1988,
+                  "src": "1600:9:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1600:9:7"
+              }
+            ],
+            "name": "setCustodian",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1582,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1591:8:7"
+            },
+            "parameters": {
+              "id": 1581,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1580,
+                  "mutability": "mutable",
+                  "name": "_custodian",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1591,
+                  "src": "1562:18:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1579,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1562:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1561:20:7"
+            },
+            "returnParameters": {
+              "id": 1585,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1610:0:7"
+            },
+            "scope": 1624,
+            "src": "1540:112:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "baseFunctions": [
+              197
+            ],
+            "body": {
+              "id": 1600,
+              "nodeType": "Block",
+              "src": "1780:33:7",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 1598,
+                    "name": "custodian",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1518,
+                    "src": "1797:9:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "functionReturnParameters": 1597,
+                  "id": 1599,
+                  "nodeType": "Return",
+                  "src": "1790:16:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1592,
+              "nodeType": "StructuredDocumentation",
+              "src": "1658:52:7",
+              "text": " @notice Get the custodian address"
+            },
+            "functionSelector": "c561d4b7",
+            "id": 1601,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getCustodian",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1594,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1753:8:7"
+            },
+            "parameters": {
+              "id": 1593,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1736:2:7"
+            },
+            "returnParameters": {
+              "id": 1597,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1596,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1601,
+                  "src": "1771:7:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1595,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1771:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1770:9:7"
+            },
+            "scope": 1624,
+            "src": "1715:98:7",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 1622,
+              "nodeType": "Block",
+              "src": "2023:147:7",
+              "statements": [
+                {
+                  "assignments": [
+                    1610
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 1610,
+                      "mutability": "mutable",
+                      "name": "previousCustodian",
+                      "nodeType": "VariableDeclaration",
+                      "overrides": null,
+                      "scope": 1622,
+                      "src": "2033:25:7",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 1609,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "2033:7:7",
+                        "stateMutability": "nonpayable",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 1612,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "id": 1611,
+                    "name": "custodian",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 1518,
+                    "src": "2061:9:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "2033:37:7"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 1615,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 1613,
+                      "name": "custodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1518,
+                      "src": "2080:9:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 1614,
+                      "name": "_custodian",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1604,
+                      "src": "2092:10:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "2080:22:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 1616,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2080:22:7"
+                },
+                {
+                  "eventCall": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 1618,
+                        "name": "previousCustodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1610,
+                        "src": "2134:17:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 1619,
+                        "name": "custodian",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1518,
+                        "src": "2153:9:7",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 1617,
+                      "name": "CustodianUpdated",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 181,
+                      "src": "2117:16:7",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_address_$returns$__$",
+                        "typeString": "function (address,address)"
+                      }
+                    },
+                    "id": 1620,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "2117:46:7",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 1621,
+                  "nodeType": "EmitStatement",
+                  "src": "2112:51:7"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1602,
+              "nodeType": "StructuredDocumentation",
+              "src": "1819:138:7",
+              "text": " @notice Internal implementaiton of update the custodian address\n @param _custodian   new custodian address"
+            },
+            "id": 1623,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": null,
+                "id": 1607,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 1606,
+                  "name": "onlyOwner",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 1988,
+                  "src": "2013:9:7",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$__$",
+                    "typeString": "modifier ()"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "2013:9:7"
+              }
+            ],
+            "name": "_setCustodian",
+            "nodeType": "FunctionDefinition",
+            "overrides": null,
+            "parameters": {
+              "id": 1605,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1604,
+                  "mutability": "mutable",
+                  "name": "_custodian",
+                  "nodeType": "VariableDeclaration",
+                  "overrides": null,
+                  "scope": 1623,
+                  "src": "1985:18:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1603,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1985:7:7",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1984:20:7"
+            },
+            "returnParameters": {
+              "id": 1608,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2023:0:7"
+            },
+            "scope": 1624,
+            "src": "1962:208:7",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "private"
+          }
+        ],
+        "scope": 1625,
+        "src": "380:1792:7"
+      }
+    ],
+    "src": "32:2141:7"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.6.12+commit.27d51765.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.3.2",
+  "updatedAt": "2020-12-28T15:12:58.106Z",
+  "devdoc": {
+    "author": "Aaron Boyd <https://github.com/aaronmboyd>",
+    "details": "This contract is a special version of a      UBIBeneficiary that additionally sweeps      cUSD to a known custodian address",
+    "kind": "dev",
+    "methods": {
+      "authorizationBalance()": {
+        "returns": {
+          "_0": "uint256 authorization balance for this contract"
+        }
+      },
+      "authorize(string,uint256)": {
+        "params": {
+          "_txId": "Dynamic string txId of the transaction to authorize",
+          "_value": "uint256 transaction amount"
+        }
+      },
+      "availableBalance()": {
+        "returns": {
+          "_0": "uint256 usable balance for this contract"
+        }
+      },
+      "constructor": {
+        "details": "Dummy userId of \"Reconciler\"",
+        "params": {
+          "_cUBIAuthToken": "cUBIAUTH token contract",
+          "_cUSDToken": "cUSD token contract",
+          "_custodian": "custodian address"
+        }
+      },
+      "deauthorize(string)": {
+        "details": "We don't need to specify the transaction size here because it is stored in the Authorization struct",
+        "params": {
+          "_txId": "Dynamic string txId of the transaction to de-authorize"
+        }
+      },
+      "getAuthorizationAtKey(bytes32)": {
+        "params": {
+          "_key": "Map key of the Authorization to return"
+        }
+      },
+      "getAuthorizationKeys()": {
+        "details": "Note this is marked external, you cannot return dynamically sized data target is a Web3 caller for iterating Authorizations"
+      },
+      "getSettlementAtKey(bytes32)": {
+        "params": {
+          "_key": "Map key of the Settlement to return"
+        }
+      },
+      "getSettlementKeys()": {
+        "details": "Note this is marked external, you cannot return dynamically sized data target is a Web3 caller for iterating Settlements"
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "setCustodian(address)": {
+        "params": {
+          "_custodian": "new custodian address"
+        }
+      },
+      "settle(string,uint256,address)": {
+        "details": "If there was an existing authorization for this txId, de-authorize it, for the original authorization amount, regardless of the current settlement amount",
+        "params": {
+          "_reconciliationAccount": "Reconciliation account to send the cUSD to during settlement",
+          "_txId": "Dynamic string txId of the transaction to authorize",
+          "_value": "uint256 transaction amount"
+        }
+      },
+      "transferOwner(address)": {
+        "details": "Adding transferOwner to facade implementation of UBIBeneficiary.transferOwnership from an interface object",
+        "params": {
+          "newOwner": "New owner address"
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "title": "Celo UBI reconciliation contract",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "AuthorizationEvent(bytes32,address,string,uint256)": {
+        "notice": "Triggered when an amount has been pre-authorized for a user"
+      },
+      "CustodianUpdated(address,address)": {
+        "notice": "triggered when the custodian has been updated"
+      },
+      "DeauthorizationEvent(bytes32,address,string,uint256)": {
+        "notice": "Triggered when an amount has been de-authorized for a user"
+      },
+      "Reconciled(address,uint256)": {
+        "notice": "triggered when an amount has been reconciled"
+      },
+      "SettlementEvent(bytes32,address,string,uint256)": {
+        "notice": "Triggered when an amount has been settled for a user"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "authorizationBalance()": {
+        "notice": "retrieve authorization balance for this contract"
+      },
+      "authorize(string,uint256)": {
+        "notice": "Store a new authorization "
+      },
+      "availableBalance()": {
+        "notice": "retrieve available balance for this contract"
+      },
+      "constructor": "constructor for UBIReconciliationAccount",
+      "deauthorize(string)": {
+        "notice": "External method deauthorization"
+      },
+      "getAuthorizationAtKey(bytes32)": {
+        "notice": "Return the primitive attributes of an Authorization struct"
+      },
+      "getAuthorizationKeys()": {
+        "notice": "Return array of authorizationsKeys"
+      },
+      "getCustodian()": {
+        "notice": "Get the custodian address"
+      },
+      "getSettlementAtKey(bytes32)": {
+        "notice": "Return the primitive attributes of an Settlement struct"
+      },
+      "getSettlementKeys()": {
+        "notice": "Return array of settlementKeys"
+      },
+      "reconcile()": {
+        "notice": "reconcile the cUSD balance of this account and send to the custodian"
+      },
+      "setCustodian(address)": {
+        "notice": "update the custodian address"
+      },
+      "settle(string,uint256,address)": {
+        "notice": "Perform a settlement by returning cUSD token to the reconciliation contract"
+      },
+      "transferOwner(address)": {
+        "notice": "Transfer ownership of the UBIBeneficiary"
+      }
+    },
+    "version": 1
+  }
+}
