@@ -1,16 +1,20 @@
 {
-  "name": "celo-ubi-api",
+  "name": "berkshares-api",
   "version": "0.0.1",
-  "description": "Simple REST API to query and inititate actions on the Celo UBI smart contracts",
+  "description": "Simple REST API to query and inititate actions on the Berkshares smart contracts",
   "main": "index.js",
-  "repository": "https://github.com/keyko-io/celo-ubi-api.git",
+  "repository": "https://github.com/humanity-cash/berkshares-core.git",
   "author": "Aaron Boyd <aaron@keyko.io)",
+  "contributors": [
+    "Aaron Boyd Keyko GmbH",
+    "Sebastian Gerske Keyko GmbH"
+  ],
   "license": "MIT",
   "scripts": {
     "test": "mocha --timeout 10000 --require ts-node/register ./src/test/*",
     "coverage": "nyc yarn test",
     "build": "tsc",
-    "build:docker": "yarn build && sudo docker build -t gcr.io/celo-testnet/celo-ubi-api .",
+    "build:docker": "yarn build && sudo docker build -t gcr.io/celo-testnet/berkshares-api .",
     "start": "node ./dist/index.js",
     "eslint": "npx eslint src/**/*.ts src/**/**/*.ts",
     "prettier": "prettier --write ./src/**/**/*.ts ./src/**/*.ts",
