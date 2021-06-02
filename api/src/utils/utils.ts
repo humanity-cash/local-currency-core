@@ -14,6 +14,9 @@ export function createHttpResponse(
   response.writeHead(code, {
     "Content-Type": "application/json",
   });
+  if (code !== 200) {
+    console.log(code, payload);
+  }
   response.end(payload);
 }
 
