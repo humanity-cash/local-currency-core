@@ -15,8 +15,6 @@ if (result.error) {
   throw result.error;
 }
 
-console.log(process.env);
-
 describe("Check basic connectivity to a smart contract", () => {
   const userIdRaw = v4();
   const transactionId = v4();
