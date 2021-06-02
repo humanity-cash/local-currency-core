@@ -22,9 +22,15 @@ jobs:
           cd api
           yarn prettier
           yarn eslint
-      # - name: Run tests
-      #   run: |
-      #     yarn coverage
+      - name: Run build
+        run: |
+          cd api
+          yarn build
+      - name: Run tests
+        run: |
+          cd api
+          touch .env
+          yarn coverage
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached
