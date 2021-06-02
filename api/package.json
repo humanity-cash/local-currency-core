@@ -11,11 +11,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "mocha --timeout 10000 --require ts-node/register ./src/test/*",
+    "test": "mocha --timeout 10000 --exit --require ts-node/register ./src/test/*",
     "coverage": "nyc yarn test",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "build:docker": "yarn build && sudo docker build -t gcr.io/celo-testnet/berkshares-api .",
+    "build:docker": "yarn build && sudo docker build -t keykoio/berkshares-api:latest .",
     "start": "node ./dist/index.js",
     "eslint": "npx eslint src/**/*.ts src/**/**/*.ts",
     "prettier": "prettier --write ./src/**/**/*.ts ./src/**/*.ts",
