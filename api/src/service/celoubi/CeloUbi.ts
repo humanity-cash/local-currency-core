@@ -1,39 +1,49 @@
-import * as UBIControllerContract from "./abi/UBIController.json";
-import * as UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
+import UBIControllerContract from "./abi/UBIController.json";
+import UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
 import { toBytes32 } from "../../utils/utils";
 import * as web3Utils from "web3-utils";
 import { UBIBeneficiary, Authorization, Settlement } from "../../types/types";
 
 import * as Kit from "@celo/contractkit";
+import { Contract } from "@celo/contractkit/node_modules/web3-eth-contract";
 import { generateKeys } from "@celo/utils/lib/account";
 import { privateKeyToAddress } from "@celo/utils/lib/address";
 import { TransactionReceipt } from "web3-core";
+import { ContractKit } from "@celo/contractkit/lib/kit";
+
+let kit: ContractKit;
 
 const getKit = async (): Promise<Kit.ContractKit> => {
-  const key = await generateKeys(process.env.CELO_UBI_MNEMONIC);
-  const kit = Kit.newKit(process.env.CELO_UBI_RPC_HOST);
-  await kit.setFeeCurrency(Kit.CeloContract.GoldToken);
-  kit.addAccount(key.privateKey);
-  const account = privateKeyToAddress(key.privateKey);
-  kit.defaultAccount = account;
+  if (!kit) {
+    console.log("Loading Contract Kit!");
+    kit = Kit.newKit(process.env.CELO_UBI_RPC_HOST);
+    // await kit.setFeeCurrency(Kit.CeloContract.GoldToken);
+    const key = await generateKeys(process.env.CELO_UBI_MNEMONIC);
+    kit.addAccount(key.privateKey);
+    const account = privateKeyToAddress(key.privateKey);
+    console.log("Custodian accounts:", await kit.getWallet().getAccounts());
+    kit.defaultAccount = account;
+  }
   return kit;
 };
 
-const getUBIControllerContract = async (): Promise<any> => {
+const getUBIControllerContract = async (): Promise<Contract> => {
   const kit = await getKit();
-  const abi: web3Utils.AbiItem[] = JSON.parse(
-    JSON.stringify(UBIControllerContract.abi)
+  const contract = new kit.web3.eth.Contract(
+    UBIControllerContract as web3Utils.AbiItem[],
+    process.env.CELO_UBI_ADDRESS
   );
-  const contract = new kit.web3.eth.Contract(abi, process.env.CELO_UBI_ADDRESS);
   return contract;
 };
 
-const getBeneficiaryContractFor = async (address: string): Promise<any> => {
+const getBeneficiaryContractFor = async (
+  address: string
+): Promise<Contract> => {
   const kit = await getKit();
-  const abi: web3Utils.AbiItem[] = JSON.parse(
-    JSON.stringify(UBIBeneficiaryContract.abi)
+  const contract = new kit.web3.eth.Contract(
+    UBIBeneficiaryContract as web3Utils.AbiItem[],
+    address
   );
-  const contract = new kit.web3.eth.Contract(abi, address);
   return contract;
 };
 
@@ -79,12 +89,17 @@ export async function newUbiBeneficiary(userId: string): Promise<string> {
   const kit = await getKit();
   const celoUBI = await getUBIControllerContract();
   const txo = await celoUBI.methods.newUbiBeneficiary(userId);
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  await tx.waitReceipt();
-  return await beneficiaryAddress(toBytes32(userId));
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    await tx.waitReceipt();
+    return await beneficiaryAddress(toBytes32(userId));
+  } catch (err) {
+    console.error(txo._method.name, userId, kit.defaultAccount);
+    throw err;
+  }
 }
 
 export async function setCustodian(
@@ -93,12 +108,17 @@ export async function setCustodian(
   const kit = await getKit();
   const celoUBI = await getUBIControllerContract();
   const txo = await celoUBI.methods.setCustodian(address);
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(txo._method.name, address, kit.defaultAccount);
+    throw err;
+  }
 }
 
 export async function balanceOfUBIBeneficiary(userId: string): Promise<string> {
@@ -130,12 +150,23 @@ export async function authorize(
     transactionId,
     valueInWei
   );
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(
+      txo._method.name,
+      userId,
+      transactionId,
+      valueInWei,
+      kit.defaultAccount
+    );
+    throw err;
+  }
 }
 
 export async function deauthorize(
@@ -145,12 +176,17 @@ export async function deauthorize(
   const kit = await getKit();
   const celoUBI = await getUBIControllerContract();
   const txo = await celoUBI.methods.deauthorize(userId, transactionId);
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(txo._method.name, userId, transactionId, kit.defaultAccount);
+    throw err;
+  }
 }
 
 export async function settle(
@@ -162,24 +198,40 @@ export async function settle(
   const celoUBI = await getUBIControllerContract();
   const valueInWei = web3Utils.toWei(`${value}`, "ether");
   const txo = await celoUBI.methods.settle(userId, transactionId, valueInWei);
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(
+      txo._method.name,
+      userId,
+      transactionId,
+      valueInWei,
+      kit.defaultAccount
+    );
+    throw err;
+  }
 }
 
 export async function reconcile(): Promise<TransactionReceipt> {
   const kit = await getKit();
   const celoUBI = await getUBIControllerContract();
   const txo = await celoUBI.methods.reconcile();
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(txo._method.name, kit.defaultAccount);
+    throw err;
+  }
 }
 
 export async function transferOwnership(
@@ -188,12 +240,17 @@ export async function transferOwnership(
   const kit = await getKit();
   const celoUBI = await getUBIControllerContract();
   const txo = await celoUBI.methods.transferOwnership(newOwner);
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(txo._method.name, newOwner, kit.defaultAccount);
+    throw err;
+  }
 }
 
 export async function setDisbursementWei(
@@ -202,12 +259,17 @@ export async function setDisbursementWei(
   const kit = await getKit();
   const celoUBI = await getUBIControllerContract();
   const txo = await celoUBI.methods.setDisbursementWei(disbursementWei);
-  const tx = await kit.sendTransactionObject(txo, {
-    from: kit.defaultAccount,
-  });
-  await tx.getHash();
-  const receipt = await tx.waitReceipt();
-  return receipt;
+  try {
+    const tx = await kit.sendTransactionObject(txo, {
+      from: kit.defaultAccount,
+    });
+    await tx.getHash();
+    const receipt = await tx.waitReceipt();
+    return receipt;
+  } catch (err) {
+    console.error(txo._method.name, disbursementWei, kit.defaultAccount);
+    throw err;
+  }
 }
 
 export async function getBeneficiaryCount(): Promise<number> {

@@ -19,6 +19,7 @@ export async function health(): Promise<HealthResponse> {
     this.cUSDToken(),
     this.reconciliationAccount(),
     CeloUBI.getBeneficiaryCount(),
+    CeloUBI.owner(),
   ];
   const results = await Promise.all(promises);
 
@@ -31,6 +32,7 @@ export async function health(): Promise<HealthResponse> {
     cUSDToken: results[5],
     reconciliationAccount: results[6],
     countOfBeneficiaries: results[7],
+    owner: results[8],
   };
   return response;
 }
