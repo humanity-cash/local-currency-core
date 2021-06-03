@@ -23,7 +23,7 @@
     "prepare": "npm run snyk-protect"
   },
   "dependencies": {
-    "@celo/contractkit": "^0.4.14",
+    "@celo/contractkit": "^1.2.0",
     "axios": "^0.21.0",
     "cors": "^2.8.5",
     "ed25519-supercop": "^2.0.1",
