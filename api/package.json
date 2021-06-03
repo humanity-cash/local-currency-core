@@ -11,10 +11,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "mocha --timeout 10000 --require ts-node/register ./src/test/*",
+    "test": "mocha --timeout 10000 --exit --require ts-node/register ./src/test/*",
     "coverage": "nyc yarn test",
     "build": "tsc",
-    "build:docker": "yarn build && sudo docker build -t gcr.io/celo-testnet/berkshares-api .",
+    "build:watch": "tsc --watch",
+    "build:docker": "yarn build && sudo docker build -t keykoio/berkshares-api:latest .",
     "start": "node ./dist/index.js",
     "eslint": "npx eslint src/**/*.ts src/**/**/*.ts",
     "prettier": "prettier --write ./src/**/**/*.ts ./src/**/*.ts",
@@ -22,7 +23,7 @@
     "prepare": "npm run snyk-protect"
   },
   "dependencies": {
-    "@celo/contractkit": "^0.4.14",
+    "@celo/contractkit": "^1.2.0",
     "axios": "^0.21.0",
     "cors": "^2.8.5",
     "ed25519-supercop": "^2.0.1",

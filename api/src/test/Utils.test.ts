@@ -2,13 +2,15 @@ import assert from "assert";
 import * as crypto from "../utils/crypto";
 import * as utils from "../utils/utils";
 import dotenv from "dotenv";
+import { log } from "./utils";
+import path from "path";
 
-const result = dotenv.config();
+const result = dotenv.config({
+  path: path.resolve(process.cwd(), ".env.test"),
+});
+
 if (result.error) {
   throw result.error;
-}
-function log(msg: string): void {
-  if (process.env.DEBUG === "true") console.log(msg);
 }
 
 describe("Unit test crypto utilities", () => {
@@ -18,7 +20,7 @@ describe("Unit test crypto utilities", () => {
     assert(keypair);
   });
 
-  it("Should generate a known ed25519 keypair with seed", async () => {
+  xit("Should generate a known ed25519 keypair with seed", async () => {
     const keypair = crypto.getEd25519KeyPair(process.env.ED25519_SEED);
     assert.strictEqual(
       keypair.publicKey.toString("hex"),
