@@ -7,6 +7,7 @@ export interface HealthResponse {
   cUSDToken: string;
   reconciliationAccount: string;
   countOfBeneficiaries: number;
+  owner: string;
 }
 
 export interface UBIBeneficiary {
@@ -28,14 +29,17 @@ export interface Settlement {
   transactionId: string;
   settlementAmount: number;
 }
+
 export interface NewUser {
   userId: string;
 }
+
 export interface AuthorizationRequest {
   userId: string;
   transactionId: string;
   authorizationAmount: number;
 }
+
 export interface SettlementRequest {
   userId: string;
   transactionId: string;
