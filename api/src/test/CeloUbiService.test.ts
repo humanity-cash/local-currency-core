@@ -4,13 +4,15 @@ import * as celoUBI from "../service/celoubi/CeloUbi";
 import Web3 from "web3";
 import { v4 } from "uuid";
 import { toBytes32 } from "../utils/utils";
+import { log } from "./utils";
+import path from "path";
 
-const result = dotenv.config();
+const result = dotenv.config({
+  path: path.resolve(process.cwd(), ".env.test"),
+});
+
 if (result.error) {
   throw result.error;
-}
-function log(msg: string): void {
-  if (process.env.DEBUG === "true") console.log(msg);
 }
 
 describe("Check basic connectivity to a smart contract", () => {
