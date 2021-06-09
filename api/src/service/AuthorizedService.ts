@@ -6,7 +6,7 @@ import {
   SettlementRequest,
 } from "../types/types";
 
-export async function createUser(newUser: NewUser): Promise<any> {
+export async function createUser(newUser: NewUser): Promise<string> {
   // Do not convert to bytes32 here, it is done in contract only for new users so we can store the human legible userId on chain
   return await CeloUBI.newUbiBeneficiary(newUser.userId);
 }

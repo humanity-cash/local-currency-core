@@ -1,17 +1,15 @@
 import assert from "assert";
 import dotenv from "dotenv";
 import * as anchorage from "../service/custodian/Anchorage";
-import {
-  quoteRequest, acceptQuote,
-} from "../service/custodian/AnchorageTypes";
+import { quoteRequest, acceptQuote } from "../service/custodian/AnchorageTypes";
+import path from "path";
 
-const result = dotenv.config();
+const result = dotenv.config({
+  path: path.resolve(process.cwd(), ".env.test"),
+});
+
 if (result.error) {
   throw result.error;
-}
-
-function log(msg: string): void {
-  if (process.env.DEBUG === "true") console.log(msg);
 }
 
 describe("Basic API connectivity", () => {
@@ -27,11 +25,10 @@ describe("Basic API connectivity", () => {
       "/test/",
       quoteRequest
     );
-    log(header);
     assert(header);
   });
 
-  it("Should get vaults", async () => {
+  xit("Should get vaults", async () => {
     try {
       const res = await anchorage.getVaults();
       console.log(res);
