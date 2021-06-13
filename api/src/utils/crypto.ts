@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as ed from "ed25519-supercop";
 
 export function getEd25519KeyPair(seed?: string): any {
