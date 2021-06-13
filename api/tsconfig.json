@@ -13,6 +13,12 @@
         "noUnusedLocals": true,
         "module": "commonjs",
         "noImplicitAny": false,
+        "baseUrl": "./",
+        "paths": {
+            "src/*": [
+                "./src/*"
+            ],
+        },
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "./dist/",
