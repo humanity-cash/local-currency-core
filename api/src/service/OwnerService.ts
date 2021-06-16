@@ -1,4 +1,4 @@
-import * as CeloUBI from "./celoubi/CeloUbi";
+import * as CeloUBI from "./celoubi";
 
 export async function reconcile(): Promise<any> {
   return await CeloUBI.reconcile();
