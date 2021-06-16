@@ -1,11 +1,9 @@
 import chai from "chai";
-// import * as Authorized from "../../src/service/AuthorizedService";
-// import faker from 'faker';
 import chaiHttp from "chai-http";
-import { getApp } from "../server";
 import dotenv from "dotenv";
-import { log } from "./utils";
 import path from "path";
+import { getApp } from "../server";
+import { log } from "./utils";
 
 const expect = chai.expect;
 
@@ -34,26 +32,6 @@ describe("Server Test", () => {
         });
     });
   });
-
-/*Not Stable
-	Error: execution reverted: transfer value exceeded balance of sender
-
-  describe("/GET user", () => {
-    it("it should GET user", async (done) => {
-      const userId = faker.name.findName();
-      await Authorized.createUser({userId})
-      chai
-        .request(server)
-        .get(`/user/${userId}`)
-        .end((err, res) => {
-          expect(err).to.be.null;
-          expect(res).to.have.status(200);
-          log(JSON.parse(res.text));
-          done();
-        });
-    });
-  });
-*/
 
   describe("/GET user/all", () => {
     it("it should GET users", (done) => {
