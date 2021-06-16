@@ -1,15 +1,14 @@
-import UBIControllerContract from "./abi/UBIController.json";
-import UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
-import { toBytes32 } from "../../utils/utils";
-import * as web3Utils from "web3-utils";
-import { UBIBeneficiary, Authorization, Settlement } from "../../types/types";
-
 import * as Kit from "@celo/contractkit";
+import { ContractKit } from "@celo/contractkit/lib/kit";
 import { Contract } from "@celo/contractkit/node_modules/web3-eth-contract";
 import { generateKeys } from "@celo/utils/lib/account";
 import { privateKeyToAddress } from "@celo/utils/lib/address";
+import { Authorization, Settlement, UBIBeneficiary } from "src/types";
+import { toBytes32 } from "src/utils/crypto";
 import { TransactionReceipt } from "web3-core";
-import { ContractKit } from "@celo/contractkit/lib/kit";
+import * as web3Utils from "web3-utils";
+import UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
+import UBIControllerContract from "./abi/UBIController.json";
 
 let kit: ContractKit;
 
