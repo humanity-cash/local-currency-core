@@ -1,11 +1,11 @@
 import assert from "assert";
 import dotenv from "dotenv";
-import * as celoUBI from "../service/celoubi/CeloUbi";
-import Web3 from "web3";
-import { v4 } from "uuid";
-import { toBytes32 } from "../utils/utils";
-import { log } from "./utils";
 import path from "path";
+import { v4 } from "uuid";
+import Web3 from "web3";
+import * as celoUBI from "../service/celoubi";
+import { toBytes32 } from "../utils/crypto";
+import { log } from "./utils";
 
 const result = dotenv.config({
   path: path.resolve(process.cwd(), ".env.test"),
