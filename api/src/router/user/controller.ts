@@ -25,7 +25,7 @@ export async function getUser(
   res: Response,
 ): Promise<void> {
   try {
-    const id = req?.query?.params.id;
+    const id = req?.query?.params?.id;
     const user = await PublicServices.getBeneficiary(id);
     // Create as an array of one item for API consistency
     httpUtils.createHttpResponse([user], codes.OK, res);
@@ -57,7 +57,6 @@ export async function createUser(
   res: Response,
 ): Promise<void> {
   try {
-    console.log(req.body);
     const newUser = req.body;
     await AuthroizedServices.createUser(newUser);
     const user = await PublicServices.getBeneficiary(newUser.userId);
@@ -81,6 +80,38 @@ export async function createUser(
         codes.SERVER_ERROR,
         res
       );
+  }
+}
+
+export async function getUserAuthorizations(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const id = req?.query?.params.id;
+    const address = await PublicServices.beneficiaryAddress(id);
+    const authorizations = await PublicServices.getAuthorizationsForAddress(address);
+    httpUtils.createHttpResponse(authorizations, codes.OK, res);
+  } catch (err) {
+    console.error(err);
+
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.createHttpResponse(
+        {
+          message: "User does not exist",
+        },
+        codes.NOT_FOUND,
+        res
+      );
+    else {
+      httpUtils.createHttpResponse(
+        {
+          message: "Server error: " + err,
+        },
+        codes.SERVER_ERROR,
+        res
+      );
+    }
   }
 }
 
@@ -145,14 +176,12 @@ export async function authorizeUser(
   }
 }
 
-export async function deleteUserAuth(
+export async function deleteUserAuthorization(
   req: Request,
   res: Response,
 ): Promise<void> {
   try {
     const deleteAuth = req.body;
-    console.log(deleteAuth);
-
     if (
       httpUtils.validateAttributes(
         ["transactionId", "userId"],
@@ -180,17 +209,13 @@ export async function deleteUserAuth(
   }
 }
 
-
-
-
 export async function getAllUsersSettlements(
   _req: Request,
   res: Response,
 ): Promise<void> {
   try {
-		const mockGetAllUserIds = () => ([]) 
-    const userIds = await mockGetAllUserIds()
-		const addresses = await Promise.all(userIds.map(userId => PublicServices.beneficiaryAddress(userId)));
+    const users = await PublicServices.getAllBeneficiaries();
+		const addresses = await Promise.all(users.map(({userId}) => PublicServices.beneficiaryAddress(userId)));
 		const settlements = await Promise.all(addresses.map(address => PublicServices.getSettlementsForAddress(address)));
 		httpUtils.createHttpResponse(settlements, codes.OK, res);
   } catch (err) {
@@ -241,19 +266,9 @@ export async function createSettlementForUser(
   try {
     const settlementRequest = req.body;
     console.log(settlementRequest);
-
-    if (
-      httpUtils.validateAttributes(
-        ["userId", "transactionId", "settlementAmount"],
-        settlementRequest,
-        res,
-        "body"
-      )
-    ) {
-      const response = await AuthroizedServices.settlement(settlementRequest);
-      console.log(response);
-      res.status(codes.ACCEPTED).end();
-    }
+    const response = await AuthroizedServices.settlement(settlementRequest);
+    console.log(response);
+    res.status(codes.ACCEPTED).end();
   } catch (err) {
     console.error(err);
 
