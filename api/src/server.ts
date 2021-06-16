@@ -1,13 +1,13 @@
 import cors from "cors";
 import dotenv from "dotenv";
-import express, { Request, Response } from "express";
+import express, { Express, Request, Response } from "express";
 import morgan from "morgan";
-import * as Controller from "./controllers";
-import router from './router';
+import router from 'src/router';
+import * as Controller from "src/controllers";
 
 dotenv.config();
 
-export const getApp = () : express => {
+export const getApp = () : Express => {
 
   const app = express();
  

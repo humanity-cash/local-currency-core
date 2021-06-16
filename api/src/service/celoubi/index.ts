@@ -4,9 +4,9 @@ import { Contract } from "@celo/contractkit/node_modules/web3-eth-contract";
 import { generateKeys } from "@celo/utils/lib/account";
 import { privateKeyToAddress } from "@celo/utils/lib/address";
 import { Authorization, Settlement, UBIBeneficiary } from "src/types";
-import { toBytes32 } from "src/utils/crypto";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
+import { toBytes32 } from "../../utils/crypto";
 import UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
 import UBIControllerContract from "./abi/UBIController.json";
 
