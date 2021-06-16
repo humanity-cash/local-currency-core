@@ -1,6 +1,8 @@
-import express from 'express'
-import { settlements } from './settlements'
+import express from 'express';
+import { settlements } from './settlements';
 
-export const router = express()
+const router = express();
 
-router.use(settlements)
+router.use('settlements', settlements);
+
+export default router;
