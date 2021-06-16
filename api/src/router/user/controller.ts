@@ -25,7 +25,7 @@ export async function getUser(
   res: Response,
 ): Promise<void> {
   try {
-    const id = req?.query?.params?.id;
+    const id = req?.params?.id;
     const user = await PublicServices.getBeneficiary(id);
     // Create as an array of one item for API consistency
     httpUtils.createHttpResponse([user], codes.OK, res);
@@ -88,7 +88,7 @@ export async function getUserAuthorizations(
   res: Response,
 ): Promise<void> {
   try {
-    const id = req?.query?.params.id;
+    const id = req?.params?.id;
     const address = await PublicServices.beneficiaryAddress(id);
     const authorizations = await PublicServices.getAuthorizationsForAddress(address);
     httpUtils.createHttpResponse(authorizations, codes.OK, res);
