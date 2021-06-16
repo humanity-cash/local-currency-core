@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as CeloUBI from "./celoubi";
 
 export async function reconcile(): Promise<any> {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AuthorizationRequest, NewUser, SettlementRequest
 } from "src/types";

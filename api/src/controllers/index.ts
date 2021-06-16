@@ -3,10 +3,10 @@ import * as Owner from "src/service/OwnerService";
 import * as PublicServices from "src/service/PublicService";
 import { httpUtils } from "src/utils";
 
-import codes = httpUtils.codes;
+const codes = httpUtils.codes;
 
 export async function health(
-  req: Request,
+  _req: Request,
   res: Response,
 ): Promise<void> {
   try {
@@ -18,7 +18,7 @@ export async function health(
   }
 }
 export async function reconciliation(
-  req: Request,
+  _req: Request,
   res: Response,
 ): Promise<void> {
   try {
