@@ -1,8 +1,8 @@
 import express from 'express';
-import { settlements } from './settlements';
+import user from './user';
 
 const router = express();
 
-router.use('settlements', settlements);
+router.use(user);
 
 export default router;

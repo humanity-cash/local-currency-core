@@ -2,16 +2,19 @@ import express from 'express';
 import * as controller from './controller';
 import * as validators from './validators';
 
-export const user = express();
+const user = express();
 
-user.get("/users", controller.getAllUsers);  // get all users 
-user.get("/users/:id", validators.getUser, controller.getUser);  // get user
-user.post("/users", validators.createUser, controller.createUser); // create user
+user.get("/users", controller.getAllUsers); 
+user.get("/users/:id", validators.getUser, controller.getUser);
+user.post("/users", validators.createUser, controller.createUser);
 
-user.get("/users/:id/authorizations", controller.getUser); // get user authorizations
-user.post("/users/:id/authorizations", controller.getSettlements);  // authorize user 
-user.delete("/user/:id/authorizations", controller.getSettlements); // delete user authorization 
+user.get("/users/:id/authorizations", validators.getUserAuthorizations, controller.getUserAuthorizations);
+user.post("/users/:id/authorizations", validators.authorizeUser, controller.authorizeUser);
+user.delete("/user/:id/authorizations", validators.deleteUserAuthorization, controller.deleteUserAuthorization); 
 
-user.get("/users/:id/settlements", controller.getUser); // get user settlements
-user.get("/users/all/settlements", controller.getUser);  // get all settlements
-user.post("/users/:id/settlements", controller.getUser); // create user settlement
+user.get("/users/:id/settlements", validators.getUserSettlements, controller.getUserSettlements); 
+user.get("/users/all/settlements", controller.getAllUsersSettlements);
+user.post("/users/:id/settlements", validators.createUserSettlement, controller.createSettlementForUser);
+
+
+export default user
