@@ -1,18 +1,18 @@
 import * as utils from "../utils/utils";
 import * as Authorized from "../service/AuthorizedService";
 import * as Public from "../service/PublicService";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
+import { NewUser } from "../types/types";
 
 const codes = utils.codes;
 
 export async function createUser(
   req: Request,
   res: Response,
-  next?: NextFunction
 ): Promise<void> {
   try {
     console.log(req.body);
-    const newUser = req.body;
+    const newUser: NewUser= req.body;
 
     if (utils.validateAttributes(["userId"], newUser, res, "body")) {
       await Authorized.createUser(newUser);
@@ -44,7 +44,6 @@ export async function createUser(
 export async function authorization(
   req: Request,
   res: Response,
-  next?: NextFunction
 ): Promise<void> {
   try {
     const authorizationRequest = req.body;
@@ -106,7 +105,6 @@ export async function authorization(
 export async function deleteAuthorization(
   req: Request,
   res: Response,
-  next?: NextFunction
 ): Promise<void> {
   try {
     const deleteAuth = req.body;
@@ -142,7 +140,6 @@ export async function deleteAuthorization(
 export async function settlement(
   req: Request,
   res: Response,
-  next?: NextFunction
 ): Promise<void> {
   try {
     const settlementRequest = req.body;
