@@ -59,12 +59,9 @@ export async function createUser(
   try {
     console.log(req.body);
     const newUser = req.body;
-
-    if (httpUtils.validateAttributes(["userId"], newUser, res, "body")) {
-      await AuthroizedServices.createUser(newUser);
-      const user = await PublicServices.getBeneficiary(newUser.userId);
-      httpUtils.createHttpResponse(user, codes.CREATED, res);
-    }
+    await AuthroizedServices.createUser(newUser);
+    const user = await PublicServices.getBeneficiary(newUser.userId);
+    httpUtils.createHttpResponse(user, codes.CREATED, res);
   } catch (err) {
     console.error(err);
 

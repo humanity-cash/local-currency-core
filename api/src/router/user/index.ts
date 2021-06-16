@@ -5,8 +5,8 @@ import * as validators from './validators';
 export const user = express();
 
 user.get("/users", controller.getAllUsers);  // get all users 
-user.get("/users/:id", controller.getUser);  // get user
-user.post("/users", validators.createTransaction, controller.createSettlement); // create user
+user.get("/users/:id", validators.getUser, controller.getUser);  // get user
+user.post("/users", validators.createUser, controller.createUser); // create user
 
 user.get("/users/:id/authorizations", controller.getUser); // get user authorizations
 user.post("/users/:id/authorizations", controller.getSettlements);  // authorize user 
