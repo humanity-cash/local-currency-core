@@ -6,7 +6,7 @@
             "es7"
         ],
         "types": [
-            "mocha",
+            "jest",
             "node"
         ],
         "declaration": true,
