@@ -1,12 +1,9 @@
-import * as CeloUBI from "./celoubi/CeloUbi";
 import * as Kit from "@celo/contractkit";
-import { toBytes32 } from "../utils/utils";
 import {
-  HealthResponse,
-  UBIBeneficiary,
-  Authorization,
-  Settlement,
-} from "../types/types";
+  Authorization, HealthResponse, Settlement, UBIBeneficiary
+} from "src/types";
+import { toBytes32 } from "src/utils/crypto";
+import * as CeloUBI from "./celoubi";
 
 export async function health(): Promise<HealthResponse> {
   const kit = Kit.newKit(process.env.CELO_UBI_RPC_HOST);
