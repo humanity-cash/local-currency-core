@@ -1,20 +1,25 @@
 import dotenv from "dotenv";
-import path from "path";
 import { v4 } from "uuid";
 import Web3 from "web3";
 import * as celoUBI from "../src/service/celoubi";
 import { toBytes32 } from "../src/utils/crypto";
-import { log } from "./utils";
+import { log, setupContracts } from "./utils";
+import path from "path";
 
 const result = dotenv.config({
-  path: path.resolve(process.cwd(), ".env.test"),
+  path: path.resolve(process.cwd(), ".env.test")
 });
 
 if (result.error) {
   throw result.error;
 }
 
-describe.skip("Check basic connectivity to a smart contract", () => {
+describe("Check basic connectivity to a smart contract", () => {
+
+  beforeEach(async () => {
+    await setupContracts();
+  });
+
   const userIdRaw = v4();
   const transactionId = v4();
   log("Performing unit tests with new user " + userIdRaw);
