@@ -1,10 +1,9 @@
-import * as CeloUBI from "./celoubi/CeloUbi";
-import { toBytes32 } from "../utils/utils";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  NewUser,
-  AuthorizationRequest,
-  SettlementRequest,
-} from "../types/types";
+  AuthorizationRequest, NewUser, SettlementRequest
+} from "src/types";
+import { toBytes32 } from "src/utils/crypto";
+import * as CeloUBI from "./celoubi";
 
 export async function createUser(newUser: NewUser): Promise<string> {
   // Do not convert to bytes32 here, it is done in contract only for new users so we can store the human legible userId on chain

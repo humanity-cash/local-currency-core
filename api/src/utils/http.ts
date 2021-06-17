@@ -1,9 +1,6 @@
-import * as utils from "web3-utils";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Response } from "express";
-
-export function toBytes32(input: string): string {
-  return utils.keccak256(input);
-}
 
 export function createHttpResponse(
   data: any,
