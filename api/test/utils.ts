@@ -113,9 +113,9 @@ async function deployContract(
 
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const abi = require(`../service/celoubi/abi/${name}.json`);
+    const abi = require(`../src/service/celoubi/abi/${name}.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const bytecode = require(`../service/celoubi/abi/${name}.bin.json`);
+    const bytecode = require(`../src/service/celoubi/abi/${name}.bin.json`);
 
     const tempContract = new web3.eth.Contract(abi);
     const isZos = !!tempContract.methods.initialize;
