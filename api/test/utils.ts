@@ -13,11 +13,11 @@ export async function setupContracts(): Promise<void> {
   sendConfig = {
     from: (await web3.eth.getAccounts())[0],
     gas: 6721975,
-    gasPrice: "10000"
+    gasPrice: "10000",
   };
 
   const Demurrage = await deployContract(
-    "Demurrage"
+    "Demurrage",
   );
 
   const cUSD = await deployContract(
