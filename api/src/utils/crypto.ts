@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as ed from "ed25519-supercop";
+import * as utils from "web3-utils";
 
 export function getEd25519KeyPair(seed?: string): any {
   let randomSeed;
@@ -32,4 +34,8 @@ export function signEd25519APIRequest(
   const data = timestamp + method + requestPath + (body? body : "");
   const signature = ed.sign(data, publicKey, privateKey);
   return signature.toString("hex");
+}
+
+export function toBytes32(input: string): string {
+  return utils.keccak256(input);
 }
