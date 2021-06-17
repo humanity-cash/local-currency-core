@@ -4,11 +4,11 @@ import * as celoUBI from "../service/celoubi/CeloUbi";
 import Web3 from "web3";
 import { v4 } from "uuid";
 import { toBytes32 } from "../utils/utils";
-import { log } from "./utils";
+import { log, setupContracts } from "./utils";
 import path from "path";
 
 const result = dotenv.config({
-  path: path.resolve(process.cwd(), ".env.test"),
+  path: path.resolve(process.cwd(), ".env.test")
 });
 
 if (result.error) {
@@ -16,6 +16,11 @@ if (result.error) {
 }
 
 describe("Check basic connectivity to a smart contract", () => {
+
+  beforeEach(async () => {
+    await setupContracts();
+  });
+
   const userIdRaw = v4();
   const transactionId = v4();
   log("Performing unit tests with new user " + userIdRaw);
