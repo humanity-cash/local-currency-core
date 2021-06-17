@@ -6,7 +6,7 @@ import { privateKeyToAddress } from "@celo/utils/lib/address";
 import { Authorization, Settlement, UBIBeneficiary } from "src/types";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
-import { toBytes32 } from "../../utils/crypto";
+import { toBytes32 } from "src/utils/crypto";
 import UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
 import UBIControllerContract from "./abi/UBIController.json";
 
