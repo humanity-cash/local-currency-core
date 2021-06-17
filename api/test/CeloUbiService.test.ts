@@ -27,7 +27,7 @@ describe("Check basic connectivity to a smart contract", () => {
   const userId = toBytes32(userIdRaw);
 
   describe("Call public functions", () => {
-    it.skip("Should return value of disbursementWei", async () => {
+    it("Should return value of disbursementWei", async () => {
       const disbursementWei = await celoUBI.disbursementWei();
       log(`disbursementWei == ${disbursementWei}`);
       expect(Number(disbursementWei)).toBeGreaterThan(0);
