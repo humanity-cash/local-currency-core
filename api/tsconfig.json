@@ -13,12 +13,12 @@
         "noUnusedLocals": true,
         "module": "commonjs",
         "noImplicitAny": false,
-        "baseUrl": "./",
+        "baseUrl": "./",                             /* Base directory to resolve non-absolute module names. */
         "paths": {
             "src/*": [
                 "./src/*"
             ],
-        },
+        },   
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "./dist/",
