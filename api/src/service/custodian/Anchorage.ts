@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import * as crypto from "../../utils/crypto";
+import * as crypto from "src/utils/crypto";
 import * as axios from "axios";
 import {
   quoteRequest,
