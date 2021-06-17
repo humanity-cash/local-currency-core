@@ -15,7 +15,6 @@ if (result.error) {
 }
 
 describe("Check basic connectivity to a smart contract", () => {
-
   beforeEach(async () => {
     await setupContracts();
   });
@@ -58,7 +57,7 @@ describe("Check basic connectivity to a smart contract", () => {
     });
   });
 
-  describe("Call owner functions", () => {
+  describe.skip("Call owner functions", () => {
     it("Should update disbursementWei", async () => {
       const disbursementWei = 150000000000;
       await celoUBI.setDisbursementWei(disbursementWei);
@@ -68,7 +67,7 @@ describe("Check basic connectivity to a smart contract", () => {
     });
   });
 
-  describe("Call user functions", () => {
+  describe.skip("Call user functions", () => {
     it("Should create a new UBI beneficiary", async () => {
       const newUbiBeneficiary = await celoUBI.newUbiBeneficiary(userIdRaw);
       log(`newUbiBeneficiary == ${newUbiBeneficiary}`);
@@ -102,7 +101,7 @@ describe("Check basic connectivity to a smart contract", () => {
     });
   });
 
-  describe("Call authorization and settlement functions", () => {
+  describe.skip("Call authorization and settlement functions", () => {
     const amt = 22;
     const amtInWei = Web3.utils.toWei(`${amt}`, "ether");
 
