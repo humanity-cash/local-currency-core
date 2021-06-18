@@ -1,14 +1,15 @@
 import { Contract } from "web3-eth-contract";
 import Web3 from "web3";
 
-const web3 = new Web3(process.env.CELO_UBI_RPC_HOST);
 let sendConfig;
+let web3;
 
 export function log(msg: string): void {
   if (process.env.DEBUG === "true") console.log(msg);
 }
 
 export async function setupContracts(): Promise<void> {
+  web3 = new Web3(process.env.CELO_UBI_RPC_HOST);
 
   sendConfig = {
     from: (await web3.eth.getAccounts())[0],
@@ -16,31 +17,17 @@ export async function setupContracts(): Promise<void> {
     gasPrice: "10000",
   };
 
-  const Demurrage = await deployContract(
-    "Demurrage",
-  );
+  const cUSD = await deployContract("ERC20", ["cUSD", "cUSD"]);
 
-  const cUSD = await deployContract(
-    "ERC20",
-    ["cUSD", "cUSD"]
-  );
+  const authToken = await deployContract("ERC20PresetMinterPauser", [
+    "cUSD",
+    "cUSD",
+  ]);
 
-  const authToken = await deployContract(
-    "ERC20PresetMinterPauser",
-    ["cUSD", "cUSD"]
-  );
-
-
-  const UBIBeneficiary = await deployContract(
-    "UBIBeneficiary",
-    [],
-    {
-      Demurrage: Demurrage.options.address
-    }
-  );
+  const Wallet = await deployContract("Wallet");
 
   const UBIReconciliationAccount = await deployContract(
-    "UBIReconciliationAccount",
+    "UBIReconciliationAccount"
     /*
         initialize
         address _cUSDToken,
@@ -48,14 +35,10 @@ export async function setupContracts(): Promise<void> {
         address _custodian,
         address _controller
      */
-    [],
-    {
-      Demurrage: Demurrage.options.address
-    }
   );
 
-  const UBIBeneficiaryFactory = await deployContract(
-    "UBIBeneficiaryFactory",
+  const WalletFactory = await deployContract(
+    "WalletFactory",
     /*
       constructor
       IUBIBeneficiary _ubiLogic,
@@ -64,15 +47,15 @@ export async function setupContracts(): Promise<void> {
       ERC20PresetMinterPauser _cUBIAuthToken
      */
     [
-      UBIBeneficiary.options.address,
+      Wallet.options.address,
       UBIReconciliationAccount.options.address,
       cUSD.options.address,
-      authToken.options.address
+      authToken.options.address,
     ]
   );
 
-  const UBIController = await deployContract(
-    "UBIController",
+  const Controller = await deployContract(
+    "Controller",
     /*
       constructor
       address _cUSDToken,
@@ -83,8 +66,8 @@ export async function setupContracts(): Promise<void> {
     [
       cUSD.options.address,
       authToken.options.address,
-      UBIBeneficiaryFactory.options.address,
-      (await web3.eth.getAccounts())[1]
+      WalletFactory.options.address,
+      (await web3.eth.getAccounts())[1],
     ]
   );
 
@@ -92,13 +75,13 @@ export async function setupContracts(): Promise<void> {
     cUSD.options.address,
     authToken.options.address,
     (await web3.eth.getAccounts())[1],
-    UBIController.options.address
+    Controller.options.address,
   ];
 
   await UBIReconciliationAccount.methods.initialize(...args).send(sendConfig);
   // console.log("Initialize called on UBIReconciliationAccount", "with", args);
 
-  process.env.CELO_UBI_ADDRESS = UBIController.options.address;
+  process.env.CELO_UBI_ADDRESS = Controller.options.address;
 }
 
 async function deployContract(
@@ -106,27 +89,20 @@ async function deployContract(
   args: any[] = [],
   tokens: { [name: string]: string } = {}
 ): Promise<Contract> {
-
-
   let contractInstance;
   try {
-
-
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const abi = require(`../src/service/celoubi/abi/${name}.json`);
+    const abi = require(`../src/service/celoubi/artifacts/${name}.abi.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const bytecode = require(`../src/service/celoubi/abi/${name}.bin.json`);
+    const bytecode = require(`../src/service/celoubi/artifacts/${name}.bin.json`);
 
     const tempContract = new web3.eth.Contract(abi);
     const isZos = !!tempContract.methods.initialize;
 
     contractInstance = await tempContract
       .deploy({
-        data: replaceTokens(
-          bytecode.toString(),
-          tokens
-        ),
-        arguments: isZos ? undefined : args
+        data: replaceTokens(bytecode.toString(), tokens),
+        arguments: isZos ? undefined : args,
       })
       .send(sendConfig);
 

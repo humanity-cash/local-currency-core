@@ -17,7 +17,7 @@ module.exports = {
   ],
   moduleNameMapper: {
   '^src/(.*)$': '<rootDir>/src/$1'
-},
+	},
   testEnvironment: 'node',
   globals: {
     'ts-jest': {
@@ -25,4 +25,3 @@ module.exports = {
     }
   }
 }
-
