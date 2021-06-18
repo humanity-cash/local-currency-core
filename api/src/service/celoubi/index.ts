@@ -7,8 +7,8 @@ import { Authorization, Settlement, UBIBeneficiary } from "src/types";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import { toBytes32 } from "src/utils/crypto";
-import UBIBeneficiaryContract from "./abi/UBIBeneficiary.json";
-import UBIControllerContract from "./abi/UBIController.json";
+import Wallet from "./artifacts/Wallet.abi.json";
+import Controller from "./artifacts/Controller.abi.json";
 
 let kit: ContractKit;
 
@@ -29,7 +29,7 @@ const getKit = async (): Promise<Kit.ContractKit> => {
 const getUBIControllerContract = async (): Promise<Contract> => {
   const kit = await getKit();
   const contract = new kit.web3.eth.Contract(
-    UBIControllerContract as web3Utils.AbiItem[],
+    Controller as web3Utils.AbiItem[],
     process.env.CELO_UBI_ADDRESS
   );
   return contract;
@@ -40,7 +40,7 @@ const getBeneficiaryContractFor = async (
 ): Promise<Contract> => {
   const kit = await getKit();
   const contract = new kit.web3.eth.Contract(
-    UBIBeneficiaryContract as web3Utils.AbiItem[],
+    Wallet as web3Utils.AbiItem[],
     address
   );
   return contract;
