@@ -27,7 +27,7 @@ export async function setupContracts(): Promise<void> {
   const Wallet = await deployContract("Wallet");
 
   const UBIReconciliationAccount = await deployContract(
-    "UBIReconciliationAccount",
+    "UBIReconciliationAccount"
     /*
         initialize
         address _cUSDToken,
@@ -35,7 +35,6 @@ export async function setupContracts(): Promise<void> {
         address _custodian,
         address _controller
      */
-    []
   );
 
   const WalletFactory = await deployContract(
