@@ -12,7 +12,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --passWithNoTests --forceExit --detectOpenHandles --config=jest.config.js",
-    "coverage": "nyc yarn test",
+    "coverage": "yarn test --coverage",
     "build:watch": "tsc --watch",
     "build": "tsc",
     "build:docker": "yarn build && sudo docker build -t keykoio/berkshares-api:latest .",
@@ -52,7 +52,6 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "nyc": "^15.1.0",
     "prettier": "^2.1.2",
     "snyk": "^1.424.4",
     "ts-node": "^9.0.0",
