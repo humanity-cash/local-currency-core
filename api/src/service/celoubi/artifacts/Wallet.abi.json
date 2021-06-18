@@ -5,99 +5,6 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_ubiAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amt",
-        "type": "uint256"
-      }
-    ],
-    "name": "AuthorizationEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_ubiAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amt",
-        "type": "uint256"
-      }
-    ],
-    "name": "DeauthorizationEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_ubiAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amt",
-        "type": "uint256"
-      }
-    ],
-    "name": "DemurragePaidEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
       },
@@ -275,45 +182,6 @@
       {
         "internalType": "uint256",
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "demurrage",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "blocksInEpoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "freeEpochs",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "freeBlocks",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "ratioNumerator",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "ratioDenominator",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastCalculatedAtBlock",
         "type": "uint256"
       }
     ],
@@ -512,34 +380,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_blocksInEpoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_demurrageFreeEpochs",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_demurrageNumerator",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_demurrageDenominator",
-        "type": "uint256"
-      }
-    ],
-    "name": "setDemurrageParameters",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "getSettlementKeys",
     "outputs": [
@@ -547,50 +387,6 @@
         "internalType": "bytes32[]",
         "name": "",
         "type": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "getAuthorizationKeys",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "",
-        "type": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getAuthorizationAtKey",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -635,57 +431,6 @@
     "stateMutability": "view",
     "type": "function",
     "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "authorizationBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      }
-    ],
-    "name": "deauthorize",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      }
-    ],
-    "name": "authorize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "inputs": [

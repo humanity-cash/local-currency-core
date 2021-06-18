@@ -214,10 +214,10 @@
   },
   {
     "inputs": [],
-    "name": "ubiFactory",
+    "name": "walletFactory",
     "outputs": [
       {
-        "internalType": "contract IUBIBeneficiaryFactory",
+        "internalType": "contract IWalletFactory",
         "name": "",
         "type": "address"
       }
@@ -320,67 +320,6 @@
         "internalType": "bytes32",
         "name": "_userId",
         "type": "bytes32"
-      }
-    ],
-    "name": "authBalanceOfUBIBeneficiary",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      }
-    ],
-    "name": "authorize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      }
-    ],
-    "name": "deauthorize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
       },
       {
         "internalType": "string",
@@ -473,34 +412,6 @@
       }
     ],
     "name": "updateReconciliationImplementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_blocksInEpoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_demurrageFreeEpochs",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_demurrageNumerator",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_demurrageDenominator",
-        "type": "uint256"
-      }
-    ],
-    "name": "setDemurrageParameters",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
