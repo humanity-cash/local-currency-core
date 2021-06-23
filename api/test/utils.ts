@@ -1,87 +1,68 @@
-import { Contract } from "web3-eth-contract";
+import { Contract, SendOptions } from "web3-eth-contract";
+// @ts-ignore
+import path from "path";
+import { getKit } from "../src/utils/getKit";
+import { ContractKit } from "@celo/contractkit/lib/kit";
+import * as web3Utils from "web3-utils";
 import Web3 from "web3";
+import { generateKeys } from "@celo/utils/lib/account";
+import { privateKeyToAddress } from "@celo/utils/lib/address";
 
-let sendConfig;
-let web3;
+let sendOptions: SendOptions;
+let kit: ContractKit;
+let web3: Web3;
 
-export function log(msg: string): void {
-  if (process.env.DEBUG === "true") console.log(msg);
+export function log(...data: any[]): void {
+  if (process.env.DEBUG === "true") console.log(data);
 }
 
 export async function setupContracts(): Promise<void> {
-  web3 = new Web3(process.env.CELO_UBI_RPC_HOST);
+  kit = await getKit();
+  web3 = new Web3(process.env.LOCAL_CURRENCY_RPC_HOST);
 
-  sendConfig = {
-    from: (await web3.eth.getAccounts())[0],
+  const key = await generateKeys(
+    process.env.LOCAL_CURRENCY_MNEMONIC,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    test ? "m/44'/60'/0'" : undefined
+  );
+  kit.addAccount(key.privateKey);
+  const account = privateKeyToAddress(key.privateKey);
+  console.log("Test accounts:", await kit.getWallet().getAccounts());
+  kit.defaultAccount = account;
+
+  sendOptions = {
+    from: kit.defaultAccount,
     gas: 6721975,
     gasPrice: "10000",
   };
 
-  const cUSD = await deployContract("ERC20", ["cUSD", "cUSD"]);
-
-  const authToken = await deployContract("ERC20PresetMinterPauser", [
-    "cUSD",
-    "cUSD",
-  ]);
-
+  const Token = await deployContract("ERC20", ["TestToken", "TT"]);
   const Wallet = await deployContract("Wallet");
-
-  const UBIReconciliationAccount = await deployContract(
-    "UBIReconciliationAccount"
-    /*
-        initialize
-        address _cUSDToken,
-        address _cUBIAuthToken,
-        address _custodian,
-        address _controller
-     */
-  );
 
   const WalletFactory = await deployContract(
     "WalletFactory",
     /*
       constructor
-      IUBIBeneficiary _ubiLogic,
-      IUBIReconciliationAccount _reconciliationLogic,
-      IERC20 _cUSDToken,
-      ERC20PresetMinterPauser _cUBIAuthToken
+      IWallet _wallet,
+      IERC20 _erc20Token
      */
-    [
-      Wallet.options.address,
-      UBIReconciliationAccount.options.address,
-      cUSD.options.address,
-      authToken.options.address,
-    ]
+    [Wallet.options.address, Token.options.address]
   );
 
   const Controller = await deployContract(
     "Controller",
     /*
       constructor
-      address _cUSDToken,
-      address _cUBIAuthToken,
-      address _factory,
-      address _custodian
+      address _erc20Token,
+      address _walletFactory
      */
-    [
-      cUSD.options.address,
-      authToken.options.address,
-      WalletFactory.options.address,
-      (await web3.eth.getAccounts())[1],
-    ]
+    [Token.options.address, WalletFactory.options.address]
   );
 
-  const args = [
-    cUSD.options.address,
-    authToken.options.address,
-    (await web3.eth.getAccounts())[1],
-    Controller.options.address,
-  ];
-
-  await UBIReconciliationAccount.methods.initialize(...args).send(sendConfig);
-  // console.log("Initialize called on UBIReconciliationAccount", "with", args);
-
-  process.env.CELO_UBI_ADDRESS = Controller.options.address;
+  process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
 }
 
 async function deployContract(
@@ -92,21 +73,21 @@ async function deployContract(
   let contractInstance;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const abi = require(`../src/service/celoubi/artifacts/${name}.abi.json`);
+    const abi = require(`../src/service/contracts/artifacts/${name}.abi.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const bytecode = require(`../src/service/celoubi/artifacts/${name}.bin.json`);
+    const bytecode = require(`../src/service/contracts/artifacts/${name}.bin.json`);
 
-    const tempContract = new web3.eth.Contract(abi);
+    const tempContract = new web3.eth.Contract(abi as web3Utils.AbiItem[]);
     const isZos = !!tempContract.methods.initialize;
+    const data = replaceTokens(bytecode, tokens);
+    const tx = tempContract.deploy({
+      data,
+      arguments: isZos ? undefined : args,
+    });
 
-    contractInstance = await tempContract
-      .deploy({
-        data: replaceTokens(bytecode.toString(), tokens),
-        arguments: isZos ? undefined : args,
-      })
-      .send(sendConfig);
+    contractInstance = await tx.send(sendOptions);
 
-    // console.log("Deployed", name, "at", contractInstance.options.address, isZos);
+    log("Deployed", name, "at", contractInstance.options.address, isZos);
   } catch (err) {
     console.error(
       "Deployment failed for",
