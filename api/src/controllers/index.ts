@@ -5,10 +5,7 @@ import { httpUtils } from "src/utils";
 
 const codes = httpUtils.codes;
 
-export async function health(
-  _req: Request,
-  res: Response,
-): Promise<void> {
+export async function health(_req: Request, res: Response): Promise<void> {
   try {
     const response = await PublicServices.health();
     httpUtils.createHttpResponse(response, codes.OK, res);
@@ -19,7 +16,7 @@ export async function health(
 }
 export async function reconciliation(
   _req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     const response = await Owner.reconcile();
