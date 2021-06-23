@@ -3,40 +3,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_cUSDToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_cUBIAuthToken",
+        "name": "_erc20Token",
         "type": "address"
       },
       {
         "internalType": "address",
         "name": "_factory",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_custodian",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_disbursementWei",
-        "type": "uint256"
-      }
-    ],
-    "name": "DisbursementUpdated",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -69,7 +46,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_ubiAddress",
+        "name": "_walletAddress",
         "type": "address"
       }
     ],
@@ -123,21 +100,7 @@
   },
   {
     "inputs": [],
-    "name": "cUBIAuthToken",
-    "outputs": [
-      {
-        "internalType": "contract ERC20PresetMinterPauser",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "cUSDToken",
+    "name": "erc20Token",
     "outputs": [
       {
         "internalType": "contract IERC20",
@@ -146,22 +109,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "disbursementWei",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -174,8 +122,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -188,22 +135,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "reconciliationAccount",
-    "outputs": [
-      {
-        "internalType": "contract IUBIReconciliationAccount",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -223,8 +155,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -252,20 +183,6 @@
       }
     ],
     "stateMutability": "pure",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_newDisbursementWei",
-        "type": "uint256"
-      }
-    ],
-    "name": "setDisbursementWei",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -276,20 +193,7 @@
         "type": "address"
       }
     ],
-    "name": "setUBIBeneficiaryFactory",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_custodian",
-        "type": "address"
-      }
-    ],
-    "name": "setCustodian",
+    "name": "setWalletFactory",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -302,7 +206,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "balanceOfUBIBeneficiary",
+    "name": "balanceOfWallet",
     "outputs": [
       {
         "internalType": "uint256",
@@ -311,8 +215,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -338,13 +241,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "reconcile",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "string",
@@ -352,7 +248,7 @@
         "type": "string"
       }
     ],
-    "name": "newUbiBeneficiary",
+    "name": "newWallet",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -365,7 +261,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "beneficiaryAddress",
+    "name": "getWalletAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -374,8 +270,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -398,20 +293,7 @@
         "type": "address"
       }
     ],
-    "name": "updateBeneficiaryImplementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newLogic",
-        "type": "address"
-      }
-    ],
-    "name": "updateReconciliationImplementation",
+    "name": "updateWalletImplementation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -432,13 +314,6 @@
   },
   {
     "inputs": [],
-    "name": "withdrawToCustodian",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "withdrawToOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -452,7 +327,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getBeneficiaryAddressAtIndex",
+    "name": "getWalletAddressAtIndex",
     "outputs": [
       {
         "internalType": "address",
@@ -461,12 +336,11 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "getBeneficiaryCount",
+    "name": "getWalletCount",
     "outputs": [
       {
         "internalType": "uint256",
@@ -475,7 +349,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   }
 ]
