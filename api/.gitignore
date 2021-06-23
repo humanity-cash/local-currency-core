@@ -108,3 +108,4 @@ nodejs-server-server-generated-1.0.1
 
 faucet.sh
 upgrade.sh
+*.swp
