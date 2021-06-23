@@ -746,6 +746,62 @@ margin-bottom: 20px;
     }
   }
 };
+        defs["DwollaEvent"] = {
+  "type" : "object",
+  "required" : [ "_links", "created", "id", "resourceId", "topic" ],
+  "properties" : {
+    "_links" : {
+      "type" : "object",
+      "example" : {
+        "$ref" : "#/definitions/DwollaLinks"
+      },
+      "properties" : { }
+    },
+    "id" : {
+      "type" : "string",
+      "example" : "f8e70f48-b7ff-47d0-9d3d-62a099363a76"
+    },
+    "created" : {
+      "type" : "string",
+      "example" : "2015-10-16T15:58:15.000Z"
+    },
+    "topic" : {
+      "type" : "string",
+      "example" : "transfer_created"
+    },
+    "resourceId" : {
+      "type" : "string",
+      "example" : "48CFDDB4-1E74-E511-80DB-0AA34A9B2388"
+    }
+  }
+};
+        defs["DwollaLinks"] = {
+  "type" : "object",
+  "required" : [ "account", "resource", "self" ],
+  "properties" : {
+    "self" : {
+      "type" : "object",
+      "example" : {
+        "href" : "https://api.dwolla.com/events/f8e70f48-b7ff-47d0-9d3d-62a099363a76"
+      },
+      "properties" : { }
+    },
+    "resource" : {
+      "type" : "object",
+      "example" : {
+        "href" : "https://api.dwolla.com/transfers/48CFDDB4-1E74-E511-80DB-0AA34A9B2388"
+      },
+      "properties" : { }
+    },
+    "account" : {
+      "type" : "object",
+      "example" : {
+        "href" : "https://api.dwolla.com/accounts/ca32853c-48fa-40be-ae75-77b37504581b"
+      },
+      "properties" : { }
+    }
+  }
+};
         defs["FundingResponse"] = {
   "type" : "object",
   "required" : [ "amount", "bankId", "status", "userId" ],
@@ -882,6 +938,9 @@ margin-bottom: 20px;
                     </li>
                     <li data-group="Authorized" data-name="updateWithdrawal" class="">
                       <a href="#api-Authorized-updateWithdrawal">updateWithdrawal</a>
+                    </li>
+                    <li data-group="Authorized" data-name="webhook" class="">
+                      <a href="#api-Authorized-webhook">webhook</a>
                     </li>
                   <li class="nav-header" data-group="Public"><a href="#api-Public">API Methods - Public</a></li>
                     <li data-group="Public" data-name="getDeposits" class="">
@@ -2678,6 +2737,291 @@ $(document).ready(function() {
                         </article>
                       </div>
                       <hr>
+                    <div id="api-Authorized-webhook">
+                      <article id="api-Authorized-webhook-0" data-group="User" data-name="webhook" data-version="0">
+                        <div class="pull-left">
+                          <h1>webhook</h1>
+                          <p>Receive webhooks from Dwolla</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Consume webhook event notifications from Dwolla</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/webhooks</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Authorized-webhook-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Authorized-webhook-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Authorized-webhook-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Authorized-webhook-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Authorized-webhook-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Authorized-webhook-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Authorized-webhook-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Authorized-webhook-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Authorized-webhook-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Authorized-webhook-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Authorized-webhook-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Authorized-webhook-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X POST "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.0/webhooks"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Authorized-webhook-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedApi apiInstance = new AuthorizedApi();
+        DwollaEvent dwollaEvent = ; // DwollaEvent | Dwolla Event object
+        try {
+            apiInstance.webhook(dwollaEvent);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedApi#webhook");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Authorized-webhook-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedApi;
+
+public class AuthorizedApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedApi apiInstance = new AuthorizedApi();
+        DwollaEvent dwollaEvent = ; // DwollaEvent | Dwolla Event object
+        try {
+            apiInstance.webhook(dwollaEvent);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedApi#webhook");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Authorized-webhook-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Authorized-webhook-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">DwollaEvent *dwollaEvent = ; // Dwolla Event object (optional)
+
+AuthorizedApi *apiInstance = [[AuthorizedApi alloc] init];
+
+// Receive webhooks from Dwolla
+[apiInstance webhookWith:dwollaEvent
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authorized-webhook-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedApi()
+
+var opts = { 
+  'dwollaEvent':  // {DwollaEvent} Dwolla Event object
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.webhook(opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Authorized-webhook-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Authorized-webhook-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class webhookExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedApi();
+            var dwollaEvent = new DwollaEvent(); // DwollaEvent | Dwolla Event object (optional) 
+
+            try
+            {
+                // Receive webhooks from Dwolla
+                apiInstance.webhook(dwollaEvent);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedApi.webhook: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authorized-webhook-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedApi();
+$dwollaEvent = ; // DwollaEvent | Dwolla Event object
+
+try {
+    $api_instance->webhook($dwollaEvent);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedApi->webhook: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authorized-webhook-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedApi->new();
+my $dwollaEvent = WWW::SwaggerClient::Object::DwollaEvent->new(); # DwollaEvent | Dwolla Event object
+
+eval { 
+    $api_instance->webhook(dwollaEvent => $dwollaEvent);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedApi->webhook: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authorized-webhook-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedApi()
+dwollaEvent =  # DwollaEvent | Dwolla Event object (optional)
+
+try: 
+    # Receive webhooks from Dwolla
+    api_instance.webhook(dwollaEvent=dwollaEvent)
+except ApiException as e:
+    print("Exception when calling AuthorizedApi->webhook: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">dwollaEvent </td>
+<td>
+
+
+<script>
+$(document).ready(function() {
+  var schemaWrapper = {
+  "in" : "body",
+  "name" : "DwollaEvent",
+  "description" : "Dwolla Event object",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/DwollaEvent"
+  }
+};
+  var schema = schemaWrapper.schema;
+  if (schema.$ref != null) {
+    schema = defsParser.$refs.get(schema.$ref);
+  } else {
+    schemaWrapper.definitions = Object.assign({}, defs);
+    $RefParser.dereference(schemaWrapper).catch(function(err) {
+      console.log(err);
+    });
+  }
+
+  var view = new JSONSchemaView(schema,2,{isBodyParam: true});
+  var result = $('#d2e199_webhook_dwollaEvent');
+  result.empty();
+  result.append(view.render());
+});
+</script>
+<div id="d2e199_webhook_dwollaEvent"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 202 - Accepted - transaction created </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 400 - Invalid input, object invalid </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 422 - Transaction unsuccessful </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                   </section>
                 <section id="api-Public">
                   <h1>Public</h1>
@@ -3245,7 +3589,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 200 - Settlements </h3>
+                            <h3> Status: 200 - TransactionResponse </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                                 <li class="active">
@@ -3260,7 +3604,7 @@ except ApiException as e:
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {
-  "description" : "Settlements",
+  "description" : "TransactionResponse",
   "schema" : {
     "type" : "array",
     "items" : {
@@ -3563,7 +3907,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 200 - Users </h3>
+                            <h3> Status: 200 - UserResponse </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                                 <li class="active">
@@ -3578,7 +3922,7 @@ except ApiException as e:
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {
-  "description" : "Users",
+  "description" : "UserResponse",
   "schema" : {
     "type" : "array",
     "items" : {
