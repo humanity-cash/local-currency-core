@@ -1,11 +1,10 @@
 import cors from "cors";
-import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
 import morgan from "morgan";
-import router from 'src/router';
-import * as Controller from "src/controllers";
+import router from './router';
+import * as Controller from "./controllers";
 
-dotenv.config();
+
 
 export const getApp = () : Express => {
 
@@ -20,4 +19,4 @@ export const getApp = () : Express => {
   app.post("/reconcile", (req:Request, res:Response) => {Controller.reconciliation(req,res)});
 
   return app;
-}
+};
