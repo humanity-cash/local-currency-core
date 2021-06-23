@@ -151,11 +151,11 @@ export async function getWalletAddressAtIndex(index: number): Promise<string> {
 
 export async function getWalletForAddress(address: string): Promise<IWallet> {
   const ubi = await getWalletContractFor(address);
-  let promises = [
+  const promises = [
     ubi.methods.userId().call(),
     ubi.methods.createdBlock().call(),
   ];
-  let results = await Promise.all(promises);
+  const results = await Promise.all(promises);
   const userId = results[0];
   const createdBlock = results[1];
 
