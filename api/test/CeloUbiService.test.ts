@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { v4 } from "uuid";
 import Web3 from "web3";
-import * as celoUBI from "../src/service/celoubi";
+import * as celoUBI from "../src/core/celoubi";
 import { toBytes32 } from "../src/utils/crypto";
 import { log, setupContracts } from "./utils";
 import path from "path";

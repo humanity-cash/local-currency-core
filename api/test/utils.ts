@@ -92,9 +92,9 @@ async function deployContract(
   let contractInstance;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const abi = require(`../src/service/celoubi/artifacts/${name}.abi.json`);
+    const abi = require(`../src/core/celoubi/artifacts/${name}.abi.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const bytecode = require(`../src/service/celoubi/artifacts/${name}.bin.json`);
+    const bytecode = require(`../src/core/celoubi/artifacts/${name}.bin.json`);
 
     const tempContract = new web3.eth.Contract(abi);
     const isZos = !!tempContract.methods.initialize;

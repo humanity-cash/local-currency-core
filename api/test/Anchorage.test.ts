@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
-import * as anchorage from "../src/service/custodian/Anchorage";
-import { quoteRequest } from "../src/service/custodian/AnchorageTypes";
+import * as anchorage from "../src/core/custodian/Anchorage";
+import { quoteRequest } from "../src/core/custodian/AnchorageTypes";
 import path from "path";
 
 const result = dotenv.config({

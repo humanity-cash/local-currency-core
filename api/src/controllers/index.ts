@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import * as Owner from "src/service/OwnerService";
-import * as PublicServices from "src/service/PublicService";
+import * as Owner from "src/core/OwnerService";
+import * as PublicServices from "src/core/PublicService";
 import { httpUtils } from "src/utils";
 
 const codes = httpUtils.codes;
