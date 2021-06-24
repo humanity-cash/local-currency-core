@@ -31,6 +31,7 @@
     "@types/supertest": "^2.0.11",
     "axios": "^0.21.0",
     "cors": "^2.8.5",
+    "dwolla-v2": "^3.2.0",
     "ed25519-supercop": "^2.0.1",
     "ethers": "^5.0.17",
     "express": "^4.17.1",
