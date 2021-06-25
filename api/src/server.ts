@@ -1,10 +1,8 @@
 import cors from "cors";
 import express, { Express, Request, Response } from "express";
 import morgan from "morgan";
-import router from './router';
+import router from "./router";
 import * as Controller from "./controllers";
-
-
 
 export const getApp = (): Express => {
   const app = express();

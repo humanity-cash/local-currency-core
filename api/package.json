@@ -12,7 +12,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "jest --passWithNoTests --forceExit --detectOpenHandles --config=jest.config.js",
+    "test": "jest --passWithNoTests --forceExit --detectOpenHandles --verbose --config=jest.config.js",
     "coverage": "yarn test --coverage",
     "build:watch": "tsc --watch",
     "build": "tsc",
