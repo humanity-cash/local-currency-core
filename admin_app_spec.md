@@ -1,5 +1,5 @@
 # Admin web app
-## users:
+## Stakeholders:
 1. HC users
 2. Banks
 ## Features:		
