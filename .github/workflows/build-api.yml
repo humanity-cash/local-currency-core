@@ -33,9 +33,11 @@ jobs:
           touch .env
           yarn coverage
         env:
-          CELO_UBI_RPC_HOST: "http://localhost:8545"
-          CELO_UBI_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
-          CELO_UBI_ADDRESS: "0xC1D4b3Cb3311197dE79FA13E0Dff1CBD7e356780"
+          DEBUG: "true"
+          LOCAL_CURRENCY_PROVIDER: "web3"
+          LOCAL_CURRENCY_RPC_HOST: "http://localhost:8545"
+          LOCAL_CURRENCY_ADDRESS: ""
+          LOCAL_CURRENCY_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached
