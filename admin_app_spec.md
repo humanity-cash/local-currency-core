@@ -1,18 +1,18 @@
 # Admin web app
 ## users:
-##### HC users
-##### Banks
+1. HC users
+2. Banks
 ## Features:		
-##### Configure contracts			
-##### Mint token			
-##### Burn token			
-##### Start contract			
-##### Stop contract
-##### Change contract version	
+1. Configure contracts			
+2. Mint token			
+3. Burn token			
+4. Start contract			
+5. Stop contract
+6. Change contract version	
 ## Authentication: 
-##### Signup:
+1. Signup:
 	//TODO
-##### Login:
+2. Login:
 	//TODO
-##### Roles:
+3. Roles:
 	//Todo
