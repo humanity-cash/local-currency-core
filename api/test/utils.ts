@@ -1,40 +1,27 @@
 import { Contract, SendOptions } from "web3-eth-contract";
 // @ts-ignore
 import path from "path";
-import { getKit } from "../src/utils/getKit";
-import { ContractKit } from "@celo/contractkit/lib/kit";
+import { getProvider } from "../src/utils/getProvider";
 import * as web3Utils from "web3-utils";
 import Web3 from "web3";
-import { generateKeys } from "@celo/utils/lib/account";
-import { privateKeyToAddress } from "@celo/utils/lib/address";
 
 let sendOptions: SendOptions;
-let kit: ContractKit;
 let web3: Web3;
+let contractsSetup = false;
 
 export function log(...data: any[]): void {
-  if (process.env.DEBUG === "true") console.log(data);
+  if (process.env.DEBUG === "true") console.log(...data);
 }
 
 export async function setupContracts(): Promise<void> {
-  kit = await getKit();
-  web3 = new Web3(process.env.LOCAL_CURRENCY_RPC_HOST);
+  if (contractsSetup) return;
 
-  const key = await generateKeys(
-    process.env.LOCAL_CURRENCY_MNEMONIC,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    test ? "m/44'/60'/0'" : undefined
-  );
-  kit.addAccount(key.privateKey);
-  const account = privateKeyToAddress(key.privateKey);
-  console.log("Test accounts:", await kit.getWallet().getAccounts());
-  kit.defaultAccount = account;
+  const provider = await getProvider();
+  web3 = provider.web3;
+  const owner = provider.defaultAccount;
 
   sendOptions = {
-    from: kit.defaultAccount,
+    from: owner,
     gas: 6721975,
     gasPrice: "10000",
   };
@@ -46,10 +33,10 @@ export async function setupContracts(): Promise<void> {
     "WalletFactory",
     /*
       constructor
-      IWallet _wallet,
       IERC20 _erc20Token
+      IWallet _wallet,
      */
-    [Wallet.options.address, Token.options.address]
+    [Token.options.address, Wallet.options.address]
   );
 
   const Controller = await deployContract(
@@ -62,7 +49,15 @@ export async function setupContracts(): Promise<void> {
     [Token.options.address, WalletFactory.options.address]
   );
 
+  // Make controller own factory
+  await WalletFactory.methods
+    .transferOwnership(Controller.options.address)
+    .send(sendOptions);
+
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
+
+  console.log("Controller Address:", Controller.options.address);
+  contractsSetup = true;
 }
 
 async function deployContract(
@@ -87,7 +82,18 @@ async function deployContract(
 
     contractInstance = await tx.send(sendOptions);
 
-    log("Deployed", name, "at", contractInstance.options.address, isZos);
+    log(
+      "Deployed",
+      name,
+      "at",
+      contractInstance.options.address,
+      "isZos:",
+      isZos,
+      "args:",
+      args,
+      "from:",
+      sendOptions.from
+    );
   } catch (err) {
     console.error(
       "Deployment failed for",

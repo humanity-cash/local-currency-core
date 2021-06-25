@@ -33,9 +33,11 @@ jobs:
           touch .env
           yarn coverage
         env:
+          DEBUG: "true"
+          LOCAL_CURRENCY_PROVIDER: "web3"
           LOCAL_CURRENCY_RPC_HOST: "http://localhost:8545"
-          LOCAL_CURRENCY_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
           LOCAL_CURRENCY_ADDRESS: ""
+          LOCAL_CURRENCY_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached
