@@ -1,20 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as CeloUBI from "./celoubi";
+import * as contracts from "./contracts";
 
 export async function reconcile(): Promise<any> {
-  return await CeloUBI.reconcile();
+  return await contracts.reconcile();
 }
 
 export async function transferOwnership(newOwner: string): Promise<any> {
-  return await CeloUBI.transferOwnership(newOwner);
-}
-
-export async function setCustodian(newCustodian: string): Promise<any> {
-  return await CeloUBI.setCustodian(newCustodian);
-}
-
-export async function setDisbursementWei(
-  newDisbursementWei: number
-): Promise<any> {
-  return await CeloUBI.setDisbursementWei(newDisbursementWei);
+  return await contracts.transferOwnership(newOwner);
 }

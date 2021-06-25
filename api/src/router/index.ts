@@ -1,5 +1,5 @@
-import express from 'express';
-import user from './user';
+import express from "express";
+import user from "./user";
 
 const router = express();
 
