@@ -7,7 +7,7 @@ const codes = httpUtils.codes;
 
 export async function getAllUsers(_req: Request, res: Response): Promise<void> {
   try {
-    const users = await PublicServices.getAllBeneficiaries();
+    const users = await PublicServices.getAllWallets();
     httpUtils.createHttpResponse(users, codes.OK, res);
   } catch (err) {
     httpUtils.createHttpResponse(
@@ -82,7 +82,7 @@ export async function getAllUsersSettlements(
   res: Response
 ): Promise<void> {
   try {
-    const users = await PublicServices.getAllBeneficiaries();
+    const users = await PublicServices.getAllWallets();
     const addresses = await Promise.all(
       users.map(({ userId }) => PublicServices.getWalletAddress(userId))
     );

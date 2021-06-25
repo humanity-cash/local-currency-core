@@ -17,15 +17,15 @@ if (result.error) {
 
 describe("Check basic connectivity to a smart contract", () => {
   const userIdRaw = v4();
-  const transactionId = v4();
   log("Performing unit tests with new user " + userIdRaw);
+
+  const transactionId = v4();
   log("Performing unit tests with transactionId " + transactionId);
+
   const userId = toBytes32(userIdRaw);
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await setupContracts();
-
-    await contracts.newWallet(userId);
   });
 
   describe("Call public functions", () => {
@@ -42,7 +42,11 @@ describe("Check basic connectivity to a smart contract", () => {
     });
   });
 
-  describe("Call user functions", () => {
+  describe.skip("Call user functions", () => {
+    beforeAll(async () => {
+      await contracts.newWallet(userIdRaw);
+    });
+
     it("Should create a new wallet", async () => {
       const newUbiBeneficiary = await contracts.newWallet(userIdRaw);
       log(`newUbiBeneficiary == ${newUbiBeneficiary}`);

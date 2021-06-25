@@ -1,10 +1,11 @@
 export interface HealthResponse {
-  blockNumber: string;
-  chainId: string;
+  blockNumber: number;
+  chainId: number;
   nodeInfo: string;
   token: string;
-  countOfWallets: number;
+  walletCount: number;
   owner: string;
+  walletFactory: string;
 }
 
 export interface IWallet {

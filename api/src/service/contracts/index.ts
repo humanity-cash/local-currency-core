@@ -4,32 +4,34 @@ import * as web3Utils from "web3-utils";
 import { toBytes32 } from "src/utils/crypto";
 import Wallet from "./artifacts/Wallet.abi.json";
 import Controller from "./artifacts/Controller.abi.json";
-import { getKit } from "src/utils/getKit";
+import { getProvider } from "src/utils/getProvider";
 import { Contract } from "web3-eth-contract";
-import { ContractKit } from "@celo/contractkit/lib/kit";
 
 const getControllerContract = async (): Promise<Contract> => {
-  const kit: ContractKit = await getKit();
-  const contract = new kit.web3.eth.Contract(
+  const { web3 } = await getProvider();
+  const controller = new web3.eth.Contract(
     Controller as web3Utils.AbiItem[],
     process.env.LOCAL_CURRENCY_ADDRESS
   );
-  return contract;
+  return controller;
 };
 
 const getWalletContractFor = async (address: string): Promise<Contract> => {
-  const kit = await getKit();
-  const contract = new kit.web3.eth.Contract(
-    Wallet as web3Utils.AbiItem[],
-    address
-  );
-  return contract;
+  const { web3 } = await getProvider();
+  const wallet = new web3.eth.Contract(Wallet as web3Utils.AbiItem[], address);
+  return wallet;
 };
 
 export async function owner(): Promise<string> {
   const controller = await getControllerContract();
   const owner = await controller.methods.owner().call();
   return owner;
+}
+
+export async function walletFactory(): Promise<string> {
+  const controller = await getControllerContract();
+  const walletFactory = await controller.methods.walletFactory().call();
+  return walletFactory;
 }
 
 export async function token(): Promise<string> {
@@ -45,20 +47,16 @@ export async function getWalletAddress(userId: string): Promise<string> {
 }
 
 export async function newWallet(userId: string): Promise<string> {
-  const kit = await getKit();
+  const { defaultAccount, sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const txo = await controller.methods.newWallet(userId);
+  const newWallet = await controller.methods.newWallet(userId);
   try {
-    const tx = await kit.sendTransactionObject(txo, {
-      from: kit.defaultAccount,
-    });
-    await tx.getHash();
-    await tx.waitReceipt();
-    return await getWalletAddress(toBytes32(userId));
+    await sendTransaction(newWallet);
   } catch (err) {
-    console.error(txo._method.name, userId, kit.defaultAccount, err);
+    console.error(newWallet._method.name, userId, defaultAccount, err.message);
     throw err;
   }
+  return await getWalletAddress(toBytes32(userId));
 }
 
 export async function balanceOfWallet(userId: string): Promise<string> {
@@ -72,46 +70,36 @@ export async function settle(
   transactionId: string,
   value: number
 ): Promise<TransactionReceipt> {
-  const kit = await getKit();
+  const { sendTransaction, defaultAccount } = await getProvider();
   const controller = await getControllerContract();
   const valueInWei = web3Utils.toWei(`${value}`, "ether");
-  const txo = await controller.methods.settle(
+  const settle = await controller.methods.settle(
     userId,
     transactionId,
     valueInWei
   );
   try {
-    const tx = await kit.sendTransactionObject(txo, {
-      from: kit.defaultAccount,
-    });
-    await tx.getHash();
-    const receipt = await tx.waitReceipt();
-    return receipt;
+    return await sendTransaction(settle);
   } catch (err) {
     console.error(
-      txo._method.name,
+      settle._method.name,
       userId,
       transactionId,
       valueInWei,
-      kit.defaultAccount
+      defaultAccount
     );
     throw err;
   }
 }
 
 export async function reconcile(): Promise<TransactionReceipt> {
-  const kit = await getKit();
+  const { sendTransaction, defaultAccount } = await getProvider();
   const controller = await getControllerContract();
-  const txo = await controller.methods.reconcile();
+  const reconcile = await controller.methods.reconcile();
   try {
-    const tx = await kit.sendTransactionObject(txo, {
-      from: kit.defaultAccount,
-    });
-    await tx.getHash();
-    const receipt = await tx.waitReceipt();
-    return receipt;
+    return await sendTransaction(reconcile);
   } catch (err) {
-    console.error(txo._method.name, kit.defaultAccount);
+    console.error(reconcile._method.name, defaultAccount);
     throw err;
   }
 }
@@ -119,18 +107,15 @@ export async function reconcile(): Promise<TransactionReceipt> {
 export async function transferOwnership(
   newOwner: string
 ): Promise<TransactionReceipt> {
-  const kit = await getKit();
+  const { sendTransaction, defaultAccount } = await getProvider();
   const controller = await getControllerContract();
-  const txo = await controller.methods.transferOwnership(newOwner);
+  const transferOwnership = await controller.methods.transferOwnership(
+    newOwner
+  );
   try {
-    const tx = await kit.sendTransactionObject(txo, {
-      from: kit.defaultAccount,
-    });
-    await tx.getHash();
-    const receipt = await tx.waitReceipt();
-    return receipt;
+    return await sendTransaction(transferOwnership);
   } catch (err) {
-    console.error(txo._method.name, newOwner, kit.defaultAccount);
+    console.error(transferOwnership._method.name, newOwner, defaultAccount);
     throw err;
   }
 }
@@ -138,7 +123,7 @@ export async function transferOwnership(
 export async function getWalletCount(): Promise<number> {
   const controller = await getControllerContract();
   const count = await controller.methods.getWalletCount().call();
-  return count;
+  return Number(count);
 }
 
 export async function getWalletAddressAtIndex(index: number): Promise<string> {
@@ -150,17 +135,14 @@ export async function getWalletAddressAtIndex(index: number): Promise<string> {
 }
 
 export async function getWalletForAddress(address: string): Promise<IWallet> {
-  const ubi = await getWalletContractFor(address);
-  const promises = [
-    ubi.methods.userId().call(),
-    ubi.methods.createdBlock().call(),
-  ];
-  const results = await Promise.all(promises);
-  const userId = results[0];
-  const createdBlock = results[1];
+  const wallet = await getWalletContractFor(address);
+  const [userId, createdBlock] = await Promise.all([
+    wallet.methods.userId().call(),
+    wallet.methods.createdBlock().call(),
+  ]);
 
   const balance = parseFloat(
-    web3Utils.fromWei(await this.wallet(toBytes32(userId)), "ether")
+    web3Utils.fromWei(await this.balanceOfWallet(toBytes32(userId)), "ether")
   );
 
   const user: IWallet = {
@@ -176,20 +158,24 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
 export async function getSettlementsForAddress(
   address: string
 ): Promise<Settlement[]> {
-  const ubi = await getWalletContractFor(address);
-  const keys = await ubi.methods.getSettlementKeys().call();
+  const wallet = await getWalletContractFor(address);
+  const keys = await wallet.methods.getSettlementKeys().call();
   console.log(`keys = ${keys}`);
-  const promises = keys.map((key, index) => {
-    return ubi.methods.getSettlementAtKey(key).call();
-  });
-  const settlements = await Promise.all(promises);
+
+  const settlements = await Promise.all(
+    keys.map((key) => {
+      return wallet.methods.getSettlementAtKey(key).call();
+    })
+  );
   console.log(`settlements = ${JSON.stringify(settlements)}`);
-  const parsedSettlements: Settlement[] = settlements.map((settle, index) => {
+
+  const parsedSettlements: Settlement[] = settlements.map((settle) => {
     return {
       transactionId: settle["1"],
       settlementAmount: parseFloat(web3Utils.fromWei(settle["0"], "ether")),
     };
   });
   console.log(`parsedSettlements = ${JSON.stringify(parsedSettlements)}`);
+
   return parsedSettlements;
 }

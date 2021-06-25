@@ -2,13 +2,13 @@
   {
     "inputs": [
       {
-        "internalType": "contract IWallet",
-        "name": "_wallet",
+        "internalType": "address",
+        "name": "_erc20Token",
         "type": "address"
       },
       {
-        "internalType": "contract IERC20",
-        "name": "_erc20Token",
+        "internalType": "address",
+        "name": "_wallet",
         "type": "address"
       }
     ],
