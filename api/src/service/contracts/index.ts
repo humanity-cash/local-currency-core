@@ -104,18 +104,45 @@ export async function reconcile(): Promise<TransactionReceipt> {
   }
 }
 
-export async function transferOwnership(
+export async function transferWalletOwnership(
+  newOwner: string,
+  userId: string
+): Promise<TransactionReceipt> {
+  const { sendTransaction, defaultAccount } = await getProvider();
+  const controller = await getControllerContract();
+  const transferWalletOwnership = await controller.methods.transferWalletOwnership(
+    newOwner,
+    userId
+  );
+  try {
+    return await sendTransaction(transferWalletOwnership);
+  } catch (err) {
+    console.error(
+      transferWalletOwnership._method.name,
+      newOwner,
+      userId,
+      defaultAccount
+    );
+    throw err;
+  }
+}
+
+export async function transferContractOwnership(
   newOwner: string
 ): Promise<TransactionReceipt> {
   const { sendTransaction, defaultAccount } = await getProvider();
   const controller = await getControllerContract();
-  const transferOwnership = await controller.methods.transferOwnership(
+  const transferContractOwnership = await controller.methods.transferContractOwnership(
     newOwner
   );
   try {
-    return await sendTransaction(transferOwnership);
+    return await sendTransaction(transferContractOwnership);
   } catch (err) {
-    console.error(transferOwnership._method.name, newOwner, defaultAccount);
+    console.error(
+      transferContractOwnership._method.name,
+      newOwner,
+      defaultAccount
+    );
     throw err;
   }
 }
