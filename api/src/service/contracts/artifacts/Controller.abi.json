@@ -145,6 +145,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "walletFactory",
     "outputs": [
@@ -280,7 +293,25 @@
         "type": "address"
       }
     ],
-    "name": "transferOwnership",
+    "name": "transferContractOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "userId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "transferWalletOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

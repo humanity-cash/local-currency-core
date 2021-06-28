@@ -26,15 +26,18 @@ export async function setupContracts(): Promise<void> {
     gasPrice: "10000",
   };
 
-  const Token = await deployContract("ERC20", ["TestToken", "TT"]);
   const Wallet = await deployContract("Wallet");
+  const Token = await deployContract("ERC20PresetMinterPauser", [
+    "TestToken",
+    "TT",
+  ]);
 
   const WalletFactory = await deployContract(
     "WalletFactory",
     /*
       constructor
-      IERC20 _erc20Token
-      IWallet _wallet,
+      address _erc20Token
+      address _wallet,
      */
     [Token.options.address, Wallet.options.address]
   );
@@ -54,6 +57,10 @@ export async function setupContracts(): Promise<void> {
     .transferOwnership(Controller.options.address)
     .send(sendOptions);
 
+  await Token.methods
+    .mint(Controller.options.address, Web3.utils.toWei("10000000", "ether"))
+    .send(sendOptions);
+
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
 
   console.log("Controller Address:", Controller.options.address);
@@ -71,13 +78,12 @@ async function deployContract(
     const abi = require(`../src/service/contracts/artifacts/${name}.abi.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const bytecode = require(`../src/service/contracts/artifacts/${name}.bin.json`);
+    const data = replaceTokens(bytecode, tokens);
 
     const tempContract = new web3.eth.Contract(abi as web3Utils.AbiItem[]);
-    const isZos = !!tempContract.methods.initialize;
-    const data = replaceTokens(bytecode, tokens);
     const tx = tempContract.deploy({
       data,
-      arguments: isZos ? undefined : args,
+      arguments: args,
     });
 
     contractInstance = await tx.send(sendOptions);
@@ -87,8 +93,6 @@ async function deployContract(
       name,
       "at",
       contractInstance.options.address,
-      "isZos:",
-      isZos,
       "args:",
       args,
       "from:",
@@ -102,6 +106,7 @@ async function deployContract(
       JSON.stringify(args, null, 2),
       err.message
     );
+
     throw err;
   }
 

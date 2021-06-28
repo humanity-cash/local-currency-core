@@ -24,7 +24,7 @@ describe("Check basic connectivity to a smart contract", () => {
 
   const userId = toBytes32(userIdRaw);
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await setupContracts();
   });
 
@@ -42,24 +42,20 @@ describe("Check basic connectivity to a smart contract", () => {
     });
   });
 
-  describe.skip("Call user functions", () => {
-    beforeAll(async () => {
-      await contracts.newWallet(userIdRaw);
+  describe("Call user functions", () => {
+    it.skip("Should create a new wallet", async () => {
+      const wallet = await contracts.newWallet(userIdRaw);
+      log(`wallet == ${wallet}`);
+      expect(wallet).toBeDefined();
     });
 
-    it("Should create a new wallet", async () => {
-      const newUbiBeneficiary = await contracts.newWallet(userIdRaw);
-      log(`newUbiBeneficiary == ${newUbiBeneficiary}`);
-      expect(newUbiBeneficiary).toBeDefined();
-    });
-
-    it("Should retrieve balance of new UBI beneficiary", async () => {
+    it.skip("Should retrieve balance of a new wallet", async () => {
       const balance = await contracts.balanceOfWallet(userId);
       log(`balance == ${balance}`);
       expect(parseInt(balance)).toBeGreaterThan(0);
     });
 
-    it("Should create a few new UBI beneficiary and iterate them", async () => {
+    it.skip("Should create a few new wallets and iterate them", async () => {
       await contracts.newWallet(v4());
       await contracts.newWallet(v4());
       await contracts.newWallet(v4());
@@ -77,6 +73,15 @@ describe("Check basic connectivity to a smart contract", () => {
 
       console.log(users);
       expect(users.length).toBeGreaterThanOrEqual(3);
+    });
+  });
+
+  describe("Transfer ownership", () => {
+    it("Should transfer ownership of the controller", async () => {
+      const addr = await contracts.token();
+      await contracts.transferContractOwnership(addr);
+      const newOwner = await contracts.owner();
+      expect(newOwner).toEqual(addr);
     });
   });
 });
