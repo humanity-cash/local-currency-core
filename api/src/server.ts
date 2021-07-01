@@ -3,8 +3,7 @@ import express, { Express, Request, Response } from "express";
 import morgan from "morgan";
 import router from './router';
 import * as Controller from "./controllers";
-
-
+import { dwollaWebhook } from "./router/webhook/controller";
 
 export const getApp = () : Express => {
 
@@ -17,6 +16,7 @@ export const getApp = () : Express => {
   app.use(router);
   app.get("/health", (req:Request, res:Response) => {Controller.health(req, res)});
   app.post("/reconcile", (req:Request, res:Response) => {Controller.reconciliation(req,res)});
+  app.post("/webhook", (req:Request, res:Response) => {dwollaWebhook(req,res)});
 
   return app;
 };

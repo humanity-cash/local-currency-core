@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import * as dwolla from "dwolla-v2";
 import {
   DwollaClientOptions,
+  DwollaEvent,
   DwollaPersonalVerifiedCustomerRequest,
 } from "./DwollaTypes";
 
@@ -35,4 +36,13 @@ export async function createPersonalVerifiedCustomer(
     throw e;
   }
   return customerURL;
+}
+
+export async function consumeWebhook(
+  eventToProcess: DwollaEvent
+): Promise<boolean> {
+  console.log("Dwolla.consumeWebhook() Processing Event:");
+  console.log(JSON.stringify(eventToProcess, null, 2));
+  console.log("Not implemented, returning false...");
+  return false;
 }
