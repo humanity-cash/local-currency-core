@@ -30,6 +30,7 @@
     "@types/jest": "^26.0.23",
     "@types/supertest": "^2.0.11",
     "axios": "^0.21.0",
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "dwolla-v2": "^3.2.0",
     "ed25519-supercop": "^2.0.1",
