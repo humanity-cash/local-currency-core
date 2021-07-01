@@ -29,3 +29,25 @@ export interface DwollaClientOptions {
   secret: string;
   environment: "sandbox" | "production";
 }
+
+export interface Href {
+  href: string;
+}
+export interface DwollaSelfLinks {
+  self: Href;
+  resource: Href;
+  account: Href;
+}
+
+// _links	Contains links to the event, associated resource, and the Account associated with the event.
+// id	Event id
+// created	ISO-8601 timestamp when event was created
+// topic	Type of event
+// resourceId	id of the resource associated with the event.
+export interface DwollaEvent {
+  _links: DwollaSelfLinks;
+  id: string;
+  created: string;
+  topic: string;
+  resourceId: string;
+}
