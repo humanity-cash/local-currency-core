@@ -27,10 +27,7 @@ export async function setupContracts(): Promise<void> {
   };
 
   const Wallet = await deployContract("Wallet");
-  const Token = await deployContract("ERC20PresetMinterPauser", [
-    "TestToken",
-    "TT",
-  ]);
+  const Token = await deployContract("Token", ["TestToken", "TT"]);
 
   const WalletFactory = await deployContract(
     "WalletFactory",
@@ -60,6 +57,11 @@ export async function setupContracts(): Promise<void> {
   await Token.methods
     .mint(Controller.options.address, Web3.utils.toWei("10000000", "ether"))
     .send(sendOptions);
+
+  await Token.methods.grantRole(
+    web3Utils.keccak256("MINTER_ROLE"),
+    Controller.options.address
+  );
 
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
 

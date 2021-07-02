@@ -80,20 +80,14 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_userId",
+        "name": "_fromUserId",
         "type": "bytes32"
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_walletAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
+        "internalType": "bytes32",
+        "name": "_toUserId",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -102,7 +96,7 @@
         "type": "uint256"
       }
     ],
-    "name": "SettlementEvent",
+    "name": "TransferToEvent",
     "type": "event"
   },
   {
@@ -291,9 +285,9 @@
     "name": "userId",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -340,51 +334,14 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_userId",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getSettlementKeys",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "",
-        "type": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getSettlementAtKey",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -403,9 +360,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
+        "internalType": "contract IWallet",
+        "name": "_toWallet",
+        "type": "address"
       },
       {
         "internalType": "uint256",
@@ -413,8 +370,14 @@
         "type": "uint256"
       }
     ],
-    "name": "settle",
-    "outputs": [],
+    "name": "transferTo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

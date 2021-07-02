@@ -1,4 +1,4 @@
-import { Settlement, IWallet } from "src/types";
+import { IWallet } from "src/types";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import { toBytes32 } from "src/utils/crypto";
@@ -18,6 +18,10 @@ const getControllerContract = async (): Promise<Contract> => {
 
 const getWalletContractFor = async (address: string): Promise<Contract> => {
   const { web3 } = await getProvider();
+  const code = await web3.eth.getCode(address);
+  if (code === "0x") {
+    throw new Error(`Wallet not found at: ${address}`);
+  }
   const wallet = new web3.eth.Contract(Wallet as web3Utils.AbiItem[], address);
   return wallet;
 };
@@ -42,21 +46,31 @@ export async function token(): Promise<string> {
 
 export async function getWalletAddress(userId: string): Promise<string> {
   const controller = await getControllerContract();
-  const address = await controller.methods.getWalletAddress(userId).call();
+  const address = await controller.methods
+    .getWalletAddress(toBytes32(userId))
+    .call();
   return address;
 }
 
-export async function newWallet(userId: string): Promise<string> {
-  const { defaultAccount, sendTransaction } = await getProvider();
+export async function deposit(
+  userId: string,
+  amount: string
+): Promise<TransactionReceipt> {
+  const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const newWallet = await controller.methods.newWallet(userId);
-  try {
-    await sendTransaction(newWallet);
-  } catch (err) {
-    console.error(newWallet._method.name, userId, defaultAccount, err.message);
-    throw err;
-  }
-  return await getWalletAddress(toBytes32(userId));
+  const deposit = await controller.methods.deposit(
+    toBytes32(userId),
+    web3Utils.toWei(amount, "ether")
+  );
+  return await sendTransaction(deposit);
+}
+
+export async function newWallet(userId: string): Promise<string> {
+  const { sendTransaction } = await getProvider();
+  const controller = await getControllerContract();
+  const newWallet = await controller.methods.newWallet(toBytes32(userId));
+  await sendTransaction(newWallet);
+  return await getWalletAddress(userId);
 }
 
 export async function balanceOfWallet(userId: string): Promise<string> {
@@ -65,86 +79,43 @@ export async function balanceOfWallet(userId: string): Promise<string> {
   return balance;
 }
 
-export async function settle(
-  userId: string,
-  transactionId: string,
-  value: number
-): Promise<TransactionReceipt> {
-  const { sendTransaction, defaultAccount } = await getProvider();
-  const controller = await getControllerContract();
-  const valueInWei = web3Utils.toWei(`${value}`, "ether");
-  const settle = await controller.methods.settle(
-    userId,
-    transactionId,
-    valueInWei
-  );
-  try {
-    return await sendTransaction(settle);
-  } catch (err) {
-    console.error(
-      settle._method.name,
-      userId,
-      transactionId,
-      valueInWei,
-      defaultAccount
-    );
-    throw err;
-  }
-}
-
-export async function reconcile(): Promise<TransactionReceipt> {
-  const { sendTransaction, defaultAccount } = await getProvider();
-  const controller = await getControllerContract();
-  const reconcile = await controller.methods.reconcile();
-  try {
-    return await sendTransaction(reconcile);
-  } catch (err) {
-    console.error(reconcile._method.name, defaultAccount);
-    throw err;
-  }
-}
-
 export async function transferWalletOwnership(
   newOwner: string,
   userId: string
 ): Promise<TransactionReceipt> {
-  const { sendTransaction, defaultAccount } = await getProvider();
+  const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
   const transferWalletOwnership = await controller.methods.transferWalletOwnership(
     newOwner,
-    userId
+    toBytes32(userId)
   );
-  try {
-    return await sendTransaction(transferWalletOwnership);
-  } catch (err) {
-    console.error(
-      transferWalletOwnership._method.name,
-      newOwner,
-      userId,
-      defaultAccount
-    );
-    throw err;
-  }
+  return await sendTransaction(transferWalletOwnership);
+}
+
+export async function transferTo(
+  fromUserId: string,
+  toUserId: string,
+  amount: string
+): Promise<TransactionReceipt> {
+  const { sendTransaction } = await getProvider();
+  const controller = await getControllerContract();
+  const transferContractOwnership = await controller.methods.transferTo(
+    toBytes32(fromUserId),
+    toBytes32(toUserId),
+    web3Utils.toWei(amount, "ether")
+  );
+  return await sendTransaction(transferContractOwnership);
 }
 
 export async function transferContractOwnership(
   newOwner: string
 ): Promise<TransactionReceipt> {
-  const { sendTransaction, defaultAccount } = await getProvider();
+  const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
   const transferContractOwnership = await controller.methods.transferContractOwnership(
     newOwner
   );
-  try {
-    return await sendTransaction(transferContractOwnership);
-  } catch (err) {
-    console.error(
-      transferContractOwnership._method.name,
-      newOwner,
-      defaultAccount
-    );
-    throw err;
-  }
+  return await sendTransaction(transferContractOwnership);
 }
 
 export async function getWalletCount(): Promise<number> {
@@ -168,9 +139,9 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     wallet.methods.createdBlock().call(),
   ]);
 
-  const balance = parseFloat(
-    web3Utils.fromWei(await this.balanceOfWallet(toBytes32(userId)), "ether")
-  );
+  const b = await this.balanceOfWallet(userId);
+  console.log(b);
+  const balance = parseFloat(web3Utils.fromWei(b, "ether"));
 
   const user: IWallet = {
     userId: userId,
@@ -180,29 +151,4 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     totalBalance: 0,
   };
   return user;
-}
-
-export async function getSettlementsForAddress(
-  address: string
-): Promise<Settlement[]> {
-  const wallet = await getWalletContractFor(address);
-  const keys = await wallet.methods.getSettlementKeys().call();
-  console.log(`keys = ${keys}`);
-
-  const settlements = await Promise.all(
-    keys.map((key) => {
-      return wallet.methods.getSettlementAtKey(key).call();
-    })
-  );
-  console.log(`settlements = ${JSON.stringify(settlements)}`);
-
-  const parsedSettlements: Settlement[] = settlements.map((settle) => {
-    return {
-      transactionId: settle["1"],
-      settlementAmount: parseFloat(web3Utils.fromWei(settle["0"], "ether")),
-    };
-  });
-  console.log(`parsedSettlements = ${JSON.stringify(parsedSettlements)}`);
-
-  return parsedSettlements;
 }
