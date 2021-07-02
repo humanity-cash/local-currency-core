@@ -111,9 +111,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_userId",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "createProxiedWallet",

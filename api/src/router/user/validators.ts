@@ -16,17 +16,11 @@ export const getUser = [...idInParams];
 
 export const getUserAuthorizations = [...idInParams];
 
-export const authorizeUser = [
-  body("userId").isString(),
-  body("transactionId").isString(),
-  body("authorizationAmount").isNumeric(),
+export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
+
+export const transfer = [
+  ...idInParams,
+  body("toUserId").isString(),
+  body("amount").isString(),
   mwVaildator,
 ];
-
-export const deleteUserAuthorization = [
-  body("userId").isString(),
-  body("transactionId").isString(),
-  mwVaildator,
-];
-
-export const getUserSettlements = [...idInParams];
