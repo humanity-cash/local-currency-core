@@ -103,7 +103,7 @@
     "name": "erc20Token",
     "outputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "contract ERC20PresetMinterPauser",
         "name": "",
         "type": "address"
       }
@@ -234,13 +234,13 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_userId",
+        "name": "_fromUserId",
         "type": "bytes32"
       },
       {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
+        "internalType": "bytes32",
+        "name": "_toUserId",
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
@@ -248,17 +248,47 @@
         "type": "uint256"
       }
     ],
-    "name": "settle",
-    "outputs": [],
+    "name": "transferTo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_userId",
-        "type": "string"
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_value",
+        "type": "uint256"
+      }
+    ],
+    "name": "deposit",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_userId",
+        "type": "bytes32"
       }
     ],
     "name": "newWallet",

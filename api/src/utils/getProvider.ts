@@ -72,7 +72,13 @@ export const getProvider = async (): Promise<{
         });
       }
     } catch (err) {
-      console.error(err.message, txo);
+      console.error(
+        "Transaction failed!",
+        err.message,
+        txo._method.name,
+        ...txo.arguments,
+        defaultAccount
+      );
       throw err;
     }
   };

@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import path from "path";
 import { v4 } from "uuid";
 import * as contracts from "../src/service/contracts";
-import { toBytes32 } from "../src/utils/crypto";
 import { log, setupContracts } from "./utils";
 
 const result = dotenv.config({
@@ -16,13 +15,11 @@ if (result.error) {
 }
 
 describe("Check basic connectivity to a smart contract", () => {
-  const userIdRaw = v4();
-  log("Performing unit tests with new user " + userIdRaw);
+  const userId = v4();
+  log("Performing unit tests with new user " + userId);
 
   const transactionId = v4();
   log("Performing unit tests with transactionId " + transactionId);
-
-  const userId = toBytes32(userIdRaw);
 
   beforeEach(async () => {
     await setupContracts();
@@ -44,7 +41,7 @@ describe("Check basic connectivity to a smart contract", () => {
 
   describe("Call user functions", () => {
     it.skip("Should create a new wallet", async () => {
-      const wallet = await contracts.newWallet(userIdRaw);
+      const wallet = await contracts.newWallet(userId);
       log(`wallet == ${wallet}`);
       expect(wallet).toBeDefined();
     });
