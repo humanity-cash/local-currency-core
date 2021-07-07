@@ -85,10 +85,11 @@ export async function transferWalletOwnership(
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const transferWalletOwnership = await controller.methods.transferWalletOwnership(
-    newOwner,
-    toBytes32(userId)
-  );
+  const transferWalletOwnership =
+    await controller.methods.transferWalletOwnership(
+      newOwner,
+      toBytes32(userId)
+    );
   return await sendTransaction(transferWalletOwnership);
 }
 
@@ -112,9 +113,8 @@ export async function transferContractOwnership(
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const transferContractOwnership = await controller.methods.transferContractOwnership(
-    newOwner
-  );
+  const transferContractOwnership =
+    await controller.methods.transferContractOwnership(newOwner);
   return await sendTransaction(transferContractOwnership);
 }
 
