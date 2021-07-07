@@ -13,6 +13,8 @@ export function log(...data: any[]): void {
   if (process.env.DEBUG === "true") console.log(...data);
 }
 
+const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
+
 export async function setupContracts(): Promise<void> {
   if (contractsSetup) return;
 
@@ -26,15 +28,15 @@ export async function setupContracts(): Promise<void> {
     gasPrice: "10000",
   };
 
-  const Token = await deployContract("ERC20", ["TestToken", "TT"]);
   const Wallet = await deployContract("Wallet");
+  const Token = await deployContract("Token", ["TestToken", "TT"]);
 
   const WalletFactory = await deployContract(
     "WalletFactory",
     /*
       constructor
-      IERC20 _erc20Token
-      IWallet _wallet,
+      address _erc20Token
+      address _wallet,
      */
     [Token.options.address, Wallet.options.address]
   );
@@ -54,6 +56,13 @@ export async function setupContracts(): Promise<void> {
     .transferOwnership(Controller.options.address)
     .send(sendOptions);
 
+  // grant controller minter rights
+  await Token.methods
+    .grantRole(MINTER_ROLE, Controller.options.address)
+    .send(sendOptions);
+
+  await Token.methods.renounceRole(MINTER_ROLE, owner).send(sendOptions);
+
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
 
   console.log("Controller Address:", Controller.options.address);
@@ -71,13 +80,12 @@ async function deployContract(
     const abi = require(`../src/service/contracts/artifacts/${name}.abi.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const bytecode = require(`../src/service/contracts/artifacts/${name}.bin.json`);
+    const data = replaceTokens(bytecode, tokens);
 
     const tempContract = new web3.eth.Contract(abi as web3Utils.AbiItem[]);
-    const isZos = !!tempContract.methods.initialize;
-    const data = replaceTokens(bytecode, tokens);
     const tx = tempContract.deploy({
       data,
-      arguments: isZos ? undefined : args,
+      arguments: args,
     });
 
     contractInstance = await tx.send(sendOptions);
@@ -87,8 +95,6 @@ async function deployContract(
       name,
       "at",
       contractInstance.options.address,
-      "isZos:",
-      isZos,
       "args:",
       args,
       "from:",
@@ -102,6 +108,7 @@ async function deployContract(
       JSON.stringify(args, null, 2),
       err.message
     );
+
     throw err;
   }
 

@@ -68,6 +68,8 @@ describe.skip("Unit test crypto utilities", () => {
 describe("Unit test utilities", () => {
   it("Should generate keccak256 hash", async () => {
     const bytes32 = crypto.toBytes32("Random data");
-    expect(bytes32).toBeDefined();
+    expect(bytes32).toEqual(
+      "0x6097c725d47ca0d33ff1df3436ec35592a1887c7a5f39ce022394c59346f42fe"
+    );
   });
 });

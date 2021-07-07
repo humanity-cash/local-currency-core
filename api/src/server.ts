@@ -17,9 +17,6 @@ export const getApp = (): Express => {
   app.get("/health", (req: Request, res: Response) => {
     Controller.health(req, res);
   });
-  app.post("/reconcile", (req: Request, res: Response) => {
-    Controller.reconciliation(req, res);
-  });
 
   return app;
 };
