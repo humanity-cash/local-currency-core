@@ -43,19 +43,6 @@ describe("Check basic connectivity to a smart contract", () => {
   });
 
   describe("Call user functions", () => {
-    it("Should create a new wallet", async () => {
-      const wallet = await contracts.newWallet(v4());
-      log(`wallet == ${wallet}`);
-      expect(wallet).toBeDefined();
-    });
-
-    it("Should retrieve balance of a new wallet", async () => {
-      const balance = await contracts.balanceOfWallet(toBytes32(userId));
-      const bal = utils.fromWei(balance, "ether");
-      log(`balance == ${bal}`);
-      expect(parseFloat(bal)).toEqual(10.0);
-    });
-
     it("Should create a few new wallets and iterate them", async () => {
       await contracts.newWallet(v4());
       await contracts.newWallet(v4());
@@ -73,7 +60,20 @@ describe("Check basic connectivity to a smart contract", () => {
       }
 
       console.log(users);
-      expect(users.length).toBeGreaterThanOrEqual(3);
+      expect(users.length).toEqual(4);
+    });
+
+    it("Should create a new wallet", async () => {
+      const wallet = await contracts.newWallet(v4());
+      log(`wallet == ${wallet}`);
+      expect(wallet).toBeDefined();
+    });
+
+    it("Should retrieve balance of a new wallet", async () => {
+      const balance = await contracts.balanceOfWallet(toBytes32(userId));
+      const bal = utils.fromWei(balance, "ether");
+      log(`balance == ${bal}`);
+      expect(parseFloat(bal)).toEqual(10.0);
     });
   });
 
