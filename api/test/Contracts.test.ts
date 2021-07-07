@@ -86,5 +86,12 @@ describe("Check basic connectivity to a smart contract", () => {
       const newOwnerCheck = await contracts.owner();
       expect(newOwnerCheck).toEqual(newOwner);
     });
+
+    it("Should fail transfer ownership twice", async () => {
+      const { web3 } = await getProvider();
+      const [, , , newOwner] = await web3.eth.getAccounts();
+      expect.assertions(1);
+      await expect(contracts.transferContractOwnership(newOwner)).rejects.toBeDefined();
+    });
   });
 });
