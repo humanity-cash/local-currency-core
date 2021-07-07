@@ -16,17 +16,6 @@ export interface IWallet {
   totalBalance: number;
 }
 
-export interface Settlement {
-  transactionId: string;
-  settlementAmount: number;
-}
-
 export interface NewUser {
   userId: string;
-}
-
-export interface SettlementRequest {
-  userId: string;
-  transactionId: string;
-  settlementAmount: number;
 }

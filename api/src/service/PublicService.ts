@@ -1,5 +1,4 @@
-import { HealthResponse, Settlement, IWallet } from "src/types";
-import { toBytes32 } from "src/utils/crypto";
+import { HealthResponse, IWallet } from "src/types";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 
@@ -40,11 +39,11 @@ export async function token(): Promise<string> {
 }
 
 export async function getWalletAddress(userId: string): Promise<string> {
-  return await contracts.getWalletAddress(toBytes32(userId));
+  return await contracts.getWalletAddress(userId);
 }
 
 export async function balanceOfWallet(userId: string): Promise<string> {
-  return await contracts.balanceOfWallet(toBytes32(userId));
+  return await contracts.balanceOfWallet(userId);
 }
 
 export async function getWallet(userId: string): Promise<IWallet> {
@@ -63,10 +62,4 @@ export async function getAllWallets(): Promise<IWallet[]> {
     users.push(user);
   }
   return users;
-}
-
-export async function getSettlementsForAddress(
-  address: string
-): Promise<Settlement[]> {
-  return await contracts.getSettlementsForAddress(address);
 }
