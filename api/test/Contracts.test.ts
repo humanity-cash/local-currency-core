@@ -8,6 +8,7 @@ import { log, setupContracts } from "./utils";
 import { toBytes32 } from "../src/utils/crypto";
 // @ts-ignore
 import utils from "web3-utils";
+import { getProvider } from "../src/utils/getProvider";
 
 const result = dotenv.config({
   path: path.resolve(process.cwd(), ".env.test"),
@@ -79,10 +80,11 @@ describe("Check basic connectivity to a smart contract", () => {
 
   describe("Transfer ownership", () => {
     it("Should transfer ownership of the controller", async () => {
-      const addr = await contracts.token();
-      await contracts.transferContractOwnership(addr);
-      const newOwner = await contracts.owner();
-      expect(newOwner).toEqual(addr);
+      const { web3 } = await getProvider();
+      const [, , , newOwner] = await web3.eth.getAccounts();
+      await contracts.transferContractOwnership(newOwner);
+      const newOwnerCheck = await contracts.owner();
+      expect(newOwnerCheck).toEqual(newOwner);
     });
   });
 });
