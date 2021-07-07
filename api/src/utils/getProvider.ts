@@ -67,12 +67,21 @@ export const getProvider = async (): Promise<{
         await tx.getHash();
         return await tx.waitReceipt();
       } else if (web3) {
-        return txo.send({
+        const gas = await txo.estimateGas({ from: defaultAccount });
+        return await txo.send({
           from: defaultAccount,
+          gas,
         });
       }
     } catch (err) {
-      console.error(err.message, txo);
+      console.error(
+        "Transaction failed!",
+        err.message,
+        txo._method.name,
+        ...txo.arguments,
+        "from:",
+        defaultAccount
+      );
       throw err;
     }
   };
