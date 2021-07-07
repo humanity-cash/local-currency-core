@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as AuthroizedServices from "src/service/AuthorizedService";
+import * as AuthorizedService from "src/service/AuthorizedService";
 import * as PublicServices from "src/service/PublicService";
 import { httpUtils } from "src/utils";
 
@@ -50,9 +50,9 @@ export async function getUser(req: Request, res: Response): Promise<void> {
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUser = req.body;
-    await AuthroizedServices.createUser(newUser);
-    const user = await PublicServices.getWallet(newUser.userId);
-    httpUtils.createHttpResponse(user, codes.CREATED, res);
+    await AuthorizedService.createUser(newUser);
+    const wallet = await PublicServices.getWallet(newUser.userId);
+    httpUtils.createHttpResponse(wallet, codes.CREATED, res);
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.createHttpResponse(
@@ -77,9 +77,9 @@ export async function deposit(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const deposit = req.body;
-    await AuthroizedServices.deposit(id, deposit.amount);
-    const user = await PublicServices.getWallet(id);
-    httpUtils.createHttpResponse(user, codes.OK, res);
+    await AuthorizedService.deposit(id, deposit.amount);
+    const wallet = await PublicServices.getWallet(id);
+    httpUtils.createHttpResponse(wallet, codes.OK, res);
   } catch (err) {
     httpUtils.createHttpResponse(
       {
@@ -95,7 +95,7 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const transfer = req.body;
-    await AuthroizedServices.transferTo(id, transfer.toUserId, transfer.amount);
+    await AuthorizedService.transferTo(id, transfer.toUserId, transfer.amount);
     const user = await PublicServices.getWallet(id);
     httpUtils.createHttpResponse(user, codes.OK, res);
   } catch (err) {
