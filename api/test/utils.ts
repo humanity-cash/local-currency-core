@@ -13,6 +13,8 @@ export function log(...data: any[]): void {
   if (process.env.DEBUG === "true") console.log(...data);
 }
 
+const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
+
 export async function setupContracts(): Promise<void> {
   if (contractsSetup) return;
 
@@ -54,14 +56,12 @@ export async function setupContracts(): Promise<void> {
     .transferOwnership(Controller.options.address)
     .send(sendOptions);
 
+  // grant controller minter rights
   await Token.methods
-    .mint(Controller.options.address, Web3.utils.toWei("10000000", "ether"))
+    .grantRole(MINTER_ROLE, Controller.options.address)
     .send(sendOptions);
 
-  await Token.methods.grantRole(
-    web3Utils.keccak256("MINTER_ROLE"),
-    Controller.options.address
-  );
+  await Token.methods.renounceRole(MINTER_ROLE, owner).send(sendOptions);
 
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
 
