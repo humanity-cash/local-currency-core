@@ -24,7 +24,7 @@ export async function setupContracts(): Promise<void> {
 
   sendOptions = {
     from: owner,
-    gas: 6721975,
+    gas: (await web3.eth.getBlock("latest")).gasLimit,
     gasPrice: "10000",
   };
 
