@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as AuthroizedServices from "src/service/AuthorizedService";
+import * as AuthorizedService from "src/service/AuthorizedService";
 import * as PublicServices from "src/service/PublicService";
 import { httpUtils } from "src/utils";
 
@@ -7,9 +7,9 @@ const codes = httpUtils.codes;
 
 export async function getAllUsers(_req: Request, res: Response): Promise<void> {
   try {
-    const users = await PublicServices.getAllBeneficiaries();
+    const users = await PublicServices.getAllWallets();
     httpUtils.createHttpResponse(users, codes.OK, res);
-  } catch (err)  {
+  } catch (err) {
     httpUtils.createHttpResponse(
       {
         message: "Server error: " + err,
@@ -20,18 +20,13 @@ export async function getAllUsers(_req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function getUser(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function getUser(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
-    const user = await PublicServices.getBeneficiary(id);
+    const user = await PublicServices.getWallet(id);
     // Create as an array of one item for API consistency
     httpUtils.createHttpResponse([user], codes.OK, res);
   } catch (err) {
-    console.error(err);
-
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.createHttpResponse(
         {
@@ -52,18 +47,13 @@ export async function getUser(
   }
 }
 
-export async function createUser(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUser = req.body;
-    await AuthroizedServices.createUser(newUser);
-    const user = await PublicServices.getBeneficiary(newUser.userId);
-    httpUtils.createHttpResponse(user, codes.CREATED, res);
+    await AuthorizedService.createUser(newUser);
+    const wallet = await PublicServices.getWallet(newUser.userId);
+    httpUtils.createHttpResponse(wallet, codes.CREATED, res);
   } catch (err) {
-    console.error(err);
-
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.createHttpResponse(
         {
@@ -83,122 +73,14 @@ export async function createUser(
   }
 }
 
-export async function getUserAuthorizations(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function deposit(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
-    const address = await PublicServices.beneficiaryAddress(id);
-    const authorizations = await PublicServices.getAuthorizationsForAddress(address);
-    httpUtils.createHttpResponse(authorizations, codes.OK, res);
+    const deposit = req.body;
+    await AuthorizedService.deposit(id, deposit.amount);
+    const wallet = await PublicServices.getWallet(id);
+    httpUtils.createHttpResponse(wallet, codes.OK, res);
   } catch (err) {
-    console.error(err);
-
-    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.createHttpResponse(
-        {
-          message: "User does not exist",
-        },
-        codes.NOT_FOUND,
-        res
-      );
-    else {
-      httpUtils.createHttpResponse(
-        {
-          message: "Server error: " + err,
-        },
-        codes.SERVER_ERROR,
-        res
-      );
-    }
-  }
-}
-
-export async function authorizeUser(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  try {
-    const authorizationRequest = req.body;
-    console.log(authorizationRequest);
-
-    if (
-      httpUtils.validateAttributes(
-        ["userId", "transactionId", "authorizationAmount"],
-        authorizationRequest,
-        res,
-        "body"
-      )
-    ) {
-      const response = await AuthroizedServices.authorization(authorizationRequest);
-      console.log(response);
-      res.status(codes.ACCEPTED).end();
-    }
-  } catch (err) {
-    console.error(err);
-
-    if (err.message?.includes("ERR_NO_BALANCE"))
-      httpUtils.createHttpResponse(
-        {
-          message:
-            "Authorization unsuccessful, not enough balance to authorize",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else if (err.message?.includes("ERR_AUTH_EXISTS"))
-      httpUtils.createHttpResponse(
-        {
-          message:
-            "Authorization unsuccessful, already exists for this transaction ID",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else if (err.message?.includes("ERR_ZERO_VALUE"))
-      httpUtils.createHttpResponse(
-        {
-          message: "Authorization unsuccessful, cannot authorize for zero",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else {
-      httpUtils.createHttpResponse(
-        {
-          message: "Server error: " + err,
-        },
-        codes.SERVER_ERROR,
-        res
-      );
-    }
-  }
-}
-
-export async function deleteUserAuthorization(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  try {
-    const deleteAuth = req.body;
-    if (
-      httpUtils.validateAttributes(
-        ["transactionId", "userId"],
-        deleteAuth,
-        res,
-        "body"
-      )
-    ) {
-      const response = await AuthroizedServices.deleteAuthorization(
-        deleteAuth.userId,
-        deleteAuth.transactionId
-      );
-      console.log(response);
-      res.status(codes.NO_CONTENT).end();
-    }
-  } catch (err) {
-    console.error(err);
     httpUtils.createHttpResponse(
       {
         message: "Server error: " + err,
@@ -209,110 +91,20 @@ export async function deleteUserAuthorization(
   }
 }
 
-export async function getAllUsersSettlements(
-  _req: Request,
-  res: Response,
-): Promise<void> {
+export async function transferTo(req: Request, res: Response): Promise<void> {
   try {
-    const users = await PublicServices.getAllBeneficiaries();
-		const addresses = await Promise.all(users.map(({userId}) => PublicServices.beneficiaryAddress(userId)));
-		const settlements = await Promise.all(addresses.map(address => PublicServices.getSettlementsForAddress(address)));
-		httpUtils.createHttpResponse(settlements, codes.OK, res);
+    const id = req?.params?.id;
+    const transfer = req.body;
+    await AuthorizedService.transferTo(id, transfer.toUserId, transfer.amount);
+    const user = await PublicServices.getWallet(id);
+    httpUtils.createHttpResponse(user, codes.OK, res);
   } catch (err) {
-		httpUtils.createHttpResponse(
-			{
-				message: "Server error: " + err,
-			},
-			codes.SERVER_ERROR,
-			res
-		);
-	}
-}
-
-export async function getUserSettlements(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  try {
-    const userId: string = req?.params?.id;
-		const address = await PublicServices.beneficiaryAddress(userId);
-		const settlements = await PublicServices.getSettlementsForAddress(address);
-		httpUtils.createHttpResponse(settlements, codes.OK, res);
-  } catch (err) {
-    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.createHttpResponse(
-        {
-          message: "User does not exist",
-        },
-        codes.NOT_FOUND,
-        res
-      );
-    else {
-      httpUtils.createHttpResponse(
-        {
-          message: "Server error: " + err,
-        },
-        codes.SERVER_ERROR,
-        res
-      );
-    }
-  }
-}
-
-export async function createSettlementForUser(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  try {
-    const settlementRequest = req.body;
-    console.log(settlementRequest);
-    const response = await AuthroizedServices.settlement(settlementRequest);
-    console.log(response);
-    res.status(codes.ACCEPTED).end();
-  } catch (err) {
-    console.error(err);
-
-    if (err.message?.includes("ERR_NO_BALANCE"))
-      httpUtils.createHttpResponse(
-        {
-          message: "Settlement unsuccessful, not enough balance to authorize",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else if (err.message?.includes("ERR_SETTLE_EXISTS"))
-      httpUtils.createHttpResponse(
-        {
-          message:
-            "Settlement unsuccessful, already exists for this transaction ID",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else if (err.message?.includes("ERR_ZERO_VALUE"))
-      httpUtils.createHttpResponse(
-        {
-          message: "Settlement unsuccessful, cannot settle for zero",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else if (err.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.createHttpResponse(
-        {
-          message: "Settlement unsuccessful, user does not exist",
-        },
-        codes.UNPROCESSABLE,
-        res
-      );
-    else {
-      httpUtils.createHttpResponse(
-        {
-          message: "Server error: " + err,
-        },
-        codes.SERVER_ERROR,
-        res
-      );
-    }
+    httpUtils.createHttpResponse(
+      {
+        message: "Server error: " + err,
+      },
+      codes.SERVER_ERROR,
+      res
+    );
   }
 }
