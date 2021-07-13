@@ -11,12 +11,12 @@ const runServer = () => {
 		console.log(
 			"NODE_ENV:",
 			process.env.NODE_ENV,
-			"\nCELO_UBI_ADDRESS:",
-			process.env.CELO_UBI_ADDRESS,
-			"\nCELO_UBI_RPC_HOST:",
-			process.env.CELO_UBI_RPC_HOST,
-			"\nCELO_UBI_MNEMONIC set:",
-			!!process.env.CELO_UBI_MNEMONIC
+			"\nLOCAL_CURRENCY_ADDRESS:",
+			process.env.LOCAL_CURRENCY_ADDRESS,
+			"\nLOCAL_CURRENCY_RPC_HOST:",
+			process.env.LOCAL_CURRENCY_RPC_HOST,
+			"\nLOCAL_CURRENCY_MNEMONIC set:",
+			!!process.env.LOCAL_CURRENCY_MNEMONIC
 		);
 		console.log(`App listening at http://localhost:${PORT}`);
 	});

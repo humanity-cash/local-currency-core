@@ -1,21 +1,43 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "_custodianPrevious",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "spender",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "_custodianCurrent",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
       }
     ],
-    "name": "CustodianUpdated",
+    "name": "Approval",
     "type": "event"
   },
   {
@@ -24,17 +46,11 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_custodian",
+        "name": "account",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amt",
-        "type": "uint256"
       }
     ],
-    "name": "Reconciled",
+    "name": "Paused",
     "type": "event"
   },
   {
@@ -117,45 +133,38 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "_userId",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_ubiAddress",
+        "name": "to",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "_amt",
+        "name": "value",
         "type": "uint256"
       }
     ],
-    "name": "SettlementEvent",
+    "name": "Transfer",
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "CONTROLLER_ROLE",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "name": "Unpaused",
+    "type": "event"
   },
   {
     "inputs": [],
@@ -168,12 +177,11 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "FACTORY_ROLE",
+    "name": "MINTER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -182,12 +190,35 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "availableBalance",
+    "name": "PAUSER_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
     "outputs": [
       {
         "internalType": "uint256",
@@ -196,40 +227,41 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
-    "inputs": [],
-    "name": "cUBIAuthToken",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
     "outputs": [
       {
-        "internalType": "contract ERC20PresetMinterPauser",
+        "internalType": "bool",
         "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "cUSDToken",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "createdBlock",
+    "name": "balanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -238,8 +270,75 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtractedValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "decreaseAllowance",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -258,47 +357,50 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_key",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRoleMember",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
         "type": "bytes32"
       }
     ],
-    "name": "getSettlementAtKey",
+    "name": "getRoleMemberCount",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "getSettlementKeys",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "",
-        "type": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -340,8 +442,82 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "addedValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "increaseAllowance",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -382,29 +558,6 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_reconciliationAccount",
-        "type": "address"
-      }
-    ],
-    "name": "settle",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"
@@ -419,25 +572,11 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newController",
-        "type": "address"
-      }
-    ],
-    "name": "transferController",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "userId",
+    "name": "symbol",
     "outputs": [
       {
         "internalType": "string",
@@ -446,126 +585,79 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "getVersionNumber",
+    "name": "totalSupply",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_cUSDToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_cUBIAuthToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_controller",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_userId",
-        "type": "string"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_cUSDToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_cUBIAuthToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_custodian",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_controller",
-        "type": "address"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "reconcile",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_custodian",
-        "type": "address"
-      }
-    ],
-    "name": "setCustodian",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getCustodian",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]
