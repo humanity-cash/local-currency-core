@@ -1,27 +1,19 @@
 module.exports = {
-	coveragePathIgnorePatterns: [
-		'/node_modules/',
-		'index.ts'
-	],
+	coveragePathIgnorePatterns: ["/node_modules/", "index.ts"],
 	transform: {
-		"node_modules/variables/.+\\.(j|t)sx?$": "ts-jest"
+		"node_modules/variables/.+\\.(j|t)sx?$": "ts-jest",
 	},
-	transformIgnorePatterns: [
-		"node_modules/(?!variables/.*)"
-	],
+	transformIgnorePatterns: ["node_modules/(?!variables/.*)"],
 	collectCoverageFrom: ["src/**/*.ts"],
-  preset: 'ts-jest',
-  roots: [
-    '<rootDir>/src/',
-    '<rootDir>/test/'
-  ],
-  moduleNameMapper: {
-  '^src/(.*)$': '<rootDir>/src/$1'
+	preset: "ts-jest",
+	roots: ["<rootDir>/src/", "<rootDir>/test/"],
+	moduleNameMapper: {
+		"^src/(.*)$": "<rootDir>/src/$1",
 	},
-  testEnvironment: 'node',
-  globals: {
-    'ts-jest': {
-      diagnostics: true
-    }
-  }
-}
+	testEnvironment: "node",
+	globals: {
+		"ts-jest": {
+			diagnostics: true,
+		},
+	},
+};

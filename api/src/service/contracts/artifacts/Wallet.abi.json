@@ -80,20 +80,14 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_userId",
+        "name": "_fromUserId",
         "type": "bytes32"
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_ubiAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
+        "internalType": "bytes32",
+        "name": "_toUserId",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -102,7 +96,7 @@
         "type": "uint256"
       }
     ],
-    "name": "SettlementEvent",
+    "name": "TransferToEvent",
     "type": "event"
   },
   {
@@ -116,8 +110,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -130,8 +123,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -144,36 +136,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "cUBIAuthToken",
-    "outputs": [
-      {
-        "internalType": "contract ERC20PresetMinterPauser",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "cUSDToken",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -186,8 +149,20 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "erc20Token",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -206,8 +181,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -249,8 +223,7 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -305,22 +278,20 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
     "name": "userId",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -348,19 +319,13 @@
       }
     ],
     "stateMutability": "pure",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_cUSDToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_cUBIAuthToken",
+        "name": "_erc20Token",
         "type": "address"
       },
       {
@@ -369,54 +334,15 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_userId",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getSettlementKeys",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "",
-        "type": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getSettlementAtKey",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
   },
   {
     "inputs": [],
@@ -429,29 +355,29 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_txId",
-        "type": "string"
+        "internalType": "contract IWallet",
+        "name": "_toWallet",
+        "type": "address"
       },
       {
         "internalType": "uint256",
         "name": "_value",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_reconciliationAccount",
-        "type": "address"
       }
     ],
-    "name": "settle",
-    "outputs": [],
+    "name": "transferTo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

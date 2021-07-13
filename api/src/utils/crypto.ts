@@ -31,7 +31,7 @@ export function signEd25519APIRequest(
   privateKey: string,
   publicKey: string
 ): string {
-  const data = timestamp + method + requestPath + (body? body : "");
+  const data = timestamp + method + requestPath + (body ? body : "");
   const signature = ed.sign(data, publicKey, privateKey);
   return signature.toString("hex");
 }
