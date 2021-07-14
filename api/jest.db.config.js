@@ -4,5 +4,5 @@ const jestMainSetup = require('./jest.config')
 
 module.exports = {
   ...jestMainSetup,
-  setupFilesAfterEnv: ['./test/setup-db-integration.ts']
+  setupFilesAfterEnv: ['./test/setup/setup-db-integration.ts']
 }
