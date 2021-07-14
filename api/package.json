@@ -12,9 +12,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "jest --passWithNoTests --forceExit --detectOpenHandles --verbose --config=jest.config.js",
+    "test:contracts": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='crypto'  --verbose --config=jest.config.js",
     "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
-    "coverage": "yarn test --coverage",
+    "coverage": "yarn test:contracts --coverage",
     "build:watch": "tsc --watch",
     "build": "tsc",
     "build:docker": "yarn build && sudo docker build -t keykoio/berkshares-api:latest .",
