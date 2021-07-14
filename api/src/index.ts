@@ -1,12 +1,13 @@
 import dotenv from "dotenv";
-dotenv.config();
 import "./aliases";
+import startDatabase from "./database";
 import { getApp } from "./server";
+dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = getApp();
 
-const runServer = () => {
+const runApp = () => {
 	app.listen(PORT, () => {
 		console.log(
 			"NODE_ENV:",
@@ -22,4 +23,8 @@ const runServer = () => {
 	});
 }
 
-runServer();
+export const startServerWithDatabase = (): void => {
+	startDatabase(runApp);
+};
+
+startServerWithDatabase();
