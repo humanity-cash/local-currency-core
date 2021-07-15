@@ -1,2 +1,4 @@
-export { };
+import ContractsScreen from './contracts';
+
+export { ContractsScreen };
 
