@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
 const SIDE_BAR_OPTIONS = [
 	{ text: 'Transactions', path: '/transactions' }, 
 	{ text: 'Contracts', path: '/contracts' },
-	{  text: 'KYC', path: '/kyc' }
+	{ text: 'Profile', path: '/profile' },
 ]; 
 
 const Sidebar = () => {
@@ -140,10 +140,13 @@ const Sidebar = () => {
         <Divider />
         <List>
           {SIDE_BAR_OPTIONS.map(({ text, path }, index) => (
+          <>
             <ListItem onClick={() => history.push(path)} selected={path === pathname} button key={path}>
               <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
+            <Divider />
+          </>
           ))}
         </List>
       </Drawer>
