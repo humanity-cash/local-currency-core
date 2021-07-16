@@ -1,6 +1,6 @@
-import { TableTemplate } from '../../components';
-import { useContractsState } from '../../hooks';
-import { ContractsState } from '../../types';
+import { TableTemplate } from 'components';
+import { useContractsState } from 'hooks';
+import { ContractsState } from 'types';
 
 interface Column {
   id: 'name' | 'address' | 'deployedAt' | 'status' | 'actions';
