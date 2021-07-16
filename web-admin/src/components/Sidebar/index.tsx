@@ -79,8 +79,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SIDE_BAR_OPTIONS = [
-	{ text: 'Transactions', path: '/transactions' }, 
-	{ text: 'Contracts', path: '/contracts' },
+	{ text: 'ACH', path: '/ach/transactions' }, 
+	{ text: 'Blockchain', path: '/bc/transactions' }, 
+	{ text: 'Smart Contracts', path: '/contracts' },
 	{ text: 'Profile', path: '/profile' },
 ]; 
 
