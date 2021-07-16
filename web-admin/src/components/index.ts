@@ -1,4 +1,5 @@
-import Sidebar from './Sidebar';
-import TableTemplate from './Table';
+import Modal from './modal';
+import Sidebar from './sidebar';
+import TableTemplate from './table';
 
-export { Sidebar, TableTemplate };
+export { Sidebar, TableTemplate, Modal };
