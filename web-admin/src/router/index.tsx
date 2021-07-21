@@ -2,7 +2,7 @@ import { Modal, Sidebar } from "components";
 import {
 	BrowserRouter as Router, Route, Switch
 } from "react-router-dom";
-import { ContractsScreen, TransactionsScreen } from "screens";
+import { ContractsScreen, DashboardScreen, TransactionsScreen } from "screens";
 
 const App = () => {
 	return (
@@ -12,6 +12,7 @@ const App = () => {
 				<Modal />
 				<Switch>
 					<Route path="/contracts" exact component={ContractsScreen}/>
+					<Route path="/" exact component={DashboardScreen}/>
 					<Route path="/ach/transactions" component={TransactionsScreen.ACHTransactionsTable}/>
 					<Route path="/bc/transactions" component={TransactionsScreen.BlockchainTransactionsTable}/>
 				</Switch>
