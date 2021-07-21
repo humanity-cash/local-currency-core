@@ -79,6 +79,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SIDE_BAR_OPTIONS = [
+	{ text: 'DASHBOARD', path: '/' }, 
 	{ text: 'ACH', path: '/ach/transactions' }, 
 	{ text: 'Blockchain', path: '/bc/transactions' }, 
 	{ text: 'Smart Contracts', path: '/contracts' },
