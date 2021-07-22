@@ -12,7 +12,7 @@ import React from 'react';
 const useStyles = makeStyles({
   root: {
     width: '100%',
-		gridColumn: '2/5',
+		gridColumn: '2/6',
 		gridRow: '1/2'
   },
   container: {
