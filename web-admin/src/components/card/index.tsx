@@ -10,6 +10,7 @@ const useStyles = makeStyles({
   },
   title: {
     fontSize: 14,
+    textAlign: 'center'
   },
   contentWrapper: {
     display: 'grid',
