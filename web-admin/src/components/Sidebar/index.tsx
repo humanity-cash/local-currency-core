@@ -16,7 +16,8 @@ import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import clsx from 'clsx';
-import React from 'react';
+import { AuthContext } from 'context/auth';
+import React, { useContext } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -79,11 +80,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SIDE_BAR_OPTIONS = [
-	{ text: 'DASHBOARD', path: '/' }, 
-	{ text: 'ACH', path: '/ach/transactions' }, 
-	{ text: 'Blockchain', path: '/bc/transactions' }, 
-	{ text: 'Smart Contracts', path: '/contracts' },
-	{ text: 'Profile', path: '/profile' },
+	{ text: 'Dashboard', path: '/' }, 
+	{ text: 'ACH Transactions', path: '/ach/transactions' }, 
+	{ text: 'Blockchain Transactions', path: '/bc/transactions' }, 
+	{ text: 'Smart Contracts Configuration', path: '/contracts' },
 ]; 
 
 const Sidebar = () => {
@@ -91,6 +91,7 @@ const Sidebar = () => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 	const { pathname } = useLocation();
+  const auth = useContext(AuthContext)
 	const history = useHistory();
 
   const handleDrawerOpen = () => {
@@ -114,7 +115,7 @@ const Sidebar = () => {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={auth.authStatus ? handleDrawerOpen : () => {}}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
           >
@@ -142,13 +143,10 @@ const Sidebar = () => {
         <Divider />
         <List>
           {SIDE_BAR_OPTIONS.map(({ text, path }, index) => (
-          <>
             <ListItem onClick={() => history.push(path)} selected={path === pathname} button key={path}>
               <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
-            <Divider />
-          </>
           ))}
         </List>
       </Drawer>
