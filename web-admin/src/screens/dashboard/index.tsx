@@ -44,7 +44,7 @@ const Dashboard = () => {
 
   return (
     <div className={classes.wrapper}>
-			{CardsData.map(c => <DataCard title={c.title} body={c.body} />)}
+			{CardsData.map(c => <DataCard key={c.title} title={c.title} body={c.body} />)}
 		</div>
  );
 }
