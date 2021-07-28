@@ -1,38 +1,45 @@
 import { TableTemplate } from 'components';
 import { useBlockchainData } from 'hooks';
-import { BlockchainDataState } from 'types';
+import moment from 'moment';
+import { BlockchainData, BlockchainDataState } from 'types';
 
 interface Column {
-  id: 'from' | 'to' | 'amount' | 'status' | 'time';
+  id: keyof BlockchainData;
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => string;
+  format?: (value: any) => string;
 }
 
 const columns: Column[] = [
-  { id: 'from', label: 'From', minWidth: 100 },
-  { id: 'to', label: 'To', minWidth: 100 },
+  { id: 'fromEmail', label: 'From User', minWidth: 100 },
+  { id: 'toEmail', label: 'To User', minWidth: 100 },
+  { id: 'from', label: 'From Address', minWidth: 100 },
+  { id: 'to', label: 'To Address', minWidth: 100 },
+  { id: 'isToMerchant', label: 'Purchase', minWidth: 100, format: (value: boolean) => value ? 'Yes' : 'No' },
   {
     id: 'amount',
     label: 'Amount',
     minWidth: 100,
-    align: 'right',
     format: (value: number) => value.toLocaleString('en-US'),
+  },
+  {
+    id: 'createdAt',
+    label: 'Created At',
+    minWidth: 100,
+    format: (value: number) => moment().format(),
+  },
+  {
+    id: 'confirmedAt',
+    label: 'Confirmed At',
+    minWidth: 100,
+    format: (value: number) => moment().format(),
   },
   {
     id: 'status',
     label: 'Status',
     minWidth: 100,
-    align: 'right',
     format: (value: number) => value.toLocaleString('en-US'),
-  },
-  {
-    id: 'time',
-    label: 'Time',
-    minWidth: 100,
-    align: 'right',
-    format: (value: number) => value.toFixed(2),
   },
 ];
 

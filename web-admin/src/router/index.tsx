@@ -9,6 +9,7 @@ export const ProtectedRoutes = () => {
 			<Switch>
 					<Route path="/" exact component={() => <DashboardScreen />}/>
 					<Route path="/contracts" exact component={() => <ContractsScreen />}/>
+					<Route path="/users" exact component={() => <ContractsScreen />}/>
 					<Route path="/ach/transactions" exact component={() => <TransactionsScreen.ACHTransactionsTable />}/>
 					<Route path="/bc/transactions" exact component={() => <TransactionsScreen.BlockchainTransactionsTable />}/>
 			</Switch>

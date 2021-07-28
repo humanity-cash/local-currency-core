@@ -10,8 +10,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
@@ -84,22 +82,19 @@ const SIDE_BAR_OPTIONS = [
 	{ text: 'ACH Transactions', path: '/ach/transactions' }, 
 	{ text: 'Blockchain Transactions', path: '/bc/transactions' }, 
 	{ text: 'Smart Contracts Configuration', path: '/contracts' },
+	{ text: 'users', path: '/users' },
 ]; 
 
 const Sidebar = () => {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 	const { pathname } = useLocation();
   const auth = useContext(AuthContext)
 	const history = useHistory();
 
   const handleDrawerOpen = () => {
     setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
   };
 
   return (
@@ -115,7 +110,7 @@ const Sidebar = () => {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={auth.authStatus ? handleDrawerOpen : () => {}}
+            onClick={handleDrawerOpen}
             edge="start"
             className={clsx(classes.menuButton, open && classes.hide)}
           >
@@ -136,9 +131,6 @@ const Sidebar = () => {
         }}
       >
         <div className={classes.drawerHeader}>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
         </div>
         <Divider />
         <List>
