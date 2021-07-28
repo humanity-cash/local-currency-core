@@ -17,8 +17,12 @@ const Actions = () => {
 
   return (
     <>
-      <StartIcon />
-      <StopIcon />
+      <div style={{cursor: 'pointer'}}>
+        <StartIcon />
+      </div>
+      <div style={{cursor: 'pointer'}}>
+        <StopIcon />
+      </div>
     </>
   );
 };

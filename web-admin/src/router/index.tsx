@@ -7,7 +7,7 @@ export const ProtectedRoutes = () => {
 		<>
 			<Sidebar />
 			<Switch>
-					<Route path="/" exact component={() => <DashboardScreen />}/>
+					<Route path="/dashboard" exact component={() => <DashboardScreen />}/>
 					<Route path="/contracts" exact component={() => <ContractsScreen />}/>
 					<Route path="/users" exact component={() => <ContractsScreen />}/>
 					<Route path="/ach/transactions" exact component={() => <TransactionsScreen.ACHTransactionsTable />}/>

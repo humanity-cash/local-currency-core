@@ -43,15 +43,17 @@ const defaultState: IAuth = {
 export const AuthContext = React.createContext(defaultState)
 
 export const AuthIsSignedIn: React.FunctionComponent = ({ children }) => {
+  const history = useHistory();
   const { authStatus }: IAuth = useContext(AuthContext)
 
-  return <>{authStatus === AuthStatus.SignedIn ? children : null}</>
+  return <>{authStatus === AuthStatus.SignedIn ? children : history.push('login')}</>
 }
 
 export const AuthIsNotSignedIn: React.FunctionComponent = ({ children }) => {
+  const history = useHistory();
   const { authStatus }: IAuth = useContext(AuthContext)
 
-  return <>{authStatus !== AuthStatus.SignedIn ? children : null}</>
+  return <>{authStatus !== AuthStatus.SignedIn ? children : history.push('/dashboard')}</>
 }
 
 const AuthProvider: React.FunctionComponent = ({ children }) => {
