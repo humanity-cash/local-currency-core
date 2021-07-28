@@ -72,6 +72,7 @@ const LoginScreen = (props: LoginScreenProps) => {
         </Grid>
       </Grid>
   </Container>
-  )
-}
+  );
+};
+
 export default LoginPage;

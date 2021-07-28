@@ -1,38 +1,49 @@
+import StopIcon from '@material-ui/icons/HighlightOffTwoTone';
+import StartIcon from '@material-ui/icons/PlayCircleFilledWhiteTwoTone';
 import { TableTemplate } from 'components';
 import { useContractsState } from 'hooks';
-import { ContractsState } from 'types';
+import moment from 'moment';
+import { ContractData, ContractsState } from 'types';
 
 interface Column {
-  id: 'name' | 'address' | 'deployedAt' | 'status' | 'actions';
+  id: keyof ContractData; 
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => string;
+  format?: (value: number) => any;
 }
+
+const Actions = () => {
+
+  return (
+    <>
+      <StartIcon />
+      <StopIcon />
+    </>
+  );
+};
 
 const columns: Column[] = [
   { id: 'name', label: 'Name', minWidth: 170 },
+  { id: 'version', label: 'Version', minWidth: 170 },
   { id: 'address', label: 'Address', minWidth: 100 },
   {
     id: 'deployedAt',
     label: 'Deployed At',
     minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    format: (value: number) =>  moment().format(),
   },
   {
     id: 'status',
     label: 'Status',
     minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toLocaleString('en-US'),
+    format: (value: number) =>  value ? 'UP' : 'DOWN'
   },
   {
-    id: 'actions',
+    id: 'address',
     label: 'Actions',
     minWidth: 170,
-    align: 'right',
-    format: (value: number) => value.toFixed(2),
+    format: (value: number) => <Actions/>
   },
 ];
 
