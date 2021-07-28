@@ -78,11 +78,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SIDE_BAR_OPTIONS = [
-	{ text: 'Dashboard', path: '/' }, 
+	{ text: 'Dashboard', path: '/dashboard' }, 
 	{ text: 'ACH Transactions', path: '/ach/transactions' }, 
 	{ text: 'Blockchain Transactions', path: '/bc/transactions' }, 
 	{ text: 'Smart Contracts Configuration', path: '/contracts' },
-	{ text: 'users', path: '/users' },
+	{ text: 'Users', path: '/users' },
 ]; 
 
 const Sidebar = () => {
