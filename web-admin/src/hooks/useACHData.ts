@@ -8,7 +8,7 @@ const useACHData = (): ACHDataState => {
 	const [achDataState, setACHDataState]: [ACHDataState, any] = useStore(ACH_DATA_STORE);
 	useEffect(() => {
 		setACHDataState((pv: any) => ({ ...pv, data: MockACHData }));
-	}, []);
+	}, [setACHDataState]);
 
 	return achDataState;
 }
