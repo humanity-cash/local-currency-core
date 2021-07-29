@@ -1,6 +1,6 @@
 import * as Inputs from './inputs';
 import Modal from './modal';
-import Sidebar from './sidebar';
+import Sidebar from './Sidebar';
 import TableTemplate from './table';
 
 export { Sidebar, TableTemplate, Modal, Inputs };
