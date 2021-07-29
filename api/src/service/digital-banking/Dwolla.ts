@@ -4,6 +4,7 @@ import {
   DwollaClientOptions,
   DwollaEvent,
   DwollaPersonalVerifiedCustomerRequest,
+  DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
 
 const result = dotenv.config();
@@ -33,6 +34,24 @@ export async function createPersonalVerifiedCustomer(
     );
   } catch (e) {
     console.log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
+    throw e;
+  }
+  return customerURL;
+}
+
+export async function createUnverifiedCustomer(
+  customer: DwollaUnverifiedCustomerRequest
+): Promise<string> {
+  const appToken: dwolla.Client = await getAppToken();
+  let customerURL: string;
+  try {
+    const res: dwolla.Response = await appToken.post("customers", customer);
+    customerURL = res.headers.get("location");
+    console.log(
+      "Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL
+    );
+  } catch (e) {
+    console.log("Dwolla.createUnverifiedCustomer(), error " + e);
     throw e;
   }
   return customerURL;
