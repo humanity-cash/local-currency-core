@@ -12,7 +12,7 @@ import React from 'react';
 const useStyles = makeStyles({
   root: {
     width: '100%',
-		gridColumn: '2/5',
+		gridColumn: '2/7',
 		gridRow: '1/2'
   },
   container: {
@@ -20,8 +20,9 @@ const useStyles = makeStyles({
   },
 	wrapper: {
 		padding: '24px',
+		paddingLeft: '0',
 		display: 'grid',
-		gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
+		gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
 		gridTemplateRows: '1fr 1fr 1fr',
 		height: '90vh'
 	}
@@ -84,7 +85,7 @@ const TableTemplate = (props: TableProps) => {
                     const value = row[column.id];
                     return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
+                        {column.format ? column.format(value) : value}
                       </TableCell>
                     );
                   })}

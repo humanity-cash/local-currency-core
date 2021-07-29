@@ -3,7 +3,7 @@ export interface ContractData {
 	address: string;
 	deployedAt: number;
 	status: number;
-	actions: number;
+	version: number;
 }
 
 export interface ContractsState {
@@ -20,21 +20,35 @@ export interface BlockchainDataState {
 	data: BlockchainData[]
 }
 
+type TransactionStatus = 'Pending' | 'Success' | 'Fail';
+type Time = number;
+type ACHType = 'Funding' | 'Redemption';
+type UserEmail = string;
+type Hash = string;
+
 export interface BlockchainData {
-	from: string;
-	to: string;
-	time: number;
+	transactionHash: Hash;
+	from: Hash;
+	to: Hash;
+	fromEmail: UserEmail;
+	toEmail: UserEmail;
+	isToMerchant: 0 | 1; //reciever is merchant
+	createdAt: Time;
+	confirmedAt: Time;
 	amount: number;
-	status: string;
+	status: TransactionStatus;
 }
 
 export interface ACHData {
-	user: string;
-	type: 'Funding' | 'Redemption';
-	time: number;
+	userEmail: UserEmail;
+	type: ACHType;
+	transactionId: number;
+	createdAt: Time;
+	confirmedAt: Time;
 	amount: number;
 	bank: string;
-	status: string;
+	bankAccount: string;
+	status: TransactionStatus;
 }
 
 export interface ACHDataState {
