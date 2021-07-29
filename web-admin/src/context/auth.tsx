@@ -46,7 +46,7 @@ export const AuthIsSignedIn: React.FunctionComponent = ({ children }) => {
   const history = useHistory();
   const { authStatus }: IAuth = useContext(AuthContext)
 
-  return <>{authStatus === AuthStatus.SignedIn ? children : history.push('login')}</>
+  return <>{authStatus === AuthStatus.SignedIn ? children : history.push('/login')}</>
 }
 
 export const AuthIsNotSignedIn: React.FunctionComponent = ({ children }) => {
@@ -112,12 +112,13 @@ const AuthProvider: React.FunctionComponent = ({ children }) => {
     }
   }
 
-  function signOut() {
-    AWSService.signOut()
-    setAuthStatus(AuthStatus.SignedOut)
+  const signOut = () => {
+    AWSService.signOut();
+    setAuthStatus(AuthStatus.SignedOut);
+    history.push('/login');
   }
 
-  async function getSession() {
+  const getSession = async () => {
     try {
       const session = await AWSService.getSession()
       return session
@@ -126,7 +127,7 @@ const AuthProvider: React.FunctionComponent = ({ children }) => {
     }
   }
 
-  async function forgotPassword(username: string, code: string, password: string) {
+  const forgotPassword = async (username: string, code: string, password: string) => {
     try {
       await AWSService.forgotPassword(username, code, password)
     } catch (err) {
@@ -134,7 +135,7 @@ const AuthProvider: React.FunctionComponent = ({ children }) => {
     }
   }
 
-  async function changePassword(username: string, oldPassword: string, newPassword: string) {
+  const changePassword = async (username: string, oldPassword: string, newPassword: string) => {
     try {
       await AWSService.changePassword(username, oldPassword, newPassword)
     } catch (err) {

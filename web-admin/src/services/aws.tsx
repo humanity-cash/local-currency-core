@@ -1,12 +1,12 @@
 import { AuthenticationDetails, CognitoUser, CognitoUserPool } from 'amazon-cognito-identity-js';
 import { NEW_PASSWORD_REQUIRED_ERROR } from 'consts';
 
-// const userPoolId = process.env.REACT_APP_USERPOOL_ID
-// const clientId = process.env.REACT_APP_CLIENT_ID
+// const userPoolId = 
+// const clientId = 
 
 const poolData = {
-	UserPoolId: 'eu-west-1_Mynki1a6j',
-	ClientId: '72vn0vds8fibjrh19se81g0aot'
+	UserPoolId: process.env.REACT_APP_USERPOOL_ID || '',
+	ClientId: process.env.REACT_APP_CLIENT_ID || ''
 };
 
 const userPool: CognitoUserPool = new CognitoUserPool(poolData)
