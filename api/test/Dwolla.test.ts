@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
-import {getAppToken, createPersonalVerifiedCustomer} from "../src/service/digital-banking/Dwolla";
-import {DwollaPersonalVerifiedCustomerRequest} from "../src/service/digital-banking/DwollaTypes";
+import {getAppToken, createPersonalVerifiedCustomer, createUnverifiedCustomer} from "../src/service/digital-banking/Dwolla";
+import {DwollaPersonalVerifiedCustomerRequest, DwollaUnverifiedCustomerRequest} from "../src/service/digital-banking/DwollaTypes";
 import faker from "faker";
 import path from "path";
 
@@ -11,6 +11,8 @@ if (result.error) {
     throw result.error;
 }
 
+const CUSTOMERS_TO_CREATE=1;
+
 describe("Basic sanity checking Dwolla connection", () => {
     it("Should request and receive a valid Dwolla OAuth token", async () => {
         const appToken = await getAppToken();      
@@ -20,11 +22,11 @@ describe("Basic sanity checking Dwolla connection", () => {
 
 describe("Creating Dwolla customers", () => {
     
-    it("Should create 5 personal verified customer and return the entity link", async () => {
+    it(`Should create ${CUSTOMERS_TO_CREATE} personal verified customer and return the entity link`, async () => {
         
-        for(let i = 0; i < 5; i++){
+        for(let i = 0; i < CUSTOMERS_TO_CREATE; i++){
 
-            const firstName = faker.name.firstName();
+            const firstName = "Personal Verified " +faker.name.firstName();
             const lastName = faker.name.lastName();
             const address1 = faker.address.streetAddress();
             const address2 = faker.address.secondaryAddress();
@@ -50,9 +52,67 @@ describe("Creating Dwolla customers", () => {
                 ssn
             }
             const customerURL = await createPersonalVerifiedCustomer(person);
-            console.log("Customer created, link:" + customerURL);
+            console.log("Verified customer created, link:" + customerURL);
             expect(customerURL).toBeDefined();
         }       
         
     }, 60000);
+
+    it(`Should create ${CUSTOMERS_TO_CREATE} personal unverified customer and return the entity link`, async () => {
+        
+        for(let i = 0; i < CUSTOMERS_TO_CREATE; i++){
+
+            const firstName = "Personal Unverified " + faker.name.firstName();
+            const lastName = faker.name.lastName();
+            const email = faker.internet.email();
+            const ipAddress = faker.internet.ip().toString();
+            const correlationId = faker.random.alphaNumeric();
+
+            const person : DwollaUnverifiedCustomerRequest = {
+                firstName,
+                lastName,
+                email,
+                ipAddress,
+                correlationId
+            }
+            const customerURL = await createUnverifiedCustomer(person);
+            console.log("Unverified customer created, link:" + customerURL);
+            expect(customerURL).toBeDefined();
+        } 
+        
+    }, 60000);
+
+    it(`Should create ${CUSTOMERS_TO_CREATE} personal unverified customers as a business entity and return the entity link`, async () => {
+        
+        for(let i = 0; i < CUSTOMERS_TO_CREATE; i++){
+
+            const firstName = "Personal Unverified Business " +faker.name.firstName();
+            const lastName = faker.name.lastName();
+            const email = faker.internet.email();
+            const ipAddress = faker.internet.ip().toString();
+            const correlationId = faker.random.alphaNumeric();
+            const businessName = "Personal Unverified Business " + faker.company.companyName();
+
+            const person : DwollaUnverifiedCustomerRequest = {
+                firstName,
+                lastName,
+                email,
+                ipAddress,
+                businessName,
+                correlationId
+            }
+            const customerURL = await createUnverifiedCustomer(person);
+            console.log("Unverified customer created, link:" + customerURL);
+            expect(customerURL).toBeDefined();
+        } 
+        
+    }, 60000);
+
+});
+
+describe("Dwolla Webhook", () => {
+    it("Should consume a webhook and process it correctly", async () => {
+        const appToken = await getAppToken();      
+        expect(appToken).toBeDefined();
+    });
 });
