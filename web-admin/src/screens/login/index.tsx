@@ -66,7 +66,7 @@ const LoginScreen = (props: LoginScreenProps) => {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Button color="secondary" disabled={!password || !email} onClick={loginHandler} fullWidth type="submit" variant="contained">
+          <Button color="inherit" disabled={!password || !email} onClick={loginHandler} fullWidth type="submit" variant="contained">
             Log in
           </Button>
         </Grid>
