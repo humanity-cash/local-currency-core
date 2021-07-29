@@ -24,6 +24,25 @@ export interface DwollaPersonalVerifiedCustomerRequest {
   ssn: string;
 }
 
+// firstName	yes	string	Customer’s first name. Must be less than or equal to 50 characters and contain no special characters.
+// lastName	yes	string	Customer’s last name. Must be less than or equal to 50 characters and contain no special characters.
+// email	yes	string	Customer’s email address.
+// businessName	no	string	Customer’s registered business name. (Optional if not a business entity)
+// ipAddress	no	string	Customer’s IP address.
+// correlationId	no	string	A unique string value attached to a customer which can be used for traceability between Dwolla and your application.
+// Must be less than 255 characters and contain no spaces.
+// Acceptable characters are: a-Z, 0-9, -, ., and _.
+// Note: Sensitive Personal Identifying Information (PII) should not be used in this field and it is recommended to use a random value for correlationId, like a UUID. Uniqueness is enforced on correlationId across Customers.
+
+export interface DwollaUnverifiedCustomerRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  businessName?: string;
+  ipAddress?: string;
+  correlationId?: string;
+}
+
 export interface DwollaClientOptions {
   key: string;
   secret: string;
