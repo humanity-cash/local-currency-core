@@ -15,27 +15,31 @@ const useStyles = makeStyles({
 const CardsData = [
 	{
 		title: 'Berkshares Minted',
-		body: '1234'
+		body: '123004B'
 	},
 	{
-		title: 'Berkshares Burned',
-		body: '1234'
+		title: 'Berkshares Burnt',
+		body: '234B'
 	},
 	{
-		title: 'Total Users',
-		body: '1234'
-	},
-	{
-		title: 'Total Buisnesses',
-		body: '1234'
+		title: 'Transactions Today',
+		body: '1020'
 	},
 	{
 		title: 'Total Transactions',
-		body: '1234'
+		body: '100034'
 	},
 	{
 		title: 'Pending Deposits',
-		body: '1234'
+		body: '250'
+	},
+	{
+		title: 'Total Buisnesses',
+		body: '200'
+	},
+	{
+		title: 'Total Users',
+		body: '10000'
 	},
 ]
 
@@ -44,7 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className={classes.wrapper}>
-			{CardsData.map(c => <DataCard title={c.title} body={c.body} />)}
+			{CardsData.map(c => <DataCard key={c.title} title={c.title} body={c.body} />)}
 		</div>
  );
 }
