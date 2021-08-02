@@ -148,4 +148,24 @@ describe("Check basic connectivity to a smart contract", () => {
       await expect(contracts.transferContractOwnership(newOwner)).rejects.toBeDefined();
     });
   });
+
+  describe("Get deposits and withdrawals", () => {
+    
+    it("Should retrieve and iterate deposit events", async () => {
+      const response = await contracts.getDeposits();
+      expect(response).toBeDefined();
+    });
+
+    it("Should retrieve and iterate withdrawal events", async () => {
+      const response = await contracts.getWithdrawals();
+      expect(response).toBeDefined();
+    });
+
+    it("Should retrieve funding totals for each operator (bank)", async () => {
+      const response = await contracts.getFundingStatus();
+      console.log(JSON.stringify(response, null, 2));
+      expect(response).toBeDefined();
+    });
+  });
+
 });
