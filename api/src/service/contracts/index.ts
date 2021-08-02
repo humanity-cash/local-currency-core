@@ -174,68 +174,89 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
   return user;
 }
 
-export async function getLogs(eventName:string, options?: PastLogsOptions): Promise<EventData[]> {
+export async function getLogs(
+  eventName: string,
+  options?: PastLogsOptions
+): Promise<EventData[]> {
   const controller = await getControllerContract();
-  const logOptions : PastLogsOptions = options ? options : {
-    fromBlock: 0,
-    toBlock: "latest",
-  }
-  const events : EventData[] = await controller.getPastEvents(eventName, logOptions);
-  return events;  
+  const logOptions: PastLogsOptions = options
+    ? options
+    : {
+        fromBlock: 0,
+        toBlock: "latest",
+      };
+  const events: EventData[] = await controller.getPastEvents(
+    eventName,
+    logOptions
+  );
+  return events;
 }
 
-export async function getFundingEvent(eventName:string) : Promise<IFundingEvent[]> {
-  const response : IFundingEvent[] = []; 
-  try{   
+export async function getFundingEvent(
+  eventName: string
+): Promise<IFundingEvent[]> {
+  const response: IFundingEvent[] = [];
+  try {
     const events = await getLogs(eventName);
     const obj = JSON.parse(JSON.stringify(events));
-    obj.forEach(element => {
+    obj.forEach((element) => {
       response.push({
         operator: element.returnValues._operator,
         userId: element.returnValues._userId,
         value: element.returnValues._value,
         transactionHash: element.transactionHash,
-        blockNumber: element.blockNumber       
-      })
+        blockNumber: element.blockNumber,
+      });
     });
-  }
-  catch(e){
-    throw new Error(`Problem collating and parsing ${eventName} events (${JSON.stringify(e)})`);
+  } catch (e) {
+    throw new Error(
+      `Problem collating and parsing ${eventName} events (${JSON.stringify(e)})`
+    );
   }
   return response;
 }
 
-export async function getDeposits() : Promise<IFundingEvent[]>{
+export async function getDeposits(): Promise<IFundingEvent[]> {
   return await getFundingEvent("UserDeposit");
 }
 
-export async function getWithdrawals() : Promise<IFundingEvent[]>{
+export async function getWithdrawals(): Promise<IFundingEvent[]> {
   return await getFundingEvent("UserWithdrawal");
 }
 
-export async function getFundingStatus() : Promise<OperatorTotal[]> {
-
+export async function getFundingStatus(): Promise<OperatorTotal[]> {
   const deposits = await getDeposits();
   const withdrawals = await getWithdrawals();
-  const operators = new Set([...deposits.map((value, index) => {return value.operator}), ...withdrawals.map((value, index) => {return value.operator})]);
+  const operators = new Set([
+    ...deposits.map((value, index) => {
+      return value.operator;
+    }),
+    ...withdrawals.map((value, index) => {
+      return value.operator;
+    }),
+  ]);
   const operatorsArray = Array.from(operators);
-  
-  const operatorTotals : OperatorTotal[] = [];
+  const operatorTotals: OperatorTotal[] = [];
 
-  for(let i = 0; i<operatorsArray.length;i++){
+  for (let i = 0; i < operatorsArray.length; i++) {
+    let totalDeposits: BN = new BN(0);
+    let totalWithdrawals: BN = new BN(0);
+    let currentOutstanding: BN = new BN(0);
 
-    let totalDeposits : BN = new BN(0);
-    let totalWithdrawals : BN = new BN(0);
-    let currentOutstanding : BN = new BN(0);
+    const depositsForOperator = deposits.filter((value, index) => {
+      return value.operator === operatorsArray[i];
+    });
+    const withdrawalsForOperator = withdrawals.filter((value, index) => {
+      return value.operator === operatorsArray[i];
+    });
 
-    const depositsForOperator = deposits.filter((value, index) => {return value.operator === operatorsArray[i]});
-    const withdrawalsForOperator = withdrawals.filter((value, index) => {return value.operator === operatorsArray[i]});
-
-    for(let j=0;j<depositsForOperator?.length;j++){
+    for (let j = 0; j < depositsForOperator?.length; j++) {
       totalDeposits = totalDeposits.add(new BN(depositsForOperator[j].value));
     }
-    for(let j=0;j<withdrawalsForOperator?.length;j++){
-      totalWithdrawals = totalWithdrawals.add(new BN(withdrawalsForOperator[j].value));
+    for (let j = 0; j < withdrawalsForOperator?.length; j++) {
+      totalWithdrawals = totalWithdrawals.add(
+        new BN(withdrawalsForOperator[j].value)
+      );
     }
 
     currentOutstanding = totalDeposits.sub(totalWithdrawals);
@@ -246,7 +267,7 @@ export async function getFundingStatus() : Promise<OperatorTotal[]> {
       totalWithdrawals: web3Utils.fromWei(totalWithdrawals.toString()),
       currentOutstanding: web3Utils.fromWei(currentOutstanding.toString()),
       deposits: depositsForOperator,
-      withdrawals: withdrawalsForOperator
+      withdrawals: withdrawalsForOperator,
     });
   }
 
