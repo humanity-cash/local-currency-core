@@ -26,10 +26,10 @@ export interface IFundingEvent {
 }
 
 export interface OperatorTotal {
-  operator: string,
-  totalDeposits: string,
-  totalWithdrawals: string,
-  currentOutstanding: string,
-  deposits: IFundingEvent[],
-  withdrawals: IFundingEvent[]
+  operator: string;
+  totalDeposits: string;
+  totalWithdrawals: string;
+  currentOutstanding: string;
+  deposits: IFundingEvent[];
+  withdrawals: IFundingEvent[];
 }
