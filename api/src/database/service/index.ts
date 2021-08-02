@@ -1,3 +1,3 @@
-import * as ExampleService from './exmpale';
+import * as ExampleService from "./example";
 
 export { ExampleService };
