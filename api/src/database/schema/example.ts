@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const ExampleSchema = new mongoose.Schema({
-	firstName: String,
-	age: Number,
+  firstName: String,
+  age: Number,
 });
 
-export default mongoose.model('Example', ExampleSchema);
+export default mongoose.model("Example", ExampleSchema);
