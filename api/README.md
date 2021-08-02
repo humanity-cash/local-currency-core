@@ -1,3 +1,4 @@
+![workflow status](https://github.com/humanity-cash/local-currency-core/workflows/Build/badge.svg)
 # local-currency-core/api
 
 Web services to support on-chain interaction with Humanity Cash local-currency contracts
