@@ -62,7 +62,22 @@ export async function deposit(
     toBytes32(userId),
     web3Utils.toWei(amount, "ether")
   );
-  return await sendTransaction(deposit);
+  const tx = await sendTransaction(deposit);
+  return tx;
+}
+
+export async function withdraw(
+  userId: string,
+  amount: string
+): Promise<TransactionReceipt> {
+  const { sendTransaction } = await getProvider();
+  const controller = await getControllerContract();
+  const withdraw = await controller.methods.withdraw(
+    toBytes32(userId),
+    web3Utils.toWei(amount, "ether")
+  );
+  const tx = await sendTransaction(withdraw);
+  return tx;
 }
 
 export async function newWallet(userId: string): Promise<string> {
@@ -75,7 +90,9 @@ export async function newWallet(userId: string): Promise<string> {
 
 export async function balanceOfWallet(userId: string): Promise<string> {
   const controller = await getControllerContract();
-  const balance = await controller.methods.balanceOfWallet(userId).call();
+  const balance = await controller.methods
+    .balanceOfWallet(toBytes32(userId))
+    .call();
   return balance;
 }
 
@@ -139,7 +156,10 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     wallet.methods.createdBlock().call(),
   ]);
 
-  const b = await this.balanceOfWallet(userId);
+  console.log("Found wallet contract for userId " + userId);
+
+  const controller = await getControllerContract();
+  const b = await controller.methods.balanceOfWallet(userId).call();
   console.log(b);
   const balance = parseFloat(web3Utils.fromWei(b, "ether"));
 
