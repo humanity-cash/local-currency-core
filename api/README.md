@@ -1,13 +1,11 @@
 # local-currency-core/api
 
 Web services to support on-chain interaction with Humanity Cash local-currency contracts
-
 ## Install
 ```
 nvm use 12
 yarn --ignore-engines
 ```
-
 ## Test
 ### Dependencies
 * A `dotenv` file for test called `.env.test` (supplied) 
@@ -32,8 +30,9 @@ yarn test:db
 ```
 yarn coverage
 ```
-
 ## Styling
 ```
 yarn prettier
 ```
+## Automation
+* `../.github/workflows/build-api.yml` script will build and deploy to a local ganache instance in the GitHub runner to perform unit tests.
