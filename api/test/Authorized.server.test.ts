@@ -21,9 +21,9 @@ if (result.error) {
 
 describe("Server Test", () => {
   let user1: IWallet;
-  let user1Id = v4();
+  const user1Id = v4();
   let user2: IWallet;
-  let user2Id = v4();
+  const user2Id = v4();
 
   beforeAll(async () => {
     await setupContracts();
