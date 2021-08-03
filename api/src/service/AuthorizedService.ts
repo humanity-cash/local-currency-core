@@ -9,19 +9,15 @@ export async function createUser(newUser: NewUser): Promise<string> {
   return await contracts.newWallet(newUser.userId);
 }
 
-export async function deposit(
-  userId: string,
-  amount: string
-): Promise<boolean> {
-  // 1. Get funding statistics
-  const operatorStats: OperatorTotal[] = await contracts.getFundingStatus();
+const sortOperatorsFunc = (x:OperatorTotal, y:OperatorTotal) => {
+  const a = new BN(x.currentOutstanding);
+  const b = new BN(y.currentOutstanding);
+  return a.eq(b) ? 0 : !a.lt(b) ? 1 : -1;
+}
 
-  // 2. Sort by the currentOutstanding value - their current liabilities
-  const sortedOperatorStats: OperatorTotal[] = operatorStats.sort((x, y) => {
-    const a = new BN(x.currentOutstanding);
-    const b = new BN(y.currentOutstanding);
-    return a.eq(b) ? 0 : !a.lt(b) ? 1 : -1;
-  });
+async function getSortedOperators() : Promise<OperatorTotal[]> {
+  const operatorStats: OperatorTotal[] = await contracts.getFundingStatus();
+  const sortedOperatorStats: OperatorTotal[] = operatorStats.sort(sortOperatorsFunc);
   console.log(
     `deposit():: sorted operators are ${JSON.stringify(
       sortedOperatorStats,
@@ -29,11 +25,17 @@ export async function deposit(
       2
     )}`
   );
+  return sortedOperatorStats;
+}
+
+export async function deposit(
+  userId: string,
+  amount: string
+): Promise<boolean> {
+  const sortedOperatorStats = await getSortedOperators();
   console.log(
     `deposit():: depositing to operator ${sortedOperatorStats[0].operator}`
   );
-
-  // 3. Deposit to the operator with the smallest current liabilities
   const result = await contracts.deposit(
     userId,
     amount,
@@ -46,29 +48,12 @@ export async function withdraw(
   userId: string,
   amount: string
 ): Promise<boolean> {
-  // 1. Get funding statistics
-  const operatorStats: OperatorTotal[] = await contracts.getFundingStatus();
-
-  // 2. Sort by the currentOutstanding value - their current liabilities
-  const sortedOperatorStats: OperatorTotal[] = operatorStats.sort((x, y) => {
-    const a = new BN(x.currentOutstanding);
-    const b = new BN(y.currentOutstanding);
-    return a.eq(b) ? 0 : !a.lt(b) ? 1 : -1;
-  });
-  console.log(
-    `withdraw():: sorted operators are ${JSON.stringify(
-      sortedOperatorStats,
-      null,
-      2
-    )}`
-  );
+  const sortedOperatorStats = await getSortedOperators();
   console.log(
     `withdraw():: withdrawing from operator ${
       sortedOperatorStats[sortedOperatorStats.length - 1].operator
     }`
   );
-
-  // 3. Withdraw from the operator with the largest current liabilities
   const result = await contracts.withdraw(
     userId,
     amount,
