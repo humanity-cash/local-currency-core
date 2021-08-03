@@ -7,7 +7,8 @@ const user = express();
 user.get("/users", controller.getAllUsers);
 user.get("/users/:id", validators.getUser, controller.getUser);
 user.post("/users/:id/deposit", validators.deposit, controller.deposit);
-user.post("/users/:id/transfer", validators.deposit, controller.transferTo);
+user.post("/users/:id/withdraw", validators.withdraw, controller.withdraw);
+user.post("/users/:id/transfer", validators.transfer, controller.transferTo);
 user.post("/users", validators.createUser, controller.createUser);
 
 export default user;

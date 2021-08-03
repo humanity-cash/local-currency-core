@@ -18,6 +18,8 @@ export const getUserAuthorizations = [...idInParams];
 
 export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
 
+export const withdraw = [...idInParams, body("amount").isString(), mwVaildator];
+
 export const transfer = [
   ...idInParams,
   body("toUserId").isString(),
