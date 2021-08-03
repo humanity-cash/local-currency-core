@@ -55,9 +55,10 @@ export async function getWalletAddress(userId: string): Promise<string> {
 
 export async function deposit(
   userId: string,
-  amount: string
+  amount: string,
+  operator?: string
 ): Promise<TransactionReceipt> {
-  const { sendTransaction } = await getProvider();
+  const { sendTransaction } = await getProvider(operator);
   const controller = await getControllerContract();
   const deposit = await controller.methods.deposit(
     toBytes32(userId),
@@ -69,9 +70,10 @@ export async function deposit(
 
 export async function withdraw(
   userId: string,
-  amount: string
+  amount: string,
+  operator?: string
 ): Promise<TransactionReceipt> {
-  const { sendTransaction } = await getProvider();
+  const { sendTransaction } = await getProvider(operator);
   const controller = await getControllerContract();
   const withdraw = await controller.methods.withdraw(
     toBytes32(userId),
@@ -118,7 +120,7 @@ export async function transferTo(
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const transferContractOwnership = await controller.methods.transferTo(
+  const transferContractOwnership = await controller.methods.transfer(
     toBytes32(fromUserId),
     toBytes32(toUserId),
     web3Utils.toWei(amount, "ether")
@@ -226,28 +228,21 @@ export async function getWithdrawals(): Promise<IFundingEvent[]> {
 
 export async function getFundingStatus(): Promise<OperatorTotal[]> {
   const deposits = await getDeposits();
-  const withdrawals = await getWithdrawals();
-  const operators = new Set([
-    ...deposits.map((value, index) => {
-      return value.operator;
-    }),
-    ...withdrawals.map((value, index) => {
-      return value.operator;
-    }),
-  ]);
-  const operatorsArray = Array.from(operators);
+  const withdrawals = await getWithdrawals();  
+  const { operators } = await getProvider();
+
   const operatorTotals: OperatorTotal[] = [];
 
-  for (let i = 0; i < operatorsArray.length; i++) {
+  for (let i = 0; i < operators?.length; i++) {
     let totalDeposits: BN = new BN(0);
     let totalWithdrawals: BN = new BN(0);
     let currentOutstanding: BN = new BN(0);
 
     const depositsForOperator = deposits.filter((value, index) => {
-      return value.operator === operatorsArray[i];
+      return value.operator === operators[i];
     });
     const withdrawalsForOperator = withdrawals.filter((value, index) => {
-      return value.operator === operatorsArray[i];
+      return value.operator === operators[i];
     });
 
     for (let j = 0; j < depositsForOperator?.length; j++) {
@@ -262,7 +257,7 @@ export async function getFundingStatus(): Promise<OperatorTotal[]> {
     currentOutstanding = totalDeposits.sub(totalWithdrawals);
 
     operatorTotals.push({
-      operator: operatorsArray[i],
+      operator: operators[i],
       totalDeposits: web3Utils.fromWei(totalDeposits.toString()),
       totalWithdrawals: web3Utils.fromWei(totalWithdrawals.toString()),
       currentOutstanding: web3Utils.fromWei(currentOutstanding.toString()),
