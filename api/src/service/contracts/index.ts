@@ -228,7 +228,7 @@ export async function getWithdrawals(): Promise<IFundingEvent[]> {
 
 export async function getFundingStatus(): Promise<OperatorTotal[]> {
   const deposits = await getDeposits();
-  const withdrawals = await getWithdrawals();  
+  const withdrawals = await getWithdrawals();
   const { operators } = await getProvider();
 
   const operatorTotals: OperatorTotal[] = [];

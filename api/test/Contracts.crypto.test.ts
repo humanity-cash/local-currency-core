@@ -18,13 +18,11 @@ if (result.error) {
 }
 
 describe("Check basic connectivity to a smart contract", () => {
-  
   const userId = v4();
 
   beforeAll(async () => {
-    
     await setupContracts();
-    
+
     log("Performing unit tests with new user " + userId);
     log("bytes32(userId) ", toBytes32(userId));
 
@@ -89,7 +87,6 @@ describe("Check basic connectivity to a smart contract", () => {
     });
 
     it("Should deposit to a new wallet and verify the new balance", async () => {
-
       const newUserId = v4();
       const wallet = await contracts.newWallet(newUserId);
       log(`New wallet address == ${wallet} for userId ${newUserId}`);
@@ -102,11 +99,9 @@ describe("Check basic connectivity to a smart contract", () => {
       const bal = utils.fromWei(balance, "ether");
       log(`balance == ${bal}`);
       expect(parseFloat(bal)).toEqual(99.99);
-
     });
 
     it("Should deposit to a new wallet, verify the balance, withdraw and verify the balance", async () => {
-
       const newUserId = v4();
       const wallet = await contracts.newWallet(newUserId);
       log(`New wallet address == ${wallet}`);
@@ -127,9 +122,7 @@ describe("Check basic connectivity to a smart contract", () => {
       bal = utils.fromWei(balance, "ether");
       log(`balance == ${bal}`);
       expect(parseFloat(bal)).toEqual(11.11);
-      
     });
-
   });
 
   describe("Transfer ownership", () => {
@@ -145,12 +138,13 @@ describe("Check basic connectivity to a smart contract", () => {
       const { web3 } = await getProvider();
       const [, , , newOwner] = await web3.eth.getAccounts();
       expect.assertions(1);
-      await expect(contracts.transferContractOwnership(newOwner)).rejects.toBeDefined();
+      await expect(
+        contracts.transferContractOwnership(newOwner)
+      ).rejects.toBeDefined();
     });
   });
 
   describe("Get deposits and withdrawals", () => {
-    
     it("Should retrieve and iterate deposit events", async () => {
       const response = await contracts.getDeposits();
       expect(response).toBeDefined();
@@ -167,5 +161,4 @@ describe("Check basic connectivity to a smart contract", () => {
       expect(response).toBeDefined();
     });
   });
-
 });
