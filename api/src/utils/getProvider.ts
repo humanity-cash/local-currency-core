@@ -30,7 +30,7 @@ const getKit = async (): Promise<ContractKit> => {
   if (!kit) {
     console.log("Loading Contract Kit!");
     kit = Kit.newKit(process.env.LOCAL_CURRENCY_RPC_HOST);
-    
+
     // Deployer at position 0
     const deployer = await addKeysFromMnemonic(
       kit,
@@ -38,12 +38,8 @@ const getKit = async (): Promise<ContractKit> => {
       0
     );
     // Operators from 1-N
-    for(let i = 1;i<=parseInt(process.env.NUMBER_OPERATORS);i++){
-      await addKeysFromMnemonic(
-        kit,
-        process.env.LOCAL_CURRENCY_MNEMONIC,
-        i
-      );
+    for (let i = 1; i <= parseInt(process.env.NUMBER_OPERATORS); i++) {
+      await addKeysFromMnemonic(kit, process.env.LOCAL_CURRENCY_MNEMONIC, i);
     }
 
     console.log("Custodian accounts:", await kit.getWallet().getAccounts());
@@ -68,7 +64,7 @@ const getWeb3 = (): Web3 => {
 };
 
 export const getProvider = async (
-  accountToUse? : string
+  accountToUse?: string
 ): Promise<{
   web3: Web3;
   sendTransaction: { (txo): Promise<TransactionReceipt> };
@@ -78,30 +74,30 @@ export const getProvider = async (
   let defaultAccount, web3: Web3, kit: ContractKit, operators: string[];
 
   if (process.env.LOCAL_CURRENCY_PROVIDER === "web3") {
-    
     // If web3 isn't defined or the accountToUse has been specified
-    if ((!web3) || accountToUse) {
+    if (!web3 || accountToUse) {
       web3 = getWeb3();
       const accounts = await web3.eth.getAccounts();
       defaultAccount = accountToUse ? accountToUse : accounts[0];
-      operators = accounts.filter((value,index)=> {return (index > 0) && (index <= parseInt(process.env.NUMBER_OPERATORS))});
+      operators = accounts.filter((value, index) => {
+        return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
+      });
       // console.log("(web3) Now using account:", defaultAccount, " for this transaction");
       // console.log("(web3) Operators", operators);
     }
-
   } else {
-
     // If kit isn't defined or the accountToUse has been specified
-    if ((!kit) || accountToUse) {
+    if (!kit || accountToUse) {
       kit = await getKit();
       const accounts = await kit.getWallet().getAccounts();
-      kit.defaultAccount = accountToUse ? accountToUse : accounts[0];      
+      kit.defaultAccount = accountToUse ? accountToUse : accounts[0];
       defaultAccount = kit.defaultAccount;
-      operators = accounts.filter((value,index)=> {return (index > 0) && (index <= parseInt(process.env.NUMBER_OPERATORS))});
+      operators = accounts.filter((value, index) => {
+        return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
+      });
       // console.log("(kit) Now using account:", defaultAccount, " for this transaction");
       // console.log("(kit) Operators", operators);
     }
-
   }
 
   const sendTransaction = async (txo): Promise<TransactionReceipt> => {
@@ -136,6 +132,6 @@ export const getProvider = async (
     web3: web3 || kit.web3,
     sendTransaction,
     defaultAccount,
-    operators
+    operators,
   };
 };

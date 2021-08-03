@@ -13,7 +13,6 @@ export async function deposit(
   userId: string,
   amount: string
 ): Promise<boolean> {
-  
   // 1. Get funding statistics
   const operatorStats: OperatorTotal[] = await contracts.getFundingStatus();
 
@@ -24,7 +23,11 @@ export async function deposit(
     return a.eq(b) ? 0 : !a.lt(b) ? 1 : -1;
   });
   console.log(
-    `deposit():: sorted operators are ${JSON.stringify(sortedOperatorStats, null,2)}`
+    `deposit():: sorted operators are ${JSON.stringify(
+      sortedOperatorStats,
+      null,
+      2
+    )}`
   );
   console.log(
     `deposit():: depositing to operator ${sortedOperatorStats[0].operator}`
@@ -53,7 +56,11 @@ export async function withdraw(
     return a.eq(b) ? 0 : !a.lt(b) ? 1 : -1;
   });
   console.log(
-    `withdraw():: sorted operators are ${JSON.stringify(sortedOperatorStats,null,2)}`
+    `withdraw():: sorted operators are ${JSON.stringify(
+      sortedOperatorStats,
+      null,
+      2
+    )}`
   );
   console.log(
     `withdraw():: withdrawing from operator ${
