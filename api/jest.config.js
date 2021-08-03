@@ -1,5 +1,5 @@
 module.exports = {
-	coveragePathIgnorePatterns: ["/node_modules/", "index.ts"],
+	coveragePathIgnorePatterns: ["/node_modules/"],
 	transform: {
 		"node_modules/variables/.+\\.(j|t)sx?$": "ts-jest",
 	},
