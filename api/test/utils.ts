@@ -13,6 +13,7 @@ export function log(...data: any[]): void {
 }
 
 const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
+const OPERATOR_ROLE = web3Utils.keccak256("OPERATOR_ROLE");
 
 export async function setupContracts(): Promise<void> {
   if (contractsSetup) return;
@@ -51,10 +52,18 @@ export async function setupContracts(): Promise<void> {
   );
   log("Controller deployed: ", Controller.options.address);
 
+  const {operators} = await getProvider();
+  for(let i = 0;i<operators.length;i++){
+    await Controller.methods
+      .grantRole(OPERATOR_ROLE, operators[i])
+      .send(sendOptions);
+    log(`Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`);
+  }
+
   // Make controller own factory
   await WalletFactory.methods
     .transferOwnership(Controller.options.address)
-    .send(sendOptions);  
+    .send(sendOptions);
   log("Factory ownership transferred...");
 
   // grant controller minter rights
@@ -62,10 +71,8 @@ export async function setupContracts(): Promise<void> {
     .grantRole(MINTER_ROLE, Controller.options.address)
     .send(sendOptions);
   log("Token MINTER_ROLE granted to ", Controller.options.address);
-  
-  await Token.methods
-    .renounceRole(MINTER_ROLE, owner)
-    .send(sendOptions);
+
+  await Token.methods.renounceRole(MINTER_ROLE, owner).send(sendOptions);
   log("Token MINTER_ROLE revoked from ", owner);
 
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
