@@ -17,38 +17,6 @@ export function createHttpResponse(
   response.end(payload);
 }
 
-export function validateAttributes(
-  attributes: string[],
-  body: any,
-  res: Response,
-  type: string
-): boolean {
-  if (!body) {
-    createHttpResponse(
-      {
-        message: `Must supply request ${type}`,
-      },
-      codes.BAD_REQUEST,
-      res
-    );
-    return false;
-  } else {
-    for (let i = 0; i < attributes.length; i++) {
-      if (!body[`${attributes[i]}`]) {
-        createHttpResponse(
-          {
-            message: `Must supply ${attributes[i]} in request ${type}`,
-          },
-          codes.BAD_REQUEST,
-          res
-        );
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 export const codes = {
   OK: 200,
   CREATED: 201,
