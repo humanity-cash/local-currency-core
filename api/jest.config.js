@@ -16,5 +16,5 @@ module.exports = {
 			diagnostics: true,
 		},
 	},
-	testTimeout: 60000
+	testTimeout: 30000
 };
