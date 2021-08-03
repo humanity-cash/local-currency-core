@@ -6,7 +6,7 @@ import { getApp } from "../src/server";
 import { log, setupContracts } from "./utils";
 import { v4 } from "uuid";
 import { codes } from "../src/utils/http";
-import { IWallet } from "../src/types"
+import { IWallet } from "../src/types";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -20,18 +20,16 @@ if (result.error) {
 }
 
 describe("Server Test", () => {
-
-  let user1 : IWallet;
+  let user1: IWallet;
   let user1Id = v4();
-  let user2 : IWallet;
+  let user2: IWallet;
   let user2Id = v4();
-  
+
   beforeAll(async () => {
     await setupContracts();
   });
 
   describe("GET /health", () => {
-    
     it("it should retrieve heath data", (done) => {
       chai
         .request(server)
@@ -41,15 +39,13 @@ describe("Server Test", () => {
           log(JSON.parse(res.text));
           done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
-
   });
 
   describe("POST /users (create user)", () => {
-    
     it("it should create a new user and store the returned address", (done) => {
       chai
         .request(server)
@@ -60,10 +56,10 @@ describe("Server Test", () => {
           expect(res).to.be.json;
           log(JSON.parse(res.text));
           user1 = JSON.parse(res.text);
-          log(user1);     
-          done();     
+          log(user1);
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
@@ -78,17 +74,16 @@ describe("Server Test", () => {
           expect(res).to.be.json;
           log(JSON.parse(res.text));
           user2 = JSON.parse(res.text);
-          log(user2);  
-          done();        
+          log(user2);
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
-
     it("it should deposit to user1", (done) => {
       chai
         .request(server)
@@ -96,10 +91,10 @@ describe("Server Test", () => {
         .send({ amount: "99.99" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;  
-          done();     
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
@@ -111,10 +106,10 @@ describe("Server Test", () => {
         .send({ amount: "22.22" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;    
-          done();   
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
@@ -126,10 +121,10 @@ describe("Server Test", () => {
         .send({ amount: "11.11" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;  
-          done();     
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
@@ -141,17 +136,16 @@ describe("Server Test", () => {
         .send({ amount: "33.33" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;    
-          done();   
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
   });
 
   describe("POST /users/:userId/withdraw (withdraw for user)", () => {
-
     it("it should withdraw from user2", (done) => {
       chai
         .request(server)
@@ -159,10 +153,10 @@ describe("Server Test", () => {
         .send({ amount: "5.55" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;    
-          done();   
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
@@ -174,14 +168,14 @@ describe("Server Test", () => {
         .send({ amount: "7.77" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;    
-          done();   
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
-    
+
     it("it should withdraw again from user1", (done) => {
       chai
         .request(server)
@@ -189,17 +183,16 @@ describe("Server Test", () => {
         .send({ amount: "77.77" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;   
-          done();    
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
-  });  
+  });
 
   describe("POST /users/:userId/transfer (make a payment for user)", () => {
-
     it("it should transfer user1 to user2", (done) => {
       chai
         .request(server)
@@ -207,10 +200,10 @@ describe("Server Test", () => {
         .send({ toUserId: user2Id, amount: "1.11" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;    
-          done();   
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
@@ -222,14 +215,14 @@ describe("Server Test", () => {
         .send({ toUserId: user1Id, amount: "12.12" })
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;       
+          expect(res).to.be.json;
           done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });
-    
+
     it("it should fail to transfer a very large amount from user1 to user2", (done) => {
       chai
         .request(server)
@@ -240,10 +233,10 @@ describe("Server Test", () => {
           expect(res).to.be.json;
           done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
-    }); 
+    });
 
     it("it should fail to transfer $0 from user2 to user1", (done) => {
       chai
@@ -255,52 +248,51 @@ describe("Server Test", () => {
           expect(res).to.be.json;
           done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
-    }); 
+    });
   });
 
   describe("GET /users (get user(s))", () => {
-
     it("it should get user1", (done) => {
       chai
         .request(server)
         .get(`/users/${user1Id}`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;  
-          done();     
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
-    }); 
-    
+    });
+
     it("it should get user2", (done) => {
       chai
         .request(server)
         .get(`/users/${user2Id}`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;      
-          done(); 
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
-    }); 
-    
+    });
+
     it("it should get all users", (done) => {
       chai
         .request(server)
         .get("/users")
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;   
-          done();    
+          expect(res).to.be.json;
+          done();
         })
-       .catch((err) => {
+        .catch((err) => {
           throw err;
         });
     });

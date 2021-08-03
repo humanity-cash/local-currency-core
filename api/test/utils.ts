@@ -52,12 +52,14 @@ export async function setupContracts(): Promise<void> {
   );
   log("Controller deployed: ", Controller.options.address);
 
-  const {operators} = await getProvider();
-  for(let i = 0;i<operators.length;i++){
+  const { operators } = await getProvider();
+  for (let i = 0; i < operators.length; i++) {
     await Controller.methods
       .grantRole(OPERATOR_ROLE, operators[i])
       .send(sendOptions);
-    log(`Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`);
+    log(
+      `Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`
+    );
   }
 
   // Make controller own factory
