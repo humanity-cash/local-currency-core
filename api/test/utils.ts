@@ -1,6 +1,4 @@
 import { Contract, SendOptions } from "web3-eth-contract";
-// @ts-ignore
-import path from "path";
 import { getProvider } from "../src/utils/getProvider";
 import * as web3Utils from "web3-utils";
 import Web3 from "web3";
@@ -9,11 +7,13 @@ let sendOptions: SendOptions;
 let web3: Web3;
 let contractsSetup = false;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function log(...data: any[]): void {
   if (process.env.DEBUG === "true") console.log(...data);
 }
 
 const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
+const OPERATOR_ROLE = web3Utils.keccak256("OPERATOR_ROLE");
 
 export async function setupContracts(): Promise<void> {
   if (contractsSetup) return;
@@ -50,27 +50,42 @@ export async function setupContracts(): Promise<void> {
      */
     [Token.options.address, WalletFactory.options.address]
   );
+  log("Controller deployed: ", Controller.options.address);
+
+  const { operators } = await getProvider();
+  for (let i = 0; i < operators.length; i++) {
+    await Controller.methods
+      .grantRole(OPERATOR_ROLE, operators[i])
+      .send(sendOptions);
+    log(
+      `Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`
+    );
+  }
 
   // Make controller own factory
   await WalletFactory.methods
     .transferOwnership(Controller.options.address)
     .send(sendOptions);
+  log("Factory ownership transferred...");
 
   // grant controller minter rights
   await Token.methods
     .grantRole(MINTER_ROLE, Controller.options.address)
     .send(sendOptions);
+  log("Token MINTER_ROLE granted to ", Controller.options.address);
 
   await Token.methods.renounceRole(MINTER_ROLE, owner).send(sendOptions);
+  log("Token MINTER_ROLE revoked from ", owner);
 
   process.env.LOCAL_CURRENCY_ADDRESS = Controller.options.address;
 
-  console.log("Controller Address:", Controller.options.address);
+  log("Controller Address:", Controller.options.address);
   contractsSetup = true;
 }
 
 async function deployContract(
   name: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any[] = [],
   tokens: { [name: string]: string } = {}
 ): Promise<Contract> {
