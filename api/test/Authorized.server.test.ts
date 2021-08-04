@@ -46,7 +46,7 @@ describe("Server Test", () => {
   });
 
   describe("POST /users (create user)", () => {
-    it("it should create a new user and store the returned address", (done) => {
+    it("it should create a new user and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -64,7 +64,7 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should create another new user and store the returned address", (done) => {
+    it("it should create another new user and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -81,16 +81,106 @@ describe("Server Test", () => {
           throw err;
         });
     });
+
+    it("it should fail to create another new user with the same userId, HTTP 422", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send({ userId: user2Id })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should fail to create another new user with invalid body, HTTP 400", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send({ bananaId: user2Id })
+        .then((res) => {
+          expect(res).to.have.status(codes.BAD_REQUEST);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
-    it("it should deposit to user1", (done) => {
+    it("it should return HTTP 400 with invalid body", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/deposit`)
+        .send({ banana: "99.99" })
+        .then((res) => {
+          expect(res).to.have.status(codes.BAD_REQUEST);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (negative deposit)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/deposit`)
+        .send({ amount: "-1.0" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (zero value deposit)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/deposit`)
+        .send({ amount: "0" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/userthatdoesntexist/deposit`)
+        .send({ amount: "1.0" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should deposit to user1, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user1Id}/deposit`)
         .send({ amount: "99.99" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -99,13 +189,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should deposit to user2", (done) => {
+    it("it should deposit to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user2Id}/deposit`)
         .send({ amount: "22.22" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -114,13 +204,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should deposit again to user2", (done) => {
+    it("it should deposit again to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user2Id}/deposit`)
         .send({ amount: "11.11" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -129,13 +219,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should deposit again to user2", (done) => {
+    it("it should deposit again to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user2Id}/deposit`)
         .send({ amount: "33.33" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -146,13 +236,58 @@ describe("Server Test", () => {
   });
 
   describe("POST /users/:userId/withdraw (withdraw for user)", () => {
-    it("it should withdraw from user2", (done) => {
+    it("it should return HTTP 400 with invalid body", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/withdraw`)
+        .send({ banana: "99.99" })
+        .then((res) => {
+          expect(res).to.have.status(codes.BAD_REQUEST);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (negative withdrawal)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/withdraw`)
+        .send({ amount: "-1.0" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (zero value withdrawal)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/withdraw`)
+        .send({ amount: "0" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should withdraw from user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user2Id}/withdraw`)
         .send({ amount: "5.55" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -161,13 +296,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should withdraw from user1", (done) => {
+    it("it should withdraw from user1, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user1Id}/withdraw`)
         .send({ amount: "7.77" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -176,13 +311,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should withdraw again from user1", (done) => {
+    it("it should withdraw again from user1, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user1Id}/withdraw`)
         .send({ amount: "77.77" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -193,13 +328,58 @@ describe("Server Test", () => {
   });
 
   describe("POST /users/:userId/transfer (make a payment for user)", () => {
-    it("it should transfer user1 to user2", (done) => {
+    it("it should return HTTP 400 with invalid body", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/transfer`)
+        .send({ banana: user2Id, amount: "1.11" })
+        .then((res) => {
+          expect(res).to.have.status(codes.BAD_REQUEST);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (negative transfer)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/transfer`)
+        .send({ toUserId: user2Id, amount: "-1.11" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should return HTTP 422 with Solidity reversion (zero value transfer)", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${user1Id}/transfer`)
+        .send({ toUserId: user2Id, amount: "0" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should transfer user1 to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user1Id}/transfer`)
         .send({ toUserId: user2Id, amount: "1.11" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -208,13 +388,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should transfer user2 to user1", (done) => {
+    it("it should transfer user2 to user1, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${user2Id}/transfer`)
         .send({ toUserId: user1Id, amount: "12.12" })
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           done();
         })
@@ -223,28 +403,13 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should fail to transfer a very large amount from user1 to user2", (done) => {
+    it("it should fail to transfer a very large amount from user1 to user2, HTTP 422", (done) => {
       chai
         .request(server)
         .post(`/users/${user1Id}/transfer`)
         .send({ toUserId: user2Id, amount: "99999999999999999" })
         .then((res) => {
-          expect(res).to.have.status(codes.SERVER_ERROR);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
-          throw err;
-        });
-    });
-
-    it("it should fail to transfer $0 from user2 to user1", (done) => {
-      chai
-        .request(server)
-        .post(`/users/${user2Id}/transfer`)
-        .send({ toUserId: user1Id, amount: "0" })
-        .then((res) => {
-          expect(res).to.have.status(codes.SERVER_ERROR);
+          expect(res).to.have.status(codes.UNPROCESSABLE);
           expect(res).to.be.json;
           done();
         })
@@ -269,7 +434,7 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should get user2", (done) => {
+    it("it should get user2, HTTP 200", (done) => {
       chai
         .request(server)
         .get(`/users/${user2Id}`)
@@ -283,7 +448,21 @@ describe("Server Test", () => {
         });
     });
 
-    it("it should get all users", (done) => {
+    it("it should fail to get an unknown user, HTTP 404", (done) => {
+      chai
+        .request(server)
+        .get(`/users/banana1`)
+        .then((res) => {
+          expect(res).to.have.status(codes.NOT_FOUND);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          throw err;
+        });
+    });
+
+    it("it should get all users, HTTP 200", (done) => {
       chai
         .request(server)
         .get("/users")
