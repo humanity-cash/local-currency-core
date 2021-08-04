@@ -9,15 +9,16 @@ export async function createUser(newUser: NewUser): Promise<string> {
   return await contracts.newWallet(newUser.userId);
 }
 
-const sortOperatorsFunc = (x:OperatorTotal, y:OperatorTotal) => {
+const sortOperatorsFunc = (x: OperatorTotal, y: OperatorTotal) => {
   const a = new BN(x.currentOutstanding);
   const b = new BN(y.currentOutstanding);
   return a.eq(b) ? 0 : !a.lt(b) ? 1 : -1;
-}
+};
 
-async function getSortedOperators() : Promise<OperatorTotal[]> {
+async function getSortedOperators(): Promise<OperatorTotal[]> {
   const operatorStats: OperatorTotal[] = await contracts.getFundingStatus();
-  const sortedOperatorStats: OperatorTotal[] = operatorStats.sort(sortOperatorsFunc);
+  const sortedOperatorStats: OperatorTotal[] =
+    operatorStats.sort(sortOperatorsFunc);
   console.log(
     `deposit():: sorted operators are ${JSON.stringify(
       sortedOperatorStats,
