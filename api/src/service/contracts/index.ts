@@ -1,11 +1,12 @@
-import { IWallet } from "src/types";
-import { TransactionReceipt } from "web3-core";
-import * as web3Utils from "web3-utils";
+import { IWallet, IFundingEvent, OperatorTotal } from "src/types";
 import { toBytes32 } from "src/utils/crypto";
 import Wallet from "./artifacts/Wallet.abi.json";
 import Controller from "./artifacts/Controller.abi.json";
 import { getProvider } from "src/utils/getProvider";
-import { Contract } from "web3-eth-contract";
+import { Contract, EventData } from "web3-eth-contract";
+import { TransactionReceipt, PastLogsOptions } from "web3-core";
+import * as web3Utils from "web3-utils";
+import BN from "bn.js";
 
 const getControllerContract = async (): Promise<Contract> => {
   const { web3 } = await getProvider();
@@ -54,15 +55,32 @@ export async function getWalletAddress(userId: string): Promise<string> {
 
 export async function deposit(
   userId: string,
-  amount: string
+  amount: string,
+  operator?: string
 ): Promise<TransactionReceipt> {
-  const { sendTransaction } = await getProvider();
+  const { sendTransaction } = await getProvider(operator);
   const controller = await getControllerContract();
   const deposit = await controller.methods.deposit(
     toBytes32(userId),
     web3Utils.toWei(amount, "ether")
   );
-  return await sendTransaction(deposit);
+  const tx = await sendTransaction(deposit);
+  return tx;
+}
+
+export async function withdraw(
+  userId: string,
+  amount: string,
+  operator?: string
+): Promise<TransactionReceipt> {
+  const { sendTransaction } = await getProvider(operator);
+  const controller = await getControllerContract();
+  const withdraw = await controller.methods.withdraw(
+    toBytes32(userId),
+    web3Utils.toWei(amount, "ether")
+  );
+  const tx = await sendTransaction(withdraw);
+  return tx;
 }
 
 export async function newWallet(userId: string): Promise<string> {
@@ -75,7 +93,9 @@ export async function newWallet(userId: string): Promise<string> {
 
 export async function balanceOfWallet(userId: string): Promise<string> {
   const controller = await getControllerContract();
-  const balance = await controller.methods.balanceOfWallet(userId).call();
+  const balance = await controller.methods
+    .balanceOfWallet(toBytes32(userId))
+    .call();
   return balance;
 }
 
@@ -100,7 +120,7 @@ export async function transferTo(
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const transferContractOwnership = await controller.methods.transferTo(
+  const transferContractOwnership = await controller.methods.transfer(
     toBytes32(fromUserId),
     toBytes32(toUserId),
     web3Utils.toWei(amount, "ether")
@@ -139,7 +159,10 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     wallet.methods.createdBlock().call(),
   ]);
 
-  const b = await this.balanceOfWallet(userId);
+  console.log("Found wallet contract for userId " + userId);
+
+  const controller = await getControllerContract();
+  const b = await controller.methods.balanceOfWallet(userId).call();
   console.log(b);
   const balance = parseFloat(web3Utils.fromWei(b, "ether"));
 
@@ -151,4 +174,97 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     totalBalance: 0,
   };
   return user;
+}
+
+export async function getLogs(
+  eventName: string,
+  options?: PastLogsOptions
+): Promise<EventData[]> {
+  const controller = await getControllerContract();
+  const logOptions: PastLogsOptions = options
+    ? options
+    : {
+        fromBlock: 0,
+        toBlock: "latest",
+      };
+  const events: EventData[] = await controller.getPastEvents(
+    eventName,
+    logOptions
+  );
+  return events;
+}
+
+export async function getFundingEvent(
+  eventName: string
+): Promise<IFundingEvent[]> {
+  const response: IFundingEvent[] = [];
+  try {
+    const events = await getLogs(eventName);
+    const obj = JSON.parse(JSON.stringify(events));
+    obj.forEach((element) => {
+      response.push({
+        operator: element.returnValues._operator,
+        userId: element.returnValues._userId,
+        value: element.returnValues._value,
+        transactionHash: element.transactionHash,
+        blockNumber: element.blockNumber,
+      });
+    });
+  } catch (e) {
+    throw new Error(
+      `Problem collating and parsing ${eventName} events (${JSON.stringify(e)})`
+    );
+  }
+  return response;
+}
+
+export async function getDeposits(): Promise<IFundingEvent[]> {
+  return await getFundingEvent("UserDeposit");
+}
+
+export async function getWithdrawals(): Promise<IFundingEvent[]> {
+  return await getFundingEvent("UserWithdrawal");
+}
+
+export async function getFundingStatus(): Promise<OperatorTotal[]> {
+  const deposits = await getDeposits();
+  const withdrawals = await getWithdrawals();
+  const { operators } = await getProvider();
+
+  const operatorTotals: OperatorTotal[] = [];
+
+  for (let i = 0; i < operators?.length; i++) {
+    let totalDeposits: BN = new BN(0);
+    let totalWithdrawals: BN = new BN(0);
+    let currentOutstanding: BN = new BN(0);
+
+    const depositsForOperator = deposits.filter((value, index) => {
+      return value.operator === operators[i];
+    });
+    const withdrawalsForOperator = withdrawals.filter((value, index) => {
+      return value.operator === operators[i];
+    });
+
+    for (let j = 0; j < depositsForOperator?.length; j++) {
+      totalDeposits = totalDeposits.add(new BN(depositsForOperator[j].value));
+    }
+    for (let j = 0; j < withdrawalsForOperator?.length; j++) {
+      totalWithdrawals = totalWithdrawals.add(
+        new BN(withdrawalsForOperator[j].value)
+      );
+    }
+
+    currentOutstanding = totalDeposits.sub(totalWithdrawals);
+
+    operatorTotals.push({
+      operator: operators[i],
+      totalDeposits: web3Utils.fromWei(totalDeposits.toString()),
+      totalWithdrawals: web3Utils.fromWei(totalWithdrawals.toString()),
+      currentOutstanding: web3Utils.fromWei(currentOutstanding.toString()),
+      deposits: depositsForOperator,
+      withdrawals: withdrawalsForOperator,
+    });
+  }
+
+  return operatorTotals;
 }
