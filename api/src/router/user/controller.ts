@@ -91,6 +91,24 @@ export async function deposit(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function withdraw(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    const withdrawal = req.body;
+    await AuthorizedService.withdraw(id, withdrawal.amount);
+    const wallet = await PublicServices.getWallet(id);
+    httpUtils.createHttpResponse(wallet, codes.OK, res);
+  } catch (err) {
+    httpUtils.createHttpResponse(
+      {
+        message: "Server error: " + err,
+      },
+      codes.SERVER_ERROR,
+      res
+    );
+  }
+}
+
 export async function transferTo(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
