@@ -12,10 +12,11 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { id: 'fromEmail', label: 'From User', minWidth: 100 },
-  { id: 'toEmail', label: 'To User', minWidth: 100 },
-  { id: 'from', label: 'From Address', minWidth: 100 },
-  { id: 'to', label: 'To Address', minWidth: 100 },
+  { id: 'transactionHash', label: 'Hash', minWidth: 100 },
+  { id: 'fromUser', label: 'From User', minWidth: 100 },
+  { id: 'toUser', label: 'To User', minWidth: 100 },
+  // { id: 'from', label: 'From Address', minWidth: 100 },
+  // { id: 'to', label: 'To Address', minWidth: 100 },
   { id: 'isToMerchant', label: 'Purchase', minWidth: 100, format: (value: boolean) => value ? 'Yes' : 'No' },
   {
     id: 'amount',
