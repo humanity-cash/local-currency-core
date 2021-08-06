@@ -21,6 +21,7 @@ const useStyles = makeStyles({
 interface DataCardInput {
   title?: string
   body?: string
+  additional?: string
 }
 
 const DataCard = (props: DataCardInput) => {
@@ -35,6 +36,9 @@ const DataCard = (props: DataCardInput) => {
           </Typography>
           <Typography variant="h5" component="h2" style={{justifySelf: 'center'}}>
           {props?.body} 
+          </Typography>
+          <Typography variant="h5" component="h2" style={{justifySelf: 'center'}}>
+          {props.additional} 
           </Typography>
         </div>
       </CardContent>
