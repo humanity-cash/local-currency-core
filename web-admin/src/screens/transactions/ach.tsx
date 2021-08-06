@@ -12,8 +12,8 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { id: 'bankAccount', label: 'Bank Account', minWidth: 100 },
-  { id: 'userEmail', label: 'User', minWidth: 100 },
+  { id: 'bank', label: 'Bank', minWidth: 100 },
+  { id: 'username', label: 'User', minWidth: 100 },
   { id: 'type', label: 'Type', minWidth: 100 },
   { id: 'createdAt', label: 'Created At', minWidth: 100, format: (value: number) => moment().format() },
   { id: 'confirmedAt', label: 'Confirmed At', minWidth: 100, format: (value: number) => moment().format()},
@@ -21,13 +21,7 @@ const columns: Column[] = [
     id: 'amount',
     label: 'Amount',
     minWidth: 100,
-    format: (value: number) => value.toLocaleString('en-US'),
-  },
-  {
-    id: 'bank',
-    label: 'Bank',
-    minWidth: 100,
-    format: (value: number) => value.toLocaleString('en-US'),
+    format: (value: number) => value.toLocaleString('en-US') + ' $',
   },
   {
     id: 'status',

@@ -8,6 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -42,7 +43,7 @@ const TableHeader = (props: TableHeaderProps) => {
 					<TableCell
 						key={column.id}
 						align={column.align}
-						style={{ minWidth: column.minWidth }}
+						style={{ minWidth: column.minWidth, fontSize: '18px' }}
 					>
 						{column.label}
 					</TableCell>
@@ -60,6 +61,7 @@ interface TableProps {
 const TableTemplate = (props: TableProps) => {
 	const { data, columns } = props;
   const classes = useStyles();
+  const history = useHistory();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -84,7 +86,7 @@ const TableTemplate = (props: TableProps) => {
                   {columns.map((column) => {
                     const value = row[column.id];
                     return (
-                      <TableCell key={column.id} align={column.align}>
+                      <TableCell style={{cursor: 'pointer', fontSize: '16px'}} key={column.id} align={column.align} onClick={() => history.push('/transaction/id')}>
                         {column.format ? column.format(value) : value}
                       </TableCell>
                     );

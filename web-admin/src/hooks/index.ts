@@ -1,5 +1,6 @@
 import useACHData from './useACHData';
 import useBlockchainData from './useBlockchainData';
 import useContractsState from './useContractsData';
+import useUsersData from './useUsersData';
 
-export { useContractsState, useACHData, useBlockchainData };
+export { useUsersData, useContractsState, useACHData, useBlockchainData };
