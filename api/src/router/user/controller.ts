@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as AuthorizedService from "src/service/AuthorizedService";
+import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
 import { httpUtils } from "src/utils";
 
@@ -50,7 +50,7 @@ export async function getUser(req: Request, res: Response): Promise<void> {
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUser = req.body;
-    await AuthorizedService.createUser(newUser);
+    await OperatorService.createUser(newUser);
     const wallet = await PublicServices.getWallet(newUser.userId);
     httpUtils.createHttpResponse(wallet, codes.CREATED, res);
   } catch (err) {
@@ -77,7 +77,7 @@ export async function deposit(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const deposit = req.body;
-    await AuthorizedService.deposit(id, deposit.amount);
+    await OperatorService.deposit(id, deposit.amount);
     const wallet = await PublicServices.getWallet(id);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
@@ -117,11 +117,91 @@ export async function deposit(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function getDeposits(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    await PublicServices.getWallet(id);
+    const deposits = await OperatorService.getDepositsForUser(id);
+    httpUtils.createHttpResponse(deposits, codes.OK, res);
+  } catch (err) {
+    if (err?.message?.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.createHttpResponse(
+        {
+          message: "Get deposits failed: user does not exist",
+        },
+        codes.UNPROCESSABLE,
+        res
+      );
+    else
+      httpUtils.createHttpResponse(
+        {
+          message: "Server error: " + err,
+        },
+        codes.SERVER_ERROR,
+        res
+      );
+  }
+}
+
+export async function getWithdrawals(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    await PublicServices.getWallet(id);
+    const withdrawals = await OperatorService.getWithdrawalsForUser(id);
+    httpUtils.createHttpResponse(withdrawals, codes.OK, res);
+  } catch (err) {
+    if (err?.message?.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.createHttpResponse(
+        {
+          message: "Get withdrawals failed: user does not exist",
+        },
+        codes.UNPROCESSABLE,
+        res
+      );
+    else
+      httpUtils.createHttpResponse(
+        {
+          message: "Server error: " + err,
+        },
+        codes.SERVER_ERROR,
+        res
+      );
+  }
+}
+
+export async function getTransfers(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    const transfers = await OperatorService.getTransfersForUser(id);
+    httpUtils.createHttpResponse(transfers, codes.OK, res);
+  } catch (err) {
+    if (err?.message?.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.createHttpResponse(
+        {
+          message: "Get transfers failed: user does not exist",
+        },
+        codes.UNPROCESSABLE,
+        res
+      );
+    else
+      httpUtils.createHttpResponse(
+        {
+          message: "Server error: " + err,
+        },
+        codes.SERVER_ERROR,
+        res
+      );
+  }
+}
+
 export async function withdraw(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const withdrawal = req.body;
-    await AuthorizedService.withdraw(id, withdrawal.amount);
+    await OperatorService.withdraw(id, withdrawal.amount);
     const wallet = await PublicServices.getWallet(id);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
@@ -173,7 +253,7 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const transfer = req.body;
-    await AuthorizedService.transferTo(id, transfer.toUserId, transfer.amount);
+    await OperatorService.transferTo(id, transfer.toUserId, transfer.amount);
     const user = await PublicServices.getWallet(id);
     httpUtils.createHttpResponse(user, codes.ACCEPTED, res);
   } catch (err) {
