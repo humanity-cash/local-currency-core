@@ -17,11 +17,15 @@ if (result.error) {
   throw result.error;
 }
 
-describe("Check basic connectivity to a smart contract", () => {
+describe("Test low-level smart contract functions", () => {
   const userId = v4();
+  const userId2 = v4();
+  const userId3 = v4();
+  let operators: string[] = [];
 
   beforeAll(async () => {
     await setupContracts();
+    operators = (await getProvider()).operators;
 
     log("Performing unit tests with new user " + userId);
     log("bytes32(userId) ", toBytes32(userId));
@@ -34,7 +38,7 @@ describe("Check basic connectivity to a smart contract", () => {
 
     log("Performing unit tests with new user " + userId);
 
-    const success = await contracts.deposit(userId, "10");
+    const success = await contracts.deposit(userId, "10", operators[0]);
     log("Deposited $10 for userId ", userId, " result ", success.status);
   });
 
@@ -87,41 +91,103 @@ describe("Check basic connectivity to a smart contract", () => {
     });
 
     it("Should deposit to a new wallet and verify the new balance", async () => {
-      const newUserId = v4();
-      const wallet = await contracts.newWallet(newUserId);
-      log(`New wallet address == ${wallet} for userId ${newUserId}`);
+      const wallet = await contracts.newWallet(userId2);
+      log(`New wallet address == ${wallet} for userId ${userId2}`);
       expect(wallet).toBeDefined();
 
-      const depositResult = await contracts.deposit(newUserId, "99.99");
+      const depositResult = await contracts.deposit(
+        userId2,
+        "99.99",
+        operators[1]
+      );
       log(`deposit transaction status == ${depositResult.status}`);
 
-      const balance = await contracts.balanceOfWallet(newUserId);
+      const balance = await contracts.balanceOfWallet(userId2);
       const bal = utils.fromWei(balance, "ether");
       log(`balance == ${bal}`);
       expect(parseFloat(bal)).toEqual(99.99);
     });
 
     it("Should deposit to a new wallet, verify the balance, withdraw and verify the balance", async () => {
-      const newUserId = v4();
-      const wallet = await contracts.newWallet(newUserId);
+      const wallet = await contracts.newWallet(userId3);
       log(`New wallet address == ${wallet}`);
       expect(wallet).toBeDefined();
 
-      const depositResult = await contracts.deposit(newUserId, "99.99");
+      const depositResult = await contracts.deposit(
+        userId3,
+        "99.99",
+        operators[0]
+      );
       log(`deposit transaction status == ${depositResult.status}`);
 
-      let balance = await contracts.balanceOfWallet(newUserId);
+      let balance = await contracts.balanceOfWallet(userId3);
       let bal = utils.fromWei(balance, "ether");
       log(`balance == ${bal}`);
       expect(parseFloat(bal)).toEqual(99.99);
 
-      const withdrawResult = await contracts.withdraw(newUserId, "88.88");
+      const withdrawResult = await contracts.withdraw(
+        userId3,
+        "88.88",
+        operators[0]
+      );
       log(`withdraw transaction status == ${withdrawResult.status}`);
 
-      balance = await contracts.balanceOfWallet(newUserId);
+      balance = await contracts.balanceOfWallet(userId3);
       bal = utils.fromWei(balance, "ether");
       log(`balance == ${bal}`);
       expect(parseFloat(bal)).toEqual(11.11);
+    });
+
+    it("Should transfer between wallets", async () => {
+      const result = await contracts.transferTo(userId3, userId, "1.11");
+      expect(result).toBeDefined();
+      log(JSON.stringify(result, null, 2));
+
+      const balance = await contracts.balanceOfWallet(userId3);
+      const bal = utils.fromWei(balance, "ether");
+      log(`balance == ${bal}`);
+      expect(parseFloat(bal)).toEqual(10.0);
+    });
+
+    it("Should get deposits for a user", async () => {
+      const deposits = await contracts.getDepositsForUser(userId3);
+      expect(deposits).toBeDefined();
+      expect(deposits.length).toEqual(1);
+      log(`deposits == ${JSON.stringify(deposits, null, 2)}`);
+    });
+
+    it("Should get withdrawals for a user", async () => {
+      const withdrawals = await contracts.getWithdrawalsForUser(userId3);
+      expect(withdrawals).toBeDefined();
+      expect(withdrawals.length).toEqual(1);
+      log(`withdrawals == ${JSON.stringify(withdrawals, null, 2)}`);
+    });
+
+    xit("Should get transfers for a user", async () => {
+      const transfers = await contracts.getTransfersForUser(userId3);
+      expect(transfers).toBeDefined();
+      expect(transfers.length).toEqual(1);
+      log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
+    });
+  });
+
+  describe("Get deposits and withdrawals", () => {
+    it("Should retrieve and iterate all deposit events", async () => {
+      const response = await contracts.getDeposits();
+      console.log(JSON.stringify(response, null, 2));
+      expect(response).toBeDefined();
+    });
+
+    it("Should retrieve and iterate all withdrawal events", async () => {
+      const response = await contracts.getWithdrawals();
+      console.log(JSON.stringify(response, null, 2));
+      expect(response).toBeDefined();
+    });
+
+    it("Should retrieve funding totals for each operator (bank)", async () => {
+      const response = await contracts.getFundingStatus();
+      console.log(JSON.stringify(response, null, 2));
+      expect(response).toBeDefined();
     });
   });
 
@@ -141,24 +207,6 @@ describe("Check basic connectivity to a smart contract", () => {
       await expect(
         contracts.transferContractOwnership(newOwner)
       ).rejects.toBeDefined();
-    });
-  });
-
-  describe("Get deposits and withdrawals", () => {
-    it("Should retrieve and iterate deposit events", async () => {
-      const response = await contracts.getDeposits();
-      expect(response).toBeDefined();
-    });
-
-    it("Should retrieve and iterate withdrawal events", async () => {
-      const response = await contracts.getWithdrawals();
-      expect(response).toBeDefined();
-    });
-
-    it("Should retrieve funding totals for each operator (bank)", async () => {
-      const response = await contracts.getFundingStatus();
-      console.log(JSON.stringify(response, null, 2));
-      expect(response).toBeDefined();
     });
   });
 });
