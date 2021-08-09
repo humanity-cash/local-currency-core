@@ -2,27 +2,26 @@ import { TableTemplate } from 'components';
 import { useBlockchainData } from 'hooks';
 import moment from 'moment';
 import { BlockchainData, BlockchainDataState } from 'types';
+import { iconStatus } from 'utils';
 
 interface Column {
   id: keyof BlockchainData;
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: any) => string;
+  format?: (value: any) => any;
 }
 
 const columns: Column[] = [
   { id: 'transactionHash', label: 'Hash', minWidth: 100 },
-  { id: 'fromUser', label: 'From User', minWidth: 100 },
-  { id: 'toUser', label: 'To User', minWidth: 100 },
-  // { id: 'from', label: 'From Address', minWidth: 100 },
-  // { id: 'to', label: 'To Address', minWidth: 100 },
+  { id: 'fromUser', label: 'From', minWidth: 100 },
+  { id: 'toUser', label: 'To', minWidth: 100 },
   { id: 'isToMerchant', label: 'Purchase', minWidth: 100, format: (value: boolean) => value ? 'Yes' : 'No' },
   {
     id: 'amount',
     label: 'Amount',
     minWidth: 100,
-    format: (value: number) => value.toLocaleString('en-US'),
+    format: (value: number) => value.toLocaleString('en-US') + ' B$',
   },
   {
     id: 'createdAt',
@@ -40,7 +39,7 @@ const columns: Column[] = [
     id: 'status',
     label: 'Status',
     minWidth: 100,
-    format: (value: number) => value.toLocaleString('en-US'),
+    format: (value: string) => iconStatus(value)
   },
 ];
 

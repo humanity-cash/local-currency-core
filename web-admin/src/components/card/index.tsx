@@ -4,18 +4,19 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles({
-  root: {
-    maxWidth: '250px',
-    minHeight: '20vh',
-  },
-  title: {
-    fontSize: 14,
-    textAlign: 'center'
-  },
-  contentWrapper: {
-    display: 'grid',
-    gridGap: '2em'
-  },
+	root: {
+		maxWidth: '250px',
+		minHeight: '20vh',
+		// backgroundColor: '#faf0e6',
+	},
+	title: {
+		fontSize: 14,
+		textAlign: 'center',
+	},
+	contentWrapper: {
+		display: 'grid',
+		gridGap: '1em',
+	},
 });
 
 interface DataCardInput {
