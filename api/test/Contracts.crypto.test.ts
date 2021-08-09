@@ -163,7 +163,7 @@ describe("Test low-level smart contract functions", () => {
       log(`withdrawals == ${JSON.stringify(withdrawals, null, 2)}`);
     });
 
-    xit("Should get transfers for a user", async () => {
+    it("Should get transfers for a user", async () => {
       const transfers = await contracts.getTransfersForUser(userId3);
       expect(transfers).toBeDefined();
       expect(transfers.length).toEqual(1);

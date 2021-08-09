@@ -268,16 +268,13 @@ export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
   const transfers: ITransferEvent[] = [];
-  const userAddress = await getWalletAddress(userId);
-  console.log(`Using address ${userAddress} for userId ${toBytes32(userId)}`);
-  const userWallet = await getWalletContractFor(userAddress);
-
+  const controller = await getControllerContract();
   const options = {
     filter: { _fromUserId: toBytes32(userId) },
     fromBlock: 0,
     toBlock: "latest",
   };
-  const logs = await getLogs("TransferToEvent", userWallet, options);
+  const logs = await getLogs("TransferToEvent", controller, options);
   const obj = JSON.parse(JSON.stringify(logs));
   console.log(`TransferToEvent logs: ${JSON.stringify(obj, null, 2)}`);
 
@@ -287,7 +284,7 @@ export async function getTransfersForUser(
     let toUserId, toAddress;
     if (element.returnValues._toUserId) {
       toUserId = element.returnValues._toUserId;
-      toAddress = getWalletAddress(toUserId);
+      toAddress = await controller.methods.getWalletAddress(toUserId).call();
     } else {
       toAddress = element.returnValues._toAddress;
       const wallet = await getWalletContractFor(toAddress);
@@ -295,9 +292,9 @@ export async function getTransfersForUser(
       toUserId = userId;
     }
 
-    const fromAddress = await getWalletAddress(
-      element.returnValues._fromUserId
-    );
+    const fromAddress = await controller.methods
+      .getWalletAddress(element.returnValues._fromUserId)
+      .call();
     const timestamp = await getTimestampForBlock(element.blockNumber);
 
     transfers.push({

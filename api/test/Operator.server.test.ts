@@ -502,7 +502,7 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/transfer (get transfer(s) for user(s))", () => {
-    xit("it should get 1 transfer for user1, HTTP 200", (done) => {
+    it("it should get 1 transfer for user1, HTTP 200", (done) => {
       chai
         .request(server)
         .get(`/users/${user1Id}/transfer`)
@@ -519,7 +519,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    xit("it should get 1 transfer for user2, HTTP 200", (done) => {
+    it("it should get 1 transfer for user2, HTTP 200", (done) => {
       chai
         .request(server)
         .get(`/users/${user2Id}/transfer`)
