@@ -1,5 +1,11 @@
-import { IWallet, IFundingEvent, OperatorTotal } from "src/types";
-import { toBytes32 } from "src/utils/crypto";
+import {
+  IWallet,
+  ITransferEvent,
+  IOperatorTotal,
+  IWithdrawal,
+  IDeposit,
+} from "src/types";
+import { toBytes32, getTimestampForBlock } from "src/utils/crypto";
 import Wallet from "./artifacts/Wallet.abi.json";
 import Controller from "./artifacts/Controller.abi.json";
 import { getProvider } from "src/utils/getProvider";
@@ -120,12 +126,12 @@ export async function transferTo(
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
-  const transferContractOwnership = await controller.methods.transfer(
+  const transfer = await controller.methods.transfer(
     toBytes32(fromUserId),
     toBytes32(toUserId),
     web3Utils.toWei(amount, "ether")
   );
-  return await sendTransaction(transferContractOwnership);
+  return await sendTransaction(transfer);
 }
 
 export async function transferContractOwnership(
@@ -176,40 +182,36 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
   return user;
 }
 
-export async function getLogs(
+async function getLogs(
   eventName: string,
-  options?: PastLogsOptions
+  contract: Contract,
+  options: PastLogsOptions
 ): Promise<EventData[]> {
-  const controller = await getControllerContract();
-  const logOptions: PastLogsOptions = options
-    ? options
-    : {
-        fromBlock: 0,
-        toBlock: "latest",
-      };
-  const events: EventData[] = await controller.getPastEvents(
-    eventName,
-    logOptions
-  );
+  const events: EventData[] = await contract.getPastEvents(eventName, options);
   return events;
 }
 
-export async function getFundingEvent(
-  eventName: string
-): Promise<IFundingEvent[]> {
-  const response: IFundingEvent[] = [];
+async function getFundingEvent(
+  eventName: string,
+  options: PastLogsOptions
+): Promise<IWithdrawal[] | IDeposit[]> {
+  const response = [];
   try {
-    const events = await getLogs(eventName);
+    const controller = await getControllerContract();
+    const events = await getLogs(eventName, controller, options);
     const obj = JSON.parse(JSON.stringify(events));
-    obj.forEach((element) => {
+
+    for (let i = 0; i < obj.length; i++) {
+      const element = obj[i];
       response.push({
         operator: element.returnValues._operator,
         userId: element.returnValues._userId,
         value: element.returnValues._value,
         transactionHash: element.transactionHash,
         blockNumber: element.blockNumber,
+        timestamp: await getTimestampForBlock(element.blockNumber),
       });
-    });
+    }
   } catch (e) {
     throw new Error(
       `Problem collating and parsing ${eventName} events (${JSON.stringify(e)})`
@@ -218,20 +220,114 @@ export async function getFundingEvent(
   return response;
 }
 
-export async function getDeposits(): Promise<IFundingEvent[]> {
-  return await getFundingEvent("UserDeposit");
+export async function getDeposits(
+  options?: PastLogsOptions
+): Promise<IDeposit[]> {
+  return await getFundingEvent("UserDeposit", options);
 }
 
-export async function getWithdrawals(): Promise<IFundingEvent[]> {
-  return await getFundingEvent("UserWithdrawal");
+export async function getWithdrawals(
+  options?: PastLogsOptions
+): Promise<IWithdrawal[]> {
+  return await getFundingEvent("UserWithdrawal", options);
 }
 
-export async function getFundingStatus(): Promise<OperatorTotal[]> {
-  const deposits = await getDeposits();
-  const withdrawals = await getWithdrawals();
+// Deposit events are emitted from the controller contract
+// We need to filter on the userId
+export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
+  const options = {
+    filter: { _userId: toBytes32(userId) },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+  const deposits: IDeposit[] = await getDeposits(options);
+  console.log(`UserDeposit logs: ${JSON.stringify(deposits, null, 2)}`);
+  return deposits;
+}
+
+// Withdrawal events are emitted from the controller contract
+// We need to filter on the userId
+export async function getWithdrawalsForUser(
+  userId: string
+): Promise<IWithdrawal[]> {
+  const options = {
+    filter: { _userId: toBytes32(userId) },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+  const withdrawals: IWithdrawal[] = await getWithdrawals(options);
+  console.log(`UserWithdrawal logs: ${JSON.stringify(withdrawals, null, 2)}`);
+  return withdrawals;
+}
+
+// Transfer events are emitted from the user's wallet
+// Therefore use the user's wallet contract as the event source
+// We don't need to filter since only events relating
+// to that wallet will be emitted
+export async function getTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {
+  const transfers: ITransferEvent[] = [];
+  const userAddress = await getWalletAddress(userId);
+  console.log(`Using address ${userAddress} for userId ${toBytes32(userId)}`);
+  const userWallet = await getWalletContractFor(userAddress);
+
+  const options = {
+    filter: { _fromUserId: toBytes32(userId) },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+  const logs = await getLogs("TransferToEvent", userWallet, options);
+  const obj = JSON.parse(JSON.stringify(logs));
+  console.log(`TransferToEvent logs: ${JSON.stringify(obj, null, 2)}`);
+
+  for (let i = 0; i < logs.length; i++) {
+    const element = logs[i];
+
+    let toUserId, toAddress;
+    if (element.returnValues._toUserId) {
+      toUserId = element.returnValues._toUserId;
+      toAddress = getWalletAddress(toUserId);
+    } else {
+      toAddress = element.returnValues._toAddress;
+      const wallet = await getWalletContractFor(toAddress);
+      const userId = await wallet.methods.userId().call();
+      toUserId = userId;
+    }
+
+    const fromAddress = await getWalletAddress(
+      element.returnValues._fromUserId
+    );
+    const timestamp = await getTimestampForBlock(element.blockNumber);
+
+    transfers.push({
+      fromUserId: element.returnValues._fromUserId,
+      fromAddress: fromAddress,
+      toUserId: toUserId,
+      toAddress: toAddress,
+      value: element.returnValues._amt,
+      transactionHash: element.transactionHash,
+      blockNumber: element.blockNumber,
+      timestamp: timestamp,
+    });
+  }
+
+  return transfers;
+}
+
+export async function getFundingStatus(): Promise<IOperatorTotal[]> {
+  const options: PastLogsOptions = {
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+  const deposits = await getDeposits(options);
+  const withdrawals = await getWithdrawals(options);
   const { operators } = await getProvider();
 
-  const operatorTotals: OperatorTotal[] = [];
+  console.log(JSON.stringify(deposits));
+  console.log(JSON.stringify(withdrawals));
+
+  const operatorTotals: IOperatorTotal[] = [];
 
   for (let i = 0; i < operators?.length; i++) {
     let totalDeposits: BN = new BN(0);
