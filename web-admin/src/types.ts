@@ -2,7 +2,7 @@ export interface ContractData {
 	name: string;
 	address: string;
 	deployedAt: number;
-	status: number;
+	status: number | undefined;
 	version: number;
 }
 
@@ -23,15 +23,26 @@ export interface BlockchainDataState {
 type TransactionStatus = 'Pending' | 'Success' | 'Fail';
 type Time = number;
 type ACHType = 'Funding' | 'Redemption';
-type UserEmail = string;
+type Username = string;
 type Hash = string;
+
+export interface UserData {
+	name: string;
+	email: string;
+	dowllaId: string;
+	outstandingBalance: number;
+	lastLogin: Time;
+	blockchainAddress: string;
+	address: string;
+	type: 'Buisness' | 'Private';
+}
 
 export interface BlockchainData {
 	transactionHash: Hash;
 	from: Hash;
 	to: Hash;
-	fromEmail: UserEmail;
-	toEmail: UserEmail;
+	fromUser: Username;
+	toUser: Username;
 	isToMerchant: 0 | 1; //reciever is merchant
 	createdAt: Time;
 	confirmedAt: Time;
@@ -40,7 +51,7 @@ export interface BlockchainData {
 }
 
 export interface ACHData {
-	userEmail: UserEmail;
+	username: Username;
 	type: ACHType;
 	transactionId: number;
 	createdAt: Time;

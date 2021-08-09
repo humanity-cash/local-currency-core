@@ -10,20 +10,20 @@ interface Column {
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => any;
+  format?: (value: any) => any;
 }
 
 const Actions = () => {
 
   return (
-    <>
+    <div style={{display: 'inline-flex'}}>
       <div style={{cursor: 'pointer'}}>
         <StartIcon />
       </div>
       <div style={{cursor: 'pointer'}}>
         <StopIcon />
       </div>
-    </>
+    </div>
   );
 };
 
@@ -41,13 +41,13 @@ const columns: Column[] = [
     id: 'status',
     label: 'Status',
     minWidth: 170,
-    format: (value: number) =>  value ? 'UP' : 'DOWN'
+    format: (value: number) =>  value === undefined ? '' : value === 1 ? 'ACTIVE' : 'DISABLED'
   },
   {
-    id: 'address',
+    id: 'name',
     label: 'Actions',
     minWidth: 170,
-    format: (value: number) => <Actions/>
+    format: (value: string) => value === 'Controller' ? <Actions /> : null
   },
 ];
 

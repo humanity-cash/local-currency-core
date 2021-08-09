@@ -8,6 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -42,7 +43,7 @@ const TableHeader = (props: TableHeaderProps) => {
 					<TableCell
 						key={column.id}
 						align={column.align}
-						style={{ minWidth: column.minWidth }}
+						style={{ minWidth: column.minWidth, fontSize: '18px' }}
 					>
 						{column.label}
 					</TableCell>
@@ -60,6 +61,7 @@ interface TableProps {
 const TableTemplate = (props: TableProps) => {
 	const { data, columns } = props;
   const classes = useStyles();
+  const history = useHistory();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -78,19 +80,50 @@ const TableTemplate = (props: TableProps) => {
         <Table stickyHeader aria-label="sticky table">
 				<TableHeader columns={columns} />
           <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => {
               return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.address}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format ? column.format(value) : value}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
+					<TableRow
+						hover
+						role='checkbox'
+						tabIndex={-1}
+						key={row.address}
+						style={{
+							backgroundColor:
+								idx % 2 === 0 ? '#eef0f2' : 'white',
+						}}>
+						{columns.map((column) => {
+							const value = row[column.id];
+							return (
+								<TableCell
+									style={{
+										cursor: column.clickable
+											? 'pointer'
+											: 'default',
+										fontSize: '16px',
+										color: column.clickable
+											? 'blue'
+											: 'black',
+										textDecoration: column.clickable
+											? 'underline'
+											: 'none',
+									}}
+									key={column.id}
+									align={column.align}
+									onClick={() => {
+										console.log('here');
+										return column.clickable
+											? column.onClick(value)
+											: null;
+									}}>
+									{/* onClick={() => history.push('/transaction/id')}> */}
+									{column.format
+										? column.format(value)
+										: value}
+								</TableCell>
+							);
+						})}
+					</TableRow>
+				);
             })}
           </TableBody>
         </Table>
