@@ -24,7 +24,7 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
 	toolbar: {
-		backgroundColor: '#73d5bc',
+		backgroundColor: '#4d5d53',
 	},
 	root: {
 		display: 'flex',
@@ -118,10 +118,6 @@ const Sidebar = () => {
 	}, [authStatus]);
 	const history = useHistory();
 
-	const handleDrawerOpen = () => {
-		setOpen(true);
-	};
-
 	return (
 		<div className={classes.root}>
 			<CssBaseline />
@@ -156,7 +152,7 @@ const Sidebar = () => {
 					paper: classes.drawerPaper,
 				}}>
 				<div className={classes.drawerHeader}></div>
-				<Divider />
+				{/* <Divider /> */}
 				<List>
 					{SIDE_BAR_OPTIONS.map(({ text, path, Icon }, index) => (
 						<ListItem

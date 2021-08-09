@@ -5,9 +5,9 @@ const useStyles = makeStyles({
   wrapper: {
     padding: '24px',
     paddingLeft: '18em',
-		gridGap: '0.8em',
+		gridRowGap: '0.8em',
 		display: 'grid',
-		gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
+		gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
 		gridTemplateRows: '1fr 1fr 1fr',
   },
 });

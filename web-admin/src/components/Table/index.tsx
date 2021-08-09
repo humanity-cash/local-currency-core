@@ -80,19 +80,50 @@ const TableTemplate = (props: TableProps) => {
         <Table stickyHeader aria-label="sticky table">
 				<TableHeader columns={columns} />
           <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => {
               return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.address}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell style={{cursor: 'pointer', fontSize: '16px'}} key={column.id} align={column.align} onClick={() => history.push('/transaction/id')}>
-                        {column.format ? column.format(value) : value}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
+					<TableRow
+						hover
+						role='checkbox'
+						tabIndex={-1}
+						key={row.address}
+						style={{
+							backgroundColor:
+								idx % 2 === 0 ? '#eef0f2' : 'white',
+						}}>
+						{columns.map((column) => {
+							const value = row[column.id];
+							return (
+								<TableCell
+									style={{
+										cursor: column.clickable
+											? 'pointer'
+											: 'default',
+										fontSize: '16px',
+										color: column.clickable
+											? 'blue'
+											: 'black',
+										textDecoration: column.clickable
+											? 'underline'
+											: 'none',
+									}}
+									key={column.id}
+									align={column.align}
+									onClick={() => {
+										console.log('here');
+										return column.clickable
+											? column.onClick(value)
+											: null;
+									}}>
+									{/* onClick={() => history.push('/transaction/id')}> */}
+									{column.format
+										? column.format(value)
+										: value}
+								</TableCell>
+							);
+						})}
+					</TableRow>
+				);
             })}
           </TableBody>
         </Table>
