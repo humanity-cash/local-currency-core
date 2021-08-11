@@ -17,19 +17,35 @@ export interface IWallet {
 export interface NewUser {
   userId: string;
 }
-export interface IFundingEvent {
+
+export interface IEventBase {
+  transactionHash: string;
+  blockNumber: number;
+  timestamp: string | number;
+}
+export interface IDeposit extends IEventBase {
   operator: string;
   userId: string;
   value: string;
-  transactionHash: string;
-  blockNumber: string;
 }
 
-export interface OperatorTotal {
+export interface IWithdrawal extends IEventBase {
+  operator: string;
+  userId: string;
+  value: string;
+}
+export interface ITransferEvent extends IEventBase {
+  fromUserId: string;
+  fromAddress: string;
+  toUserId: string;
+  toAddress: string;
+  value: string;
+}
+export interface IOperatorTotal {
   operator: string;
   totalDeposits: string;
   totalWithdrawals: string;
   currentOutstanding: string;
-  deposits: IFundingEvent[];
-  withdrawals: IFundingEvent[];
+  deposits: IDeposit[];
+  withdrawals: IWithdrawal[];
 }
