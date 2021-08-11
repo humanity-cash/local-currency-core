@@ -82,12 +82,12 @@ export const getProvider = async (
       operators = accounts.filter((value, index) => {
         return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
       });
-      console.log(
-        "(web3) Now using account:",
-        defaultAccount,
-        " for this transaction"
-      );
-      console.log("(web3) Operators", operators);
+      // console.log(
+      //   "(web3) Now using account:",
+      //   defaultAccount,
+      //   " for this transaction"
+      // );
+      // console.log("(web3) Operators", operators);
     }
   } else {
     // If kit isn't defined or the accountToUse has been specified
@@ -99,12 +99,12 @@ export const getProvider = async (
       operators = accounts.filter((value, index) => {
         return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
       });
-      console.log(
-        "(kit) Now using account:",
-        defaultAccount,
-        " for this transaction"
-      );
-      console.log("(kit) Operators", operators);
+      // console.log(
+      //   "(kit) Now using account:",
+      //   defaultAccount,
+      //   " for this transaction"
+      // );
+      // console.log("(kit) Operators", operators);
     }
   }
 

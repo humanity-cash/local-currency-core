@@ -1,4 +1,4 @@
-import { HealthResponse, IWallet, OperatorTotal } from "src/types";
+import { HealthResponse, IWallet, IOperatorTotal } from "src/types";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 
@@ -64,6 +64,6 @@ export async function getAllWallets(): Promise<IWallet[]> {
   return users;
 }
 
-export async function getFundingStatus(): Promise<OperatorTotal[]> {
+export async function getFundingStatus(): Promise<IOperatorTotal[]> {
   return await contracts.getFundingStatus();
 }
