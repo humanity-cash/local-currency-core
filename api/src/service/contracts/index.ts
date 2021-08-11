@@ -9,8 +9,8 @@ import { toBytes32, getTimestampForBlock } from "src/utils/crypto";
 import Wallet from "./artifacts/Wallet.abi.json";
 import Controller from "./artifacts/Controller.abi.json";
 import { getProvider } from "src/utils/getProvider";
-import { Contract, EventData } from "web3-eth-contract";
-import { TransactionReceipt, PastLogsOptions } from "web3-core";
+import { Contract, EventData, PastEventOptions } from "web3-eth-contract";
+import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import BN from "bn.js";
 
@@ -185,7 +185,7 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
 async function getLogs(
   eventName: string,
   contract: Contract,
-  options: PastLogsOptions
+  options: PastEventOptions
 ): Promise<EventData[]> {
   const events: EventData[] = await contract.getPastEvents(eventName, options);
   return events;
@@ -193,16 +193,16 @@ async function getLogs(
 
 async function getFundingEvent(
   eventName: string,
-  options: PastLogsOptions
+  options: PastEventOptions
 ): Promise<IWithdrawal[] | IDeposit[]> {
   const response = [];
   try {
-    const controller = await getControllerContract();
-    const events = await getLogs(eventName, controller, options);
-    const obj = JSON.parse(JSON.stringify(events));
+    const controller: Contract = await getControllerContract();
+    const events: EventData[] = await getLogs(eventName, controller, options);
+    const eventsParsed = JSON.parse(JSON.stringify(events));
 
-    for (let i = 0; i < obj.length; i++) {
-      const element = obj[i];
+    for (let i = 0; i < eventsParsed.length; i++) {
+      const element = eventsParsed[i];
       response.push({
         operator: element.returnValues._operator,
         userId: element.returnValues._userId,
@@ -221,13 +221,13 @@ async function getFundingEvent(
 }
 
 export async function getDeposits(
-  options?: PastLogsOptions
+  options?: PastEventOptions
 ): Promise<IDeposit[]> {
   return await getFundingEvent("UserDeposit", options);
 }
 
 export async function getWithdrawals(
-  options?: PastLogsOptions
+  options?: PastEventOptions
 ): Promise<IWithdrawal[]> {
   return await getFundingEvent("UserWithdrawal", options);
 }
@@ -235,7 +235,7 @@ export async function getWithdrawals(
 // Deposit events are emitted from the controller contract
 // We need to filter on the userId
 export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
-  const options = {
+  const options: PastEventOptions = {
     filter: { _userId: toBytes32(userId) },
     fromBlock: 0,
     toBlock: "latest",
@@ -250,7 +250,7 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
 export async function getWithdrawalsForUser(
   userId: string
 ): Promise<IWithdrawal[]> {
-  const options = {
+  const options: PastEventOptions = {
     filter: { _userId: toBytes32(userId) },
     fromBlock: 0,
     toBlock: "latest",
@@ -268,8 +268,8 @@ export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
   const transfers: ITransferEvent[] = [];
-  const controller = await getControllerContract();
-  const options = {
+  const controller: Contract = await getControllerContract();
+  const options: PastEventOptions = {
     filter: { _fromUserId: toBytes32(userId) },
     fromBlock: 0,
     toBlock: "latest",
@@ -313,17 +313,13 @@ export async function getTransfersForUser(
 }
 
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
-  const options: PastLogsOptions = {
+  const options: PastEventOptions = {
     fromBlock: 0,
     toBlock: "latest",
   };
   const deposits = await getDeposits(options);
   const withdrawals = await getWithdrawals(options);
   const { operators } = await getProvider();
-
-  console.log(JSON.stringify(deposits));
-  console.log(JSON.stringify(withdrawals));
-
   const operatorTotals: IOperatorTotal[] = [];
 
   for (let i = 0; i < operators?.length; i++) {
@@ -331,9 +327,11 @@ export async function getFundingStatus(): Promise<IOperatorTotal[]> {
     let totalWithdrawals: BN = new BN(0);
     let currentOutstanding: BN = new BN(0);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const depositsForOperator = deposits.filter((value, index) => {
       return value.operator === operators[i];
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const withdrawalsForOperator = withdrawals.filter((value, index) => {
       return value.operator === operators[i];
     });
