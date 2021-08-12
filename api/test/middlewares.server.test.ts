@@ -21,10 +21,6 @@ if (result.error) {
 
 let stub;
 describe("Middlewares", () => {
-	// beforeAll(async () => {
-	// 	await setupContracts();
-	// });
-
 	afterEach(() => {
 		sinon.restore()
 	})
@@ -32,7 +28,6 @@ describe("Middlewares", () => {
 	describe("auth", () => {
 		it("Incorrect token", (done) => {
 		 	stub = sinon.stub(aws, 'verifyCognitoToken')
-			console.log("🚀 ~ file: middlewares.server.test.ts ~ line 29 ~ it ~ stub", stub)
 			chai
 				.request(server)
 				.get("/health")
@@ -52,7 +47,6 @@ describe("Middlewares", () => {
 
 	it("Token does not exist", (done) => {
 		const stub = sinon.stub(aws, 'verifyCognitoToken')
-		console.log("🚀 ~ file: middlewares.server.test.ts ~ line 29 ~ it ~ stub", stub)
 		chai
 			.request(server)
 			.get("/health")
