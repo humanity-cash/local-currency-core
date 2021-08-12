@@ -15,6 +15,7 @@ const server = getApp();
 const result = dotenv.config({
 	path: path.resolve(process.cwd(), ".env.test"),
 });
+
 if (result.error) {
 	throw result.error;
 }
@@ -46,7 +47,7 @@ describe("Middlewares", () => {
 	});
 
 	it("Token does not exist", (done) => {
-		const stub = sinon.stub(aws, 'verifyCognitoToken')
+		stub = sinon.stub(aws, 'verifyCognitoToken')
 		chai
 			.request(server)
 			.get("/health")
