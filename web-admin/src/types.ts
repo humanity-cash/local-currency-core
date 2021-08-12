@@ -43,7 +43,7 @@ export interface BlockchainData {
 	to: Hash;
 	fromUser: Username;
 	toUser: Username;
-	isToMerchant: 0 | 1; //reciever is merchant
+	type: 'Burn' | 'Mint' | 'P2P'; //reciever is merchant
 	createdAt: Time;
 	confirmedAt: Time;
 	amount: number;

@@ -94,12 +94,12 @@ const SIDE_BAR_OPTIONS = [
 		path: '/bc/transactions',
 		Icon: ViewListTwoToneIcon,
 	},
+	{ text: 'Users', path: '/users', Icon: PeopleTwoToneIcon },
 	{
 		text: 'Smart Contracts Configuration',
 		path: '/contracts',
 		Icon: ReceiptTwoToneIcon,
 	},
-	{ text: 'Users', path: '/users', Icon: PeopleTwoToneIcon },
 ];
 
 const Sidebar = () => {
