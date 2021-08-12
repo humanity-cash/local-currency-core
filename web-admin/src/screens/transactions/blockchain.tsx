@@ -40,10 +40,10 @@ const useColumns = () => {
 			onClick: (value: string) => history.push(`/user/${value}`),
 		},
 		{
-			id: 'isToMerchant',
-			label: 'Purchase',
+			id: 'type',
+			label: 'Type',
 			minWidth: 100,
-			format: (value: boolean) => (value ? 'Yes' : 'No'),
+			format: (value: string) => value,
 		},
 		{
 			id: 'amount',
