@@ -3,9 +3,6 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import { Inputs } from 'components';
-import { AuthContext } from 'context/auth';
-import { useContext } from 'react';
-import ChangePasswordScreen from './ChangePassword';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -13,27 +10,6 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(24),
   }
 }));
-
-const LoginPage = (props: any) => {
-  const { signInDetails, completeNewPassword, setSignInDetails, newPassword, setNewPassword, isNewUser, signIn} = useContext(AuthContext);
-  const { email, password } = signInDetails;
-
-
-  if (isNewUser) {
-    return <ChangePasswordScreen 
-      email={email} 
-      newPassword={newPassword} 
-      setNewPassword={setNewPassword} 
-      handler={completeNewPassword}
-      oldPassword={password} />
-  } else {
-    return <LoginScreen 
-      email={email} 
-      password={password} 
-      setLoginDetails={setSignInDetails} 
-      loginHandler={signIn}/>  
-  }
-};
 
 interface LoginScreenProps{
   setLoginDetails: Function
@@ -75,4 +51,4 @@ const LoginScreen = (props: LoginScreenProps) => {
   );
 };
 
-export default LoginPage;
+export default LoginScreen;

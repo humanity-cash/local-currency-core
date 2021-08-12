@@ -1,27 +1,19 @@
 import { makeStyles } from '@material-ui/core/styles';
-import moment from 'moment';
 import { ACHTransactionsTable } from 'screens/transactions';
 
 const useStyles = makeStyles({
 	wrapper: {
 		paddingTop: '1em',
-		// padding: '34px',
 		paddingLeft: '20em',
-		// paddingLeft: '18em',
 		display: 'grid',
 		gridTemplateColumns: '0.5fr 1fr',
 		gridRowGap: '1.2em',
 	},
 	achTitle: {
 		paddingLeft: '1em',
-		// paddingBottom: '0',
 		paddingTop: '0.5em',
-		// justifyContent: 'center',
-		// alignContent: 'center',
 		display: 'grid',
 		fontSize: '24px',
-		// gridTemplateColumns: '0.5fr 1fr',
-		// gridRowGap: '1.2em',
 	},
 	fs18: {
 		fontSize: '18px',
