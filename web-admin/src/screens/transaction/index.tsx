@@ -32,8 +32,12 @@ const Transaction = () => {
 	const user = 'John Doe';
 	const bank = 'Bank Of';
 	const type = 'Funding';
+	const hash = '0x0000000000000000';
 	const status = 'Success';
+	const from = 'Berkshare';
+	const to = 'John Doe';
 	const amount = 45;
+	const blockchainType = 'Minted';
 
 	return (
 		<div className={classes.wrapper}>
@@ -71,36 +75,28 @@ const Transaction = () => {
 			<div className={classes.bctitle}>Blockchain Data</div>
 			<div></div>
 			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
+				<span className={classes.prop}>Hash:</span>
+				{` ${hash}`}
+			</div>
+			<div className={classes.fs18}>
+				<span className={classes.prop}>Action:</span>
+				{` ${blockchainType}`}
+			</div>
+			<div className={classes.fs18}>
+				<span className={classes.prop}>From:</span>
+				{` ${from}`}
+			</div>
+			<div className={classes.fs18}>
+				<span className={classes.prop}>To:</span>
+				{` ${to}`}
 			</div>
 			<div className={classes.fs18}>
 				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
+				{` ${amount} B`}
 			</div>
 			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
-			</div>
-			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
-			</div>
-			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
-			</div>
-			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
-			</div>
-			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
-			</div>
-			<div className={classes.fs18}>
-				<span className={classes.prop}>Amount:</span>
-				{` ${amount}$`}
+				<span className={classes.prop}>Status:</span>
+				{` ${status}`}
 			</div>
 		</div>
 	);

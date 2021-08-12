@@ -1,9 +1,10 @@
-import StopIcon from '@material-ui/icons/HighlightOffTwoTone';
-import StartIcon from '@material-ui/icons/PlayCircleFilledWhiteTwoTone';
+import PausePresentationTwoToneIcon from '@material-ui/icons/PausePresentationTwoTone';
 import { TableTemplate } from 'components';
 import { useContractsState } from 'hooks';
 import moment from 'moment';
-import { ContractData, ContractsState } from 'types';
+import { useStore } from 'react-hookstore';
+import { MODAL_STORE } from 'store';
+import { ContractData, ContractsState, ModalState } from 'types';
 
 interface Column {
   id: keyof ContractData; 
@@ -14,16 +15,14 @@ interface Column {
 }
 
 const Actions = () => {
+  const [, setModalState]: [ModalState, any] = useStore(MODAL_STORE);
 
   return (
-    <div style={{display: 'inline-flex'}}>
-      <div style={{cursor: 'pointer'}}>
-        <StartIcon />
-      </div>
-      <div style={{cursor: 'pointer'}}>
-        <StopIcon />
-      </div>
-    </div>
+		<div style={{ display: 'inline-flex' }}>
+			<div style={{ cursor: 'pointer' }} onClick={() => setModalState({isOpen: true, type: 'TEST_MODAL'})}>
+				<PausePresentationTwoToneIcon />
+			</div>
+		</div>
   );
 };
 
