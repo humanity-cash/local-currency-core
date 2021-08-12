@@ -21,26 +21,30 @@ const Modal = () => {
   };
 
   return (
-    <div>
-      <Dialog open={isOpen} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To subscribe to this website, please enter your email address here. We will send updates
-            occasionally.
-          </DialogContentText>
-        <ChildComponent {...modalProps} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleClose} color="primary">
-            Subscribe
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+		<div>
+			<Dialog
+				open={isOpen}
+				onClose={handleClose}
+				aria-labelledby='form-dialog-title'>
+				<DialogTitle id='form-dialog-title'>Lorem Ipsum</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						Lorem Ipsum is simply dummy text of the printing and
+						typesetting industry. Lorem Ipsum has been the
+						industry's standard dummy text ever since the 1500s
+					</DialogContentText>
+					{/* <ChildComponent {...modalProps} /> */}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose} color='primary'>
+						Cancel
+					</Button>
+					<Button onClick={handleClose} color='primary'>
+						Stop Contract
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</div>
   );
 }
 
