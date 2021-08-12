@@ -65,3 +65,8 @@ export interface ACHData {
 export interface ACHDataState {
 	data: ACHData[]
 }
+
+export enum UserTables {
+	UserACHTRansactions,
+	UserBlockchainTransactions
+}

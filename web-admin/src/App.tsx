@@ -1,3 +1,4 @@
+import { Modal } from 'components';
 import AuthProvider, { AuthIsNotSignedIn, AuthIsSignedIn } from 'context/auth';
 import {
   BrowserRouter as Router
@@ -18,6 +19,7 @@ const App = () => {
           <ProtectedRoutes />
         </AuthIsSignedIn>
         <ToastContainer />
+        <Modal />
       </AuthProvider>
     </Router>
   );

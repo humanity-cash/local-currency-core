@@ -7,8 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useState, ChangeEvent } from 'react';
 
 const useStyles = makeStyles({
   root: {
@@ -17,7 +16,7 @@ const useStyles = makeStyles({
 		gridRow: '1/2'
   },
   container: {
-    maxHeight: 440,
+    maxHeight: 540,
   },
 	wrapper: {
 		padding: '24px',
@@ -61,14 +60,13 @@ interface TableProps {
 const TableTemplate = (props: TableProps) => {
 	const { data, columns } = props;
   const classes = useStyles();
-  const history = useHistory();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -76,6 +74,15 @@ const TableTemplate = (props: TableProps) => {
   return (
 	<div className={classes.wrapper}>
     <Paper className={classes.root}>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component="div"
+        count={data.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
 				<TableHeader columns={columns} />
@@ -110,12 +117,10 @@ const TableTemplate = (props: TableProps) => {
 									key={column.id}
 									align={column.align}
 									onClick={() => {
-										console.log('here');
 										return column.clickable
 											? column.onClick(value)
 											: null;
 									}}>
-									{/* onClick={() => history.push('/transaction/id')}> */}
 									{column.format
 										? column.format(value)
 										: value}
@@ -128,15 +133,6 @@ const TableTemplate = (props: TableProps) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
     </Paper>
 	</div> 
  );
