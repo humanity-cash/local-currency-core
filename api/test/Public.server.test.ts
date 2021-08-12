@@ -30,6 +30,7 @@ describe("Public endpoints test", () => {
       chai
         .request(server)
         .get("/health")
+				.set('authorization', 'tokeeeen')
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           log(JSON.parse(res.text));
