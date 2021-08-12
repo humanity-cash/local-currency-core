@@ -838,6 +838,11 @@
     sprintf-js "^1.1.2"
     utf8 "^3.0.0"
 
+"@panva/asn1.js@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@panva/asn1.js/-/asn1.js-1.0.0.tgz#dd55ae7b8129e02049f009408b97c61ccf9032f6"
+  integrity sha512-UdkG3mLEqXgnlKsWanWcgb6dOjUzJ+XC5f+aWw30qrtjxeNUSfKX1cd5FBzOaXQumoe9nIqeZUvrRJS03HCCtw==
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -1178,6 +1183,13 @@
     tmp "^0.0.33"
     tslib "^2.0.0"
     upath "2.0.1"
+
+"@southlane/cognito-jwt-verifier@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@southlane/cognito-jwt-verifier/-/cognito-jwt-verifier-0.1.7.tgz#1223d13b13e0190bd1fda3d6b0fb08ccfa42e1e0"
+  integrity sha512-tRX2oXh2eOhOcGFiCI+va54DEjdo/ykY35lNJ6FEFkv+0Q9xWE5QvmybEma8WXKnKb07jZvrjOE/brPq/es42g==
+  dependencies:
+    jose "^1.28.0"
 
 "@stablelib/binary@^0.7.2":
   version "0.7.2"
@@ -5657,6 +5669,13 @@ jest@^27.0.4:
     "@jest/core" "^27.0.5"
     import-local "^3.0.2"
     jest-cli "^27.0.5"
+
+jose@^1.28.0:
+  version "1.28.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.28.1.tgz#34a0f851a534be59ffab82a6e8845f6874e8c128"
+  integrity sha512-6JK28rFu5ENp/yxMwM+iN7YeaInnY9B9Bggjkz5fuwLiJhbVrl2O4SJr65bdNBPl9y27fdC3Mymh+FVCvozLIg==
+  dependencies:
+    "@panva/asn1.js" "^1.0.0"
 
 js-sha3@0.5.7, js-sha3@^0.5.7:
   version "0.5.7"
