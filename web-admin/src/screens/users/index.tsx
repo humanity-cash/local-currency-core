@@ -40,7 +40,7 @@ const useColumns = () => {
 		},
 		{
 			id: 'blockchainAddress',
-			label: 'Blockchain Address',
+			label: 'Wallet Address',
 			minWidth: 170,
 			format: (value: string) => value,
 		},
