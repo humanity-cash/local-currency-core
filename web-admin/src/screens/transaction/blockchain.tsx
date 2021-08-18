@@ -30,7 +30,7 @@ const useStyles = makeStyles({
 const BlockchainTransaction = () => {
 	const classes = useStyles();
 	const hash = '0x0000000000000000';
-	const status = 'Success';
+	const blocksConfirmed = 3;
 	const from = 'John Doe';
 	const to = 'Good Shop';
 	const amount = 45;
@@ -42,10 +42,6 @@ const BlockchainTransaction = () => {
 			<div></div>
 			<div className={classes.fs18}>
 				<span className={classes.prop}>Created At:</span>
-				{` ${moment().format()}`}
-			</div>
-			<div className={classes.fs18}>
-				<span className={classes.prop}>Confirmed At:</span>
 				{` ${moment().format()}`}
 			</div>
 			<div className={classes.fs18}>
@@ -61,12 +57,20 @@ const BlockchainTransaction = () => {
 				{` ${blockchainType}`}
 			</div>
 			<div className={classes.fs18}>
-				<span className={classes.prop}>Status:</span>
-				{` ${status}`}
+				<span className={classes.prop}>Blocks Confirmed:</span>
+				{` ${blocksConfirmed}`}
 			</div>
 			<div className={classes.fs18}>
 				<span className={classes.prop}>Amount:</span>
-				{` ${amount} B$`}
+				{`B$ ${amount}`}
+			</div>
+			<div className={classes.fs18}>
+				<span className={classes.prop}>From Address:</span>
+				{` ${hash}`}
+			</div>
+			<div className={classes.fs18}>
+				<span className={classes.prop}>To Address:</span>
+				{` ${hash}`}
 			</div>
 			<div></div>
 		</div>
