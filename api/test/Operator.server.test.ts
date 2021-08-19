@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import chai from "chai";
 import path from "path";
 import chaiHttp from "chai-http";
+import { describe, it, beforeAll } from "@jest/globals";
 import { getApp } from "../src/server";
 import { log, setupContracts } from "./utils";
 import { v4 } from "uuid";
