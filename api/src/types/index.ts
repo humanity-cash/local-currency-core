@@ -14,7 +14,17 @@ export interface IWallet {
   availableBalance: number;
   totalBalance: number;
 }
-export interface NewUser {
+export interface INewUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  businessName?: string;
+  ipAddress?: string;
   userId: string;
 }
 
