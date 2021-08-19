@@ -21,25 +21,27 @@ if (result.error) {
   throw result.error;
 }
 
-function createFakeUser(isBusiness?:false) : INewUser {
-  const user : INewUser = {
-   firstName:"Personal Unverified " + faker.name.firstName(),
-   lastName: faker.name.lastName(),
-   address1: faker.address.streetAddress(),
-   address2: faker.address.secondaryAddress(),
-   city: faker.address.city(),
-   postalCode: faker.address.zipCode(),
-   state: faker.address.stateAbbr(),
-   email: faker.internet.email(),
-   ipAddress: faker.internet.ip().toString(),
-   userId: v4(),
-   businessName: isBusiness ? faker.name.lastName + "'s fake business" : undefined
-  }
+function createFakeUser(isBusiness?: false): INewUser {
+  const user: INewUser = {
+    firstName: "Personal Unverified " + faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    address1: faker.address.streetAddress(),
+    address2: faker.address.secondaryAddress(),
+    city: faker.address.city(),
+    postalCode: faker.address.zipCode(),
+    state: faker.address.stateAbbr(),
+    email: faker.internet.email(),
+    ipAddress: faker.internet.ip().toString(),
+    userId: v4(),
+    businessName: isBusiness
+      ? faker.name.lastName + "'s fake business"
+      : undefined,
+  };
   log(user);
   return user;
 }
 
-function expectIWallet(wallet:unknown) : void {
+function expectIWallet(wallet: unknown): void {
   log(wallet);
   expect(wallet).to.have.property("userId");
   expect(wallet).to.have.property("address");
@@ -48,7 +50,7 @@ function expectIWallet(wallet:unknown) : void {
   expect(wallet).to.have.property("totalBalance");
 }
 
-function expectIDeposit(deposit:unknown) : void {
+function expectIDeposit(deposit: unknown): void {
   log(deposit);
   expect(deposit).to.have.property("transactionHash");
   expect(deposit).to.have.property("blockNumber");
@@ -58,7 +60,7 @@ function expectIDeposit(deposit:unknown) : void {
   expect(deposit).to.have.property("value");
 }
 
-function expectIWithdrawal(withdrawal:unknown) : void {
+function expectIWithdrawal(withdrawal: unknown): void {
   log(withdrawal);
   expect(withdrawal).to.have.property("transactionHash");
   expect(withdrawal).to.have.property("blockNumber");
@@ -68,7 +70,7 @@ function expectIWithdrawal(withdrawal:unknown) : void {
   expect(withdrawal).to.have.property("value");
 }
 
-function expectITransferEvent(transfer:unknown) : void {
+function expectITransferEvent(transfer: unknown): void {
   log(transfer);
   expect(transfer).to.have.property("transactionHash");
   expect(transfer).to.have.property("blockNumber");
@@ -81,9 +83,8 @@ function expectITransferEvent(transfer:unknown) : void {
 }
 
 describe("Operator endpoints test", () => {
-
-  const user1 : INewUser = createFakeUser();
-  const user2 : INewUser = createFakeUser();
+  const user1: INewUser = createFakeUser();
+  const user2: INewUser = createFakeUser();
 
   beforeAll(async () => {
     await setupContracts();
@@ -113,7 +114,7 @@ describe("Operator endpoints test", () => {
         .send(user2)
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
-          expect(res).to.be.json;          
+          expect(res).to.be.json;
           expectIWallet(res.body);
           done();
         })
@@ -321,7 +322,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(3);
-          for(let i = 0;i<res.body.length;i++){
+          for (let i = 0; i < res.body.length; i++) {
             expectIDeposit(res.body[i]);
           }
           done();
@@ -452,7 +453,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(2);
-          for(let i = 0;i<res.body.length;i++){
+          for (let i = 0; i < res.body.length; i++) {
             expectIWithdrawal(res.body[i]);
           }
           done();
@@ -471,7 +472,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(1);
-          for(let i = 0;i<res.body.length;i++){
+          for (let i = 0; i < res.body.length; i++) {
             expectIWithdrawal(res.body[i]);
           }
           done();
@@ -587,7 +588,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.be.json;
           log(res.body);
           expect(res.body.length).to.equal(1);
-          for(let i = 0; i < res.body.length; i++){
+          for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
           done();
@@ -607,7 +608,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.be.json;
           log(res.body);
           expect(res.body.length).to.equal(1);
-          for(let i = 0; i < res.body.length; i++){
+          for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
           done();
@@ -672,7 +673,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
-          for(let i = 0; i < res.body.length; i++){
+          for (let i = 0; i < res.body.length; i++) {
             expectIWallet(res.body[i]);
           }
           done();
