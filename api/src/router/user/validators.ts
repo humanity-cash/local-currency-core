@@ -4,7 +4,7 @@ import { mwVaildator } from "src/middlewares";
 const idInParams = [param("id").notEmpty(), mwVaildator];
 
 export const createUser = [
-  body("userId").isString(), 
+  body("userId").isString(),
   body("firstName").isString(),
   body("lastName").isString(),
   body("email").isString(),
@@ -13,7 +13,8 @@ export const createUser = [
   body("city").isString(),
   body("state").isString(),
   body("postalCode").isString(),
-  mwVaildator];
+  mwVaildator,
+];
 
 export const getUser = [...idInParams];
 
