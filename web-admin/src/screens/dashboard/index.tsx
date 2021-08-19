@@ -16,16 +16,16 @@ const Dashboard = () => {
   const classes = useStyles();
 
   return (
-    <div className={classes.wrapper}>
+		<div className={classes.wrapper}>
 			<BandedTable />
 			<PieChart />
-			<BarChart title={"Deposits Per Bank"} />
-			<BarChart title={"Withdrawals Per Bank"} />
-			<LineChart title={"Withdrawal Fees"} />
-			<LineChart title={"Redemption Fees"} />
+			<BarChart title={'Deposits Per Bank'} />
+			<BarChart title={'Withdrawals Per Bank'} />
+			<LineChart title={'Redepmtion Fees'} yAxis='Y - Fees' />
+			<LineChart title={'Community Chest'} yAxis='Y - Contributions' />
 			{/* {CardsData.map(c => <DataCard key={c.title} title={c.title} body={c.body} additional={c?.additional} />)} */}
 		</div>
- );
+  );
 }
 
 export default Dashboard;

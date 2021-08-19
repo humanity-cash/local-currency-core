@@ -70,7 +70,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 ));
 
 const LineChart = (props) => {
-	const { classes, title } = props;
+	const { classes, title, yAxis } = props;
 
 	return (
 		<Paper>
@@ -84,7 +84,7 @@ const LineChart = (props) => {
 					argumentField='year'
 				/>
 				<LineSeries
-					name='Y - Fees'
+					name={yAxis}
 					valueField='tvNews'
 					argumentField='year'
 				/>
