@@ -7,7 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import React from 'react';
+import { ChangeEvent, useState } from 'react';
 
 const useStyles = makeStyles({
   root: {
@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 		gridRow: '1/2'
   },
   container: {
-    maxHeight: 440,
+    maxHeight: 540,
   },
 	wrapper: {
 		padding: '24px',
@@ -42,7 +42,7 @@ const TableHeader = (props: TableHeaderProps) => {
 					<TableCell
 						key={column.id}
 						align={column.align}
-						style={{ minWidth: column.minWidth }}
+						style={{ minWidth: column.minWidth, fontSize: '18px' }}
 					>
 						{column.label}
 					</TableCell>
@@ -60,13 +60,13 @@ interface TableProps {
 const TableTemplate = (props: TableProps) => {
 	const { data, columns } = props;
   const classes = useStyles();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -74,29 +74,8 @@ const TableTemplate = (props: TableProps) => {
   return (
 	<div className={classes.wrapper}>
     <Paper className={classes.root}>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-				<TableHeader columns={columns} />
-          <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.address}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format ? column.format(value) : value}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[10, 25]}
         component="div"
         count={data.length}
         rowsPerPage={rowsPerPage}
@@ -104,6 +83,56 @@ const TableTemplate = (props: TableProps) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+      <TableContainer className={classes.container}>
+        <Table stickyHeader aria-label="sticky table">
+				<TableHeader columns={columns} />
+          <TableBody>
+            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => {
+              return (
+					<TableRow
+						hover
+						role='checkbox'
+						tabIndex={-1}
+						key={row.address}
+						style={{
+							backgroundColor:
+								idx % 2 === 0 ? '#eef0f2' : 'white',
+						}}>
+						{columns.map((column) => {
+							const value = row[column.id];
+							return (
+								<TableCell
+									style={{
+										cursor: column.clickable
+											? 'pointer'
+											: 'default',
+										fontSize: '16px',
+										color: column.clickable
+											? 'blue'
+											: 'black',
+										textDecoration: column.clickable
+											? 'underline'
+											: 'none',
+									}}
+									key={column.id}
+									align={column.align}
+									onClick={() => {
+										return column.clickable
+											? column.onClick(value)
+											: null;
+									}}>
+									{column.format
+										? column.format(value)
+										: value}
+								</TableCell>
+							);
+						})}
+					</TableRow>
+				);
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Paper>
 	</div> 
  );

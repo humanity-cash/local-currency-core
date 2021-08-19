@@ -22,7 +22,6 @@ interface ChangePasswordProps {
 const ChangePasswordScreen = (props: ChangePasswordProps) => {
   const { email, newPassword, oldPassword, setNewPassword, handler } = props;
   const classes = useStyles();
-  // const history = useHistory();
 
   return (
     <Container className={classes.container} maxWidth="xs">
