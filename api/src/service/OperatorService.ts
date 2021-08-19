@@ -3,16 +3,34 @@ import {
   IDeposit,
   ITransferEvent,
   IWithdrawal,
-  NewUser,
+  INewUser,
   IOperatorTotal,
 } from "src/types";
 import * as contracts from "./contracts";
 import BN from "bn.js";
 import * as web3Utils from "web3-utils";
+import {createUnverifiedCustomer} from "./digital-banking/Dwolla";
+import {DwollaUnverifiedCustomerRequest} from "./digital-banking/DwollaTypes";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
-export async function createUser(newUser: NewUser): Promise<string> {
-  return await contracts.newWallet(newUser.userId);
+export async function createUser(newUser: INewUser): Promise<string> {
+  
+  const request : DwollaUnverifiedCustomerRequest = {
+    firstName: newUser.firstName,
+    lastName: newUser.lastName,
+    email: newUser.email,
+    businessName: newUser.businessName,
+    ipAddress: newUser.ipAddress,
+    correlationId: newUser.userId
+  }
+
+  const customerURL : string = await createUnverifiedCustomer(request);
+  console.log(`Created new customer in Dwolla with URL ${customerURL}`);
+  
+  const result = await contracts.newWallet(newUser.userId);
+  console.log(`Created new customer on-chain with userId ${result}`);
+
+  return result;
 }
 
 const sortOperatorsFunc = (x: IOperatorTotal, y: IOperatorTotal) => {
