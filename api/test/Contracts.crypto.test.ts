@@ -8,6 +8,7 @@ import { log, setupContracts } from "./utils";
 import utils from "web3-utils";
 import { getProvider } from "../src/utils/getProvider";
 import { toBytes32 } from "../src/utils/crypto";
+import { describe, it, beforeAll, expect } from "@jest/globals";
 
 const result = dotenv.config({
   path: path.resolve(process.cwd(), ".env.test"),

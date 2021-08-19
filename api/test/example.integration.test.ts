@@ -1,4 +1,5 @@
 import { ExampleService } from "../src/database/service";
+import { describe, it, expect } from "@jest/globals";
 
 describe("Example Service", () => {
   it("Creates Example Successfully", async () => {
