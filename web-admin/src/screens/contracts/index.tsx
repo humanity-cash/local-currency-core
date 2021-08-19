@@ -1,29 +1,28 @@
-import StopIcon from '@material-ui/icons/HighlightOffTwoTone';
-import StartIcon from '@material-ui/icons/PlayCircleFilledWhiteTwoTone';
+import PausePresentationTwoToneIcon from '@material-ui/icons/PausePresentationTwoTone';
 import { TableTemplate } from 'components';
 import { useContractsState } from 'hooks';
 import moment from 'moment';
-import { ContractData, ContractsState } from 'types';
+import { useStore } from 'react-hookstore';
+import { MODAL_STORE } from 'store';
+import { ContractData, ContractsState, ModalState } from 'types';
 
 interface Column {
   id: keyof ContractData; 
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => any;
+  format?: (value: any) => any;
 }
 
 const Actions = () => {
+  const [, setModalState]: [ModalState, any] = useStore(MODAL_STORE);
 
   return (
-    <>
-      <div style={{cursor: 'pointer'}}>
-        <StartIcon />
-      </div>
-      <div style={{cursor: 'pointer'}}>
-        <StopIcon />
-      </div>
-    </>
+		<div style={{ display: 'inline-flex' }}>
+			<div style={{ cursor: 'pointer' }} onClick={() => setModalState({isOpen: true, type: 'TEST_MODAL'})}>
+				<PausePresentationTwoToneIcon />
+			</div>
+		</div>
   );
 };
 
@@ -41,13 +40,13 @@ const columns: Column[] = [
     id: 'status',
     label: 'Status',
     minWidth: 170,
-    format: (value: number) =>  value ? 'UP' : 'DOWN'
+    format: (value: number) =>  value === undefined ? '' : value === 1 ? 'ACTIVE' : 'DISABLED'
   },
   {
-    id: 'address',
+    id: 'name',
     label: 'Actions',
     minWidth: 170,
-    format: (value: number) => <Actions/>
+    format: (value: string) => value === 'Controller' ? <Actions /> : null
   },
 ];
 

@@ -4,23 +4,25 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles({
-  root: {
-    maxWidth: '250px',
-    minHeight: '20vh',
-  },
-  title: {
-    fontSize: 14,
-    textAlign: 'center'
-  },
-  contentWrapper: {
-    display: 'grid',
-    gridGap: '2em'
-  },
+	root: {
+		maxWidth: '250px',
+		minHeight: '20vh',
+		// backgroundColor: '#faf0e6',
+	},
+	title: {
+		fontSize: 14,
+		textAlign: 'center',
+	},
+	contentWrapper: {
+		display: 'grid',
+		gridGap: '1em',
+	},
 });
 
 interface DataCardInput {
   title?: string
   body?: string
+  additional?: string
 }
 
 const DataCard = (props: DataCardInput) => {
@@ -35,6 +37,9 @@ const DataCard = (props: DataCardInput) => {
           </Typography>
           <Typography variant="h5" component="h2" style={{justifySelf: 'center'}}>
           {props?.body} 
+          </Typography>
+          <Typography variant="h5" component="h2" style={{justifySelf: 'center'}}>
+          {props.additional} 
           </Typography>
         </div>
       </CardContent>
