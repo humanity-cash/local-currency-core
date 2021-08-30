@@ -17,6 +17,18 @@ export function createHttpResponse(
   response.end(payload);
 }
 
+export function serverError(err: any, response: Response){
+  createHttpResponse({message: "Server error: " + err},codes.SERVER_ERROR,response);    
+}
+
+export function unprocessable(message: any, response: Response){
+  createHttpResponse({message: message},codes.UNPROCESSABLE,response);    
+}
+
+export function notFound(message: any, response: Response){
+  createHttpResponse({message: message},codes.NOT_FOUND,response);    
+}
+
 export const codes = {
   OK: 200,
   CREATED: 201,
