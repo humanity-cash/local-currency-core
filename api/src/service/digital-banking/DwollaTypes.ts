@@ -51,11 +51,14 @@ export interface DwollaClientOptions {
 
 export interface Href {
   href: string;
+  type: string;
+  "resource-type"?: string;
 }
 export interface DwollaSelfLinks {
   self: Href;
   resource: Href;
   account: Href;
+  customer: Href;
 }
 
 // _links	Contains links to the event, associated resource, and the Account associated with the event.
