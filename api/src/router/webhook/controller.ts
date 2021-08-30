@@ -23,7 +23,11 @@ export async function dwollaWebhook(
     const webhookSecret = process.env.WEBHOOK_SECRET;
     const proposedSignature = _req.headers["x-request-signature-sha-256"];
     if (
-      !validSignature(proposedSignature, webhookSecret, JSON.stringify(_req.body))
+      !validSignature(
+        proposedSignature,
+        webhookSecret,
+        JSON.stringify(_req.body)
+      )
     ) {
       httpUtils.createHttpResponse(INVALID_SIGNATURE, codes.UNPROCESSABLE, res);
     } else if (duplicateExists(_req.body.id)) {

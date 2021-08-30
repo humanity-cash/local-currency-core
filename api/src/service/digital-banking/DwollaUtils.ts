@@ -1,11 +1,14 @@
 import crypto from "crypto";
 import { Buffer } from "buffer";
 
-export function createSignature(webhookSecret: string, payloadBody: string): string{
+export function createSignature(
+  webhookSecret: string,
+  payloadBody: string
+): string {
   const hash = crypto
-  .createHmac("sha256", webhookSecret)
-  .update(payloadBody)
-  .digest("hex");
+    .createHmac("sha256", webhookSecret)
+    .update(payloadBody)
+    .digest("hex");
   return hash;
 }
 
@@ -16,7 +19,9 @@ export function validSignature(
 ): boolean {
   let verified = false;
   try {
-    console.log(`DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${payloadBody}...`);
+    console.log(
+      `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${payloadBody}...`
+    );
     const hash = crypto
       .createHmac("sha256", webhookSecret)
       .update(payloadBody)
