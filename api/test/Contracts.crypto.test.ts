@@ -68,7 +68,7 @@ describe("Test low-level smart contract functions", () => {
       log("Number of users is " + count);
 
       const users = [];
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < parseInt(count); i++) {
         const address = await contracts.getWalletAddressAtIndex(i);
         const wallet = await contracts.getWalletForAddress(address);
         users.push(wallet);
