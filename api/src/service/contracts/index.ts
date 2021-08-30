@@ -144,10 +144,10 @@ export async function transferContractOwnership(
   return await sendTransaction(transferContractOwnership);
 }
 
-export async function getWalletCount(): Promise<number> {
+export async function getWalletCount(): Promise<string> {
   const controller = await getControllerContract();
   const count = await controller.methods.getWalletCount().call();
-  return Number(count);
+  return count;
 }
 
 export async function getWalletAddressAtIndex(index: number): Promise<string> {
@@ -260,27 +260,20 @@ export async function getWithdrawalsForUser(
   return withdrawals;
 }
 
-// Transfer events are emitted from the user's wallet
-// Therefore use the user's wallet contract as the event source
-// We don't need to filter since only events relating
-// to that wallet will be emitted
-export async function getTransfersForUser(
-  userId: string
-): Promise<ITransferEvent[]> {
+export async function getTransfers(options? : PastEventOptions) : Promise<ITransferEvent[]> {
+  
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
-  const options: PastEventOptions = {
-    filter: { _fromUserId: toBytes32(userId) },
+  
+  const defaultOptions : PastEventOptions = {
     fromBlock: 0,
     toBlock: "latest",
   };
-  const logs = await getLogs("TransferToEvent", controller, options);
-  const obj = JSON.parse(JSON.stringify(logs));
-  console.log(`TransferToEvent logs: ${JSON.stringify(obj, null, 2)}`);
 
+  const logs = await getLogs("TransferToEvent", controller, options || defaultOptions);
+  
   for (let i = 0; i < logs.length; i++) {
     const element = logs[i];
-
     let toUserId, toAddress;
     if (element.returnValues._toUserId) {
       toUserId = element.returnValues._toUserId;
@@ -308,7 +301,18 @@ export async function getTransfersForUser(
       timestamp: timestamp,
     });
   }
+  return transfers;
+}
 
+export async function getTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {
+  const userFilter: PastEventOptions = {
+    filter: { _fromUserId: toBytes32(userId) },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+  const transfers: ITransferEvent[] = await getTransfers(userFilter);
   return transfers;
 }
 
