@@ -20,16 +20,11 @@ export async function createUser(newUser: INewUser): Promise<string> {
     email: newUser.email,
     businessName: newUser.businessName,
     ipAddress: newUser.ipAddress,
-    correlationId: newUser.userId,
+    correlationId: newUser.email,
   };
-
-  const customerURL: string = await createUnverifiedCustomer(request);
-  console.log(`Created new customer in Dwolla with URL ${customerURL}`);
-
-  const result = await contracts.newWallet(newUser.userId);
-  console.log(`Created new customer on-chain with userId ${result}`);
-
-  return result;
+  const id: string = await createUnverifiedCustomer(request);
+  console.log(`Created new customer in Dwolla with URL ${id}`);
+  return id;
 }
 
 const sortOperatorsFunc = (x: IOperatorTotal, y: IOperatorTotal) => {
