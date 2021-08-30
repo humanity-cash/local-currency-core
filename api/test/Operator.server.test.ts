@@ -4,11 +4,13 @@ import path from "path";
 import chaiHttp from "chai-http";
 import { describe, it, beforeAll } from "@jest/globals";
 import { getApp } from "../src/server";
-import { log, setupContracts } from "./utils";
-import { v4 } from "uuid";
+import { log, setupContracts, getSalt, createDummyEvent } from "./utils";
 import { codes } from "../src/utils/http";
+import { cryptoUtils } from "../src/utils";
 import { INewUser } from "../src/types";
 import faker from "faker";
+import { createSignature } from "../src/service/digital-banking/DwollaUtils";
+import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -23,20 +25,21 @@ if (result.error) {
 
 function createFakeUser(isBusiness?: false): INewUser {
   const user: INewUser = {
-    firstName: "Personal Unverified " + faker.name.firstName(),
+    firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     address1: faker.address.streetAddress(),
     address2: faker.address.secondaryAddress(),
     city: faker.address.city(),
     postalCode: faker.address.zipCode(),
     state: faker.address.stateAbbr(),
-    email: faker.internet.email(),
+    email: getSalt() + faker.internet.email(),
     ipAddress: faker.internet.ip().toString(),
-    userId: v4(),
+    userId: "",
     businessName: isBusiness
       ? faker.name.lastName + "'s fake business"
       : undefined,
   };
+  user.userId = cryptoUtils.toBytes32(user.email);
   log(user);
   return user;
 }
@@ -99,12 +102,30 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          expectIWallet(res.body);
+          user1.userId = res.body.id;
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
+    });
+
+    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {  
+      const event : DwollaEvent = createDummyEvent("customer_created", user1.userId);   
+      const signature = createSignature(process.env.WEBHOOK_SECRET, JSON.stringify(event));
+      chai
+      .request(server)
+      .post("/webhook")
+      .set({'X-Request-Signature-SHA-256':signature})
+      .send(event)
+      .then((res) => {
+        expect(res).to.have.status(codes.ACCEPTED);
+        log(JSON.parse(res.text));
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
     });
 
     it("it should create user2 and store the returned address, HTTP 201", (done) => {
@@ -115,12 +136,30 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          expectIWallet(res.body);
+          user2.userId = res.body.id;
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
+    });
+
+    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", (done) => {  
+      const event : DwollaEvent = createDummyEvent("customer_created", user2.userId);   
+      const signature = createSignature(process.env.WEBHOOK_SECRET, JSON.stringify(event));
+      chai
+      .request(server)
+      .post("/webhook")
+      .set({'X-Request-Signature-SHA-256':signature})
+      .send(event)
+      .then((res) => {
+        expect(res).to.have.status(codes.ACCEPTED);
+        log(JSON.parse(res.text));
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
     });
 
     it("it should fail to create user2 twice, HTTP 500", (done) => {
@@ -134,7 +173,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -149,7 +188,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
@@ -166,7 +205,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -181,7 +220,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -196,22 +235,22 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
-    it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
+    it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
       chai
         .request(server)
         .post(`/users/userthatdoesntexist/deposit`)
         .send({ amount: "1.0" })
         .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.have.status(codes.NOT_FOUND);
           expect(res).to.be.json;
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -227,7 +266,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -243,7 +282,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -259,7 +298,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -275,24 +314,24 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
 
   describe("GET /users/:userId/deposit (get deposits(s) for user)", () => {
-    it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
+    it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
       chai
         .request(server)
         .get(`/users/fakeUser123/deposit`)
         .send()
         .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.have.status(codes.NOT_FOUND);
           expect(res).to.be.json;
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -309,7 +348,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -328,7 +367,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
@@ -345,7 +384,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -360,7 +399,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -375,7 +414,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -391,7 +430,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -407,7 +446,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -423,7 +462,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
@@ -435,12 +474,12 @@ describe("Operator endpoints test", () => {
         .get(`/users/fakeUser123/withdraw`)
         .send()
         .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.have.status(codes.NOT_FOUND);
           expect(res).to.be.json;
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -459,7 +498,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -478,7 +517,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
@@ -495,7 +534,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -510,7 +549,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -525,7 +564,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -541,7 +580,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -557,7 +596,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -572,7 +611,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
@@ -594,7 +633,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -614,7 +653,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
@@ -632,7 +671,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -648,7 +687,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -662,7 +701,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
 
@@ -679,7 +718,65 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
+        });
+    });
+  });
+
+  describe("GET /stats", () => {
+    it("GET /stats/deposit: it should retrieve all deposits, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get("/stats/deposit")
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("GET /stats/withdrawal: it should retrieve all withdrawals, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get("/stats/withdrawal")
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("GET /stats/operator: it should retrieve operator statistics, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get("/stats/operator")
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("GET /stats/transfer: it should retrieve all transfers, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get("/stats/transfer")
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
         });
     });
   });
