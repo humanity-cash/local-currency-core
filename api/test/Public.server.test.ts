@@ -34,7 +34,7 @@ describe("Public endpoints test", () => {
           done();
         })
         .catch((err) => {
-          throw err;
+          done(err);
         });
     });
   });
