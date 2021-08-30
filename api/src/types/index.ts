@@ -3,7 +3,7 @@ export interface HealthResponse {
   chainId: number;
   nodeInfo: string;
   token: string;
-  walletCount: number;
+  walletCount: string;
   owner: string;
   walletFactory: string;
 }
