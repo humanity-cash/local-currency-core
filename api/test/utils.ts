@@ -17,42 +17,41 @@ export function log(...data: any[]): void {
   if (process.env.DEBUG === "true") console.log(...data);
 }
 
-export function getSalt() : string {
+export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export function createDummyEvent(topic:string, id:string) : DwollaEvent {
-  
+export function createDummyEvent(topic: string, id: string): DwollaEvent {
   const eventId = v4();
   const accountId = "0ee84069-47c5-455c-b425-633523291dc3";
-  
+
   return {
     _links: {
-        account: {
-            href: `https://api-sandbox.dwolla.com/accounts/${accountId}`,
-            'resource-type': "account",
-            type: "application/vnd.dwolla.v1.hal+json"
-        },
-        customer: {
-            href: `https://api-sandbox.dwolla.com/customers/${id}`,
-            'resource-type': "customer",
-            type: "application/vnd.dwolla.v1.hal+json"
-        },
-        resource: {
-            href: `https://api-sandbox.dwolla.com/customers/${id}`,
-            type: "application/vnd.dwolla.v1.hal+json"
-        },
-        self: {
-            href: `https://api-sandbox.dwolla.com/events/${eventId}`,
-            'resource-type': "event",
-            type: "application/vnd.dwolla.v1.hal+json"
-        }
+      account: {
+        href: `https://api-sandbox.dwolla.com/accounts/${accountId}`,
+        "resource-type": "account",
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+      customer: {
+        href: `https://api-sandbox.dwolla.com/customers/${id}`,
+        "resource-type": "customer",
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+      resource: {
+        href: `https://api-sandbox.dwolla.com/customers/${id}`,
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+      self: {
+        href: `https://api-sandbox.dwolla.com/events/${eventId}`,
+        "resource-type": "event",
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
     },
     created: Date.now().toString(),
     id: eventId,
     resourceId: id,
-    topic: topic
-  }            
+    topic: topic,
+  };
 }
 
 export async function setupContracts(): Promise<void> {

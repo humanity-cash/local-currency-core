@@ -260,18 +260,23 @@ export async function getWithdrawalsForUser(
   return withdrawals;
 }
 
-export async function getTransfers(options? : PastEventOptions) : Promise<ITransferEvent[]> {
-  
+export async function getTransfers(
+  options?: PastEventOptions
+): Promise<ITransferEvent[]> {
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
-  
-  const defaultOptions : PastEventOptions = {
+
+  const defaultOptions: PastEventOptions = {
     fromBlock: 0,
     toBlock: "latest",
   };
 
-  const logs = await getLogs("TransferToEvent", controller, options || defaultOptions);
-  
+  const logs = await getLogs(
+    "TransferToEvent",
+    controller,
+    options || defaultOptions
+  );
+
   for (let i = 0; i < logs.length; i++) {
     const element = logs[i];
     let toUserId, toAddress;

@@ -62,25 +62,27 @@ export async function createUnverifiedCustomer(
   return id;
 }
 
-function logUnsupported(topic:string){
-  console.log(`Dwolla.consumeWebhook() Unsupported ${topic} received, nothing to do...`);
+function logUnsupported(topic: string) {
+  console.log(
+    `Dwolla.consumeWebhook() Unsupported ${topic} received, nothing to do...`
+  );
 }
 
-function logSupported(topic:string){
-  console.log(`Dwolla.consumeWebhook() Supported topic ${topic} received and beginning processing...`);
+function logSupported(topic: string) {
+  console.log(
+    `Dwolla.consumeWebhook() Supported topic ${topic} received and beginning processing...`
+  );
 }
 
 export async function consumeWebhook(
   eventToProcess: DwollaEvent
 ): Promise<boolean> {
-  
   console.log("Dwolla.consumeWebhook() Processing Event:");
   console.log(JSON.stringify(eventToProcess, null, 2));
 
   let processed = false;
 
-  switch(eventToProcess.topic) {
-    
+  switch (eventToProcess.topic) {
     case "customer_created":
       try {
         logSupported(eventToProcess.topic);
@@ -88,10 +90,14 @@ export async function consumeWebhook(
         const res = await appToken.get(eventToProcess._links.resource.href);
         const customer = res.body;
         const address = await newWallet(customer.id);
-        console.log(`Dwolla.consumeWebhook() Successfully created new wallet on-chain for user ${customer.email} with address ${address}`);
+        console.log(
+          `Dwolla.consumeWebhook() Successfully created new wallet on-chain for user ${customer.email} with address ${address}`
+        );
         processed = true;
       } catch (err) {
-        console.log(`Dwolla.consumeWebhook() error during 'customer_created' topic processing ${err}`);
+        console.log(
+          `Dwolla.consumeWebhook() error during 'customer_created' topic processing ${err}`
+        );
         throw err;
       }
       break;
@@ -102,14 +108,14 @@ export async function consumeWebhook(
 
     case "customer_activated":
       logUnsupported(eventToProcess.topic);
-      break;      
+      break;
 
     case "customer_deactivated":
       logUnsupported(eventToProcess.topic);
       break;
-      
+
     case "customer_funding_source_added":
-      logUnsupported(eventToProcess.topic);     
+      logUnsupported(eventToProcess.topic);
       break;
 
     case "customer_funding_source_removed":
@@ -118,7 +124,7 @@ export async function consumeWebhook(
 
     case "customer_funding_source_unverified":
       logUnsupported(eventToProcess.topic);
-      break;      
+      break;
 
     case "customer_funding_source_negative":
       logUnsupported(eventToProcess.topic);
@@ -130,7 +136,7 @@ export async function consumeWebhook(
 
     case "customer_bank_transfer_created	":
       logUnsupported(eventToProcess.topic);
-      break;      
+      break;
 
     case "customer_bank_transfer_cancelled":
       logUnsupported(eventToProcess.topic);
@@ -146,7 +152,7 @@ export async function consumeWebhook(
 
     case "customer_bank_transfer_completed":
       logUnsupported(eventToProcess.topic);
-      break;      
+      break;
 
     case "customer_transfer_created":
       logUnsupported(eventToProcess.topic);
@@ -162,7 +168,7 @@ export async function consumeWebhook(
 
     case "customer_transfer_completed":
       logUnsupported(eventToProcess.topic);
-      break;      
+      break;
 
     default:
       throw `Unknown topic ${eventToProcess.topic}, don't know how to process...`;
