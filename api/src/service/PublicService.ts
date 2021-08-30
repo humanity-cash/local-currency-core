@@ -1,4 +1,11 @@
-import { HealthResponse, IWallet, IOperatorTotal, IDeposit, IWithdrawal, ITransferEvent } from "src/types";
+import {
+  HealthResponse,
+  IWallet,
+  IOperatorTotal,
+  IDeposit,
+  IWithdrawal,
+  ITransferEvent,
+} from "src/types";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 

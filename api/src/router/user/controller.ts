@@ -17,7 +17,7 @@ export async function getAllUsers(_req: Request, res: Response): Promise<void> {
     const users: IWallet[] = await PublicServices.getAllWallets();
     httpUtils.createHttpResponse(users, codes.OK, res);
   } catch (err) {
-    httpUtils.serverError(err,res);
+    httpUtils.serverError(err, res);
   }
 }
 
@@ -29,7 +29,7 @@ export async function getUser(req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse([user], codes.OK, res);
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Get user failed: user does not exist",res);
+      httpUtils.notFound("Get user failed: user does not exist", res);
     else {
       httpUtils.serverError(err, res);
     }
@@ -40,12 +40,11 @@ export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUser: INewUser = req.body;
     const id = await OperatorService.createUser(newUser);
-    httpUtils.createHttpResponse({id: id}, codes.CREATED, res);
+    httpUtils.createHttpResponse({ id: id }, codes.CREATED, res);
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
-      httpUtils.unprocessable("Create user failed: user already exists",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.unprocessable("Create user failed: user already exists", res);
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -58,13 +57,15 @@ export async function deposit(req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Deposit failed: user does not exist",res);
+      httpUtils.notFound("Deposit failed: user does not exist", res);
     else if (err?.message?.includes("ERR_ZERO_VALUE"))
-      httpUtils.unprocessable("Deposit failed: cannot deposit zero",res);
+      httpUtils.unprocessable("Deposit failed: cannot deposit zero", res);
     else if (err?.message?.includes("INVALID_ARGUMENT"))
-      httpUtils.unprocessable("Transfer failed: invalid argument (probably a Web3 type error, negative number passed as uint256)",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.unprocessable(
+        "Transfer failed: invalid argument (probably a Web3 type error, negative number passed as uint256)",
+        res
+      );
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -76,9 +77,8 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse(deposits, codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Get deposits failed: user does not exist",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.notFound("Get deposits failed: user does not exist", res);
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -94,9 +94,8 @@ export async function getWithdrawals(
     httpUtils.createHttpResponse(withdrawals, codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Get withdrawals failed: user does not exist",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.notFound("Get withdrawals failed: user does not exist", res);
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -108,9 +107,8 @@ export async function getTransfers(req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse(transfers, codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Get transfers failed: user does not exist",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.notFound("Get transfers failed: user does not exist", res);
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -123,15 +121,20 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Withdrawal failed: user does not exist",res);
+      httpUtils.notFound("Withdrawal failed: user does not exist", res);
     else if (err?.message?.includes("ERR_ZERO_VALUE"))
-      httpUtils.unprocessable("Withdrawal failed: cannot withdraw zero",res);
+      httpUtils.unprocessable("Withdrawal failed: cannot withdraw zero", res);
     else if (err?.message?.includes("ERR_NO_BALANCE"))
-      httpUtils.unprocessable("Withdrawal failed: cannot withdraw more than your balance",res);
+      httpUtils.unprocessable(
+        "Withdrawal failed: cannot withdraw more than your balance",
+        res
+      );
     else if (err?.message?.includes("INVALID_ARGUMENT"))
-      httpUtils.unprocessable("Transfer failed: invalid argument (probably a Web3 type error, e.g. negative number passed as uint256)",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.unprocessable(
+        "Transfer failed: invalid argument (probably a Web3 type error, e.g. negative number passed as uint256)",
+        res
+      );
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -144,14 +147,19 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse(user, codes.ACCEPTED, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
-      httpUtils.notFound("Transfer failed: user does not exist",res);
+      httpUtils.notFound("Transfer failed: user does not exist", res);
     else if (err?.message?.includes("ERR_ZERO_VALUE"))
-      httpUtils.unprocessable("Transfer failed: cannot transfer zero",res);
+      httpUtils.unprocessable("Transfer failed: cannot transfer zero", res);
     else if (err?.message?.includes("ERR_NO_BALANCE"))
-      httpUtils.unprocessable("Transfer failed: cannot transfer more than your balance",res);
+      httpUtils.unprocessable(
+        "Transfer failed: cannot transfer more than your balance",
+        res
+      );
     else if (err?.message?.includes("INVALID_ARGUMENT"))
-      httpUtils.unprocessable("Transfer failed: invalid argument (probably a Web3 type error, negative number passed as uint256)",res);
-    else
-      httpUtils.serverError(err, res);
+      httpUtils.unprocessable(
+        "Transfer failed: invalid argument (probably a Web3 type error, negative number passed as uint256)",
+        res
+      );
+    else httpUtils.serverError(err, res);
   }
 }
