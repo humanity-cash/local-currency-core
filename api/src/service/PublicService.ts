@@ -1,4 +1,4 @@
-import { HealthResponse, IWallet, IOperatorTotal } from "src/types";
+import { HealthResponse, IWallet, IOperatorTotal, IDeposit, IWithdrawal, ITransferEvent } from "src/types";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 
@@ -56,7 +56,7 @@ export async function getAllWallets(): Promise<IWallet[]> {
   const count = await contracts.getWalletCount();
   const users: IWallet[] = [];
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < parseInt(count); i++) {
     const address = await contracts.getWalletAddressAtIndex(i);
     const user: IWallet = await contracts.getWalletForAddress(address);
     users.push(user);
@@ -66,4 +66,16 @@ export async function getAllWallets(): Promise<IWallet[]> {
 
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
   return await contracts.getFundingStatus();
+}
+
+export async function getDeposits(): Promise<IDeposit[]> {
+  return await contracts.getDeposits();
+}
+
+export async function getWithdrawals(): Promise<IWithdrawal[]> {
+  return await contracts.getWithdrawals();
+}
+
+export async function getTransfers(): Promise<ITransferEvent[]> {
+  return await contracts.getTransfers();
 }
