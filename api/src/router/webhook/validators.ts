@@ -8,7 +8,7 @@ export const dwollaWebhook = [
   body("id", "Event payload must contain string 'id' attribute").isString(),
   body(
     "resourceId",
-    "Event payload must contain string 'resouceId' attribute"
+    "Event payload must contain string 'resourceId' attribute"
   ).isString(),
   body(
     "topic",
@@ -22,5 +22,5 @@ export const dwollaWebhook = [
     "created",
     "Event payload must contain string 'created' attribute"
   ).isString(),
-  body("_links", "Event payload must contain '_links' attribute").exists(),
+  body("_links", "Event payload must contain '_links' attribute").exists()
 ];
