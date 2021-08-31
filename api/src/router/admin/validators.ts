@@ -6,7 +6,7 @@ export const transferOwnerController = [
     "newOwner",
     "Transfer controller payload must contain string 'newOwner' attribute"
   ).isString(),
-  mwVaildator
+  mwVaildator,
 ];
 
 export const transferOwnerUser = [
@@ -18,5 +18,5 @@ export const transferOwnerUser = [
     "userId",
     "Transfer controller payload must contain string 'userId' attribute"
   ).isString(),
-  mwVaildator
+  mwVaildator,
 ];

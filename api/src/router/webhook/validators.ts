@@ -1,4 +1,5 @@
 import { body, header } from "express-validator";
+import { mwVaildator } from "src/middlewares";
 
 export const dwollaWebhook = [
   header(
@@ -15,12 +16,9 @@ export const dwollaWebhook = [
     "Event payload must contain string 'topic' attribute"
   ).isString(),
   body(
-    "timestamp",
-    "Event payload must contain string 'timestamp' attribute"
-  ).isString(),
-  body(
     "created",
     "Event payload must contain string 'created' attribute"
   ).isString(),
   body("_links", "Event payload must contain '_links' attribute").exists(),
+  mwVaildator,
 ];
