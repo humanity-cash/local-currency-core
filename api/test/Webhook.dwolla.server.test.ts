@@ -3,7 +3,8 @@ import chai from "chai";
 import path from "path";
 import chaiHttp from "chai-http";
 import { getApp } from "../src/server";
-import { log, setupContracts, getSalt, createDummyEvent } from "./utils";
+import { setupContracts, getSalt, createDummyEvent } from "./utils";
+import { log } from "../src/utils";
 import { codes } from "../src/utils/http";
 import { describe, it, beforeAll } from "@jest/globals";
 import {
@@ -31,7 +32,7 @@ const result = dotenv.config({
 });
 if (result.error) {
   throw result.error;
-} else console.log(result);
+} else log(result);
 
 const CUSTOMERS_TO_CREATE = 1;
 
@@ -47,7 +48,7 @@ describe("Dwolla test suite", () => {
         process.env.WEBHOOK_SECRET,
         body
       );
-      console.log(`Test signature for body ${body} is ${signature}`);
+      log(`Test signature for body ${body} is ${signature}`);
       expect(signature).to.exist;
       const valid: boolean = validSignature(
         signature,
@@ -93,7 +94,7 @@ describe("Dwolla test suite", () => {
           ssn,
         };
         const id = await createPersonalVerifiedCustomer(person);
-        console.log("Verified customer created, link:" + id);
+        log("Verified customer created, link:" + id);
         expect(id).to.exist;
       }
     });
@@ -114,7 +115,7 @@ describe("Dwolla test suite", () => {
           correlationId,
         };
         const id = await createUnverifiedCustomer(person);
-        console.log("Unverified customer created, link:" + id);
+        log("Unverified customer created, link:" + id);
         expect(id).to.exist;
       }
     });
@@ -139,7 +140,7 @@ describe("Dwolla test suite", () => {
           correlationId,
         };
         const id = await createUnverifiedCustomer(person);
-        console.log("Unverified customer created, link:" + id);
+        log("Unverified customer created, link:" + id);
         expect(id).to.exist;
       }
     });
@@ -163,7 +164,7 @@ describe("Dwolla test suite", () => {
         correlationId,
       };
       id = await createUnverifiedCustomer(person);
-      console.log("Unverified customer created, id:" + id);
+      log("Unverified customer created, id:" + id);
       expect(id).to.exist;
     });
 
