@@ -25,41 +25,39 @@ export async function getAppToken(): Promise<dwolla.Client> {
 export async function createPersonalVerifiedCustomer(
   customer: DwollaPersonalVerifiedCustomerRequest
 ): Promise<string> {
-  const appToken: dwolla.Client = await getAppToken();
-  let id: string;
   try {
+    const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
     console.log(
       "Dwolla.createPersonalVerifiedCustomer(), entity created @ " + customerURL
     );
     const result = await appToken.get(customerURL);
-    id = result.body.id;
+    const id = result.body.id;
+    return id;
   } catch (e) {
     console.log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
     throw e;
   }
-  return id;
 }
 
 export async function createUnverifiedCustomer(
   customer: DwollaUnverifiedCustomerRequest
 ): Promise<string> {
-  const appToken: dwolla.Client = await getAppToken();
-  let id: string;
   try {
+    const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
     console.log(
       "Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL
     );
     const result = await appToken.get(customerURL);
-    id = result.body.id;
+    const id = result.body.id;
+    return id;
   } catch (e) {
     console.log("Dwolla.createUnverifiedCustomer(), error " + e);
     throw e;
   }
-  return id;
 }
 
 function logUnsupported(topic: string) {
