@@ -1,5 +1,6 @@
 import express from "express";
 import { validationResult } from "express-validator";
+import { httpUtils } from "src/utils";
 
 export const mwVaildator = (
   req: express.Request,
@@ -9,7 +10,9 @@ export const mwVaildator = (
 ): any => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res
+      .status(httpUtils.codes.BAD_REQUEST)
+      .json({ errors: errors.array() });
   }
 
   next();

@@ -9,7 +9,7 @@ import {
 import * as contracts from "./contracts";
 import BN from "bn.js";
 import * as web3Utils from "web3-utils";
-import {log} from "src/utils";
+import { log } from "src/utils";
 import { createUnverifiedCustomer } from "./digital-banking/Dwolla";
 import { DwollaUnverifiedCustomerRequest } from "./digital-banking/DwollaTypes";
 
@@ -53,9 +53,7 @@ export async function deposit(
   amount: string
 ): Promise<boolean> {
   const sortedOperatorStats = await getSortedOperators();
-  log(
-    `deposit():: depositing to operator ${sortedOperatorStats[0].operator}`
-  );
+  log(`deposit():: depositing to operator ${sortedOperatorStats[0].operator}`);
   const result = await contracts.deposit(
     userId,
     amount,
