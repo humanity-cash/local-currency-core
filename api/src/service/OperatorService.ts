@@ -9,6 +9,7 @@ import {
 import * as contracts from "./contracts";
 import BN from "bn.js";
 import * as web3Utils from "web3-utils";
+import {log} from "src/utils";
 import { createUnverifiedCustomer } from "./digital-banking/Dwolla";
 import { DwollaUnverifiedCustomerRequest } from "./digital-banking/DwollaTypes";
 
@@ -23,7 +24,7 @@ export async function createUser(newUser: INewUser): Promise<string> {
     correlationId: newUser.email,
   };
   const id: string = await createUnverifiedCustomer(request);
-  console.log(`Created new customer in Dwolla with URL ${id}`);
+  log(`Created new customer in Dwolla with URL ${id}`);
   return id;
 }
 
@@ -37,7 +38,7 @@ async function getSortedOperators(): Promise<IOperatorTotal[]> {
   const operatorStats: IOperatorTotal[] = await contracts.getFundingStatus();
   const sortedOperatorStats: IOperatorTotal[] =
     operatorStats.sort(sortOperatorsFunc);
-  console.log(
+  log(
     `deposit():: sorted operators are ${JSON.stringify(
       sortedOperatorStats,
       null,
@@ -52,7 +53,7 @@ export async function deposit(
   amount: string
 ): Promise<boolean> {
   const sortedOperatorStats = await getSortedOperators();
-  console.log(
+  log(
     `deposit():: depositing to operator ${sortedOperatorStats[0].operator}`
   );
   const result = await contracts.deposit(
@@ -109,7 +110,7 @@ export async function withdraw(
 
     // If this operator has enough, then withdraw the full amount
     if (operatorOutstandingFunds.gte(amountToWithdraw)) {
-      console.log(
+      log(
         `withdraw():: withdrawing ${amountToWithdraw.toString()} from operator ${
           operator.operator
         } who has ${operatorOutstandingFunds.toString()} in outstanding funds`
@@ -124,7 +125,7 @@ export async function withdraw(
 
     // Otherwise only withdraw the total this operator has
     else {
-      console.log(
+      log(
         `withdraw():: withdrawing ${operatorOutstandingFunds.toString()} from operator ${
           operator.operator
         } who has ${operatorOutstandingFunds.toString()} in outstanding funds`

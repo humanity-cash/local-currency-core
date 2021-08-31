@@ -4,6 +4,9 @@ import * as web3Utils from "web3-utils";
 import Web3 from "web3";
 import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
 import { v4 } from "uuid";
+import { INewUser } from "../src/types";
+import faker from "faker";
+import { cryptoUtils, log } from "../src/utils";
 
 let sendOptions: SendOptions;
 let web3: Web3;
@@ -12,13 +15,29 @@ let contractsSetup = false;
 const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
 const OPERATOR_ROLE = web3Utils.keccak256("OPERATOR_ROLE");
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function log(...data: any[]): void {
-  if (process.env.DEBUG === "true") console.log(...data);
-}
-
 export function getSalt(): string {
   return new Date().getTime().toString();
+}
+
+export function createFakeUser(isBusiness?: false): INewUser {
+  const user: INewUser = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    address1: faker.address.streetAddress(),
+    address2: faker.address.secondaryAddress(),
+    city: faker.address.city(),
+    postalCode: faker.address.zipCode(),
+    state: faker.address.stateAbbr(),
+    email: getSalt() + faker.internet.email(),
+    ipAddress: faker.internet.ip().toString(),
+    userId: "",
+    businessName: isBusiness
+      ? faker.name.lastName + "'s fake business"
+      : undefined,
+  };
+  user.userId = cryptoUtils.toBytes32(user.email);
+  log(user);
+  return user;
 }
 
 export function createDummyEvent(topic: string, id: string): DwollaEvent {
@@ -155,7 +174,7 @@ async function deployContract(
       sendOptions.from
     );
   } catch (err) {
-    console.error(
+    log(
       "Deployment failed for",
       name,
       "with args",

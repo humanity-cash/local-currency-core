@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { Buffer } from "buffer";
+import { log } from "src/utils";
 
 export function createSignature(
   webhookSecret: string,
@@ -19,7 +20,7 @@ export function validSignature(
 ): boolean {
   let verified = false;
   try {
-    console.log(
+    log(
       `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${payloadBody}...`
     );
     const hash = crypto
@@ -31,11 +32,11 @@ export function validSignature(
       Buffer.from(proposedSignature),
       Buffer.from(hash)
     );
-    console.log(
+    log(
       `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is valid`
     );
   } catch (e) {
-    console.log(`DwollaUtils.ts::verifyGatewaySignature: ${e}`);
+    log(`DwollaUtils.ts::verifyGatewaySignature: ${e}`);
   }
   return verified;
 }
@@ -44,6 +45,6 @@ export function validSignature(
 // Check for duplicate events in a queue or database
 export function duplicateExists(id: string): boolean {
   // ToDo - check queue or database for a DwollaEvent with the same id attribute can be ignored
-  console.log(`DwollaUtils.ts::duplicateExists: No duplicate for Event ${id}`);
+  log(`DwollaUtils.ts::duplicateExists: No duplicate for Event ${id}`);
   return false;
 }

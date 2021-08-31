@@ -4,11 +4,10 @@ import path from "path";
 import chaiHttp from "chai-http";
 import { describe, it, beforeAll } from "@jest/globals";
 import { getApp } from "../src/server";
-import { log, setupContracts, getSalt, createDummyEvent } from "./utils";
+import { setupContracts, createDummyEvent, createFakeUser } from "./utils";
 import { codes } from "../src/utils/http";
-import { cryptoUtils } from "../src/utils";
+import { log } from "../src/utils";
 import { INewUser } from "../src/types";
-import faker from "faker";
 import { createSignature } from "../src/service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
 
@@ -21,27 +20,6 @@ const result = dotenv.config({
 });
 if (result.error) {
   throw result.error;
-}
-
-function createFakeUser(isBusiness?: false): INewUser {
-  const user: INewUser = {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    address1: faker.address.streetAddress(),
-    address2: faker.address.secondaryAddress(),
-    city: faker.address.city(),
-    postalCode: faker.address.zipCode(),
-    state: faker.address.stateAbbr(),
-    email: getSalt() + faker.internet.email(),
-    ipAddress: faker.internet.ip().toString(),
-    userId: "",
-    businessName: isBusiness
-      ? faker.name.lastName + "'s fake business"
-      : undefined,
-  };
-  user.userId = cryptoUtils.toBytes32(user.email);
-  log(user);
-  return user;
 }
 
 function expectIWallet(wallet: unknown): void {

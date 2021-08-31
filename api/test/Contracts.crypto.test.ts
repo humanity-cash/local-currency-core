@@ -4,10 +4,11 @@ import dotenv from "dotenv";
 import path from "path";
 import { v4 } from "uuid";
 import * as contracts from "../src/service/contracts";
-import { log, setupContracts } from "./utils";
+import { setupContracts } from "./utils";
 import utils from "web3-utils";
 import { getProvider } from "../src/utils/getProvider";
 import { toBytes32 } from "../src/utils/crypto";
+import { log } from "../src/utils";
 import { describe, it, beforeAll, expect } from "@jest/globals";
 
 const result = dotenv.config({
@@ -74,7 +75,7 @@ describe("Test low-level smart contract functions", () => {
         users.push(wallet);
       }
 
-      console.log(users);
+      log(users);
       expect(users.length).toEqual(4);
     });
 
@@ -175,20 +176,44 @@ describe("Test low-level smart contract functions", () => {
   describe("Get deposits and withdrawals", () => {
     it("Should retrieve and iterate all deposit events", async () => {
       const response = await contracts.getDeposits();
-      console.log(JSON.stringify(response, null, 2));
+      log(JSON.stringify(response, null, 2));
       expect(response).toBeDefined();
     });
 
     it("Should retrieve and iterate all withdrawal events", async () => {
       const response = await contracts.getWithdrawals();
-      console.log(JSON.stringify(response, null, 2));
+      log(JSON.stringify(response, null, 2));
       expect(response).toBeDefined();
     });
 
     it("Should retrieve funding totals for each operator (bank)", async () => {
       const response = await contracts.getFundingStatus();
-      console.log(JSON.stringify(response, null, 2));
+      log(JSON.stringify(response, null, 2));
       expect(response).toBeDefined();
+    });
+  });
+
+  describe("Pause and unpause contract", () => {
+    it("Should not unpause the controller while not paused", async () => {
+      expect.assertions(1);
+      await expect(contracts.unpause()).rejects.toBeDefined();
+    });
+
+    it("Should pause the controller", async () => {
+      await contracts.pause();
+      const paused = await contracts.paused();
+      expect(paused).toEqual(true);
+    });
+
+    it("Should fail to pause the controller while already paused", async () => {
+      expect.assertions(1);
+      await expect(contracts.pause()).rejects.toBeDefined();
+    });
+
+    it("Should unpause the controller", async () => {
+      await contracts.unpause();
+      const paused = await contracts.paused();
+      expect(paused).toEqual(false);
     });
   });
 
