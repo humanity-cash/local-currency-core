@@ -7,6 +7,10 @@ export interface HealthResponse {
   owner: string;
   walletFactory: string;
 }
+export interface ITransferOwnerRequest {
+  newOwner: string;
+  userId?: string;
+}
 export interface IWallet {
   userId: string;
   address: string;
