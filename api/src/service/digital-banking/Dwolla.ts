@@ -49,9 +49,7 @@ export async function createUnverifiedCustomer(
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
-    log(
-      "Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL
-    );
+    log("Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL);
     const result = await appToken.get(customerURL);
     const id = result.body.id;
     return id;

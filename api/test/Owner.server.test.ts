@@ -22,13 +22,11 @@ if (result.error) {
 }
 
 describe("Owner/administrative endpoints test", () => {
-  
   beforeAll(async () => {
     await setupContracts();
   });
 
   describe("POST /admin/pause", () => {
-    
     it("it should pause, HTTP 202", (done) => {
       chai
         .request(server)
@@ -80,17 +78,16 @@ describe("Owner/administrative endpoints test", () => {
           done(err);
         });
     });
-  });  
+  });
 
   describe("POST /admin/transfer/user", () => {
-
     const user1: INewUser = createFakeUser();
-    
+
     it("it should fail to transfer wallet owner with invalid body, HTTP 400", (done) => {
       chai
         .request(server)
         .post("/admin/transfer/user")
-        .send({wrongAttribute: "bananas"})
+        .send({ wrongAttribute: "bananas" })
         .then((res) => {
           expect(res).to.have.status(codes.BAD_REQUEST);
           done();
@@ -100,7 +97,7 @@ describe("Owner/administrative endpoints test", () => {
         });
     });
 
-    it("it should create user1 and store the returned id, HTTP 201", (done) => {    
+    it("it should create user1 and store the returned id, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -139,11 +136,14 @@ describe("Owner/administrative endpoints test", () => {
         });
     });
 
-    it("it should transfer ownership of the wallet, HTTP 202", (done) => {     
-        chai
+    it("it should transfer ownership of the wallet, HTTP 202", (done) => {
+      chai
         .request(server)
         .post("/admin/transfer/user")
-        .send({newOwner: "0x0000000000000000000000000000000000000001", userId: user1.userId})
+        .send({
+          newOwner: "0x0000000000000000000000000000000000000001",
+          userId: user1.userId,
+        })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           done();
@@ -159,7 +159,10 @@ describe("Owner/administrative endpoints test", () => {
       chai
         .request(server)
         .post("/admin/transfer/user")
-        .send({newOwner: "0x0000000000000000000000000000000000000002", userId: user1.userId})
+        .send({
+          newOwner: "0x0000000000000000000000000000000000000002",
+          userId: user1.userId,
+        })
         .then((res) => {
           expect(res).to.have.status(codes.SERVER_ERROR);
           done();
@@ -167,16 +170,15 @@ describe("Owner/administrative endpoints test", () => {
         .catch((err) => {
           done(err);
         });
-    }); 
+    });
   });
 
   describe("POST /admin/transfer/controller", () => {
-    
     it("it should fail to transfer controller with invalid body, HTTP 400", (done) => {
       chai
         .request(server)
         .post("/admin/transfer/controller")
-        .send({wrongAttribute: "bananas"})
+        .send({ wrongAttribute: "bananas" })
         .then((res) => {
           expect(res).to.have.status(codes.BAD_REQUEST);
           done();
@@ -190,7 +192,7 @@ describe("Owner/administrative endpoints test", () => {
       chai
         .request(server)
         .post("/admin/transfer/controller")
-        .send({newOwner: "0x0000000000000000000000000000000000000001"})
+        .send({ newOwner: "0x0000000000000000000000000000000000000001" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           done();
@@ -204,7 +206,7 @@ describe("Owner/administrative endpoints test", () => {
       chai
         .request(server)
         .post("/admin/transfer/controller")
-        .send({newOwner: "0x0000000000000000000000000000000000000002"})
+        .send({ newOwner: "0x0000000000000000000000000000000000000002" })
         .then((res) => {
           expect(res).to.have.status(codes.FORBIDDEN);
           done();
@@ -212,7 +214,6 @@ describe("Owner/administrative endpoints test", () => {
         .catch((err) => {
           done(err);
         });
-    }); 
+    });
   });
-
 });
