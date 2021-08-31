@@ -17,7 +17,7 @@ afterEach(async (): Promise<void> => {
     await mockDatabase.dropDatabase();
     await mockDatabase.closeMongooseConnection();
   } catch (err) {
-    console.log(`Err in db: afterEach: ${err}`);
+    log(`Err in db: afterEach: ${err}`);
   }
 });
 
@@ -49,7 +49,7 @@ const mockDatabase = {
   openNewMongooseConnection: async function (): Promise<void> {
     try {
       const uri = this.mongoServer.getUri();
-      console.log("Mongo Test URI", uri);
+      log("Mongo Test URI", uri);
       await this.client.connect(uri, {
         useCreateIndex: true,
         useFindAndModify: false,

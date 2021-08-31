@@ -7,6 +7,7 @@ import {
   DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
 import { newWallet } from "../contracts";
+import { log } from "src/utils";
 
 const result = dotenv.config();
 if (result.error) {
@@ -29,14 +30,14 @@ export async function createPersonalVerifiedCustomer(
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
-    console.log(
+    log(
       "Dwolla.createPersonalVerifiedCustomer(), entity created @ " + customerURL
     );
     const result = await appToken.get(customerURL);
     const id = result.body.id;
     return id;
   } catch (e) {
-    console.log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
+    log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
     throw e;
   }
 }
@@ -48,26 +49,26 @@ export async function createUnverifiedCustomer(
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
-    console.log(
+    log(
       "Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL
     );
     const result = await appToken.get(customerURL);
     const id = result.body.id;
     return id;
   } catch (e) {
-    console.log("Dwolla.createUnverifiedCustomer(), error " + e);
+    log("Dwolla.createUnverifiedCustomer(), error " + e);
     throw e;
   }
 }
 
 function logUnsupported(topic: string) {
-  console.log(
+  log(
     `Dwolla.consumeWebhook() Unsupported ${topic} received, nothing to do...`
   );
 }
 
 function logSupported(topic: string) {
-  console.log(
+  log(
     `Dwolla.consumeWebhook() Supported topic ${topic} received and beginning processing...`
   );
 }
@@ -75,8 +76,8 @@ function logSupported(topic: string) {
 export async function consumeWebhook(
   eventToProcess: DwollaEvent
 ): Promise<boolean> {
-  console.log("Dwolla.consumeWebhook() Processing Event:");
-  console.log(JSON.stringify(eventToProcess, null, 2));
+  log("Dwolla.consumeWebhook() Processing Event:");
+  log(JSON.stringify(eventToProcess, null, 2));
 
   let processed = false;
 
@@ -88,12 +89,12 @@ export async function consumeWebhook(
         const res = await appToken.get(eventToProcess._links.resource.href);
         const customer = res.body;
         const address = await newWallet(customer.id);
-        console.log(
+        log(
           `Dwolla.consumeWebhook() Successfully created new wallet on-chain for user ${customer.email} with address ${address}`
         );
         processed = true;
       } catch (err) {
-        console.log(
+        log(
           `Dwolla.consumeWebhook() error during 'customer_created' topic processing ${err}`
         );
         throw err;

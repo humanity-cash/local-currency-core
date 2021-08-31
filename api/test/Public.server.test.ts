@@ -3,7 +3,8 @@ import chai from "chai";
 import path from "path";
 import chaiHttp from "chai-http";
 import { getApp } from "../src/server";
-import { log, setupContracts } from "./utils";
+import { setupContracts } from "./utils";
+import { log } from "../src/utils";
 import { codes } from "../src/utils/http";
 import { describe, it, beforeAll } from "@jest/globals";
 
