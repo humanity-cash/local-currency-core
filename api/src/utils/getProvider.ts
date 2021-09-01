@@ -4,6 +4,7 @@ import { privateKeyToAddress } from "@celo/utils/lib/address";
 import { ContractKit } from "@celo/contractkit/lib/kit";
 import Web3 from "web3";
 import { TransactionReceipt } from "web3-core";
+import { log } from "src/utils";
 
 let kit: ContractKit;
 let web3: Web3;
@@ -22,13 +23,13 @@ const addKeysFromMnemonic = async (
   );
   kit.addAccount(key.privateKey);
   const account = privateKeyToAddress(key.privateKey);
-  console.log(`Added account ${account} at index ${index}`);
+  log(`Added account ${account} at index ${index}`);
   return account;
 };
 
 const getKit = async (): Promise<ContractKit> => {
   if (!kit) {
-    console.log("Loading Contract Kit!");
+    log("Loading Contract Kit!");
     kit = Kit.newKit(process.env.LOCAL_CURRENCY_RPC_HOST);
 
     // Deployer at position 0
@@ -42,7 +43,7 @@ const getKit = async (): Promise<ContractKit> => {
       await addKeysFromMnemonic(kit, process.env.LOCAL_CURRENCY_MNEMONIC, i);
     }
 
-    console.log("Custodian accounts:", await kit.getWallet().getAccounts());
+    log("Custodian accounts:", await kit.getWallet().getAccounts());
     kit.defaultAccount = deployer;
   }
   return kit;
@@ -50,7 +51,7 @@ const getKit = async (): Promise<ContractKit> => {
 
 const getWeb3 = (): Web3 => {
   if (!web3) {
-    console.log("Loading web3!");
+    log("Loading web3!");
     const host = process.env.LOCAL_CURRENCY_RPC_HOST;
     web3 = new Web3(
       host && host.startsWith("http")
@@ -82,12 +83,12 @@ export const getProvider = async (
       operators = accounts.filter((value, index) => {
         return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
       });
-      // console.log(
+      // log(
       //   "(web3) Now using account:",
       //   defaultAccount,
       //   " for this transaction"
       // );
-      // console.log("(web3) Operators", operators);
+      // log("(web3) Operators", operators);
     }
   } else {
     // If kit isn't defined or the accountToUse has been specified
@@ -99,12 +100,12 @@ export const getProvider = async (
       operators = accounts.filter((value, index) => {
         return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
       });
-      // console.log(
+      // log(
       //   "(kit) Now using account:",
       //   defaultAccount,
       //   " for this transaction"
       // );
-      // console.log("(kit) Operators", operators);
+      // log("(kit) Operators", operators);
     }
   }
 
@@ -124,7 +125,7 @@ export const getProvider = async (
         });
       }
     } catch (err) {
-      console.error(
+      log(
         "Transaction failed!",
         err.message,
         txo._method.name,
