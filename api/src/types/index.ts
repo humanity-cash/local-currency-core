@@ -3,9 +3,13 @@ export interface HealthResponse {
   chainId: number;
   nodeInfo: string;
   token: string;
-  walletCount: number;
+  walletCount: string;
   owner: string;
   walletFactory: string;
+}
+export interface ITransferOwnerRequest {
+  newOwner: string;
+  userId?: string;
 }
 export interface IWallet {
   userId: string;
@@ -14,7 +18,17 @@ export interface IWallet {
   availableBalance: number;
   totalBalance: number;
 }
-export interface NewUser {
+export interface INewUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  businessName?: string;
+  ipAddress?: string;
   userId: string;
 }
 

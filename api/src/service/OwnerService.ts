@@ -14,3 +14,11 @@ export async function transferWalletOwnership(
 ): Promise<TransactionReceipt> {
   return await contracts.transferWalletOwnership(newOwner, userId);
 }
+
+export async function pause(): Promise<TransactionReceipt> {
+  return await contracts.pause();
+}
+
+export async function unpause(): Promise<TransactionReceipt> {
+  return await contracts.unpause();
+}
