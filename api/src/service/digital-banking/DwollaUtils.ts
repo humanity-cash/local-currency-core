@@ -18,7 +18,6 @@ export function validSignature(
   webhookSecret: string,
   payloadBody: string
 ): boolean {
-  let verified = false;
   try {
     log(
       `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${payloadBody}...`
@@ -28,17 +27,17 @@ export function validSignature(
       .update(payloadBody)
       .digest("hex");
 
-    verified = crypto.timingSafeEqual(
+    const verified = crypto.timingSafeEqual(
       Buffer.from(proposedSignature),
       Buffer.from(hash)
     );
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is valid`
+      `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is ${verified ? "valid" : "not valid"}`
     );
+    return verified;
   } catch (e) {
     log(`DwollaUtils.ts::verifyGatewaySignature: ${e}`);
   }
-  return verified;
 }
 
 // Webhook events can be fired multiple times by Dwolla
