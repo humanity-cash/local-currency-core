@@ -14,7 +14,8 @@
   "scripts": {
     "test:contracts": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='crypto' --verbose --config=jest.config.js",
     "test:server": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='server' --verbose --config=jest.config.js",
-    "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
+    "test:dwolla": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='dwolla' --verbose --config=jest.config.js",
+    "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",    
     "coverage:server": "yarn test:server --coverage",
     "coverage:contracts": "yarn test:contracts --coverage",
     "coverage": "yarn coverage:server",
@@ -31,7 +32,8 @@
   "dependencies": {
     "@celo/contractkit": "^1.2.0",
     "axios": "^0.21.0",
-    "cors": "^2.8.5",
+    "buffer": "^6.0.3",
+    "dwolla-v2": "^3.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.11.1",
     "mongoose": "^5.12.14",

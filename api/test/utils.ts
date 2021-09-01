@@ -2,18 +2,76 @@ import { Contract, SendOptions } from "web3-eth-contract";
 import { getProvider } from "../src/utils/getProvider";
 import * as web3Utils from "web3-utils";
 import Web3 from "web3";
+import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
+import { v4 } from "uuid";
+import { INewUser } from "../src/types";
+import faker from "faker";
+import { cryptoUtils, log } from "../src/utils";
 
 let sendOptions: SendOptions;
 let web3: Web3;
 let contractsSetup = false;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function log(...data: any[]): void {
-  if (process.env.DEBUG === "true") console.log(...data);
-}
-
 const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
 const OPERATOR_ROLE = web3Utils.keccak256("OPERATOR_ROLE");
+
+export function getSalt(): string {
+  return new Date().getTime().toString();
+}
+
+export function createFakeUser(isBusiness?: false): INewUser {
+  const user: INewUser = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    address1: faker.address.streetAddress(),
+    address2: faker.address.secondaryAddress(),
+    city: faker.address.city(),
+    postalCode: faker.address.zipCode(),
+    state: faker.address.stateAbbr(),
+    email: getSalt() + faker.internet.email(),
+    ipAddress: faker.internet.ip().toString(),
+    userId: "",
+    businessName: isBusiness
+      ? faker.name.lastName + "'s fake business"
+      : undefined,
+  };
+  user.userId = cryptoUtils.toBytes32(user.email);
+  log(user);
+  return user;
+}
+
+export function createDummyEvent(topic: string, id: string): DwollaEvent {
+  const eventId = v4();
+  const accountId = "0ee84069-47c5-455c-b425-633523291dc3";
+
+  return {
+    _links: {
+      account: {
+        href: `https://api-sandbox.dwolla.com/accounts/${accountId}`,
+        "resource-type": "account",
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+      customer: {
+        href: `https://api-sandbox.dwolla.com/customers/${id}`,
+        "resource-type": "customer",
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+      resource: {
+        href: `https://api-sandbox.dwolla.com/customers/${id}`,
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+      self: {
+        href: `https://api-sandbox.dwolla.com/events/${eventId}`,
+        "resource-type": "event",
+        type: "application/vnd.dwolla.v1.hal+json",
+      },
+    },
+    created: Date.now().toString(),
+    id: eventId,
+    resourceId: id,
+    topic: topic,
+  };
+}
 
 export async function setupContracts(): Promise<void> {
   if (contractsSetup) return;
@@ -116,7 +174,7 @@ async function deployContract(
       sendOptions.from
     );
   } catch (err) {
-    console.error(
+    log(
       "Deployment failed for",
       name,
       "with args",
