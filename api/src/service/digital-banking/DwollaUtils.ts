@@ -32,7 +32,9 @@ export function validSignature(
       Buffer.from(hash)
     );
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is ${verified ? "valid" : "not valid"}`
+      `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is ${
+        verified ? "valid" : "not valid"
+      }`
     );
     return verified;
   } catch (e) {
