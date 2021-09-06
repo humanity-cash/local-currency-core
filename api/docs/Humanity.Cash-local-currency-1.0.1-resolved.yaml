@@ -1,0 +1,755 @@
+---
+swagger: "2.0"
+info:
+  description: Interface to expose customer blockchain local currency balances and perform user management, payments, and reporting.
+  version: 1.0.1
+  title: Local Currency API
+  contact:
+    email: aaron@humanity.cash
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: virtserver.swaggerhub.com
+basePath: /Humanity.Cash/local-currency/1.0.1
+tags:
+- name: Authorized to Owner
+  description: Secured authorized-only operations that update the chain state
+- name: Dwolla
+  description: |
+    Endpoints called by Dwolla webhook subscription
+    Authorized by X-Request-Signature-SHA-256 header
+- name: Public
+  description: Read only requests available to the public
+schemes:
+- https
+paths:
+  /health:
+    get:
+      tags:
+      - Public
+      summary: Endpoint and health information
+      operationId: health
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/IHealthResponse'
+        "500":
+          description: Server Error
+  /stats/deposit:
+    get:
+      tags:
+      - Public
+      summary: Get all deposits
+      operationId: getAllDeposits
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IDepositResponse'
+        "500":
+          description: Server Error
+  /stats/withdrawal:
+    get:
+      tags:
+      - Public
+      summary: Get all withdrawal
+      operationId: getAllWithdrawals
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IWithdrawalResponse'
+        "500":
+          description: Server Error
+  /stats/transfer:
+    get:
+      tags:
+      - Public
+      summary: Get all transfers
+      operationId: getAllTransfers
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ITransferEventResponse'
+        "500":
+          description: Server Error
+  /stats/operator:
+    get:
+      tags:
+      - Public
+      summary: Get all operator statistics
+      operationId: getOperatorStatistics
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IOperatorTotalResponse'
+        "500":
+          description: Server Error
+  /users:
+    get:
+      tags:
+      - Public
+      summary: Retrieve user information and balances
+      description: |
+        Get parsed user details from the blockchain
+      operationId: getAllUser
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IWalletResponse'
+        "400":
+          description: Bad request
+        "404":
+          description: User not found
+        "500":
+          description: Server Error
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Creates a new local currency user
+      description: Adds an new user to the system
+      operationId: createUser
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: newWallet
+        description: New user to add
+        required: false
+        schema:
+          $ref: '#/definitions/IWalletRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/IWalletResponse'
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+  /users/:id:
+    get:
+      tags:
+      - Public
+      summary: Retrieve user information and balances
+      description: |
+        Get parsed user details from the blockchain
+      operationId: getUser
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IWalletResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: User not found
+        "500":
+          description: Server Error
+  /users/:id/deposit:
+    get:
+      tags:
+      - Public
+      summary: Get all deposits for a single user
+      description: |
+        Get deposits (minting) from the blockchain
+      operationId: getDeposits
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IDepositResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Create a deposit record and mint local currency token
+      description: |
+        Create a deposit record and mint local currency token
+      operationId: createDeposit
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: createDeposit
+        description: Create a deposit
+        required: false
+        schema:
+          $ref: '#/definitions/IDepositRequest'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+  /users/:id/withdrawal:
+    get:
+      tags:
+      - Public
+      summary: Get all withdrawals for a single user
+      description: |
+        Get withdrawals (burning) from the blockchain
+      operationId: getWithdrawals
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IWithdrawalResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Create a withdrawal record and burn local currency token
+      description: |
+        Create a withdrawal record and burn local currency token
+      operationId: createWithdrawal
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: createWithdrawal
+        description: Create a withdrawal
+        required: false
+        schema:
+          $ref: '#/definitions/IWithdrawalRequest'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+  /users/:id/transfer:
+    get:
+      tags:
+      - Public
+      summary: Retrieve transactions for a user
+      description: |
+        Get local currency transactions from the blockchain. |
+        Optionally provide an userId for transactions for a single user.
+      operationId: getTransactions
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ITransferEventResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Create transaction
+      description: Create a payment transaction between a userId and targetAddress
+      operationId: createTransaction
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: TransactionRequest
+        description: Transaction request details
+        required: false
+        schema:
+          $ref: '#/definitions/ITransferRequest'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+  /webhook:
+    post:
+      tags:
+      - Dwolla
+      summary: Receive webhooks from Dwolla
+      description: Consume webhook event notifications from Dwolla
+      operationId: webhook
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: DwollaEvent
+        description: Dwolla Event object
+        required: false
+        schema:
+          $ref: '#/definitions/IDwollaEventRequest'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+  /admin/pause:
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Pause the contract suite
+      description: Pause the contract suite
+      operationId: pause
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "202":
+          description: Accepted
+        "403":
+          description: Forbidden
+        "500":
+          description: Server Error
+  /admin/unpause:
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Unpause the contract suite
+      description: Unpause the contract suite
+      operationId: unpause
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "202":
+          description: Accepted
+        "403":
+          description: Forbidden
+        "500":
+          description: Server Error
+  /admin/transfer/controller:
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Transfer ownership of the controller
+      description: Transfer ownership of the controller
+      operationId: transferControllerOwner
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: ITransferOwnerRequest
+        description: Change owner details
+        required: false
+        schema:
+          $ref: '#/definitions/ITransferOwnerRequest'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+  /admin/transfer/user:
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Transfer ownership of a user to another address
+      description: Transfer ownership of a wallet
+      operationId: transferWalletOwner
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: ITransferWalletRequest
+        description: Change owner details
+        required: false
+        schema:
+          $ref: '#/definitions/ITransferOwnerRequest'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "422":
+          description: Unprocessable
+        "500":
+          description: Server Error
+definitions:
+  IDwollaLinks:
+    type: object
+    required:
+    - account
+    - resource
+    - self
+    properties:
+      self:
+        type: object
+        example:
+          href: https://api.dwolla.com/events/f8e70f48-b7ff-47d0-9d3d-62a099363a76
+        properties: {}
+      resource:
+        type: object
+        example:
+          href: https://api.dwolla.com/transfers/48CFDDB4-1E74-E511-80DB-0AA34A9B2388
+        properties: {}
+      account:
+        type: object
+        example:
+          href: https://api.dwolla.com/accounts/ca32853c-48fa-40be-ae75-77b37504581b
+        properties: {}
+  IDwollaEventRequest:
+    type: object
+    required:
+    - _links
+    - created
+    - id
+    - resourceId
+    - topic
+    properties:
+      _links:
+        type: object
+        example:
+          $ref: '#/definitions/IDwollaLinks'
+        properties: {}
+      id:
+        type: string
+        example: f8e70f48-b7ff-47d0-9d3d-62a099363a76
+      created:
+        type: string
+        example: 2015-10-16T15:58:15.000Z
+      topic:
+        type: string
+        example: transfer_created
+      resourceId:
+        type: string
+        example: 48CFDDB4-1E74-E511-80DB-0AA34A9B2388
+  IWalletRequest:
+    type: object
+    required:
+    - address1
+    - city
+    - email
+    - firstName
+    - lastName
+    - postalCode
+    - state
+    - userId
+    properties:
+      userId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      firstName:
+        type: string
+        example: Florian
+      lastName:
+        type: string
+        example: Schneider
+      email:
+        type: string
+        example: schneidf@gmx.de
+      address1:
+        type: string
+        example: Muellerstrasse 123
+      address2:
+        type: string
+        example: ""
+      city:
+        type: string
+        example: Great Barrington
+      state:
+        type: string
+        example: MA
+      postalCode:
+        type: string
+        example: "90210"
+  IWalletResponse:
+    type: object
+    required:
+    - address
+    - balance
+    - createdBlock
+    - userId
+    properties:
+      userId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      address:
+        type: string
+        example: 0x0000000000000000000000000000000000000001
+      balance:
+        type: number
+        example: 191.45
+      createdBlock:
+        type: string
+        example: "1322324355"
+  ITransferRequest:
+    type: object
+    required:
+    - amount
+    - toUserId
+    properties:
+      toUserId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      amount:
+        type: number
+        example: 123.45
+      comment:
+        type: string
+        example: Buffalo Bill's Fine Leather Goods
+  ITransferEventResponse:
+    type: object
+    required:
+    - blockNumber
+    - fromAddress
+    - fromUserId
+    - timestamp
+    - toAddress
+    - toUserId
+    - transactionHash
+    - value
+    properties:
+      transactionHash:
+        type: string
+        example: 0xcd88fba9277b4cc2a99e7a9f0926acd50909bbbde
+      blockNumber:
+        type: number
+        example: 9.81092832E8
+      timestamp:
+        type: string
+        example: "1654546760"
+      fromUserId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      fromAddress:
+        type: string
+        example: 0x000000000000000000000000000000000000001
+      toUserId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      toAddress:
+        type: string
+        example: 0x000000000000000000000000000000000000001
+      value:
+        type: string
+        example: "123.45"
+  IWithdrawalResponse:
+    type: object
+    required:
+    - blockNumber
+    - operator
+    - timestamp
+    - transactionHash
+    - userId
+    - value
+    properties:
+      transactionHash:
+        type: string
+        example: 0xcd88fba9277b4cc2a99e7a9f0926acd50909bbbde
+      blockNumber:
+        type: number
+        example: 9.81092832E8
+      timestamp:
+        type: string
+        example: "1654546760"
+      userId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      value:
+        type: string
+        example: "123.45"
+      operator:
+        type: string
+        example: d19c5dc5-3e45-4a9f-8c01-74003dfa8c71
+  IWithdrawalRequest:
+    type: object
+    required:
+    - amount
+    properties:
+      amount:
+        type: string
+        example: "1000"
+  IDepositResponse:
+    type: object
+    required:
+    - blockNumber
+    - operator
+    - timestamp
+    - transactionHash
+    - userId
+    - value
+    properties:
+      transactionHash:
+        type: string
+        example: 0xcd88fba9277b4cc2a99e7a9f0926acd50909bbbde
+      blockNumber:
+        type: number
+        example: 9.81092832E8
+      timestamp:
+        type: string
+        example: "1654546760"
+      userId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      value:
+        type: string
+        example: "123.45"
+      operator:
+        type: string
+        example: d19c5dc5-3e45-4a9f-8c01-74003dfa8c71
+  IDepositRequest:
+    type: object
+    required:
+    - amount
+    properties:
+      amount:
+        type: string
+        example: "1000"
+  IOperatorTotalResponse:
+    type: object
+    required:
+    - currentOutstanding
+    - deposits
+    - operator
+    - totalDeposits
+    - totalWithdrawals
+    - withdrawals
+    properties:
+      operator:
+        type: string
+        example: d19c5dc5-3e45-4a9f-8c01-74003dfa8c71
+      totalDeposits:
+        type: string
+        example: "123.45"
+      totalWithdrawals:
+        type: string
+        example: "23.45"
+      currentOutstanding:
+        type: string
+        example: "100.00"
+      deposits:
+        type: array
+        items:
+          $ref: '#/definitions/IDepositResponse'
+      withdrawals:
+        type: array
+        items:
+          $ref: '#/definitions/IWithdrawalResponse'
+  ITransferOwnerRequest:
+    type: object
+    required:
+    - newOwner
+    properties:
+      newOwner:
+        type: string
+        example: 0x0000000000000000000000000000000000000001
+      userId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+  IHealthResponse:
+    type: object
+    required:
+    - blockNumber
+    - chainId
+    - countOfUsers
+    - localCurrencyToken
+    - nodeInfo
+    properties:
+      blockNumber:
+        type: number
+        example: 1.45689901E8
+      chainId:
+        type: number
+        example: 1337.0
+      nodeInfo:
+        type: string
+        example: EthereumJS TestRPC/v2.7.0/ethereum-js
+      localCurrencyToken:
+        type: string
+        example: 0x8552545cE2CE5cFDE1500A0C2421E21A68b643b7
+      countOfUsers:
+        type: string
+        example: "537"
