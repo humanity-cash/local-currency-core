@@ -40,7 +40,11 @@ export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUser: INewUser = req.body;
     const resourceUri = await OperatorService.createUser(newUser);
-    httpUtils.createHttpResponse({ resourceUri: resourceUri }, codes.CREATED, res);
+    httpUtils.createHttpResponse(
+      { resourceUri: resourceUri },
+      codes.CREATED,
+      res
+    );
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.unprocessable("Create user failed: user already exists", res);
