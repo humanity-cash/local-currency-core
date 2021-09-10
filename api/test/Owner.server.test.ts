@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
 import chai from "chai";
-import path from "path";
 import chaiHttp from "chai-http";
 import { getApp } from "../src/server";
 import { createDummyEvent, createFakeUser, setupContracts } from "./utils";
@@ -13,13 +11,6 @@ import { createSignature } from "../src/service/digital-banking/DwollaUtils";
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
-
-const result = dotenv.config({
-  path: path.resolve(process.cwd(), ".env.test"),
-});
-if (result.error) {
-  throw result.error;
-}
 
 describe("Owner/administrative endpoints test", () => {
   beforeAll(async () => {
@@ -105,7 +96,7 @@ describe("Owner/administrative endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          user1.userId = res.body.id;
+          user1.userId = res.body.resourceUri;
           done();
         })
         .catch((err) => {
