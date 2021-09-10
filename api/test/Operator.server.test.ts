@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
 import chai from "chai";
-import path from "path";
 import chaiHttp from "chai-http";
 import { describe, it, beforeAll } from "@jest/globals";
 import { getApp } from "../src/server";
@@ -14,13 +12,6 @@ import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
-
-const result = dotenv.config({
-  path: path.resolve(process.cwd(), ".env.test"),
-});
-if (result.error) {
-  throw result.error;
-}
 
 function expectIWallet(wallet: unknown): void {
   log(wallet);
@@ -80,7 +71,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          user1.userId = res.body.id;
+          user1.userId = res.body.resourceUri;
           done();
         })
         .catch((err) => {
@@ -120,7 +111,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          user2.userId = res.body.id;
+          user2.userId = res.body.resourceUri;
           done();
         })
         .catch((err) => {

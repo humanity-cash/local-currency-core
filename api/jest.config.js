@@ -1,3 +1,4 @@
+  // eslint-disable-next-line no-undef
 module.exports = {
 	coveragePathIgnorePatterns: ["/node_modules/"],
 	transform: {
@@ -16,5 +17,8 @@ module.exports = {
 			diagnostics: true,
 		},
 	},
-	testTimeout: 5000
+	testTimeout: 5000,
+	setupFiles: [
+        "./test/setup/config.ts"
+    ],
 };
