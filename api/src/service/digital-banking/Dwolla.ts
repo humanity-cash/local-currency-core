@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import * as dwolla from "dwolla-v2";
 import {
   DwollaClientOptions,
@@ -8,11 +7,6 @@ import {
 } from "./DwollaTypes";
 import { newWallet } from "../contracts";
 import { log } from "src/utils";
-
-const result = dotenv.config();
-if (result.error) {
-  throw result.error;
-}
 
 export async function getAppToken(): Promise<dwolla.Client> {
   const options: DwollaClientOptions = {
