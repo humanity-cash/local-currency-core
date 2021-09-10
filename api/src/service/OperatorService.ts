@@ -23,9 +23,9 @@ export async function createUser(newUser: INewUser): Promise<string> {
     ipAddress: newUser.ipAddress,
     correlationId: newUser.email,
   };
-  const id: string = await createUnverifiedCustomer(request);
-  log(`Created new customer in Dwolla with URL ${id}`);
-  return id;
+  const resourceUri: string = await createUnverifiedCustomer(request);
+  log(`Created new customer in Dwolla with URL ${resourceUri}`);
+  return resourceUri;
 }
 
 const sortOperatorsFunc = (x: IOperatorTotal, y: IOperatorTotal) => {
