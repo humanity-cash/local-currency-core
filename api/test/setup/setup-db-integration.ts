@@ -1,7 +1,11 @@
+/// <reference types="jest" />
+
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import { log } from "../../src/utils";
+import { beforeAll, beforeEach, afterEach, afterAll } from "@jest/globals";
 
-jest.setTimeout(30000);
+// jest.setTimeout(30000);
 
 beforeAll(async (): Promise<void> => {
   await mockDatabase.init();
