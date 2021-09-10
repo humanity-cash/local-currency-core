@@ -36,7 +36,7 @@ services:
       DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
       DWOLLA_ENVIRONMENT: sandbox
       WEBHOOK_SECRET: 0000000000000000000000000000000000000000000001
-      MONGO_URL: "mongodb://root:example@localhost:27017"
+      # MONGO_URL: "mongodb://root:example@localhost:27017"
 
 volumes:
   db_data:
