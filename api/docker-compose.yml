@@ -1,0 +1,42 @@
+version: "3.9"  
+services:
+  
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    stop_grace_period: 30s
+    volumes:
+      - db_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  api:
+    depends_on: 
+      - mongo
+    stop_grace_period: 30s
+    build: .
+    ports:
+      - "3000:3000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    environment:
+      DEBUG: "true"
+      LOCAL_CURRENCY_RPC_HOST: "https://alfajores-forno.celo-testnet.org/"
+      LOCAL_CURRENCY_ADDRESS: "0x082339109Df4C3984F9911Ce6F3E5BF3D48dbe2A"
+      LOCAL_CURRENCY_MNEMONIC: "truth half motor knee sad flee oxygen gossip announce train soon renew"
+      NUMBER_OPERATORS: 2
+      DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
+      DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
+      DWOLLA_ENVIRONMENT: sandbox
+      WEBHOOK_SECRET: 0000000000000000000000000000000000000000000001
+      MONGO_URL: "mongodb://root:example@localhost:27017"
+
+volumes:
+  db_data:
