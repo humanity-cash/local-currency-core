@@ -22,7 +22,7 @@
     "build:watch": "tsc --watch",
     "build": "tsc",
     "build:docker": "yarn build && sudo docker build -t keykoio/berkshares-api:latest .",
-    "start": "yarn build && node ./dist/index.js",
+    "start": "node ./dist/index.js",
     "start:watch": "ts-node-dev  --respawn --transpile-only src/index.ts",
     "eslint": "npx eslint src/**/*.ts src/**/**/*.ts test/**/*.ts test/**/**/*.ts",
     "prettier": "prettier --write ./src/**/**/*.ts ./src/**/*.ts ./test/**/**/*.ts",
