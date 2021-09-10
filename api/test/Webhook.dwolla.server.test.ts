@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
 import chai from "chai";
-import path from "path";
 import chaiHttp from "chai-http";
 import { getApp } from "../src/server";
 import { setupContracts, getSalt, createDummyEvent } from "./utils";
@@ -26,13 +24,6 @@ import faker from "faker";
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
-
-const result = dotenv.config({
-  path: path.resolve(process.cwd(), ".env.test"),
-});
-if (result.error) {
-  throw result.error;
-} else log(result);
 
 const CUSTOMERS_TO_CREATE = 1;
 
