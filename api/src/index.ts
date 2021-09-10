@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
 import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
 import { log } from "src/utils";
-dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = getApp();
@@ -21,11 +19,8 @@ const runApp = () => {
 			!!process.env.LOCAL_CURRENCY_MNEMONIC
 		);
 		log(`App listening at http://localhost:${PORT}`);
+		startDatabase(() => {log("App with database started")});
 	});
 }
 
-export const startServerWithDatabase = (): void => {
-	startDatabase(runApp);
-};
-
-startServerWithDatabase();
+runApp();
