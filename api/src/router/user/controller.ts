@@ -1,9 +1,15 @@
 import { Request, Response } from "express";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
+import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
+import { consumeWebhook } from "src/service/digital-banking/Dwolla";
+import { isDevelopment, isProduction, log } from "src/utils";
+import {createDummyEvent} from "../../test/utils";
+
 import {
   IDeposit,
   INewUser,
+  INewUserResponse,
   ITransferEvent,
   IWallet,
   IWithdrawal,
@@ -36,15 +42,39 @@ export async function getUser(req: Request, res: Response): Promise<void> {
   }
 }
 
+async function shortcutUserCreation(userId:string) : Promise<void>{
+  if(isProduction())
+    throw "Error! Development utility used in production"; 
+
+  const event : DwollaEvent = createDummyEvent("customer_created", userId);  
+  const created : boolean = await consumeWebhook(event); 
+
+  if(created)
+    log(`[Development Only] User ${userId} created with dummy webhook POST`);
+  else
+    log(`[Development Only] User ${userId} not created, check logs for details`);
+}
+
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
+    
     const newUser: INewUser = req.body;
-    const resourceUri = await OperatorService.createUser(newUser);
+    const businessName : string = newUser.businessName || "";
+    if(businessName)
+      newUser.email = newUser.authUserId + "@humanity.cash";
+      
+    const newUserResponse : INewUserResponse = await OperatorService.createUser(newUser);
+
+    if(isDevelopment()){
+      await shortcutUserCreation(newUserResponse.userId);
+    }
+
     httpUtils.createHttpResponse(
-      { resourceUri: resourceUri },
+      newUserResponse,
       codes.CREATED,
       res
     );
+    
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.unprocessable("Create user failed: user already exists", res);
