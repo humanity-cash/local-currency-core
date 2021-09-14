@@ -38,6 +38,10 @@ export function forbidden(message: any, response: Response) {
   createHttpResponse({ message: message }, codes.FORBIDDEN, response);
 }
 
+export function badRequest(message: any, response: Response) {
+  createHttpResponse({ message: message }, codes.BAD_REQUEST, response);
+}
+
 export const codes = {
   OK: 200,
   CREATED: 201,
