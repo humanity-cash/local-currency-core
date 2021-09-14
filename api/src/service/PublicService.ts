@@ -6,7 +6,7 @@ import {
   IWithdrawal,
   ITransferEvent,
 } from "src/types";
-import {Response} from "dwolla-v2";
+import { Response } from "dwolla-v2";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 import { getDwollaCustomerById } from "./digital-banking/Dwolla";
@@ -55,17 +55,23 @@ export async function balanceOfWallet(userId: string): Promise<string> {
   return await contracts.balanceOfWallet(userId);
 }
 
-async function getWalletAndDwollaCustomer(address:string, userId:string) : Promise<IWallet>{
-  const results = await Promise.all([contracts.getWalletForAddress(address), getDwollaCustomerById(userId)]);
-  const wallet : IWallet = results[0];
-  const customer : Response = results[1];
+async function getWalletAndDwollaCustomer(
+  address: string,
+  userId: string
+): Promise<IWallet> {
+  const results = await Promise.all([
+    contracts.getWalletForAddress(address),
+    getDwollaCustomerById(userId),
+  ]);
+  const wallet: IWallet = results[0];
+  const customer: Response = results[1];
   wallet.customer = customer;
   return wallet;
 }
 
 export async function getWallet(userId: string): Promise<IWallet> {
   const address = await this.getWalletAddress(userId);
-  return await getWalletAndDwollaCustomer(address,userId);
+  return await getWalletAndDwollaCustomer(address, userId);
 }
 
 export async function getAllWallets(): Promise<IWallet[]> {
@@ -73,7 +79,7 @@ export async function getAllWallets(): Promise<IWallet[]> {
   const users: IWallet[] = [];
   for (let i = 0; i < parseInt(count); i++) {
     const address = await contracts.getWalletAddressAtIndex(i);
-    const wallet : IWallet = await contracts.getWalletForAddress(address);
+    const wallet: IWallet = await contracts.getWalletForAddress(address);
     users.push(wallet);
   }
   return users;
