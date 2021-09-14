@@ -1,3 +1,4 @@
+import * as dwolla from "dwolla-v2";
 export interface HealthResponse {
   blockNumber: number;
   chainId: number;
@@ -17,6 +18,7 @@ export interface IWallet {
   createdBlock: string;
   availableBalance: number;
   totalBalance: number;
+  customer?: dwolla.Response;
 }
 export interface INewUser {
   firstName: string;
@@ -29,9 +31,13 @@ export interface INewUser {
   postalCode: string;
   businessName?: string;
   ipAddress?: string;
-  userId: string;
+  authUserId: string;
 }
 
+export interface INewUserResponse {
+  userId: string;
+  resourceUri: string;
+}
 export interface IEventBase {
   transactionHash: string;
   blockNumber: number;
