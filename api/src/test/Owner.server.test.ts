@@ -1,12 +1,12 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import { getApp } from "../src/server";
+import { getApp } from "../server";
 import { createDummyEvent, createFakeUser, setupContracts } from "./utils";
-import { codes } from "../src/utils/http";
+import { codes } from "../utils/http";
 import { describe, it, beforeAll } from "@jest/globals";
-import { INewUser } from "../src/types";
-import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
-import { createSignature } from "../src/service/digital-banking/DwollaUtils";
+import { INewUser } from "../types";
+import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
+import { createSignature } from "../service/digital-banking/DwollaUtils";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -72,7 +72,9 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/user", () => {
+    
     const user1: INewUser = createFakeUser();
+    let dwollaIdUser1;
 
     it("it should fail to transfer wallet owner with invalid body, HTTP 400", (done) => {
       chai
@@ -96,7 +98,7 @@ describe("Owner/administrative endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          user1.userId = res.body.resourceUri;
+          dwollaIdUser1 = res.body.userId;
           done();
         })
         .catch((err) => {
@@ -107,7 +109,7 @@ describe("Owner/administrative endpoints test", () => {
     it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
-        user1.userId
+        dwollaIdUser1
       );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
@@ -133,7 +135,7 @@ describe("Owner/administrative endpoints test", () => {
         .post("/admin/transfer/user")
         .send({
           newOwner: "0x0000000000000000000000000000000000000001",
-          userId: user1.userId,
+          userId: dwollaIdUser1,
         })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -152,7 +154,7 @@ describe("Owner/administrative endpoints test", () => {
         .post("/admin/transfer/user")
         .send({
           newOwner: "0x0000000000000000000000000000000000000002",
-          userId: user1.userId,
+          userId: dwollaIdUser1,
         })
         .then((res) => {
           expect(res).to.have.status(codes.SERVER_ERROR);

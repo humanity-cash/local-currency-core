@@ -1,13 +1,13 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
 import { describe, it, beforeAll } from "@jest/globals";
-import { getApp } from "../src/server";
+import { getApp } from "../server";
 import { setupContracts, createDummyEvent, createFakeUser } from "./utils";
-import { codes } from "../src/utils/http";
-import { log } from "../src/utils";
-import { INewUser } from "../src/types";
-import { createSignature } from "../src/service/digital-banking/DwollaUtils";
-import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
+import { codes } from "../utils/http";
+import { log } from "../utils";
+import { INewUser } from "../types";
+import { createSignature } from "../service/digital-banking/DwollaUtils";
+import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -57,13 +57,15 @@ function expectITransferEvent(transfer: unknown): void {
 describe("Operator endpoints test", () => {
   const user1: INewUser = createFakeUser();
   const user2: INewUser = createFakeUser();
+  const business1: INewUser = createFakeUser(true);
+  let dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1;
 
   beforeAll(async () => {
     await setupContracts();
   });
 
   describe("POST /users (create user)", () => {
-    it("it should create user1 and store the returned address, HTTP 201", (done) => {
+    it("it should create personal user1 and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -71,7 +73,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          user1.userId = res.body.resourceUri;
+          dwollaIdUser1 = res.body.userId;
           done();
         })
         .catch((err) => {
@@ -82,7 +84,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
-        user1.userId
+        dwollaIdUser1
       );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
@@ -95,7 +97,6 @@ describe("Operator endpoints test", () => {
         .send(event)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
-          log(JSON.parse(res.text));
           done();
         })
         .catch((err) => {
@@ -103,7 +104,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should create user2 and store the returned address, HTTP 201", (done) => {
+    it("it should create personal user2 and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -111,7 +112,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          user2.userId = res.body.resourceUri;
+          dwollaIdUser2= res.body.userId;
           done();
         })
         .catch((err) => {
@@ -122,7 +123,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
-        user2.userId
+        dwollaIdUser2
       );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
@@ -135,10 +136,50 @@ describe("Operator endpoints test", () => {
         .send(event)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
-          log(JSON.parse(res.text));
           done();
         })
         .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should create business1 and store the returned address, HTTP 201", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send(business1)
+        .then((res) => {          
+          expect(res).to.have.status(codes.CREATED);
+          expect(res).to.be.json;
+          dwollaIdBusiness1 = res.body.userId;
+          done();
+        })
+        .catch((err) => {
+          log(JSON.stringify(err, null, 2));
+          done(err);
+        });
+    });
+
+    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", (done) => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdBusiness1
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event)
+        .then((res) => {          
+          expect(res).to.have.status(codes.ACCEPTED);
+          done();
+        })
+        .catch((err) => {
+          log(JSON.stringify(err, null, 2));
           done(err);
         });
     });
@@ -150,6 +191,40 @@ describe("Operator endpoints test", () => {
         .send(user2)
         .then((res) => {
           expect(res).to.have.status(codes.SERVER_ERROR);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should fail to create a personal user without 'p' prefixed to their authUserId, HTTP 400", (done) => {
+      const personalUser: INewUser = createFakeUser();
+      personalUser.authUserId = "invaliduserId";
+      chai
+        .request(server)
+        .post("/users")
+        .send(personalUser)
+        .then((res) => {
+          expect(res).to.have.status(codes.BAD_REQUEST);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should fail to create a business user without 'm' prefixed to their authUserId, HTTP 400", (done) => {
+      const businessUser: INewUser = createFakeUser(true);
+      businessUser.authUserId = "invalidBusinessUserId";
+      chai
+        .request(server)
+        .post("/users")
+        .send(businessUser)
+        .then((res) => {
+          expect(res).to.have.status(codes.BAD_REQUEST);
           expect(res).to.be.json;
           done();
         })
@@ -178,7 +253,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/deposit`)
+        .post(`/users/${dwollaIdUser1}/deposit`)
         .send({ banana: "99.99" })
         .then((res) => {
           expect(res).to.have.status(codes.BAD_REQUEST);
@@ -193,7 +268,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 422 with Solidity reversion (negative deposit)", (done) => {
       chai
         .request(server)
-        .post(`/users/${user2.userId}/deposit`)
+        .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "-1.0" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
@@ -208,7 +283,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 422 with Solidity reversion (zero value deposit)", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/deposit`)
+        .post(`/users/${dwollaIdUser1}/deposit`)
         .send({ amount: "0" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
@@ -238,7 +313,7 @@ describe("Operator endpoints test", () => {
     it("it should deposit to user1, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/deposit`)
+        .post(`/users/${dwollaIdUser1}/deposit`)
         .send({ amount: "99.99" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -254,7 +329,7 @@ describe("Operator endpoints test", () => {
     it("it should deposit to user2, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user2.userId}/deposit`)
+        .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "22.22" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -270,7 +345,7 @@ describe("Operator endpoints test", () => {
     it("it should deposit again to user2, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user2.userId}/deposit`)
+        .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "11.11" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -286,7 +361,7 @@ describe("Operator endpoints test", () => {
     it("it should deposit again to user2, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user2.userId}/deposit`)
+        .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "33.33" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -319,7 +394,7 @@ describe("Operator endpoints test", () => {
     it("it should return 1 deposit for user1, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user1.userId}/deposit`)
+        .get(`/users/${dwollaIdUser1}/deposit`)
         .send()
         .then((res) => {
           expect(res).to.have.status(codes.OK);
@@ -336,7 +411,7 @@ describe("Operator endpoints test", () => {
     it("it should return 3 deposits for user2, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user2.userId}/deposit`)
+        .get(`/users/${dwollaIdUser2}/deposit`)
         .send()
         .then((res) => {
           expect(res).to.have.status(codes.OK);
@@ -357,7 +432,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/withdraw`)
+        .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ banana: "99.99" })
         .then((res) => {
           expect(res).to.have.status(codes.BAD_REQUEST);
@@ -372,7 +447,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 422 (negative withdrawal)", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/withdraw`)
+        .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ amount: "-1.0" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
@@ -387,7 +462,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 422 (zero value withdrawal)", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/withdraw`)
+        .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ amount: "0" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
@@ -402,7 +477,7 @@ describe("Operator endpoints test", () => {
     it("it should withdraw from user2, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user2.userId}/withdraw`)
+        .post(`/users/${dwollaIdUser2}/withdraw`)
         .send({ amount: "5.55" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -418,7 +493,7 @@ describe("Operator endpoints test", () => {
     it("it should withdraw from user1, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/withdraw`)
+        .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ amount: "7.77" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -434,7 +509,7 @@ describe("Operator endpoints test", () => {
     it("it should withdraw again from user1, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/withdraw`)
+        .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ amount: "77.77" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
@@ -467,7 +542,7 @@ describe("Operator endpoints test", () => {
     it("it should return 2 withdrawals for user1, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user1.userId}/withdraw`)
+        .get(`/users/${dwollaIdUser1}/withdraw`)
         .send()
         .then((res) => {
           expect(res).to.have.status(codes.OK);
@@ -486,7 +561,7 @@ describe("Operator endpoints test", () => {
     it("it should return 1 withdrawals for user1, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user2.userId}/withdraw`)
+        .get(`/users/${dwollaIdUser2}/withdraw`)
         .send()
         .then((res) => {
           expect(res).to.have.status(codes.OK);
@@ -507,7 +582,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/transfer`)
+        .post(`/users/${dwollaIdUser1}/transfer`)
         .send({ test: "junk body", amount: "1.11" })
         .then((res) => {
           expect(res).to.have.status(codes.BAD_REQUEST);
@@ -522,8 +597,8 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 422 with Solidity reversion (negative transfer)", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/transfer`)
-        .send({ toUserId: user2.userId, amount: "-1.11" })
+        .post(`/users/${dwollaIdUser1}/transfer`)
+        .send({ toUserId: dwollaIdUser2, amount: "-1.11" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
           expect(res).to.be.json;
@@ -537,8 +612,8 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 422 with Solidity reversion (zero value transfer)", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/transfer`)
-        .send({ toUserId: user2.userId, amount: "0" })
+        .post(`/users/${dwollaIdUser1}/transfer`)
+        .send({ toUserId: dwollaIdUser2, amount: "0" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
           expect(res).to.be.json;
@@ -552,8 +627,8 @@ describe("Operator endpoints test", () => {
     it("it should transfer user1 to user2, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/transfer`)
-        .send({ toUserId: user2.userId, amount: "1.11" })
+        .post(`/users/${dwollaIdUser1}/transfer`)
+        .send({ toUserId: dwollaIdUser2, amount: "1.11" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -568,8 +643,8 @@ describe("Operator endpoints test", () => {
     it("it should transfer user2 to user1, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${user2.userId}/transfer`)
-        .send({ toUserId: user1.userId, amount: "12.12" })
+        .post(`/users/${dwollaIdUser2}/transfer`)
+        .send({ toUserId: dwollaIdUser1, amount: "12.12" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -584,8 +659,8 @@ describe("Operator endpoints test", () => {
     it("it should fail to transfer a very large amount from user1 to user2, HTTP 422", (done) => {
       chai
         .request(server)
-        .post(`/users/${user1.userId}/transfer`)
-        .send({ toUserId: user2.userId, amount: "99999999999999999" })
+        .post(`/users/${dwollaIdUser1}/transfer`)
+        .send({ toUserId: dwollaIdUser2, amount: "99999999999999999" })
         .then((res) => {
           expect(res).to.have.status(codes.UNPROCESSABLE);
           expect(res).to.be.json;
@@ -601,7 +676,7 @@ describe("Operator endpoints test", () => {
     it("it should get 1 transfer for user1, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user1.userId}/transfer`)
+        .get(`/users/${dwollaIdUser1}/transfer`)
         .send()
         .then((res) => {
           expect(res).to.have.status(codes.OK);
@@ -621,7 +696,7 @@ describe("Operator endpoints test", () => {
     it("it should get 1 transfer for user2, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user2.userId}/transfer`)
+        .get(`/users/${dwollaIdUser2}/transfer`)
         .send()
         .then((res) => {
           expect(res).to.have.status(codes.OK);
@@ -643,7 +718,7 @@ describe("Operator endpoints test", () => {
     it("it should get user1", (done) => {
       chai
         .request(server)
-        .get(`/users/${user1.userId}`)
+        .get(`/users/${dwollaIdUser1}`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
@@ -659,7 +734,7 @@ describe("Operator endpoints test", () => {
     it("it should get user2, HTTP 200", (done) => {
       chai
         .request(server)
-        .get(`/users/${user2.userId}`)
+        .get(`/users/${dwollaIdUser2}`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
