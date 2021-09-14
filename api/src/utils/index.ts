@@ -5,7 +5,7 @@ export { cryptoUtils, httpUtils };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function log(...data: any[]): void {
-  if (process.env.DEBUG === "true") console.log(...data);
+  if (process.env.DEBUG == "true") console.log(...data);
 }
 
 export function isDevelopment() : boolean {
