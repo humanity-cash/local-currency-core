@@ -50,9 +50,9 @@ async function shortcutUserCreation(userId:string) : Promise<void>{
   const created : boolean = await consumeWebhook(event); 
 
   if(created)
-    log(`[Development Only] User ${userId} created with dummy webhook POST`);
+    log(`[NODE_ENV="development"] User ${userId} created with dummy webhook POST`);
   else
-    log(`[Development Only] User ${userId} not created, check logs for details`);
+    log(`[NODE_ENV="development"] User ${userId} not created, check logs for details`);
 }
 
 export async function createUser(req: Request, res: Response): Promise<void> {
@@ -66,7 +66,11 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     const newUserResponse : INewUserResponse = await OperatorService.createUser(newUser);
 
     if(isDevelopment()){
+      log(`[NODE_ENV="developent"] Performing webhook shortcut...`);
       await shortcutUserCreation(newUserResponse.userId);
+    }
+    else{
+      log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
     }
 
     httpUtils.createHttpResponse(
