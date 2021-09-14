@@ -72,7 +72,6 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/user", () => {
-    
     const user1: INewUser = createFakeUser();
     let dwollaIdUser1;
 

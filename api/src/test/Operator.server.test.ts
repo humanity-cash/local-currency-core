@@ -112,7 +112,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser2= res.body.userId;
+          dwollaIdUser2 = res.body.userId;
           done();
         })
         .catch((err) => {
@@ -148,7 +148,7 @@ describe("Operator endpoints test", () => {
         .request(server)
         .post("/users")
         .send(business1)
-        .then((res) => {          
+        .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
           dwollaIdBusiness1 = res.body.userId;
@@ -174,7 +174,7 @@ describe("Operator endpoints test", () => {
         .post("/webhook")
         .set({ "X-Request-Signature-SHA-256": signature })
         .send(event)
-        .then((res) => {          
+        .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           done();
         })

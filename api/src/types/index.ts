@@ -1,4 +1,4 @@
-import {Response} from "dwolla-v2";
+import { Response } from "dwolla-v2";
 export interface HealthResponse {
   blockNumber: number;
   chainId: number;

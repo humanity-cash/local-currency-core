@@ -18,9 +18,13 @@ export async function getAppToken(): Promise<dwolla.Client> {
   return new dwolla.Client(options);
 }
 
-export async function getDwollaCustomerById(id: string): Promise<dwolla.Response> {
+export async function getDwollaCustomerById(
+  id: string
+): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
-  const customer : dwolla.Response = await appToken.get(process.env.DWOLLA_BASE_URL+"customers/"+id);
+  const customer: dwolla.Response = await appToken.get(
+    process.env.DWOLLA_BASE_URL + "customers/" + id
+  );
   return customer;
 }
 
@@ -35,10 +39,10 @@ export async function createPersonalVerifiedCustomer(
       "Dwolla.createPersonalVerifiedCustomer(), entity created @ " + customerURL
     );
     const result = await appToken.get(customerURL);
-    const response : INewUserResponse = {
+    const response: INewUserResponse = {
       userId: result.body.id,
-      resourceUri: customerURL
-    }
+      resourceUri: customerURL,
+    };
     return response;
   } catch (e) {
     log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
@@ -55,10 +59,10 @@ export async function createUnverifiedCustomer(
     const customerURL = res.headers.get("location");
     log("Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL);
     const result = await appToken.get(customerURL);
-    const response : INewUserResponse = {
+    const response: INewUserResponse = {
       userId: result.body.id,
-      resourceUri: customerURL
-    }
+      resourceUri: customerURL,
+    };
     return response;
   } catch (e) {
     log("Dwolla.createUnverifiedCustomer(), error " + e);
