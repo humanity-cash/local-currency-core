@@ -132,14 +132,16 @@ describe("Dwolla test suite", () => {
           correlationId,
         };
         const response = await createUnverifiedCustomer(person);
-        log("Unverified business customer created, link: " + response.resourceUri);
+        log(
+          "Unverified business customer created, link: " + response.resourceUri
+        );
         expect(response).to.exist;
       }
     });
   });
 
   describe("Server test: POST /webhook", () => {
-    let user : INewUserResponse;
+    let user: INewUserResponse;
 
     it(`Should create a personal unverified customer and return the entity link for usage in this test suite`, async () => {
       const firstName = "Personal Unverified " + faker.name.firstName();
@@ -161,7 +163,10 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post a supported webhook event and successfully process it, HTTP 202", (done) => {
-      const event: DwollaEvent = createDummyEvent("customer_created", user.userId);
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        user.userId
+      );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
@@ -182,7 +187,10 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post an unknown webhook event, HTTP 500", (done) => {
-      const event: DwollaEvent = createDummyEvent("customer_bananas", user.userId);
+      const event: DwollaEvent = createDummyEvent(
+        "customer_bananas",
+        user.userId
+      );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
@@ -203,7 +211,10 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post a known but unsupported webhook event, HTTP 422", (done) => {
-      const event: DwollaEvent = createDummyEvent("customer_suspended", user.userId);
+      const event: DwollaEvent = createDummyEvent(
+        "customer_suspended",
+        user.userId
+      );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)

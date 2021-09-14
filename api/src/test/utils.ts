@@ -35,7 +35,8 @@ export function createFakeUser(isBusiness = false): INewUser {
       ? faker.name.lastName() + "'s fake business"
       : undefined,
   };
-  user.authUserId = (isBusiness ? "m_" : "p_") + cryptoUtils.toBytes32(user.email);
+  user.authUserId =
+    (isBusiness ? "m_" : "p_") + cryptoUtils.toBytes32(user.email);
   log(user);
   return user;
 }
