@@ -7,7 +7,7 @@ module.exports = {
 	transformIgnorePatterns: ["node_modules/(?!variables/.*)"],
 	collectCoverageFrom: ["src/**/*.ts", "src/**/**/*.ts"],
 	preset: "ts-jest",
-	roots: ["<rootDir>/src/", "<rootDir>/test/"],
+	roots: ["<rootDir>/src/", "<rootDir>/src/test/"],
 	moduleNameMapper: {
 		"^src/(.*)$": "<rootDir>/src/$1",
 	},
@@ -17,8 +17,8 @@ module.exports = {
 			diagnostics: true,
 		},
 	},
-	testTimeout: 5000,
+	testTimeout: 10000,
 	setupFiles: [
-        "./test/setup/config.ts"
+        "./src/test/setup/config.ts"
     ],
 };
