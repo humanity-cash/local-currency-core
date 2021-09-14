@@ -27,7 +27,9 @@ services:
       start_period: 40s
     
     environment:
-      DEBUG: "true"
+      DEBUG: true
+      NODE_ENV: development
+      PORT: 3000
       LOCAL_CURRENCY_RPC_HOST: "https://alfajores-forno.celo-testnet.org/"
       LOCAL_CURRENCY_ADDRESS: "0x082339109Df4C3984F9911Ce6F3E5BF3D48dbe2A"
       LOCAL_CURRENCY_MNEMONIC: "truth half motor knee sad flee oxygen gossip announce train soon renew"
