@@ -4,7 +4,21 @@ import { mwVaildator } from "src/middlewares";
 const idInParams = [param("id").notEmpty(), mwVaildator];
 
 export const createUser = [
-  body("userId").isString(),
+  body("authUserId").isString(),
+  body("authUserId").custom((value, {req}) => {
+    const businessName : string = req.body.businessName || "";
+    if(businessName){
+      if(value.charAt(0)!="m") {
+        throw "Business accounts authUserId must begin with the prefix 'm'";
+      }
+    }
+    else {
+      if(value.charAt(0)!="p") {
+        throw "Personal accounts authUserId must begin with the prefix 'p'";
+      }
+    }
+    return true;
+  }),
   body("firstName").isString(),
   body("lastName").isString(),
   body("email").isString(),
@@ -13,6 +27,7 @@ export const createUser = [
   body("city").isString(),
   body("state").isString(),
   body("postalCode").isString(),
+  body("businessName").optional(),
   mwVaildator,
 ];
 
