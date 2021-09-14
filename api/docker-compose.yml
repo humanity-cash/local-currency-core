@@ -34,6 +34,7 @@ services:
       LOCAL_CURRENCY_ADDRESS: "0x082339109Df4C3984F9911Ce6F3E5BF3D48dbe2A"
       LOCAL_CURRENCY_MNEMONIC: "truth half motor knee sad flee oxygen gossip announce train soon renew"
       NUMBER_OPERATORS: 2
+      DWOLLA_BASE_URL: "https://api-sandbox.dwolla.com/"
       DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
       DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
       DWOLLA_ENVIRONMENT: sandbox
