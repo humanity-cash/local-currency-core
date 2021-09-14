@@ -1,4 +1,4 @@
-import { ExampleService } from "../src/database/service";
+import { ExampleService } from "../database/service";
 import { describe, it, expect } from "@jest/globals";
 
 describe("Example Service", () => {
