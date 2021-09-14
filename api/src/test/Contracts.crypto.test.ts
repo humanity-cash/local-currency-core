@@ -1,12 +1,12 @@
 /// <reference types="jest" />
 
 import { v4 } from "uuid";
-import * as contracts from "../src/service/contracts";
+import * as contracts from "../service/contracts";
 import { setupContracts } from "./utils";
 import utils from "web3-utils";
-import { getProvider } from "../src/utils/getProvider";
-import { toBytes32 } from "../src/utils/crypto";
-import { log } from "../src/utils";
+import { getProvider } from "../utils/getProvider";
+import { toBytes32 } from "../utils/crypto";
+import { log } from "../utils";
 import { describe, it, beforeAll, expect } from "@jest/globals";
 
 describe("Test low-level smart contract functions", () => {

@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import * as crypto from "../src/utils/crypto";
+import * as crypto from "../utils/crypto";
 import { describe, it, expect } from "@jest/globals";
 
 describe("Unit test utilities", () => {

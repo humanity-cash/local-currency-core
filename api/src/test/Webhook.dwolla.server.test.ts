@@ -1,25 +1,26 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import { getApp } from "../src/server";
+import { getApp } from "../server";
 import { setupContracts, getSalt, createDummyEvent } from "./utils";
-import { log } from "../src/utils";
-import { codes } from "../src/utils/http";
+import { log } from "../utils";
+import { codes } from "../utils/http";
 import { describe, it, beforeAll } from "@jest/globals";
 import {
   createPersonalVerifiedCustomer,
   createUnverifiedCustomer,
   getAppToken,
-} from "../src/service/digital-banking/Dwolla";
+} from "../service/digital-banking/Dwolla";
 import {
   DwollaUnverifiedCustomerRequest,
   DwollaEvent,
   DwollaPersonalVerifiedCustomerRequest,
-} from "../src/service/digital-banking/DwollaTypes";
+} from "../service/digital-banking/DwollaTypes";
 import {
   createSignature,
   validSignature,
-} from "../src/service/digital-banking/DwollaUtils";
+} from "../service/digital-banking/DwollaUtils";
 import faker from "faker";
+import { INewUserResponse } from "../types";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -105,9 +106,9 @@ describe("Dwolla test suite", () => {
           ipAddress,
           correlationId,
         };
-        const id = await createUnverifiedCustomer(person);
-        log("Unverified customer created, link:" + id);
-        expect(id).to.exist;
+        const response = await createUnverifiedCustomer(person);
+        log("Unverified customer created, link: " + response.resourceUri);
+        expect(response).to.exist;
       }
     });
 
@@ -130,15 +131,15 @@ describe("Dwolla test suite", () => {
           businessName,
           correlationId,
         };
-        const id = await createUnverifiedCustomer(person);
-        log("Unverified customer created, link:" + id);
-        expect(id).to.exist;
+        const response = await createUnverifiedCustomer(person);
+        log("Unverified business customer created, link: " + response.resourceUri);
+        expect(response).to.exist;
       }
     });
   });
 
   describe("Server test: POST /webhook", () => {
-    let id;
+    let user : INewUserResponse;
 
     it(`Should create a personal unverified customer and return the entity link for usage in this test suite`, async () => {
       const firstName = "Personal Unverified " + faker.name.firstName();
@@ -154,13 +155,13 @@ describe("Dwolla test suite", () => {
         ipAddress,
         correlationId,
       };
-      id = await createUnverifiedCustomer(person);
-      log("Unverified customer created, id:" + id);
-      expect(id).to.exist;
+      user = await createUnverifiedCustomer(person);
+      log("Unverified customer created, id: " + user.userId);
+      expect(user.userId).to.exist;
     });
 
     it("it should post a supported webhook event and successfully process it, HTTP 202", (done) => {
-      const event: DwollaEvent = createDummyEvent("customer_created", id);
+      const event: DwollaEvent = createDummyEvent("customer_created", user.userId);
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
@@ -181,7 +182,7 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post an unknown webhook event, HTTP 500", (done) => {
-      const event: DwollaEvent = createDummyEvent("customer_bananas", id);
+      const event: DwollaEvent = createDummyEvent("customer_bananas", user.userId);
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
@@ -202,7 +203,7 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post a known but unsupported webhook event, HTTP 422", (done) => {
-      const event: DwollaEvent = createDummyEvent("customer_suspended", id);
+      const event: DwollaEvent = createDummyEvent("customer_suspended", user.userId);
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)

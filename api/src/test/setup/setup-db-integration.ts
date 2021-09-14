@@ -2,7 +2,7 @@
 
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { log } from "../../src/utils";
+import { log } from "../../utils";
 import { beforeAll, beforeEach, afterEach, afterAll } from "@jest/globals";
 
 // jest.setTimeout(30000);

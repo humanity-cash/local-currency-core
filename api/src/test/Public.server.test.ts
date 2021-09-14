@@ -1,9 +1,9 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import { getApp } from "../src/server";
+import { getApp } from "../server";
 import { setupContracts } from "./utils";
-import { log } from "../src/utils";
-import { codes } from "../src/utils/http";
+import { log } from "../utils";
+import { codes } from "../utils/http";
 import { describe, it, beforeAll } from "@jest/globals";
 
 const expect = chai.expect;
