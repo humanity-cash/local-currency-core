@@ -9,7 +9,6 @@
 // postalCode	yes	string	Customer’s US five-digit ZIP or ZIP + 4 code.
 // dateOfBirth	yes	string	Customer's date of birth in YYYY-MM-DD format. Must be between 18 to 125 years of age.
 // ssn	yes	string	Last four-digits of individual’s social security number.
-
 export interface DwollaPersonalVerifiedCustomerRequest {
   firstName: string;
   lastName: string;
@@ -42,19 +41,17 @@ export interface DwollaUnverifiedCustomerRequest {
   ipAddress?: string;
   correlationId?: string;
 }
-
 export interface DwollaClientOptions {
   key: string;
   secret: string;
   environment: "sandbox" | "production";
 }
-
-export interface Href {
+interface Href {
   href: string;
   type: string;
   "resource-type"?: string;
 }
-export interface DwollaSelfLinks {
+interface DwollaSelfLinks {
   self: Href;
   resource: Href;
   account: Href;
