@@ -8,6 +8,7 @@ import {
 } from "src/types";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
+import { getDwollaCustomerById } from "./digital-banking/Dwolla";
 
 export async function health(): Promise<HealthResponse> {
   const { web3 } = await getProvider();
@@ -56,6 +57,8 @@ export async function balanceOfWallet(userId: string): Promise<string> {
 export async function getWallet(userId: string): Promise<IWallet> {
   const address = await this.getWalletAddress(userId);
   const wallet: IWallet = await contracts.getWalletForAddress(address);
+  const customer = await getDwollaCustomerById(userId);
+  wallet.customer = customer;
   return wallet;
 }
 
