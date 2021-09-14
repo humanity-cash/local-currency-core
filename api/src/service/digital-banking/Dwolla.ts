@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import * as dwolla from "dwolla-v2";
 import {
   DwollaClientOptions,
@@ -7,12 +6,8 @@ import {
   DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
 import { newWallet } from "../contracts";
+import { INewUserResponse } from "../../types";
 import { log } from "src/utils";
-
-const result = dotenv.config();
-if (result.error) {
-  throw result.error;
-}
 
 export async function getAppToken(): Promise<dwolla.Client> {
   const options: DwollaClientOptions = {
@@ -23,9 +18,19 @@ export async function getAppToken(): Promise<dwolla.Client> {
   return new dwolla.Client(options);
 }
 
+export async function getDwollaCustomerById(
+  id: string
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const customer: dwolla.Response = await appToken.get(
+    process.env.DWOLLA_BASE_URL + "customers/" + id
+  );
+  return customer;
+}
+
 export async function createPersonalVerifiedCustomer(
   customer: DwollaPersonalVerifiedCustomerRequest
-): Promise<string> {
+): Promise<INewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
@@ -34,8 +39,11 @@ export async function createPersonalVerifiedCustomer(
       "Dwolla.createPersonalVerifiedCustomer(), entity created @ " + customerURL
     );
     const result = await appToken.get(customerURL);
-    const id = result.body.id;
-    return id;
+    const response: INewUserResponse = {
+      userId: result.body.id,
+      resourceUri: customerURL,
+    };
+    return response;
   } catch (e) {
     log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
     throw e;
@@ -44,15 +52,18 @@ export async function createPersonalVerifiedCustomer(
 
 export async function createUnverifiedCustomer(
   customer: DwollaUnverifiedCustomerRequest
-): Promise<string> {
+): Promise<INewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
     log("Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL);
     const result = await appToken.get(customerURL);
-    const id = result.body.id;
-    return id;
+    const response: INewUserResponse = {
+      userId: result.body.id,
+      resourceUri: customerURL,
+    };
+    return response;
   } catch (e) {
     log("Dwolla.createUnverifiedCustomer(), error " + e);
     throw e;
@@ -88,7 +99,7 @@ export async function consumeWebhook(
         const customer = res.body;
         const address = await newWallet(customer.id);
         log(
-          `Dwolla.consumeWebhook() Successfully created new wallet on-chain for user ${customer.email} with address ${address}`
+          `Dwolla.consumeWebhook() Successfully created new wallet on-chain for userId ${customer.id}, email ${customer.email}, with address ${address}`
         );
         processed = true;
       } catch (err) {

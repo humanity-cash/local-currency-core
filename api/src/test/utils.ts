@@ -1,12 +1,12 @@
 import { Contract, SendOptions } from "web3-eth-contract";
-import { getProvider } from "../src/utils/getProvider";
+import { getProvider } from "../utils/getProvider";
 import * as web3Utils from "web3-utils";
 import Web3 from "web3";
-import { DwollaEvent } from "../src/service/digital-banking/DwollaTypes";
+import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { v4 } from "uuid";
-import { INewUser } from "../src/types";
+import { INewUser } from "../types";
 import faker from "faker";
-import { cryptoUtils, log } from "../src/utils";
+import { cryptoUtils, log } from "../utils";
 
 let sendOptions: SendOptions;
 let web3: Web3;
@@ -19,7 +19,7 @@ export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export function createFakeUser(isBusiness?: false): INewUser {
+export function createFakeUser(isBusiness = false): INewUser {
   const user: INewUser = {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
@@ -30,12 +30,13 @@ export function createFakeUser(isBusiness?: false): INewUser {
     state: faker.address.stateAbbr(),
     email: getSalt() + faker.internet.email(),
     ipAddress: faker.internet.ip().toString(),
-    userId: "",
+    authUserId: "",
     businessName: isBusiness
-      ? faker.name.lastName + "'s fake business"
+      ? faker.name.lastName() + "'s fake business"
       : undefined,
   };
-  user.userId = cryptoUtils.toBytes32(user.email);
+  user.authUserId =
+    (isBusiness ? "m_" : "p_") + cryptoUtils.toBytes32(user.email);
   log(user);
   return user;
 }
@@ -150,9 +151,9 @@ async function deployContract(
   let contractInstance;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const abi = require(`../src/service/contracts/artifacts/${name}.abi.json`);
+    const abi = require(`../service/contracts/artifacts/${name}.abi.json`);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const bytecode = require(`../src/service/contracts/artifacts/${name}.bin.json`);
+    const bytecode = require(`../service/contracts/artifacts/${name}.bin.json`);
     const data = replaceTokens(bytecode, tokens);
 
     const tempContract = new web3.eth.Contract(abi as web3Utils.AbiItem[]);
