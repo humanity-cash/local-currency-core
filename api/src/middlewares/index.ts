@@ -10,7 +10,9 @@ export const verifyRequest: express.RequestHandler = async (
 ) => {
   const authHeader = request?.headers?.authorization;
   if (!authHeader) {
-    response.status(httpUtils.codes.UNAUTHORIZED).send({ message: 'No Auth Headers In Request' });
+    response
+      .status(httpUtils.codes.UNAUTHORIZED)
+      .send({ message: "No Auth Headers In Request" });
   } else {
     try {
       const verifyResponse = await verifyCognitoToken(authHeader);
@@ -21,13 +23,19 @@ export const verifyRequest: express.RequestHandler = async (
           console.log(`Verified ${id} successfully`);
         */
         next();
-      } else { response.status(httpUtils.codes.UNAUTHORIZED).send({ message: 'User is Unauthorized' }) };
+      } else {
+        response
+          .status(httpUtils.codes.UNAUTHORIZED)
+          .send({ message: "User is Unauthorized" });
+      }
     } catch (err) {
-      log('Error in verifying request', err);
-      response.status(httpUtils.codes.SERVER_ERROR).send({ message: 'Internal error while verifying request!' });
+      log("Error in verifying request", err);
+      response
+        .status(httpUtils.codes.SERVER_ERROR)
+        .send({ message: "Internal error while verifying request!" });
     }
   }
-}
+};
 
 export const mwVaildator = (
   request: express.Request,
