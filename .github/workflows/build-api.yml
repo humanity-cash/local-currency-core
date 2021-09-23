@@ -40,6 +40,11 @@ jobs:
           LOCAL_CURRENCY_ADDRESS: ""
           LOCAL_CURRENCY_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
           NUMBER_OPERATORS: 3
+          DWOLLA_BASE_URL: "https://api-sandbox.dwolla.com/"
+          DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
+          DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
+          DWOLLA_ENVIRONMENT: sandbox
+          WEBHOOK_SECRET: 0000000000000000000000000000000000000000000001
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached

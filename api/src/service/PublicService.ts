@@ -1,6 +1,15 @@
-import { HealthResponse, IWallet, IOperatorTotal } from "src/types";
+import {
+  HealthResponse,
+  IWallet,
+  IOperatorTotal,
+  IDeposit,
+  IWithdrawal,
+  ITransferEvent,
+} from "src/types";
+import { Response } from "dwolla-v2";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
+import { getDwollaCustomerById } from "./digital-banking/Dwolla";
 
 export async function health(): Promise<HealthResponse> {
   const { web3 } = await getProvider();
@@ -46,24 +55,48 @@ export async function balanceOfWallet(userId: string): Promise<string> {
   return await contracts.balanceOfWallet(userId);
 }
 
+async function getWalletAndDwollaCustomer(
+  address: string,
+  userId: string
+): Promise<IWallet> {
+  const results = await Promise.all([
+    contracts.getWalletForAddress(address),
+    getDwollaCustomerById(userId),
+  ]);
+  const wallet: IWallet = results[0];
+  const customer: Response = results[1];
+  wallet.customer = customer;
+  return wallet;
+}
+
 export async function getWallet(userId: string): Promise<IWallet> {
   const address = await this.getWalletAddress(userId);
-  const wallet: IWallet = await contracts.getWalletForAddress(address);
-  return wallet;
+  return await getWalletAndDwollaCustomer(address, userId);
 }
 
 export async function getAllWallets(): Promise<IWallet[]> {
   const count = await contracts.getWalletCount();
   const users: IWallet[] = [];
-
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < parseInt(count); i++) {
     const address = await contracts.getWalletAddressAtIndex(i);
-    const user: IWallet = await contracts.getWalletForAddress(address);
-    users.push(user);
+    const wallet: IWallet = await contracts.getWalletForAddress(address);
+    users.push(wallet);
   }
   return users;
 }
 
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
   return await contracts.getFundingStatus();
+}
+
+export async function getDeposits(): Promise<IDeposit[]> {
+  return await contracts.getDeposits();
+}
+
+export async function getWithdrawals(): Promise<IWithdrawal[]> {
+  return await contracts.getWithdrawals();
+}
+
+export async function getTransfers(): Promise<ITransferEvent[]> {
+  return await contracts.getTransfers();
 }
