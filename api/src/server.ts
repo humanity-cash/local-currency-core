@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from "express";
 import morgan from "morgan";
 import router from "./router";
 import * as Controller from "./controllers";
+import { verifyRequest } from "./middlewares";
 
 export const getApp = (): Express => {
   const app = express();
@@ -14,7 +15,7 @@ export const getApp = (): Express => {
   app.use(cors());
   app.set("x-powered-by", false);
   app.use(router);
-  app.get("/health", (req: Request, res: Response) => {
+  app.get("/health", verifyRequest, (req: Request, res: Response) => {
     Controller.health(req, res);
   });
 
