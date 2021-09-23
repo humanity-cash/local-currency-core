@@ -1,3 +1,4 @@
+  // eslint-disable-next-line no-undef
 module.exports = {
 	coveragePathIgnorePatterns: ["/node_modules/"],
 	transform: {
@@ -6,7 +7,7 @@ module.exports = {
 	transformIgnorePatterns: ["node_modules/(?!variables/.*)"],
 	collectCoverageFrom: ["src/**/*.ts", "src/**/**/*.ts"],
 	preset: "ts-jest",
-	roots: ["<rootDir>/src/", "<rootDir>/test/"],
+	roots: ["<rootDir>/src/", "<rootDir>/src/test/"],
 	moduleNameMapper: {
 		"^src/(.*)$": "<rootDir>/src/$1",
 	},
@@ -16,5 +17,8 @@ module.exports = {
 			diagnostics: true,
 		},
 	},
-	testTimeout: 30000
+	testTimeout: 10000,
+	setupFiles: [
+        "./src/test/setup/config.ts"
+    ],
 };

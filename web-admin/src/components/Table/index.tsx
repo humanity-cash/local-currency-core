@@ -7,7 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import { useState, ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 const useStyles = makeStyles({
   root: {
@@ -75,7 +75,7 @@ const TableTemplate = (props: TableProps) => {
 	<div className={classes.wrapper}>
     <Paper className={classes.root}>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[10, 25]}
         component="div"
         count={data.length}
         rowsPerPage={rowsPerPage}

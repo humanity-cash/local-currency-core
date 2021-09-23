@@ -6,6 +6,7 @@ import {
   IDeposit,
 } from "src/types";
 import { toBytes32, getTimestampForBlock } from "src/utils/crypto";
+import { log } from "src/utils";
 import Wallet from "./artifacts/Wallet.abi.json";
 import Controller from "./artifacts/Controller.abi.json";
 import { getProvider } from "src/utils/getProvider";
@@ -119,6 +120,26 @@ export async function transferWalletOwnership(
   return await sendTransaction(transferWalletOwnership);
 }
 
+export async function pause(): Promise<TransactionReceipt> {
+  const { sendTransaction } = await getProvider();
+  const controller = await getControllerContract();
+  const pause = await controller.methods.pause();
+  return await sendTransaction(pause);
+}
+
+export async function unpause(): Promise<TransactionReceipt> {
+  const { sendTransaction } = await getProvider();
+  const controller = await getControllerContract();
+  const unpause = await controller.methods.unpause();
+  return await sendTransaction(unpause);
+}
+
+export async function paused(): Promise<boolean> {
+  const controller = await getControllerContract();
+  const paused = await controller.methods.paused().call();
+  return paused;
+}
+
 export async function transferTo(
   fromUserId: string,
   toUserId: string,
@@ -144,10 +165,10 @@ export async function transferContractOwnership(
   return await sendTransaction(transferContractOwnership);
 }
 
-export async function getWalletCount(): Promise<number> {
+export async function getWalletCount(): Promise<string> {
   const controller = await getControllerContract();
   const count = await controller.methods.getWalletCount().call();
-  return Number(count);
+  return count;
 }
 
 export async function getWalletAddressAtIndex(index: number): Promise<string> {
@@ -165,11 +186,11 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     wallet.methods.createdBlock().call(),
   ]);
 
-  console.log("Found wallet contract for userId " + userId);
+  log("Found wallet contract for userId " + userId);
 
   const controller = await getControllerContract();
   const b = await controller.methods.balanceOfWallet(userId).call();
-  console.log(b);
+  log(b);
   const balance = parseFloat(web3Utils.fromWei(b, "ether"));
 
   const user: IWallet = {
@@ -241,7 +262,7 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
     toBlock: "latest",
   };
   const deposits: IDeposit[] = await getDeposits(options);
-  console.log(`UserDeposit logs: ${JSON.stringify(deposits, null, 2)}`);
+  log(`UserDeposit logs: ${JSON.stringify(deposits, null, 2)}`);
   return deposits;
 }
 
@@ -256,31 +277,29 @@ export async function getWithdrawalsForUser(
     toBlock: "latest",
   };
   const withdrawals: IWithdrawal[] = await getWithdrawals(options);
-  console.log(`UserWithdrawal logs: ${JSON.stringify(withdrawals, null, 2)}`);
+  log(`UserWithdrawal logs: ${JSON.stringify(withdrawals, null, 2)}`);
   return withdrawals;
 }
 
-// Transfer events are emitted from the user's wallet
-// Therefore use the user's wallet contract as the event source
-// We don't need to filter since only events relating
-// to that wallet will be emitted
-export async function getTransfersForUser(
-  userId: string
+export async function getTransfers(
+  options?: PastEventOptions
 ): Promise<ITransferEvent[]> {
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
-  const options: PastEventOptions = {
-    filter: { _fromUserId: toBytes32(userId) },
+
+  const defaultOptions: PastEventOptions = {
     fromBlock: 0,
     toBlock: "latest",
   };
-  const logs = await getLogs("TransferToEvent", controller, options);
-  const obj = JSON.parse(JSON.stringify(logs));
-  console.log(`TransferToEvent logs: ${JSON.stringify(obj, null, 2)}`);
+
+  const logs = await getLogs(
+    "TransferToEvent",
+    controller,
+    options || defaultOptions
+  );
 
   for (let i = 0; i < logs.length; i++) {
     const element = logs[i];
-
     let toUserId, toAddress;
     if (element.returnValues._toUserId) {
       toUserId = element.returnValues._toUserId;
@@ -308,7 +327,18 @@ export async function getTransfersForUser(
       timestamp: timestamp,
     });
   }
+  return transfers;
+}
 
+export async function getTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {
+  const userFilter: PastEventOptions = {
+    filter: { _fromUserId: toBytes32(userId) },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+  const transfers: ITransferEvent[] = await getTransfers(userFilter);
   return transfers;
 }
 

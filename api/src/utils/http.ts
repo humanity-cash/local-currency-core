@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Response } from "express";
+import { log } from "src/utils";
 
 export function createHttpResponse(
   data: any,
@@ -12,9 +13,33 @@ export function createHttpResponse(
     "Content-Type": "application/json",
   });
   if (code !== codes.OK) {
-    console.log(code, payload);
+    log(code, payload);
   }
   response.end(payload);
+}
+
+export function serverError(err: any, response: Response) {
+  createHttpResponse(
+    { message: "Server error: " + err },
+    codes.SERVER_ERROR,
+    response
+  );
+}
+
+export function unprocessable(message: any, response: Response) {
+  createHttpResponse({ message: message }, codes.UNPROCESSABLE, response);
+}
+
+export function notFound(message: any, response: Response) {
+  createHttpResponse({ message: message }, codes.NOT_FOUND, response);
+}
+
+export function forbidden(message: any, response: Response) {
+  createHttpResponse({ message: message }, codes.FORBIDDEN, response);
+}
+
+export function badRequest(message: any, response: Response) {
+  createHttpResponse({ message: message }, codes.BAD_REQUEST, response);
 }
 
 export const codes = {

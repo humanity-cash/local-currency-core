@@ -1,5 +1,5 @@
 
-FROM node:10.23.0-buster AS builder
+FROM node:12 AS builder
 LABEL "maintainer"="Aaron Boyd <https://github.com/aaronmboyd>"
 
 WORKDIR /app
@@ -14,6 +14,7 @@ RUN yarn build
 FROM node:slim AS runtime
 
 WORKDIR /app
+
 ENV NODE_ENV=production
 ENV PORT=3000
 

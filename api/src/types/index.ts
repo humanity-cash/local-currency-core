@@ -1,11 +1,16 @@
+import { Response } from "dwolla-v2";
 export interface HealthResponse {
   blockNumber: number;
   chainId: number;
   nodeInfo: string;
   token: string;
-  walletCount: number;
+  walletCount: string;
   owner: string;
   walletFactory: string;
+}
+export interface ITransferOwnerRequest {
+  newOwner: string;
+  userId?: string;
 }
 export interface IWallet {
   userId: string;
@@ -13,11 +18,25 @@ export interface IWallet {
   createdBlock: string;
   availableBalance: number;
   totalBalance: number;
+  customer?: Response;
 }
-export interface NewUser {
+export interface INewUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  businessName?: string;
+  ipAddress?: string;
+  authUserId: string;
+}
+export interface INewUserResponse {
   userId: string;
+  resourceUri: string;
 }
-
 export interface IEventBase {
   transactionHash: string;
   blockNumber: number;
@@ -28,7 +47,6 @@ export interface IDeposit extends IEventBase {
   userId: string;
   value: string;
 }
-
 export interface IWithdrawal extends IEventBase {
   operator: string;
   userId: string;

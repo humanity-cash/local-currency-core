@@ -1,13 +1,12 @@
-import { TableTemplate } from 'components';
+import { FilterTable } from 'components';
 import { useBlockchainData } from 'hooks';
 import moment from 'moment';
 import { useHistory } from 'react-router-dom';
 import { BlockchainData, BlockchainDataState } from 'types';
-import { iconStatus } from 'utils';
 
 interface Column {
-  id: keyof BlockchainData;
-  label: string;
+  name: keyof BlockchainData;
+  title: string;
   minWidth?: number;
   align?: 'right';
   format?: (value: any) => any;
@@ -19,55 +18,63 @@ const useColumns = () => {
 	const history = useHistory();
 	const columns: Column[] = [
 		{
-			id: 'transactionHash',
-			label: 'Hash',
+			name: 'transactionHash',
+			title: 'Hash',
 			minWidth: 100,
 			clickable: true,
 			onClick: (value: string) => history.push(`/transaction/bc/${value}`),
 		},
 		{
-			id: 'fromUser',
-			label: 'From',
+			name: 'fromUser',
+			title: 'From',
 			minWidth: 100,
 			clickable: true,
 			onClick: (value: string) => history.push(`/user/${value}`),
 		},
 		{
-			id: 'toUser',
-			label: 'To',
+			name: 'toUser',
+			title: 'To',
 			minWidth: 100,
 			clickable: true,
 			onClick: (value: string) => history.push(`/user/${value}`),
 		},
 		{
-			id: 'isToMerchant',
-			label: 'Purchase',
+			name: 'from',
+			title: 'From Address',
 			minWidth: 100,
-			format: (value: boolean) => (value ? 'Yes' : 'No'),
+			clickable: true,
+			onClick: (value: string) => console.log('clicked'),
 		},
 		{
-			id: 'amount',
-			label: 'Amount',
+			name: 'to',
+			title: 'To Address',
 			minWidth: 100,
-			format: (value: number) => value.toLocaleString('en-US') + ' B$',
+			clickable: true,
+			onClick: (value: string) => console.log('clicked'),
 		},
 		{
-			id: 'createdAt',
-			label: 'Created At',
+			name: 'type',
+			title: 'Type',
+			minWidth: 100,
+			format: (value: string) => value,
+		},
+		{
+			name: 'amount',
+			title: 'Amount',
+			minWidth: 100,
+			format: (value: number) => 'B$ ' + value,
+		},
+		{
+			name: 'createdAt',
+			title: 'Created At',
 			minWidth: 100,
 			format: (value: number) => moment().format(),
 		},
 		{
-			id: 'confirmedAt',
-			label: 'Confirmed At',
+			name: 'blocksConfirmed',
+			title: 'Blocks Confirmed',
 			minWidth: 100,
-			format: (value: number) => moment().format(),
-		},
-		{
-			id: 'status',
-			label: 'Status',
-			minWidth: 100,
-			format: (value: string) => iconStatus(value),
+			format: (value: number) => value
 		},
 	];
 
@@ -80,8 +87,10 @@ const BlockchainDataTable = () => {
 	const state: BlockchainDataState = useBlockchainData();
 
   return (
-		<TableTemplate data={state.data} columns={columns} />
- );
+		<div style={{paddingLeft: '19em', paddingTop: '2em',  paddingRight: '2em'}}>
+			<FilterTable rows={state.data} columns={columns} />
+		</div>
+  );
 }
 
 export default BlockchainDataTable;
