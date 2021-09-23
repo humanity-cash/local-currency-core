@@ -24,7 +24,7 @@ export const verifyRequest: express.RequestHandler = async (
       } else { response.status(httpUtils.codes.UNAUTHORIZED).send({ message: 'User is Unauthorized' }) };
     } catch (err) {
       log('Error in verifying request', err);
-      response.status(httpUtils.codes.SERVER_ERROR).send({ message: 'User is Unauthorized' });
+      response.status(httpUtils.codes.SERVER_ERROR).send({ message: 'Internal error while verifying request!' });
     }
   }
 }
