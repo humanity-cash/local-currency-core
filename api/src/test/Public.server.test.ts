@@ -1,8 +1,8 @@
 import { beforeAll, describe, it } from "@jest/globals";
 import chai from "chai";
 import chaiHttp from "chai-http";
-import * as sinon from 'sinon';
-import * as aws from '../aws';
+import * as sinon from "sinon";
+import * as aws from "../aws";
 import { getApp } from "../server";
 import { log } from "../utils";
 import { codes } from "../utils/http";
@@ -19,11 +19,13 @@ describe("Public endpoints test", () => {
 
   describe("GET /health", () => {
     it("it should retrieve heath data", (done) => {
-      const stub = sinon.stub(aws, 'verifyCognitoToken').returns({ success: true })
+      const stub = sinon
+        .stub(aws, "verifyCognitoToken")
+        .returns({ success: true });
       chai
         .request(server)
         .get("/health")
-        .set('authorization', 'tokeeeen')
+        .set("authorization", "tokeeeen")
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           log(JSON.parse(res.text));
