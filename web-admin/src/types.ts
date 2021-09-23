@@ -34,7 +34,7 @@ export interface UserData {
 	lastLogin: Time;
 	blockchainAddress: string;
 	address: string;
-	type: 'Buisness' | 'Private';
+	type: 'Buisness' | 'Personal';
 }
 
 export interface BlockchainData {
@@ -43,11 +43,10 @@ export interface BlockchainData {
 	to: Hash;
 	fromUser: Username;
 	toUser: Username;
-	isToMerchant: 0 | 1; //reciever is merchant
+	type: 'Deposit' | 'Withdraw' | 'Transfer In' | 'Transfer Out';
 	createdAt: Time;
-	confirmedAt: Time;
 	amount: number;
-	status: TransactionStatus;
+	blocksConfirmed: number;
 }
 
 export interface ACHData {
@@ -57,7 +56,8 @@ export interface ACHData {
 	createdAt: Time;
 	confirmedAt: Time;
 	amount: number;
-	bank: string;
+	userBank: string;
+	berksharesBank: string;
 	bankAccount: string;
 	status: TransactionStatus;
 }

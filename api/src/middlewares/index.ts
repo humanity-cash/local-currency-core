@@ -2,6 +2,7 @@
 import express from "express";
 import { validationResult } from "express-validator";
 import { verifyCognitoToken } from "src/aws";
+import { httpUtils } from "src/utils";
 
 export const verifyRequest: express.RequestHandler = async (
   request: express.Request,
@@ -37,7 +38,9 @@ export const mwVaildator = (
 ): any => {
   const errors = validationResult(request);
   if (!errors.isEmpty()) {
-    return response.status(400).json({ errors: errors.array() });
+    return response
+      .status(httpUtils.codes.BAD_REQUEST)
+      .json({ errors: errors.array() });
   }
 
   next();

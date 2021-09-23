@@ -1,31 +1,85 @@
-import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ACHTransactionsTable } from 'screens/transactions';
 import BlockchainDataTable from 'screens/transactions/blockchain';
 import { UserTables } from 'types';
-import Buttons from './new';
+
+const useButtonsStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		root: {
+			paddingLeft: '10em',
+			'& > *': {
+				margin: theme.spacing(1),
+			},
+		},
+	})
+);
+
+const outlined = 'outlined';
+const contained = 'contained';
+type ButtonStyles = typeof outlined | typeof contained;
+
+const UserTableButtons = ({
+	setTableType,
+	currentTable,
+}: {
+	setTableType: any;
+	currentTable: UserTables;
+}) => {
+	const classes = useButtonsStyles();
+	const [style, setStyle] = useState<{ ach: ButtonStyles; bc: ButtonStyles }>(
+		{ ach: outlined, bc: contained }
+	);
+
+	useEffect(() => {
+		if (currentTable === 1) {
+			setStyle({ ach: outlined, bc: contained });
+		} else {
+			setStyle({ ach: contained, bc: outlined });
+		}
+	}, [currentTable]);
+
+	return (
+		<div className={classes.root}>
+			<ButtonGroup
+				color='primary'
+				aria-label='outlined primary button group'>
+				<Button
+					variant={style.ach}
+					onClick={() => {
+						console.log('here')
+						setTableType(UserTables.UserACHTRansactions);
+					}}>
+					ACH Transactions
+				</Button>
+				<Button
+					variant={style.bc}
+					onClick={() =>
+						setTableType(UserTables.UserBlockchainTransactions)
+					}>
+					Blockchain Transactions
+				</Button>
+			</ButtonGroup>
+		</div>
+	);
+};
 
 const useStyles = makeStyles({
 	wrapper: {
 		paddingTop: '1em',
-		// padding: '34px',
 		paddingLeft: '20em',
-		// paddingLeft: '18em',
 		display: 'grid',
 		gridTemplateColumns: '0.5fr 1fr',
 		gridRowGap: '1.2em',
 	},
 	achTitle: {
 		paddingLeft: '1em',
-		// paddingBottom: '0',
 		paddingTop: '0.5em',
-		// justifyContent: 'center',
-		// alignContent: 'center',
 		display: 'grid',
 		fontSize: '24px'
-		// gridTemplateColumns: '0.5fr 1fr',
-		// gridRowGap: '1.2em',
 	},
 	fs18: {
 		fontSize: '18px',
@@ -81,7 +135,10 @@ const User = () => {
 				</div>
 			</div>
 			<div className={classes.achTitle}>
-				<Buttons setTableType={setTableType} currentTable={tableType} />
+				<UserTableButtons
+					setTableType={setTableType}
+					currentTable={tableType}
+				/>
 			</div>
 			<div>
 				{tableType === 1 ? (

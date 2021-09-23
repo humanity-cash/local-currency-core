@@ -1,16 +1,9 @@
 import { Sidebar } from "components";
 import { Route, Switch } from "react-router-dom";
 import {
-	ChangePasswordScreen,
-	BlockchainTransactionScreen,
-	UserScreen,
-	ContractsScreen,
-	DashboardScreen,
-	LoginScreen,
-	TransactionScreen,
-	TransactionsScreen,
-	UsersScreen,
-	BankScreen,
+	AuthScreen, BankScreen, BlockchainTransactionScreen, ContractsScreen,
+	DashboardScreen, TransactionScreen,
+	TransactionsScreen, UserScreen, UsersScreen
 } from 'screens';
 
 export const ProtectedRoutes = () => {
@@ -38,8 +31,8 @@ export const NotProtectedRoutes = () => {
 		<>
 			<Sidebar />
 			<Switch>
-					<Route path="/login" exact component={LoginScreen}/>
-					<Route path="/change-password" exact component={ChangePasswordScreen}/>
+					<Route path="/login" exact component={AuthScreen}/>
+					<Route path="/change-password" exact component={AuthScreen}/>
 			</Switch>
 		</>
   );

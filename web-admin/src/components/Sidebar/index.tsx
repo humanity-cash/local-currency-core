@@ -9,7 +9,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import AccountBalanceTwoToneIcon from '@material-ui/icons/AccountBalanceTwoTone';
 import DashboardTwoToneIcon from '@material-ui/icons/DashboardTwoTone';
 import PeopleTwoToneIcon from '@material-ui/icons/PeopleTwoTone';
@@ -19,12 +18,15 @@ import clsx from 'clsx';
 import { AuthContext, AuthStatus } from 'context/auth';
 import React, { useContext, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-
+import { ReactComponent as BSLogo } from './bs_logo.svg';
+import { ReactComponent as HCLogo } from './hc_logo.svg';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
 	toolbar: {
-		backgroundColor: '#4d5d53',
+		backgroundColor: '#fbeee3',
+		display: 'flex',
+		flexDirection: 'row-reverse',
 	},
 	root: {
 		display: 'flex',
@@ -94,12 +96,12 @@ const SIDE_BAR_OPTIONS = [
 		path: '/bc/transactions',
 		Icon: ViewListTwoToneIcon,
 	},
+	{ text: 'Users', path: '/users', Icon: PeopleTwoToneIcon },
 	{
 		text: 'Smart Contracts Configuration',
 		path: '/contracts',
 		Icon: ReceiptTwoToneIcon,
 	},
-	{ text: 'Users', path: '/users', Icon: PeopleTwoToneIcon },
 ];
 
 const Sidebar = () => {
@@ -135,12 +137,13 @@ const Sidebar = () => {
 						className={clsx(
 							classes.menuButton,
 							open && classes.hide
-						)}>
-						{/* <MenuIcon /> */}
-					</IconButton>
-					<Typography variant='h6' noWrap>
+						)}></IconButton>
+					{/* <Typography variant='h6' noWrap>
 						Humanity Cash
-					</Typography>
+					</Typography> */}
+					<div style={{ justifySelf: 'end' }}>
+						<HCLogo height='30px' width='30px' />
+					</div>
 				</Toolbar>
 			</AppBar>
 			<Drawer
@@ -151,7 +154,9 @@ const Sidebar = () => {
 				classes={{
 					paper: classes.drawerPaper,
 				}}>
-				<div className={classes.drawerHeader}></div>
+				<div className={classes.drawerHeader}>
+					<BSLogo />
+				</div>
 				{/* <Divider /> */}
 				<List>
 					{SIDE_BAR_OPTIONS.map(({ text, path, Icon }, index) => (
