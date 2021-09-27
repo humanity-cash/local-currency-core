@@ -21,8 +21,8 @@ user.post("/users/:id/withdraw", validators.withdraw, controller.withdraw);
 user.get("/users/:id/transfer", validators.getUser, controller.getTransfers);
 user.post("/users/:id/transfer", validators.transfer, controller.transferTo);
 
-// Get Dwolla iav-token for a user
-user.get("/users/:id/iav-token", validators.getUser, controller.getIAVToken);
+// Get Dwolla iav-token for a user (via POST)
+user.post("/users/:id/iav-token", validators.getUser, controller.getIAVToken);
 
 // Get funding sources for a user
 user.get(

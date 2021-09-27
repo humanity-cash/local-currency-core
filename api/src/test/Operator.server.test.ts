@@ -742,7 +742,7 @@ describe("Operator endpoints test", () => {
     it("it should get Dwolla iav-token for user1", (done) => {
       chai
         .request(server)
-        .get(`/users/${dwollaIdUser1}/iav-token`)
+        .post(`/users/${dwollaIdUser1}/iav-token`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
@@ -771,6 +771,20 @@ describe("Operator endpoints test", () => {
         });
     });
 
+    it("it should fail to get funding sources for an unknown user, HTTP 404", (done) => {
+      chai
+        .request(server)
+        .get(`/users/banana1/funding-sources`)
+        .then((res) => {
+          expect(res).to.have.status(codes.NOT_FOUND);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
     it("it should get user2, HTTP 200", (done) => {
       chai
         .request(server)
@@ -790,11 +804,25 @@ describe("Operator endpoints test", () => {
     it("it should get Dwolla iav-token for user2", (done) => {
       chai
         .request(server)
-        .get(`/users/${dwollaIdUser2}/iav-token`)
+        .post(`/users/${dwollaIdUser2}/iav-token`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body).to.have.property("iavToken");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should fail to get an IAV token for an unknown user, HTTP 404", (done) => {
+      chai
+        .request(server)
+        .post(`/users/banana1/iav-token`)
+        .then((res) => {
+          expect(res).to.have.status(codes.NOT_FOUND);
+          expect(res).to.be.json;
           done();
         })
         .catch((err) => {
@@ -810,7 +838,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expectFundingSource(res.body);
-          expect(res.body.status).to.equal(200);
+          expect(res.body.status).to.equal(codes.OK);
           expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
           done();
         })
@@ -819,7 +847,9 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should get Dwolla funding sources for 460852fc-c986-4d2d-aedb-e71d9e5aad37 (1 result)", (done) => {
+    // Skipped because while the user exists in Dwolla from prior testing
+    // it doesn't exist in the ephemeral ganache instance used in test
+    xit("it should get Dwolla funding sources for 460852fc-c986-4d2d-aedb-e71d9e5aad37 (1 result)", (done) => {
       const id = "460852fc-c986-4d2d-aedb-e71d9e5aad37";
       chai
         .request(server)
@@ -828,7 +858,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expectFundingSource(res.body);
-          expect(res.body.status).to.equal(200);
+          expect(res.body.status).to.equal(codes.OK);
           expect(res.body.body._embedded["funding-sources"]).to.have.length(1);
           done();
         })
