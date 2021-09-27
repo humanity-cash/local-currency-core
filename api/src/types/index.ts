@@ -16,6 +16,7 @@ export interface IWallet {
   userId: string;
   address: string;
   createdBlock: string;
+  createdTimestamp: string | number;
   availableBalance: number;
   totalBalance: number;
   customer?: Response;
