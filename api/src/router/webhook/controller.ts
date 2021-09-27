@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { consumeWebhook } from "src/service/digital-banking/Dwolla";
+import { consumeWebhook } from "src/service/digital-banking/DwollaService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import {
   validSignature,
