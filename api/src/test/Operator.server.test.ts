@@ -18,8 +18,16 @@ function expectIWallet(wallet: unknown): void {
   expect(wallet).to.have.property("userId");
   expect(wallet).to.have.property("address");
   expect(wallet).to.have.property("createdBlock");
+  expect(wallet).to.have.property("createdTimestamp");
   expect(wallet).to.have.property("availableBalance");
   expect(wallet).to.have.property("totalBalance");
+}
+
+function expectFundingSource(fundingSource: unknown): void {
+  log(fundingSource);
+  expect(fundingSource).to.have.property("status");
+  expect(fundingSource).to.have.property("headers");
+  expect(fundingSource).to.have.property("body");
 }
 
 function expectIDeposit(deposit: unknown): void {
@@ -731,6 +739,38 @@ describe("Operator endpoints test", () => {
         });
     });
 
+    it("it should get Dwolla iav-token for user1", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser1}/iav-token`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body).to.have.property("iavToken");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should get Dwolla funding sources for user1 (no result)", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser1}/funding-sources`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expectFundingSource(res.body);
+          expect(res.body.status).to.equal(200);
+          expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
     it("it should get user2, HTTP 200", (done) => {
       chai
         .request(server)
@@ -740,6 +780,56 @@ describe("Operator endpoints test", () => {
           expect(res).to.be.json;
           expect(res.body.length).to.equal(1);
           expectIWallet(res.body[0]);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should get Dwolla iav-token for user2", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser2}/iav-token`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body).to.have.property("iavToken");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should get Dwolla funding sources for user2 (no result)", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser2}/funding-sources`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expectFundingSource(res.body);
+          expect(res.body.status).to.equal(200);
+          expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should get Dwolla funding sources for 460852fc-c986-4d2d-aedb-e71d9e5aad37 (1 result)", (done) => {
+      const id = "460852fc-c986-4d2d-aedb-e71d9e5aad37";
+      chai
+        .request(server)
+        .get(`/users/${id}/funding-sources`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expectFundingSource(res.body);
+          expect(res.body.status).to.equal(200);
+          expect(res.body.body._embedded["funding-sources"]).to.have.length(1);
           done();
         })
         .catch((err) => {
