@@ -9,7 +9,8 @@ import {
   createPersonalVerifiedCustomer,
   createUnverifiedCustomer,
   getAppToken,
-} from "../service/digital-banking/Dwolla";
+  getFundingSourcesById,
+} from "../service/digital-banking/DwollaService";
 import {
   DwollaUnverifiedCustomerRequest,
   DwollaEvent,
@@ -137,6 +138,16 @@ describe("Dwolla test suite", () => {
         );
         expect(response).to.exist;
       }
+    });
+
+    it(`Should retreive funding sources for a known account with an attached funding source (460852fc-c986-4d2d-aedb-e71d9e5aad37)`, async () => {
+      const fundingSources = await getFundingSourcesById(
+        "460852fc-c986-4d2d-aedb-e71d9e5aad37"
+      );
+      log(
+        "Funding sources retrieved" + JSON.stringify(fundingSources, null, 2)
+      );
+      expect(fundingSources).to.exist;
     });
   });
 
