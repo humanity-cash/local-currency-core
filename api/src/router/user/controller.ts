@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
+import * as dwolla from "dwolla-v2";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import { consumeWebhook } from "src/service/digital-banking/Dwolla";
+import {
+  consumeWebhook,
+  getFundingSourcesById,
+  getIAVTokenById,
+} from "src/service/digital-banking/DwollaService";
 import { isDevelopment, isProduction, log } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
@@ -39,6 +44,29 @@ export async function getUser(req: Request, res: Response): Promise<void> {
     else {
       httpUtils.serverError(err, res);
     }
+  }
+}
+
+export async function getFundingSources(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    const fundingSources: dwolla.Response = await getFundingSourcesById(id);
+    httpUtils.createHttpResponse(fundingSources, codes.OK, res);
+  } catch (err) {
+    httpUtils.serverError(err, res);
+  }
+}
+
+export async function getIAVToken(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    const iavToken: string = await getIAVTokenById(id);
+    httpUtils.createHttpResponse({ iavToken: iavToken }, codes.OK, res);
+  } catch (err) {
+    httpUtils.serverError(err, res);
   }
 }
 
