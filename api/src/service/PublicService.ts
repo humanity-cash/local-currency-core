@@ -9,7 +9,7 @@ import {
 import { Response } from "dwolla-v2";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
-import { getDwollaCustomerById } from "./digital-banking/Dwolla";
+import { getDwollaCustomerById } from "./digital-banking/DwollaService";
 
 export async function health(): Promise<HealthResponse> {
   const { web3 } = await getProvider();
@@ -55,7 +55,7 @@ export async function balanceOfWallet(userId: string): Promise<string> {
   return await contracts.balanceOfWallet(userId);
 }
 
-async function getWalletAndDwollaCustomer(
+async function getEnrichedWallet(
   address: string,
   userId: string
 ): Promise<IWallet> {
@@ -71,7 +71,7 @@ async function getWalletAndDwollaCustomer(
 
 export async function getWallet(userId: string): Promise<IWallet> {
   const address = await this.getWalletAddress(userId);
-  return await getWalletAndDwollaCustomer(address, userId);
+  return await getEnrichedWallet(address, userId);
 }
 
 export async function getAllWallets(): Promise<IWallet[]> {

@@ -28,6 +28,24 @@ export async function getDwollaCustomerById(
   return customer;
 }
 
+export async function getFundingSourcesById(
+  id: string
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const fundingSources: dwolla.Response = await appToken.get(
+    process.env.DWOLLA_BASE_URL + "customers/" + id + "/funding-sources"
+  );
+  return fundingSources;
+}
+
+export async function getIAVTokenById(id: string): Promise<string> {
+  const appToken: dwolla.Client = await getAppToken();
+  const iavToken: dwolla.Response = await appToken.post(
+    process.env.DWOLLA_BASE_URL + "customers/" + id + "/iav-token"
+  );
+  return iavToken.body.token;
+}
+
 export async function createPersonalVerifiedCustomer(
   customer: DwollaPersonalVerifiedCustomerRequest
 ): Promise<INewUserResponse> {
