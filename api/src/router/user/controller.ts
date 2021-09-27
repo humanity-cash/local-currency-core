@@ -69,7 +69,7 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     );
 
     if (isDevelopment()) {
-      log(`[NODE_ENV="developent"] Performing webhook shortcut...`);
+      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
       await shortcutUserCreation(newUserResponse.userId);
     } else {
       log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
