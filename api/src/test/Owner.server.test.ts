@@ -145,9 +145,7 @@ describe("Owner/administrative endpoints test", () => {
         });
     });
 
-    // This should be 403 but for some reason is failing on a different error
-    // ToDo - find out why
-    it("it should fail to transfer ownership of the wallet after already transferring it away, HTTP 500", (done) => {
+    it("it should fail to transfer ownership of the wallet after already transferring it away, HTTP 403", (done) => {
       chai
         .request(server)
         .post("/admin/transfer/user")
@@ -156,7 +154,7 @@ describe("Owner/administrative endpoints test", () => {
           userId: dwollaIdUser1,
         })
         .then((res) => {
-          expect(res).to.have.status(codes.SERVER_ERROR);
+          expect(res).to.have.status(codes.FORBIDDEN);
           done();
         })
         .catch((err) => {
