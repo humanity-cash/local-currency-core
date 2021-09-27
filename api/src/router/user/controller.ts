@@ -53,20 +53,32 @@ export async function getFundingSources(
 ): Promise<void> {
   try {
     const id = req?.params?.id;
+    // Get wallet simply to check if user exists
+    await PublicServices.getWallet(id);
     const fundingSources: dwolla.Response = await getFundingSourcesById(id);
     httpUtils.createHttpResponse(fundingSources, codes.OK, res);
   } catch (err) {
-    httpUtils.serverError(err, res);
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
   }
 }
 
 export async function getIAVToken(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
+    // Get wallet simply to check if user exists
+    await PublicServices.getWallet(id);
     const iavToken: string = await getIAVTokenById(id);
     httpUtils.createHttpResponse({ iavToken: iavToken }, codes.OK, res);
   } catch (err) {
-    httpUtils.serverError(err, res);
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
   }
 }
 
