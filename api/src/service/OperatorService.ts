@@ -11,7 +11,7 @@ import * as contracts from "./contracts";
 import BN from "bn.js";
 import * as web3Utils from "web3-utils";
 import { log } from "src/utils";
-import { createUnverifiedCustomer } from "./digital-banking/Dwolla";
+import { createUnverifiedCustomer } from "./digital-banking/DwollaService";
 import { DwollaUnverifiedCustomerRequest } from "./digital-banking/DwollaTypes";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
