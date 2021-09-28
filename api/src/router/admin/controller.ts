@@ -5,7 +5,7 @@ import {
   unpause,
   transferContractOwnership,
   transferWalletOwnership,
-} from "src/service/contracts";
+} from "src/service/OwnerService";
 import { ITransferOwnerRequest } from "src/types";
 
 export async function adminPause(_req: Request, res: Response): Promise<void> {
@@ -60,7 +60,7 @@ export async function transferControllerOwner(
       res
     );
   } catch (err) {
-    if (err.message?.includes("Ownable: caller is not the owner"))
+    if (err.message?.includes("revert Ownable"))
       httpUtils.forbidden(
         "Current operating account is not the owner of the controller and cannot transfer ownership",
         res
@@ -84,7 +84,7 @@ export async function transferWalletOwner(
       res
     );
   } catch (err) {
-    if (err.message?.includes("Ownable"))
+    if (err.message?.includes("revert AccessControl"))
       httpUtils.forbidden(
         "Current operating account is not the owner of the controller and cannot transfer ownership",
         res
