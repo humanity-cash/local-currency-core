@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
+import * as dwolla from "dwolla-v2";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import { consumeWebhook } from "src/service/digital-banking/Dwolla";
+import {
+  consumeWebhook,
+  getFundingSourcesById,
+  getIAVTokenById,
+} from "src/service/digital-banking/DwollaService";
 import { isDevelopment, isProduction, log } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
@@ -42,6 +47,41 @@ export async function getUser(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function getFundingSources(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    // Get wallet simply to check if user exists
+    await PublicServices.getWallet(id);
+    const fundingSources: dwolla.Response = await getFundingSourcesById(id);
+    httpUtils.createHttpResponse(fundingSources, codes.OK, res);
+  } catch (err) {
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
+  }
+}
+
+export async function getIAVToken(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    // Get wallet simply to check if user exists
+    await PublicServices.getWallet(id);
+    const iavToken: string = await getIAVTokenById(id);
+    httpUtils.createHttpResponse({ iavToken: iavToken }, codes.OK, res);
+  } catch (err) {
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
+  }
+}
+
 async function shortcutUserCreation(userId: string): Promise<void> {
   if (isProduction()) throw "Error! Development utility used in production";
 
@@ -69,7 +109,7 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     );
 
     if (isDevelopment()) {
-      log(`[NODE_ENV="developent"] Performing webhook shortcut...`);
+      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
       await shortcutUserCreation(newUserResponse.userId);
     } else {
       log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
