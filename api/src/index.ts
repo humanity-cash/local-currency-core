@@ -2,9 +2,14 @@ import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
 import { log } from "src/utils";
+import { configureEnvironment } from "./utils/configuration";
 
 const PORT = process.env.PORT || 3000;
 const app = getApp();
+
+if(process.env.NODE_ENV==="production"){
+    configureEnvironment();
+}
 
 const runApp = () => {
 	app.listen(PORT, () => {
