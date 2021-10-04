@@ -16,7 +16,7 @@
     "test:contracts": "yarn test --testPathPattern='crypto'",
     "test:server": "yarn test --testPathPattern='server'",
     "test:dwolla": "yarn test --testPathPattern='dwolla'",
-    "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",    
+    "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
     "coverage:server": "yarn test:server --coverage",
     "coverage:contracts": "yarn test:contracts --coverage",
     "coverage": "yarn coverage:server",
@@ -34,6 +34,7 @@
   "dependencies": {
     "@celo/contractkit": "^1.2.0",
     "@southlane/cognito-jwt-verifier": "^0.1.7",
+    "aws-sdk": "^2.999.0",
     "axios": "^0.21.0",
     "buffer": "^6.0.3",
     "dwolla-v2": "^3.2.0",
