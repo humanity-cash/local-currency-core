@@ -5,9 +5,8 @@ import router from "./router";
 import * as Controller from "./controllers";
 import { verifyRequest } from "./middlewares";
 
-export const getApp = (): Express => {
+export function getApp(): Express {
   const app = express();
-
   app.use(
     morgan(":method :url :status :res[content-length] - :response-time ms")
   );
