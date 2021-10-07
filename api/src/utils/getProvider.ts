@@ -17,9 +17,10 @@ const addKeysFromMnemonic = async (
   const key = await generateKeys(
     mnemonic,
     undefined,
+    undefined,
     index,
     undefined,
-    undefined
+    process.env.DERIVATION_PATH
   );
   kit.addAccount(key.privateKey);
   const account = privateKeyToAddress(key.privateKey);
@@ -43,7 +44,7 @@ const getKit = async (): Promise<ContractKit> => {
       await addKeysFromMnemonic(kit, process.env.LOCAL_CURRENCY_MNEMONIC, i);
     }
 
-    log("Custodian accounts:", await kit.getWallet().getAccounts());
+    log("Custodian accounts:", kit.getWallet().getAccounts());
     kit.defaultAccount = deployer;
   }
   return kit;
