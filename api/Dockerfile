@@ -17,6 +17,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV REGION=eu-north-1
+ENV SECRET_NAME=LOCAL_CURRENCY_API_ALFAJORES
 
 COPY --from=builder "/app/dist/" "/app/dist/"
 COPY --from=builder "/app/node_modules/" "/app/node_modules/"
