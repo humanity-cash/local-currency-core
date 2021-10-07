@@ -2,12 +2,17 @@ import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
 import { log } from "src/utils";
+import { configureEnvironment } from "./utils/configuration";
 
-const PORT = process.env.PORT || 3000;
 const app = getApp();
 
-const runApp = () => {
-	app.listen(PORT, () => {
+const runApp = async () => {
+
+	if(process.env.NODE_ENV!="development"){
+		await configureEnvironment();
+	}
+
+	app.listen(process.env.PORT, () => {
 		log(
 			"NODE_ENV:",
 			process.env.NODE_ENV,
@@ -16,9 +21,11 @@ const runApp = () => {
 			"\nLOCAL_CURRENCY_RPC_HOST:",
 			process.env.LOCAL_CURRENCY_RPC_HOST,
 			"\nLOCAL_CURRENCY_MNEMONIC set:",
-			!!process.env.LOCAL_CURRENCY_MNEMONIC
+			!!process.env.LOCAL_CURRENCY_MNEMONIC,
+			"\nDERIVATION_PATH:",
+			process.env.DERIVATION_PATH
 		);
-		log(`App listening at http://localhost:${PORT}`);
+		log(`App listening at http://localhost:${process.env.PORT}`);
 		startDatabase(() => {log("App with database started")});
 	});
 }
