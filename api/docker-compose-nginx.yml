@@ -2,9 +2,6 @@ version: "3.9"
 services:
 
   local-currency-db:
-    deploy:
-      restart_policy:
-        condition: always
     image: mongo
     volumes:
       - db_data:/data/db
@@ -15,14 +12,11 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
 
   local-currency-api:
-    deploy:
-      restart_policy:
-        condition: always
     x-aws-policies:
     - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
     depends_on: 
       - local-currency-db
-    image: aaronmboyd/local-currency-core:api
+    image: local-currency-core:api
     x-aws-pull_credentials: "arn:aws:secretsmanager:eu-north-1:741204600220:secret:dockerhubAccessToken-FuYCes"
     command: ["yarn", "start"]
     ports:
@@ -51,7 +45,6 @@ services:
       LETSENCRYPT_HOST: alfajores.api.humanity.cash
 
   nginx-proxy:
-    restart: unless-stopped
     depends_on:
       - local-currency-api
     image: jwilder/nginx-proxy
@@ -67,6 +60,8 @@ services:
 
   letsencrypt-proxy:
     image: jrcs/letsencrypt-nginx-proxy-companion
+    depends_on:
+      - nginx-proxy
     container_name: letsencrypt-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -76,12 +71,10 @@ services:
     environment:
       - DEFAULT_EMAIL=tech@humanity.cash
       - NGINX_PROXY_CONTAINER=nginx-proxy
-
 networks:
   default:
     external:
       name: nginx-proxy
-
 volumes:
   db_data:
   letsencrypt-certs:
