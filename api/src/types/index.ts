@@ -59,6 +59,7 @@ export interface ITransferEvent extends IEventBase {
   toUserId: string;
   toAddress: string;
   value: string;
+  type: string;
 }
 export interface IOperatorTotal {
   operator: string;

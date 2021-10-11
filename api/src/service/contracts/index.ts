@@ -326,12 +326,13 @@ export async function getTransfers(
       transactionHash: element.transactionHash,
       blockNumber: element.blockNumber,
       timestamp: timestamp,
+      type: "TRANSFER",
     });
   }
   return transfers;
 }
 
-export async function getTransfersForUser(
+async function getOutoingTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
   const userFilter: PastEventOptions = {
@@ -340,6 +341,60 @@ export async function getTransfersForUser(
     toBlock: "latest",
   };
   const transfers: ITransferEvent[] = await getTransfers(userFilter);
+  transfers.forEach((transfer) => {
+    transfer.type = "OUT";
+  });
+  return transfers;
+}
+
+async function getIncomingTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {
+  const userFilterUserId: PastEventOptions = {
+    filter: { _toUserId: toBytes32(userId) },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+
+  // ToDo: Figure out why _toAddress doesn't filter
+
+  // const address = await getWalletAddress(userId);
+  // console.log("Searching for toAddress " + address);
+  // const userFilterAddress : PastEventOptions = {
+  //   filter: { _toAddress: address },
+  //   fromBlock: 0,
+  //   toBlock: "latest",
+  // };
+  const promises = [
+    getTransfers(userFilterUserId) /*, getTransfers(userFilterAddress)*/,
+  ];
+  const results = await Promise.all(promises);
+  const incomingTransfers: ITransferEvent[] = [
+    ...results[0] /*, ...results[1]*/,
+  ];
+  incomingTransfers.forEach((transfer) => {
+    transfer.type = "IN";
+  });
+  return incomingTransfers;
+}
+
+export async function getTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {
+  const promises = [
+    getOutoingTransfersForUser(userId),
+    getIncomingTransfersForUser(userId),
+  ];
+  const results = await Promise.all(promises);
+  const outgoingTransfers: ITransferEvent[] = results[0];
+  const incomingTransfers: ITransferEvent[] = results[1];
+  const transfers: ITransferEvent[] = [
+    ...outgoingTransfers,
+    ...incomingTransfers,
+  ];
+  transfers.sort((a, b) => {
+    return parseInt(a.timestamp.toString()) - parseInt(b.timestamp.toString());
+  });
   return transfers;
 }
 
