@@ -60,6 +60,7 @@ function expectITransferEvent(transfer: unknown): void {
   expect(transfer).to.have.property("toUserId");
   expect(transfer).to.have.property("toAddress");
   expect(transfer).to.have.property("value");
+  expect(transfer).to.have.property("type");
 }
 
 describe("Operator endpoints test", () => {
@@ -690,7 +691,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           log(res.body);
-          expect(res.body.length).to.equal(1);
+          expect(res.body.length).to.equal(2);
           for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
@@ -710,7 +711,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           log(res.body);
-          expect(res.body.length).to.equal(1);
+          expect(res.body.length).to.equal(2);
           for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
