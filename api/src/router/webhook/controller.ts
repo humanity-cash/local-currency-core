@@ -30,7 +30,7 @@ export async function dwollaWebhook(
       )
     ) {
       httpUtils.createHttpResponse(INVALID_SIGNATURE, codes.UNPROCESSABLE, res);
-    } else if (duplicateExists(_req.body.id)) {
+    } else if (await duplicateExists(_req.body.id)) {
       httpUtils.createHttpResponse(IGNORED, codes.ACCEPTED, res);
     } else {
       const eventToProcess: DwollaEvent = {
