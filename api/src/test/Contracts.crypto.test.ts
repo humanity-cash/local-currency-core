@@ -7,7 +7,14 @@ import utils from "web3-utils";
 import { getProvider } from "../utils/getProvider";
 import { toBytes32 } from "../utils/crypto";
 import { log } from "../utils";
-import { describe, it, beforeAll, beforeEach, afterAll, expect } from "@jest/globals";
+import {
+  describe,
+  it,
+  beforeAll,
+  beforeEach,
+  afterAll,
+  expect,
+} from "@jest/globals";
 import { mockDatabase } from "./setup/setup-db-integration";
 
 describe("Test low-level smart contract functions", () => {
@@ -41,7 +48,6 @@ describe("Test low-level smart contract functions", () => {
   });
 
   describe("Call public functions", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
