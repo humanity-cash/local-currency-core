@@ -7,7 +7,8 @@ import utils from "web3-utils";
 import { getProvider } from "../utils/getProvider";
 import { toBytes32 } from "../utils/crypto";
 import { log } from "../utils";
-import { describe, it, beforeAll, expect } from "@jest/globals";
+import { describe, it, beforeAll, beforeEach, afterAll, expect } from "@jest/globals";
+import { mockDatabase } from "./setup/setup-db-integration";
 
 describe("Test low-level smart contract functions", () => {
   const userId = v4();
@@ -16,6 +17,7 @@ describe("Test low-level smart contract functions", () => {
   let operators: string[] = [];
 
   beforeAll(async () => {
+    await mockDatabase.init();
     await setupContracts();
     operators = (await getProvider()).operators;
 
@@ -34,7 +36,17 @@ describe("Test low-level smart contract functions", () => {
     log("Deposited $10 for userId ", userId, " result ", success.status);
   });
 
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
+  });
+
   describe("Call public functions", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("Should return value of cUSDToken", async () => {
       const token = await contracts.token();
       log(`cUSDToken == ${token}`);
