@@ -23,7 +23,6 @@ if (result.error) {
 
 let stub;
 describe("Middlewares", () => {
-
   beforeAll(async () => {
     await mockDatabase.init();
   });
@@ -37,11 +36,10 @@ describe("Middlewares", () => {
   });
 
   describe("auth", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
-    }); 
+    });
 
     it("Incorrect token", (done) => {
       stub = sinon.stub(aws, "verifyCognitoToken");

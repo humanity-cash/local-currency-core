@@ -14,18 +14,16 @@ chai.use(chaiHttp);
 const server = getApp();
 
 describe("Public endpoints test", () => {
-  
   beforeAll(async () => {
     await mockDatabase.init();
     await setupContracts();
   });
-  
+
   afterAll(async (): Promise<void> => {
     await mockDatabase.stop();
   });
 
   describe("GET /health", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
