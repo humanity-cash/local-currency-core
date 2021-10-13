@@ -41,11 +41,10 @@ describe("Dwolla test suite", () => {
   });
 
   describe("Dwolla: test basic configuration and utilities", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
-    }); 
+    });
 
     it("it should create a signature for a dummy body and re-validate that signature", (done) => {
       const body: string = JSON.stringify({ dummy: "content" });
@@ -71,7 +70,6 @@ describe("Dwolla test suite", () => {
   });
 
   describe("Dwolla SDK test: creating customers and businesses", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -170,7 +168,6 @@ describe("Dwolla test suite", () => {
   });
 
   describe("Server test: POST /webhook", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -199,11 +196,8 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post a supported webhook event and successfully process it, HTTP 202", (done) => {
-      event1 = createDummyEvent(
-        "customer_created",
-        user.userId
-      );
-      
+      event1 = createDummyEvent("customer_created", user.userId);
+
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event1)
@@ -223,7 +217,7 @@ describe("Dwolla test suite", () => {
         });
     });
 
-    it("it should accept (but not process) a duplicate webhook event, HTTP 202", (done) => {     
+    it("it should accept (but not process) a duplicate webhook event, HTTP 202", (done) => {
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event1)

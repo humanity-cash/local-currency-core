@@ -15,12 +15,11 @@ chai.use(chaiHttp);
 const server = getApp();
 
 describe("Owner/administrative endpoints test", () => {
-  
   beforeAll(async () => {
     await mockDatabase.init();
     await setupContracts();
   });
- 
+
   afterAll(async (): Promise<void> => {
     await mockDatabase.stop();
   });
@@ -35,7 +34,6 @@ describe("Owner/administrative endpoints test", () => {
   // });
 
   describe("POST /admin/pause", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -95,7 +93,6 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/user", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -193,7 +190,6 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/controller", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();

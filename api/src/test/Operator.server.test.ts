@@ -74,13 +74,12 @@ describe("Operator endpoints test", () => {
     await mockDatabase.init();
     await setupContracts();
   });
-  
+
   afterAll(async (): Promise<void> => {
     await mockDatabase.stop();
   });
 
   describe("POST /users (create user)", () => {
-    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -271,7 +270,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -403,7 +401,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/deposit (get deposits(s) for user)", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -462,7 +459,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/withdraw (withdraw for user)", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -563,7 +559,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -624,7 +619,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/transfer (make a payment for user)", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -724,7 +718,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/transfer (get transfer(s) for user(s))", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -772,7 +765,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users (get user(s))", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -955,7 +947,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /stats", () => {
-
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
