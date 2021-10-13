@@ -39,6 +39,7 @@ services:
       DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
       DWOLLA_ENVIRONMENT: sandbox
       WEBHOOK_SECRET: 0000000000000000000000000000000000000000000001
+      WEBHOOK_URL: "https://alfajores.api.humanity.cash/webhook"
       MONGO_URL: "mongodb://root:example@local-currency-db:27017"
       VIRTUAL_HOST: alfajores.api.humanity.cash
       VIRTUAL_PORT: 3000
