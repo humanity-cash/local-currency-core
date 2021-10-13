@@ -8,6 +8,7 @@ import {
 import { newWallet } from "../contracts";
 import { INewUserResponse } from "../../types";
 import { log } from "src/utils";
+import { DwollaEventService } from "src/database/service";
 
 export async function getAppToken(): Promise<dwolla.Client> {
   const options: DwollaClientOptions = {
@@ -107,98 +108,110 @@ export async function consumeWebhook(
   log(JSON.stringify(eventToProcess, null, 2));
 
   let processed = false;
-
-  switch (eventToProcess.topic) {
-    case "customer_created":
-      try {
-        logSupported(eventToProcess.topic);
-        const appToken: dwolla.Client = await getAppToken();
-        const res = await appToken.get(eventToProcess._links.resource.href);
-        const customer = res.body;
-        const address = await newWallet(customer.id);
-        log(
-          `Dwolla.consumeWebhook() Successfully created new wallet on-chain for userId ${customer.id}, email ${customer.email}, with address ${address}`
-        );
-        processed = true;
-      } catch (err) {
-        log(
-          `Dwolla.consumeWebhook() error during 'customer_created' topic processing ${err}`
-        );
-        throw err;
-      }
-      break;
-
-    case "customer_suspended":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_activated":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_deactivated":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_added":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_removed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_unverified":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_negative":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_updated":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_created	":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_cancelled":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_failed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_creation_failed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_completed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_created":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_cancelled":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_failed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_completed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    default:
-      throw `Unknown topic ${eventToProcess.topic}, don't know how to process...`;
+  const duplicate : boolean = await duplicateExists(eventToProcess.id);
+  if(!duplicate){
+    switch (eventToProcess.topic) {
+      case "customer_created":
+        try {
+          logSupported(eventToProcess.topic);
+          const appToken: dwolla.Client = await getAppToken();
+          const res = await appToken.get(eventToProcess._links.resource.href);
+          const customer = res.body;
+          const address = await newWallet(customer.id);
+          log(
+            `Dwolla.consumeWebhook() Successfully created new wallet on-chain for userId ${customer.id}, email ${customer.email}, with address ${address}`
+          );
+          processed = true;
+        } catch (err) {
+          log(
+            `Dwolla.consumeWebhook() error during 'customer_created' topic processing ${err}`
+          );
+          throw err;
+        }
+        break;
+  
+      case "customer_suspended":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_activated":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_deactivated":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_funding_source_added":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_funding_source_removed":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_funding_source_unverified":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_funding_source_negative":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_funding_source_updated":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_bank_transfer_created	":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_bank_transfer_cancelled":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_bank_transfer_failed":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_bank_transfer_creation_failed":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_bank_transfer_completed":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_transfer_created":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_transfer_cancelled":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_transfer_failed":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      case "customer_transfer_completed":
+        logUnsupported(eventToProcess.topic);
+        break;
+  
+      default:
+        throw `Unknown topic ${eventToProcess.topic}, don't know how to process...`;
+    }
   }
+
+  if(processed){
+    const result = await DwollaEventService.create({
+      eventId: eventToProcess.id,
+      resourceId: eventToProcess.resourceId,
+      topic: eventToProcess.topic,
+      created: eventToProcess.created
+    });
+    log("DwollaService.consumeWebhook() Dwolla Event written to database, dbId " + result.dbId);
+  }  
 
   return processed;
 }
