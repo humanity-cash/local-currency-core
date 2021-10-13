@@ -1,3 +1,3 @@
-import * as ExampleService from "./example";
-
-export { ExampleService };
+import * as DwollaEventService from "./DwollaEvent";
+import * as LogService from "./Log";
+export { DwollaEventService, LogService };
