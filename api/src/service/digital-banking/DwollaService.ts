@@ -8,6 +8,7 @@ import {
 import { newWallet } from "../contracts";
 import { INewUserResponse } from "../../types";
 import { log } from "src/utils";
+import { duplicateExists } from "./DwollaUtils";
 import { DwollaEventService } from "src/database/service";
 
 export async function getAppToken(): Promise<dwolla.Client> {
@@ -17,6 +18,20 @@ export async function getAppToken(): Promise<dwolla.Client> {
     environment: "sandbox",
   };
   return new dwolla.Client(options);
+}
+
+export async function registerWebhook() : Promise<string>{
+  const appToken: dwolla.Client = await getAppToken();
+  const webhook = {
+    url: process.env.WEBHOOK_URL,
+    secret: process.env.WEBHOOK_SECRET
+  }
+  const response: dwolla.Response = await appToken.post(
+    process.env.DWOLLA_BASE_URL + "webhook-subscriptions/", webhook
+  );
+  const webhookUrl = response.headers.get("location");
+  log(`Webhook ${webhook.url} successfully registered, location ${webhookUrl}`);
+  return webhookUrl;
 }
 
 export async function getDwollaCustomerById(
