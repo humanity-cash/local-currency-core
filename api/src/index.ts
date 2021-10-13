@@ -3,6 +3,7 @@ import startDatabase from "./database";
 import { getApp } from "./server";
 import { log } from "src/utils";
 import { configureEnvironment } from "./utils/configuration";
+import { registerWebhook } from "./service/digital-banking/DwollaService";
 
 const app = getApp();
 
@@ -10,6 +11,7 @@ const runApp = async () => {
 
 	if(process.env.NODE_ENV!="development"){
 		await configureEnvironment();
+		registerWebhook();
 	}
 
 	app.listen(process.env.PORT, () => {
@@ -26,7 +28,7 @@ const runApp = async () => {
 			process.env.DERIVATION_PATH
 		);
 		log(`App listening at http://localhost:${process.env.PORT}`);
-		startDatabase(() => {log("App with database started")});
+		startDatabase(() => {log("App with database started")});		
 	});
 }
 
