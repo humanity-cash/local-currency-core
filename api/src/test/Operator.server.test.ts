@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import { describe, it, beforeAll } from "@jest/globals";
+import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { getApp } from "../server";
 import { setupContracts, createDummyEvent, createFakeUser } from "./utils";
 import { codes } from "../utils/http";
@@ -8,6 +8,7 @@ import { log } from "../utils";
 import { INewUser } from "../types";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
+import { mockDatabase } from "./setup/setup-db-integration";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -70,10 +71,21 @@ describe("Operator endpoints test", () => {
   let dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1;
 
   beforeAll(async () => {
+    await mockDatabase.init();
     await setupContracts();
+  });
+  
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
   });
 
   describe("POST /users (create user)", () => {
+    
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should create personal user1 and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
@@ -259,6 +271,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
         .request(server)
@@ -385,6 +403,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/deposit (get deposits(s) for user)", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
       chai
         .request(server)
@@ -438,6 +462,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/withdraw (withdraw for user)", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
         .request(server)
@@ -533,6 +563,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
       chai
         .request(server)
@@ -588,6 +624,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/transfer (make a payment for user)", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
         .request(server)
@@ -682,6 +724,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:userId/transfer (get transfer(s) for user(s))", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should get 1 transfer for user1, HTTP 200", (done) => {
       chai
         .request(server)
@@ -724,6 +772,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users (get user(s))", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should get user1", (done) => {
       chai
         .request(server)
@@ -901,6 +955,12 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /stats", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("GET /stats/deposit: it should retrieve all deposits, HTTP 200", (done) => {
       chai
         .request(server)

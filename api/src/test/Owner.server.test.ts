@@ -3,21 +3,44 @@ import chaiHttp from "chai-http";
 import { getApp } from "../server";
 import { createDummyEvent, createFakeUser, setupContracts } from "./utils";
 import { codes } from "../utils/http";
-import { describe, it, beforeAll } from "@jest/globals";
+import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { INewUser } from "../types";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
+import { mockDatabase } from "./setup/setup-db-integration";
+// import { log } from "src/utils";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
 
 describe("Owner/administrative endpoints test", () => {
+  
   beforeAll(async () => {
+    await mockDatabase.init();
     await setupContracts();
   });
+ 
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
+  });
+
+  // afterEach(async (): Promise<void> => {
+  //   try {
+  //     await mockDatabase.dropDatabase();
+  //     await mockDatabase.closeMongooseConnection();
+  //   } catch (err) {
+  //     log(`Err in db: afterEach: ${err}`);
+  //   }
+  // });
 
   describe("POST /admin/pause", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should pause, HTTP 202", (done) => {
       chai
         .request(server)
@@ -72,6 +95,12 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/user", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     const user1: INewUser = createFakeUser();
     let dwollaIdUser1;
 
@@ -164,6 +193,12 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/controller", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should fail to transfer controller with invalid body, HTTP 400", (done) => {
       chai
         .request(server)

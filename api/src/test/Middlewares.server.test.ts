@@ -7,6 +7,7 @@ import * as aws from "../aws";
 import { getApp } from "../server";
 import { log } from "../utils";
 import { codes } from "../utils/http";
+import { mockDatabase } from "./setup/setup-db-integration";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -22,11 +23,26 @@ if (result.error) {
 
 let stub;
 describe("Middlewares", () => {
+
+  beforeAll(async () => {
+    await mockDatabase.init();
+  });
+
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
+  });
+
   afterEach(() => {
     sinon.restore();
   });
 
   describe("auth", () => {
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    }); 
+
     it("Incorrect token", (done) => {
       stub = sinon.stub(aws, "verifyCognitoToken");
       chai
