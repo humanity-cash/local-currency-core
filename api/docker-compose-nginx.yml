@@ -11,6 +11,18 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
 
+  celo-node:
+    image: us.gcr.io/celo-org/geth:alfajores
+    restart: unless-stopped
+    volumes:
+      - celo_data:/root/.celo
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+      - "30303:30303/udp"
+    command: ["--verbosity", "3", "--syncmode", "full", "--rpc", "--rpcaddr", "0.0.0.0", "--rpcapi", "eth,net,web3,debug,admin,personal", "--light.serve", "0", "--light.maxpeers", "1000", "--maxpeers", "1100", "--nousb", "--alfajores", "--datadir", "/root/.celo"]
+
   local-currency-api:
     x-aws-policies:
     - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
@@ -78,6 +90,7 @@ networks:
       name: nginx-proxy
 volumes:
   db_data:
+  celo_data:
   letsencrypt-certs:
   letsencrypt-vhost-d:
   letsencrypt-html:
