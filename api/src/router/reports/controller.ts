@@ -1,7 +1,13 @@
 import { Request, Response } from "express";
 import moment from "moment";
 import { uploadMerchantReportToS3 } from "src/aws";
+import * as OperatorService from "src/service/OperatorService";
+import {
+	ITransferEvent
+} from "src/types";
 import { httpUtils, log } from "src/utils";
+
+
 
 /**
 Sending transaction reports via mail for a given period.
@@ -69,18 +75,29 @@ function CSV(array) {
 	return result;
 }
 
+function mapTxToReport(tx: ITransferEvent[]): Report[] {
+	return tx?.map((t: ITransferEvent) => ({
+		transactionType: TransactionType.IN,
+		amount: Number(t.value),
+		customer: t.fromUserId,
+		date: Number(t.timestamp)
+	}))
+}
+
 export async function corePeriodReport(i: PeriodReportInput): Promise<Report[]> {
 	const { userId, fromTime, toTime } = i;
-	const txs = await getUserTransactions(userId);
-	const txFilteredByTime = txs.filter((t: Report) => t.date > fromTime && t.date < toTime)
+	const txs: ITransferEvent[] =
+		await OperatorService.getTransfersForUser(userId);
+	const txFilteredByTime: ITransferEvent[] = txs.filter((t: ITransferEvent) => t.timestamp > fromTime && t.timestamp < toTime)
 	if (txFilteredByTime.length === 0) {
 		return [];
 	}
-	const csv =  CSV(txFilteredByTime);
+	const reports: Report[] = mapTxToReport(txFilteredByTime);
+	const csv =  CSV(reports);
 	await uploadMerchantReportToS3(`${userId}.csv`, csv);
 	console.log("🚀 ~ file: controller.ts ~ line 69 ~ periodReport ~ csv", csv)
 
-	return txFilteredByTime;
+	return reports;
 }
 
 export async function periodReport(req: Request, res: Response): Promise<void> {
