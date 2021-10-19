@@ -2,9 +2,19 @@ import { Contract, SendOptions } from "web3-eth-contract";
 import { getProvider } from "../utils/getProvider";
 import * as web3Utils from "web3-utils";
 import Web3 from "web3";
-import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
+import { getAppToken } from "src/service/digital-banking/DwollaUtils";
+import {
+  DwollaEvent,
+  DwollaFundingSourceRequest,
+  DwollaPersonalVerifiedCustomerRequest,
+} from "../service/digital-banking/DwollaTypes";
+import {
+  createFundingSource,
+  createPersonalVerifiedCustomer,
+  getFundingSourceLinkForUser,
+} from "src/service/digital-banking/DwollaService";
 import { v4 } from "uuid";
-import { INewUser } from "../types";
+import { INewUser, INewUserResponse } from "../types";
 import faker from "faker";
 import { cryptoUtils, log } from "../utils";
 
@@ -41,9 +51,111 @@ export function createFakeUser(isBusiness = false): INewUser {
   return user;
 }
 
-export function createDummyEvent(topic: string, id: string): DwollaEvent {
-  const eventId = v4();
+export async function createOperatorsForTest(): Promise<void> {
+  // Operator 1
+  let firstName = "Operator 1 - " + faker.name.firstName();
+  let lastName = faker.name.lastName();
+  let address1 = faker.address.streetAddress();
+  let address2 = faker.address.secondaryAddress();
+  let city = faker.address.city();
+  let postalCode = faker.address.zipCode();
+  let state = faker.address.stateAbbr();
+  let email = getSalt() + faker.internet.email();
+  let dateOfBirth = "1970-01-01";
+  let type = "personal";
+  let ssn = faker.datatype.number(9999).toString();
+
+  const operator1: DwollaPersonalVerifiedCustomerRequest = {
+    firstName,
+    lastName,
+    email,
+    type,
+    address1,
+    address2,
+    city,
+    state,
+    postalCode,
+    dateOfBirth,
+    ssn,
+  };
+  const operatorResponse1: INewUserResponse =
+    await createPersonalVerifiedCustomer(operator1);
+  await createFundingSourceForTest(operatorResponse1.userId);
+  const fundingSourceLink1 = await getFundingSourceLinkForUser(
+    operatorResponse1.userId
+  );
+  process.env.OPERATOR_1_FUNDING_SOURCE = fundingSourceLink1;
+
+  // Operator 2
+  firstName = "Operator 2 - " + faker.name.firstName();
+  lastName = faker.name.lastName();
+  address1 = faker.address.streetAddress();
+  address2 = faker.address.secondaryAddress();
+  city = faker.address.city();
+  postalCode = faker.address.zipCode();
+  state = faker.address.stateAbbr();
+  email = getSalt() + faker.internet.email();
+  dateOfBirth = "1970-01-01";
+  type = "personal";
+  ssn = faker.datatype.number(9999).toString();
+
+  const operator2: DwollaPersonalVerifiedCustomerRequest = {
+    firstName,
+    lastName,
+    email,
+    type,
+    address1,
+    address2,
+    city,
+    state,
+    postalCode,
+    dateOfBirth,
+    ssn,
+  };
+  const operatorResponse2: INewUserResponse =
+    await createPersonalVerifiedCustomer(operator2);
+  await createFundingSourceForTest(operatorResponse2.userId);
+  const fundingSourceLink2 = await getFundingSourceLinkForUser(
+    operatorResponse2.userId
+  );
+  process.env.OPERATOR_2_FUNDING_SOURCE = fundingSourceLink2;
+}
+
+export async function processDwollaSandboxSimulations(): Promise<void> {
+  const appToken = await getAppToken();
+  const result = await appToken.post(
+    process.env.DWOLLA_BASE_URL + "sandbox-simulations"
+  );
+  log(
+    `utils.ts::processDwollaSandboxSimulations, processed ${JSON.stringify(
+      result,
+      null,
+      2
+    )}`
+  );
+}
+
+export async function createFundingSourceForTest(
+  userId: string
+): Promise<void> {
+  const fundingSource: DwollaFundingSourceRequest = {
+    routingNumber: "222222226",
+    accountNumber: Date.now().toString(),
+    bankAccountType: "savings",
+    name: "Test Funding Source - Savings",
+    channels: ["ACH"],
+  };
+  await createFundingSource(fundingSource, userId);
+}
+
+export function createDummyEvent(
+  topic: string,
+  id: string,
+  userId: string,
+  resource = "customers"
+): DwollaEvent {
   const accountId = "0ee84069-47c5-455c-b425-633523291dc3";
+  const eventId = v4();
 
   return {
     _links: {
@@ -53,12 +165,12 @@ export function createDummyEvent(topic: string, id: string): DwollaEvent {
         type: "application/vnd.dwolla.v1.hal+json",
       },
       customer: {
-        href: `https://api-sandbox.dwolla.com/customers/${id}`,
+        href: `https://api-sandbox.dwolla.com/customers/${userId}`,
         "resource-type": "customer",
         type: "application/vnd.dwolla.v1.hal+json",
       },
       resource: {
-        href: `https://api-sandbox.dwolla.com/customers/${id}`,
+        href: `https://api-sandbox.dwolla.com/${resource}/${id}`,
         type: "application/vnd.dwolla.v1.hal+json",
       },
       self: {
