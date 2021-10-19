@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { consumeWebhook } from "src/service/digital-banking/DwollaService";
+import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import {
   validSignature,
-  duplicateExists,
+  duplicateWebhookExists,
 } from "src/service/digital-banking/DwollaUtils";
 import { httpUtils } from "src/utils";
 
@@ -30,7 +30,7 @@ export async function dwollaWebhook(
       )
     ) {
       httpUtils.createHttpResponse(INVALID_SIGNATURE, codes.UNPROCESSABLE, res);
-    } else if (await duplicateExists(_req.body.id)) {
+    } else if (await duplicateWebhookExists(_req.body.id)) {
       httpUtils.createHttpResponse(IGNORED, codes.ACCEPTED, res);
     } else {
       const eventToProcess: DwollaEvent = {

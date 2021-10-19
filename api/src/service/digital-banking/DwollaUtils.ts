@@ -1,7 +1,25 @@
 import crypto from "crypto";
 import { Buffer } from "buffer";
 import { log } from "src/utils";
+import { DwollaClientOptions } from "./DwollaTypes";
+import { Client } from "dwolla-v2";
 import { DwollaEventService } from "src/database/service";
+
+export async function getAppToken(): Promise<Client> {
+  const options: DwollaClientOptions =
+    process.env.DWOLLA_ENVIRONMENT == "sandbox"
+      ? {
+          key: process.env.DWOLLA_APP_KEY,
+          secret: process.env.DWOLLA_APP_SECRET,
+          environment: "sandbox",
+        }
+      : {
+          key: process.env.DWOLLA_APP_KEY,
+          secret: process.env.DWOLLA_APP_SECRET,
+          environment: "production",
+        };
+  return new Client(options);
+}
 
 export function createSignature(
   webhookSecret: string,
@@ -45,7 +63,7 @@ export function validSignature(
 
 // Webhook events can be fired multiple times by Dwolla
 // Check for duplicate events in database
-export async function duplicateExists(id: string): Promise<boolean> {
+export async function duplicateWebhookExists(id: string): Promise<boolean> {
   const webhook = await DwollaEventService.findByObject(id);
   log(
     `DwollaUtils::duplicateExists:: Response from DwollaEvent database is ${JSON.stringify(
@@ -55,9 +73,7 @@ export async function duplicateExists(id: string): Promise<boolean> {
   if (webhook?.dbId) {
     return true;
   } else {
-    log(
-      `DwollaUtils.ts::duplicateExists: No duplicate for Event ${id}, inserting into database...`
-    );
+    log(`DwollaUtils.ts::duplicateExists: No duplicate for Event ${id} found`);
     return false;
   }
 }
