@@ -41,6 +41,23 @@ export interface DwollaUnverifiedCustomerRequest {
   ipAddress?: string;
   correlationId?: string;
 }
+
+// _links	no	object	A _links JSON object containing an on-demand-authorization link relation. See example raw request and response below.
+// routingNumber	yes	string	A bank routing number that identifies a bank or credit union in the U.S. Note: Validation of the routing number includes: a checksum, the first two digits of the routing number must fall within the range “01” through “12”, or “21” through “32”, and the string value must consist of nine digits.
+// accountNumber	yes	string	The bank account number. Note: The account number is validated to check if it is a numeric string of 4-17 digits.
+// bankAccountType	yes	string	Type of bank account: checking, savings, general-ledger or loan.
+// name	yes	string	Arbitrary nickname for the funding source. Must be 50 characters or less.
+// plaidToken	no	string	A processor token obtained from Plaid for adding and verifying a bank. Reference our Plaid Link Developer Resource Article to learn more about this integration.
+// channels	no	array	An array containing a list of processing channels. ACH is the default processing channel for bank transfers. Acceptable value for channels is: “wire”. e.g. “channels”: [ “wire” ]. A funding source (Bank Account) added using the wire channel only supports a funds transfer going to the bank account from a balance. As a result, wire as a destination funding source can only be added where the Customer account type is a Verified Customer. Note: channels is a premium feature that must be enabled on your account and is only available to select Dwolla customers.
+
+export interface DwollaFundingSourceRequest {
+  routingNumber: string;
+  accountNumber: string;
+  bankAccountType: string;
+  name: string;
+  channels?: string[];
+}
+
 export interface DwollaClientOptions {
   key: string;
   secret: string;
@@ -69,4 +86,22 @@ export interface DwollaEvent {
   created: string;
   topic: string;
   resourceId: string;
+}
+
+// href of source / destination is the HTTP reference to
+// a user's funding source
+interface DwollaTransferRequestLinks {
+  source: {
+    href: string;
+  };
+  destination: {
+    href: string;
+  };
+}
+export interface DwollaTransferRequest {
+  _links: DwollaTransferRequestLinks;
+  amount: {
+    currency: "USD";
+    value: string;
+  };
 }
