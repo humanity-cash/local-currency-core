@@ -15,7 +15,9 @@ export async function create(input: ICreateLogDBItem): Promise<ILogDBItem> {
     timestamp: input.timestamp,
     message: input.message,
   });
-  const response = await logItem.save();
+  // Use Mongo driver option "write concern" of 0 which doesn't
+  // wait for I/O confirmation and should be faster for logging
+  const response = await logItem.save({ w: 0, j: false });
   return removeMongoMeta(response.toObject());
 }
 

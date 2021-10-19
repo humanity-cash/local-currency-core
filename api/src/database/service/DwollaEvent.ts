@@ -33,7 +33,7 @@ export async function get(dbId: string): Promise<IDwollaEventDBItem> {
 export async function findByObject(
   eventId: string
 ): Promise<IDwollaEventDBItem> {
-  const response = await DwollaEvent.find({ eventId: eventId }, "eventId");
+  const response = await DwollaEvent.find({ eventId: eventId });
   if (response?.length > 0) return removeMongoMeta(response[0].toObject());
   else return undefined;
 }
