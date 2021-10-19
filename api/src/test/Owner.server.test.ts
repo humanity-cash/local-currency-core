@@ -8,7 +8,6 @@ import { INewUser } from "../types";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { mockDatabase } from "./setup/setup-db-integration";
-// import { log } from "src/utils";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -23,15 +22,6 @@ describe("Owner/administrative endpoints test", () => {
   afterAll(async (): Promise<void> => {
     await mockDatabase.stop();
   });
-
-  // afterEach(async (): Promise<void> => {
-  //   try {
-  //     await mockDatabase.dropDatabase();
-  //     await mockDatabase.closeMongooseConnection();
-  //   } catch (err) {
-  //     log(`Err in db: afterEach: ${err}`);
-  //   }
-  // });
 
   describe("POST /admin/pause", () => {
     beforeEach(async (): Promise<void> => {
@@ -134,6 +124,7 @@ describe("Owner/administrative endpoints test", () => {
     it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdUser1,
         dwollaIdUser1
       );
       const signature = createSignature(
