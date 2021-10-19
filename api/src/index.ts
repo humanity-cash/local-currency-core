@@ -3,7 +3,7 @@ import startDatabase from "./database";
 import { getApp } from "./server";
 import { log } from "src/utils";
 import { configureEnvironment } from "./utils/configuration";
-import { registerWebhook } from "./service/digital-banking/DwollaService";
+import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
 
 const app = getApp();
 
