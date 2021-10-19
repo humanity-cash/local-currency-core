@@ -53,7 +53,24 @@ export async function uploadFileToBukcet(bucketName: BucketName, filePath: Key, 
   });
 }
 
-const MERCHANTS_TX_REPORTS = "merchants-tx-reports";
+export async function getFileFromBukcet(bucketName: BucketName, fileName: Key): Promise<Body> {
+  return new Promise(function (success, reject) {
+    s3.getObject(
+      { Bucket: bucketName, Key: fileName },
+      function (error, data) {
+        if (error) {
+          reject(error);
+        } else {
+          const buffer: Body = data.Body
+          // const a = buffer.toString();
+          success(buffer);
+        }
+      }
+    );
+  });
+}
+
+export const MERCHANTS_TX_REPORTS = "merchants-tx-reports";
 
 export async function uploadMerchantReportToS3(filePath: Key, fileBody: Body): Promise<void> { 
   await uploadFileToBukcet(MERCHANTS_TX_REPORTS, filePath, fileBody);
