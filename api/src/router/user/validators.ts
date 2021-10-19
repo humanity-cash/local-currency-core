@@ -2,6 +2,10 @@ import { body, param } from "express-validator";
 import { mwVaildator } from "src/middlewares";
 
 const idInParams = [param("id").notEmpty(), mwVaildator];
+const notificationIdInParams = [
+  param("notificationId").notEmpty(),
+  mwVaildator,
+];
 
 export const createUser = [
   body("authUserId").isString(),
@@ -29,6 +33,8 @@ export const createUser = [
   body("businessName").optional(),
   mwVaildator,
 ];
+
+export const notifications = [...idInParams, ...notificationIdInParams];
 
 export const getUser = [...idInParams];
 
