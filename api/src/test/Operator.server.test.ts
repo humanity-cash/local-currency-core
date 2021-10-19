@@ -2,13 +2,19 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { getApp } from "../server";
-import { setupContracts, createDummyEvent, createFakeUser } from "./utils";
+import {
+  setupContracts /*, createOperatorsForTest*/,
+  createDummyEvent,
+  createFakeUser,
+  processDwollaSandboxSimulations,
+} from "./utils";
 import { codes } from "../utils/http";
 import { log } from "../utils";
 import { INewUser } from "../types";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { mockDatabase } from "./setup/setup-db-integration";
+import { DwollaTransferService } from "src/database/service";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -73,6 +79,7 @@ describe("Operator endpoints test", () => {
   beforeAll(async () => {
     await mockDatabase.init();
     await setupContracts();
+    // await createOperatorsForTest();
   });
 
   afterAll(async (): Promise<void> => {
@@ -97,6 +104,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -104,6 +112,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdUser1,
         dwollaIdUser1
       );
       const signature = createSignature(
@@ -120,6 +129,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -136,6 +146,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -143,6 +154,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdUser2,
         dwollaIdUser2
       );
       const signature = createSignature(
@@ -159,6 +171,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -176,6 +189,7 @@ describe("Operator endpoints test", () => {
         })
         .catch((err) => {
           log(JSON.stringify(err, null, 2));
+          console.log(err);
           done(err);
         });
     });
@@ -183,6 +197,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdBusiness1,
         dwollaIdBusiness1
       );
       const signature = createSignature(
@@ -200,6 +215,7 @@ describe("Operator endpoints test", () => {
         })
         .catch((err) => {
           log(JSON.stringify(err, null, 2));
+          console.log(err);
           done(err);
         });
     });
@@ -215,6 +231,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -232,6 +249,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -249,6 +267,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -264,6 +283,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -273,6 +293,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 400 with invalid body", (done) => {
@@ -286,36 +310,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should return HTTP 422 with Solidity reversion (negative deposit)", (done) => {
-      chai
-        .request(server)
-        .post(`/users/${dwollaIdUser2}/deposit`)
-        .send({ amount: "-1.0" })
-        .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should return HTTP 422 with Solidity reversion (zero value deposit)", (done) => {
-      chai
-        .request(server)
-        .post(`/users/${dwollaIdUser1}/deposit`)
-        .send({ amount: "0" })
-        .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -331,6 +326,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -347,27 +343,12 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
 
     it("it should deposit to user2, HTTP 202", (done) => {
-      chai
-        .request(server)
-        .post(`/users/${dwollaIdUser2}/deposit`)
-        .send({ amount: "22.22" })
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          expect(res).to.be.json;
-          expectIWallet(res.body);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should deposit again to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/deposit`)
@@ -379,6 +360,24 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
+          done(err);
+        });
+    });
+
+    it("it should deposit again to user2, HTTP 202", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${dwollaIdUser2}/deposit`)
+        .send({ amount: "22.22" })
+        .then((res) => {
+          expect(res).to.have.status(codes.ACCEPTED);
+          expect(res).to.be.json;
+          expectIWallet(res.body);
+          done();
+        })
+        .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -395,6 +394,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -404,6 +404,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
@@ -417,8 +421,63 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
+    });
+
+    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 200", async () => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
+        await DwollaTransferService.getByUserId(dwollaIdUser1);
+      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          deposits[i].id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
+
+    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 200", async () => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
+        await DwollaTransferService.getByUserId(dwollaIdUser2);
+      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          deposits[i].id,
+          dwollaIdUser2,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
     });
 
     it("it should return 1 deposit for user1, HTTP 200", (done) => {
@@ -434,6 +493,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -453,6 +513,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -475,6 +536,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -490,6 +552,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -505,6 +568,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -521,6 +585,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -537,6 +602,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -553,6 +619,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -575,6 +642,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -594,6 +662,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -613,6 +682,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -635,6 +705,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -650,6 +721,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -665,6 +737,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -681,6 +754,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -697,6 +771,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -712,6 +787,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -739,6 +815,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -759,6 +836,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -782,6 +860,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -797,11 +876,12 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
 
-    it("it should get Dwolla funding sources for user1 (no result)", (done) => {
+    it("it should get Dwolla funding sources for user1 (1 result)", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser1}/funding-sources`)
@@ -809,11 +889,12 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expectFundingSource(res.body);
-          expect(res.body.status).to.equal(200);
-          expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
+          expect(res.body.status).to.equal(codes.OK);
+          expect(res.body.body._embedded["funding-sources"]).to.have.length(1);
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -828,6 +909,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -844,6 +926,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -859,6 +942,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -873,34 +957,15 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
 
-    it("it should get Dwolla funding sources for user2 (no result)", (done) => {
+    it("it should get Dwolla funding sources for user2 (1 result)", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser2}/funding-sources`)
-        .then((res) => {
-          expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;
-          expectFundingSource(res.body);
-          expect(res.body.status).to.equal(codes.OK);
-          expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    // Skipped because while the user exists in Dwolla from prior testing
-    // it doesn't exist in the ephemeral ganache instance used in test
-    xit("it should get Dwolla funding sources for 460852fc-c986-4d2d-aedb-e71d9e5aad37 (1 result)", (done) => {
-      const id = "460852fc-c986-4d2d-aedb-e71d9e5aad37";
-      chai
-        .request(server)
-        .get(`/users/${id}/funding-sources`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
@@ -910,6 +975,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -924,6 +990,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -941,6 +1008,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -962,6 +1030,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -976,6 +1045,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -990,6 +1060,7 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
@@ -1004,6 +1075,44 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
+          console.log(err);
+          done(err);
+        });
+    });
+  });
+
+  describe("GET /users/:id/notifications", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    it("GET /user/:id/notifications: it should retrieve all notifications for user1, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser1}/notifications`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          console.log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          console.log(err);
+          done(err);
+        });
+    });
+
+    it("GET /user/:id/notifications: it should retrieve all notifications for user2, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser2}/notifications`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          console.log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          console.log(err);
           done(err);
         });
     });
