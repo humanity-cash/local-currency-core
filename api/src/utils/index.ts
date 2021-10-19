@@ -1,8 +1,31 @@
 import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
+import { AppNotificationService } from "src/database/service";
 // import { LogService } from "src/database/service";
 
 export { cryptoUtils, httpUtils };
+
+export async function userNotification(
+  userId: string,
+  message: string,
+  level = "INFO"
+): Promise<boolean> {
+  const notification: AppNotificationService.ICreateAppNotificationDBItem = {
+    userId: userId,
+    timestamp: Date.now(),
+    message: message,
+    level: level,
+  };
+  const result = await AppNotificationService.create(notification);
+  log(
+    `utils.ts::userNotification() Notification for ${userId} created with contents: ${JSON.stringify(
+      result,
+      null,
+      2
+    )}`
+  );
+  return true;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function log(...data: any[]): void {
@@ -24,4 +47,8 @@ export function isDevelopment(): boolean {
 
 export function isProduction(): boolean {
   return process.env.NODE_ENV == "production";
+}
+
+export function isTest(): boolean {
+  return process.env.NODE_ENV == "test";
 }
