@@ -71,7 +71,8 @@ async function createDwollaTransfer(
 ) {
 
   let retryReponse : DwollaTransferService.IDwollaTransferDBItem;
-  const maxRetries = 3;
+  const retryTimeoutMs = 1000;
+  const maxRetries = 5;
   log(`OperatorServices.ts::createDwollaTransfer Retry count is ${retryCount ? retryCount : 0}`);
 
   if(!retryCount){
@@ -112,7 +113,7 @@ async function createDwollaTransfer(
       console.log(error);
       if(!retryCount || retryCount < maxRetries){
         console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-        await sleep(3000);
+        await sleep(retryTimeoutMs);
         retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
       }
       else
@@ -129,7 +130,7 @@ async function createDwollaTransfer(
     console.log(error);
     if(!retryCount || retryCount < maxRetries){
       console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(3000);
+      await sleep(retryTimeoutMs);
       retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
     }
     else
@@ -141,7 +142,7 @@ async function createDwollaTransfer(
     console.log(error);
     if(!retryCount || retryCount < maxRetries){
       console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(3000);
+      await sleep(retryTimeoutMs);
       retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
     }
     else
@@ -180,7 +181,7 @@ async function createDwollaTransfer(
     console.log(error);
     if(!retryCount || retryCount < maxRetries){
       console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(3000);
+      await sleep(retryTimeoutMs);
       retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
     }
     else
@@ -193,7 +194,7 @@ async function createDwollaTransfer(
     console.log(error);
     if(!retryCount || retryCount < maxRetries){
       console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(3000);
+      await sleep(retryTimeoutMs);
       retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
     }
     else
@@ -204,18 +205,18 @@ async function createDwollaTransfer(
     console.log(error);
     if(!retryCount || retryCount < maxRetries){
       console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(3000);
+      await sleep(retryTimeoutMs);
       retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
     }
     else
       throw error;
   }
-  if(transferToUse?.amount.value != amount){
+  if(parseFloat(transferToUse?.amount.value) != parseFloat(amount)){
     const error = `OperatorService.ts::createDwollaTransfer() Transfer from Dwolla amount.value of ${transferToUse.amount.value} does not match expected amount of ${amount}`; 
     console.log(error);
     if(!retryCount || retryCount < maxRetries){
       console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(3000);
+      await sleep(retryTimeoutMs);
       retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
     }
     else
