@@ -1,7 +1,7 @@
 import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
-import { log } from "src/utils";
+import { isDevelopment, isTest, log } from "src/utils";
 import { configureEnvironment } from "./utils/configuration";
 import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
 
@@ -9,11 +9,13 @@ const app = getApp();
 
 const runApp = async () => {
 
-	if(process.env.NODE_ENV!="development"){
+	if(!isDevelopment()){
 		await configureEnvironment();
-		registerWebhook();
 	}
-
+	if(!isTest()){
+		await registerWebhook();
+	}
+	
 	app.listen(process.env.PORT, () => {
 		log(
 			"NODE_ENV:",
