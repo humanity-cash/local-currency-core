@@ -1,3 +1,5 @@
 import * as DwollaEventService from "./DwollaEvent";
 import * as LogService from "./Log";
-export { DwollaEventService, LogService };
+import * as UserService from "./User";
+
+export { DwollaEventService, LogService, UserService };
