@@ -7,6 +7,7 @@ import {
   createDummyEvent,
   createFakeUser,
   processDwollaSandboxSimulations,
+  createFundingSourceForTest,
 } from "./utils";
 import { codes } from "../utils/http";
 import { log } from "../utils";
@@ -79,7 +80,6 @@ describe("Operator endpoints test", () => {
   beforeAll(async () => {
     await mockDatabase.init();
     await setupContracts();
-    // await createOperatorsForTest();
   });
 
   afterAll(async (): Promise<void> => {
@@ -100,11 +100,10 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser1 = res.body.userId;
+          dwollaIdUser1 = res.body.userId;          
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -126,10 +125,12 @@ describe("Operator endpoints test", () => {
         .send(event)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
-          done();
+          createFundingSourceForTest(dwollaIdUser1).then(() => {
+            console.log(`Test only - created funding source for ${dwollaIdUser1}`);
+            done();
+          });
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -146,7 +147,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -168,10 +168,12 @@ describe("Operator endpoints test", () => {
         .send(event)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
-          done();
+          createFundingSourceForTest(dwollaIdUser2).then(() => {
+            console.log(`Test only - created funding source for ${dwollaIdUser2}`);
+            done();
+          });
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -189,7 +191,7 @@ describe("Operator endpoints test", () => {
         })
         .catch((err) => {
           log(JSON.stringify(err, null, 2));
-          console.log(err);
+
           done(err);
         });
     });
@@ -215,7 +217,7 @@ describe("Operator endpoints test", () => {
         })
         .catch((err) => {
           log(JSON.stringify(err, null, 2));
-          console.log(err);
+
           done(err);
         });
     });
@@ -231,7 +233,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -249,7 +250,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -267,7 +267,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -283,13 +282,13 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
+    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -310,7 +309,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -326,7 +324,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -337,13 +334,13 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/deposit`)
         .send({ amount: "99.99" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -354,13 +351,13 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "11.11" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -371,13 +368,13 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "22.22" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -388,13 +385,13 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "33.33" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -421,17 +418,16 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 200", async () => {
+    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async () : Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
-        await DwollaTransferService.getByUserId(dwollaIdUser1);
+        (await DwollaTransferService.getByUserId(dwollaIdUser1))?.filter((element) => element.type == "DEPOSIT");
       log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
 
-      for (let i = 0; i < deposits.length; i++) {
+      for (let i = 0; i < deposits?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
           deposits[i].id,
@@ -453,12 +449,12 @@ describe("Operator endpoints test", () => {
       }
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 200", async () => {
+    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 202", async () : Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
-        await DwollaTransferService.getByUserId(dwollaIdUser2);
+      (await DwollaTransferService.getByUserId(dwollaIdUser2))?.filter((element) => element.type == "DEPOSIT");
       log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
 
-      for (let i = 0; i < deposits.length; i++) {
+      for (let i = 0; i < deposits?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
           deposits[i].id,
@@ -493,7 +489,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -513,7 +508,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -523,6 +517,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 400 with invalid body", (done) => {
@@ -536,7 +534,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -552,7 +549,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -568,7 +564,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -585,10 +580,9 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
-    });
+    });      
 
     it("it should withdraw from user1, HTTP 202", (done) => {
       chai
@@ -602,7 +596,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -619,16 +612,74 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
+
+    it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async () : Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
+        (await DwollaTransferService.getByUserId(dwollaIdUser1))?.filter((element) => element.type == "WITHDRAWAL");
+      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
+
+      for (let i = 0; i < withdrawals?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          withdrawals[i].id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
+
+    it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async () : Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
+        (await DwollaTransferService.getByUserId(dwollaIdUser2))?.filter((element) => element.type == "WITHDRAWAL");
+      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
+
+      for (let i = 0; i < withdrawals?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          withdrawals[i].id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
+
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
@@ -642,7 +693,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -662,7 +712,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -682,7 +731,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -692,6 +740,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 400 with invalid body", (done) => {
@@ -705,7 +757,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -721,7 +772,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -737,7 +787,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -754,7 +803,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -771,7 +819,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -787,7 +834,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -797,6 +843,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should get 1 transfer for user1, HTTP 200", (done) => {
@@ -815,7 +865,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -836,7 +885,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -860,7 +908,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -876,7 +923,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -894,7 +940,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -909,7 +954,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -926,7 +970,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -942,7 +985,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -957,7 +999,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -975,7 +1016,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -990,7 +1030,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1008,7 +1047,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1030,7 +1068,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1045,7 +1082,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1060,7 +1096,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1075,7 +1110,6 @@ describe("Operator endpoints test", () => {
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1093,11 +1127,10 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser1}/notifications`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          console.log(JSON.parse(res.text));
+          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
@@ -1108,11 +1141,10 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser2}/notifications`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          console.log(JSON.parse(res.text));
+          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {
-          console.log(err);
           done(err);
         });
     });
