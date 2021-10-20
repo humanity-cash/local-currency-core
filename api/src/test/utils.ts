@@ -12,6 +12,8 @@ import {
   createFundingSource,
   createPersonalVerifiedCustomer,
   getFundingSourceLinkForUser,
+  initiateMicroDepositsForUser,
+  verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
 import { v4 } from "uuid";
 import { INewUser, INewUserResponse } from "../types";
@@ -146,6 +148,8 @@ export async function createFundingSourceForTest(
     channels: ["ACH"],
   };
   await createFundingSource(fundingSource, userId);
+  await initiateMicroDepositsForUser(userId);
+  await verifyMicroDepositsForUser(userId);
 }
 
 export function createDummyEvent(

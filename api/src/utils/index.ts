@@ -5,6 +5,10 @@ import { AppNotificationService } from "src/database/service";
 
 export { cryptoUtils, httpUtils };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 export async function userNotification(
   userId: string,
   message: string,

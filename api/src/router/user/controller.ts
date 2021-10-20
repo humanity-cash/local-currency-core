@@ -3,15 +3,10 @@ import * as dwolla from "dwolla-v2";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import {
-  getFundingSourcesById,
-  getIAVTokenById,
-  initiateMicroDepositsForUser,
-  verifyMicroDepositsForUser,
-} from "src/service/digital-banking/DwollaService";
+import {  getFundingSourcesById, getIAVTokenById} from "src/service/digital-banking/DwollaService";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
-import { isDevelopment, isProduction, isTest, log } from "src/utils";
-import { createDummyEvent, createFundingSourceForTest } from "../../test/utils";
+import { isDevelopment, isProduction, log } from "src/utils";
+import { createDummyEvent } from "../../test/utils";
 
 import {
   IDeposit,
@@ -58,6 +53,7 @@ export async function getNotifications(
     const id = req?.params?.id;
     const notifications: AppNotificationService.IAppNotificationDBItem[] =
       await AppNotificationService.findByUserId(id);
+    notifications?.sort((a,b) => {return a.timestamp - b.timestamp});
     httpUtils.createHttpResponse(notifications || [], codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
@@ -171,24 +167,6 @@ export async function deposit(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     const deposit = req.body;
     const wallet: IWallet = await PublicServices.getWallet(id);
-
-    if (isTest()) {
-      log(
-        `[NODE_ENV="test] Checking if user ${id} has a verified funding source...`
-      );
-      const fundingSource = await getFundingSourcesById(id);
-
-      if (fundingSource.body?._embedded["funding-sources"].length == 0) {
-        log(`[NODE_ENV="test"] Creating mock funding source for user ${id}`);
-        await createFundingSourceForTest(id);
-        log(`[NODE_ENV="test"] Initiating micro-deposits for user ${id}`);
-        await initiateMicroDepositsForUser(id);
-        log(`[NODE_ENV="test"] Verifying micro-deposits for user ${id}`);
-        await verifyMicroDepositsForUser(id);
-      } else
-        log(`[NODE_ENV="test"] User ${id} already has a funding source...`);
-    }
-
     await OperatorService.deposit(id, deposit.amount);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
