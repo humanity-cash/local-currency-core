@@ -1,4 +1,5 @@
 import { Response } from "dwolla-v2";
+
 export interface HealthResponse {
   blockNumber: number;
   chainId: number;
@@ -68,4 +69,54 @@ export interface IOperatorTotal {
   currentOutstanding: string;
   deposits: IDeposit[];
   withdrawals: IWithdrawal[];
+}
+
+export interface User {
+	consent: boolean
+	verifiedCustomer: boolean
+	verifiedBusiness: boolean
+	email: string
+	customer?: Customer
+	business?: Business
+}
+
+export interface Business {
+	story: string,
+	tag: string,
+	avatar: string,
+	type: string,
+	rbn: string,
+	industry: string,
+	ein: string,
+	address1: string,
+	address2: string,
+	city: string,
+	state: string,
+	postalCode: string,
+	phoneNumber: string,
+	dowllaId: string,
+	resourceUri: string,
+	owner: {
+		firstName: string,
+		lastName: string,
+		address1: string,
+		address2: string,
+		city: string,
+		state: string,
+		postalCode: string
+	}
+}
+
+export interface Customer {
+	avatar: string,
+	tag: string,
+	address1: string,
+	address2: string,
+	city: string,
+	state: string,
+	postalCode: string,
+	firstName: string,
+	lastName: string,
+	dowllaId: string,
+	resourceUri: string,
 }
