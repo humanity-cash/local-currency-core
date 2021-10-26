@@ -17,7 +17,7 @@ module.exports = {
 			diagnostics: true,
 		},
 	},
-	testTimeout: 20000,
+	testTimeout: 120000,
 	setupFiles: [
         "./src/test/setup/config.ts"
     ],
