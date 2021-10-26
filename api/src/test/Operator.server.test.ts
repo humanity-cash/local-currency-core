@@ -2,13 +2,20 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { getApp } from "../server";
-import { setupContracts, createDummyEvent, createFakeUser } from "./utils";
+import {
+  setupContracts /*, createOperatorsForTest*/,
+  createDummyEvent,
+  createFakeUser,
+  processDwollaSandboxSimulations,
+  createFundingSourceForTest,
+} from "./utils";
 import { codes } from "../utils/http";
 import { log } from "../utils";
 import { INewUser } from "../types";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { mockDatabase } from "./setup/setup-db-integration";
+import { DwollaTransferService } from "src/database/service";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -93,7 +100,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser1 = res.body.userId;
+          dwollaIdUser1 = res.body.userId;          
           done();
         })
         .catch((err) => {
@@ -104,6 +111,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdUser1,
         dwollaIdUser1
       );
       const signature = createSignature(
@@ -117,7 +125,10 @@ describe("Operator endpoints test", () => {
         .send(event)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
-          done();
+          createFundingSourceForTest(dwollaIdUser1).then(() => {
+            console.log(`Test only - created funding source for ${dwollaIdUser1}`);
+            done();
+          });
         })
         .catch((err) => {
           done(err);
@@ -143,6 +154,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdUser2,
         dwollaIdUser2
       );
       const signature = createSignature(
@@ -156,7 +168,10 @@ describe("Operator endpoints test", () => {
         .send(event)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
-          done();
+          createFundingSourceForTest(dwollaIdUser2).then(() => {
+            console.log(`Test only - created funding source for ${dwollaIdUser2}`);
+            done();
+          });
         })
         .catch((err) => {
           done(err);
@@ -176,6 +191,7 @@ describe("Operator endpoints test", () => {
         })
         .catch((err) => {
           log(JSON.stringify(err, null, 2));
+
           done(err);
         });
     });
@@ -183,6 +199,7 @@ describe("Operator endpoints test", () => {
     it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdBusiness1,
         dwollaIdBusiness1
       );
       const signature = createSignature(
@@ -200,6 +217,7 @@ describe("Operator endpoints test", () => {
         })
         .catch((err) => {
           log(JSON.stringify(err, null, 2));
+
           done(err);
         });
     });
@@ -270,9 +288,14 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
+    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 400 with invalid body", (done) => {
@@ -282,36 +305,6 @@ describe("Operator endpoints test", () => {
         .send({ banana: "99.99" })
         .then((res) => {
           expect(res).to.have.status(codes.BAD_REQUEST);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should return HTTP 422 with Solidity reversion (negative deposit)", (done) => {
-      chai
-        .request(server)
-        .post(`/users/${dwollaIdUser2}/deposit`)
-        .send({ amount: "-1.0" })
-        .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should return HTTP 422 with Solidity reversion (zero value deposit)", (done) => {
-      chai
-        .request(server)
-        .post(`/users/${dwollaIdUser1}/deposit`)
-        .send({ amount: "0" })
-        .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
           expect(res).to.be.json;
           done();
         })
@@ -341,6 +334,7 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/deposit`)
         .send({ amount: "99.99" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -355,8 +349,9 @@ describe("Operator endpoints test", () => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/deposit`)
-        .send({ amount: "22.22" })
+        .send({ amount: "11.11" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -371,8 +366,9 @@ describe("Operator endpoints test", () => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/deposit`)
-        .send({ amount: "11.11" })
+        .send({ amount: "22.22" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -389,6 +385,7 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "33.33" })
         .then((res) => {
+          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -406,6 +403,10 @@ describe("Operator endpoints test", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
+    });
+
     it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
       chai
         .request(server)
@@ -419,6 +420,60 @@ describe("Operator endpoints test", () => {
         .catch((err) => {
           done(err);
         });
+    });
+
+    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async () : Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
+        (await DwollaTransferService.getByUserId(dwollaIdUser1))?.filter((element) => element.type == "DEPOSIT");
+      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          deposits[i].id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
+
+    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 202", async () : Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
+      (await DwollaTransferService.getByUserId(dwollaIdUser2))?.filter((element) => element.type == "DEPOSIT");
+      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          deposits[i].id,
+          dwollaIdUser2,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
     });
 
     it("it should return 1 deposit for user1, HTTP 200", (done) => {
@@ -462,6 +517,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 400 with invalid body", (done) => {
@@ -523,7 +582,7 @@ describe("Operator endpoints test", () => {
         .catch((err) => {
           done(err);
         });
-    });
+    });      
 
     it("it should withdraw from user1, HTTP 202", (done) => {
       chai
@@ -556,12 +615,71 @@ describe("Operator endpoints test", () => {
           done(err);
         });
     });
+
+    it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async () : Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
+        (await DwollaTransferService.getByUserId(dwollaIdUser1))?.filter((element) => element.type == "WITHDRAWAL");
+      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
+
+      for (let i = 0; i < withdrawals?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          withdrawals[i].id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
+
+    it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async () : Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
+        (await DwollaTransferService.getByUserId(dwollaIdUser2))?.filter((element) => element.type == "WITHDRAWAL");
+      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
+
+      for (let i = 0; i < withdrawals?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          withdrawals[i].id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
+
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
@@ -622,6 +740,10 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
+    });
+
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 400 with invalid body", (done) => {
@@ -723,6 +845,10 @@ describe("Operator endpoints test", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
+    afterEach(async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
+    });
+
     it("it should get 1 transfer for user1, HTTP 200", (done) => {
       chai
         .request(server)
@@ -801,7 +927,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should get Dwolla funding sources for user1 (no result)", (done) => {
+    it("it should get Dwolla funding sources for user1 (1 result)", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser1}/funding-sources`)
@@ -809,8 +935,8 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expectFundingSource(res.body);
-          expect(res.body.status).to.equal(200);
-          expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
+          expect(res.body.status).to.equal(codes.OK);
+          expect(res.body.body._embedded["funding-sources"]).to.have.length(1);
           done();
         })
         .catch((err) => {
@@ -877,30 +1003,10 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should get Dwolla funding sources for user2 (no result)", (done) => {
+    it("it should get Dwolla funding sources for user2 (1 result)", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser2}/funding-sources`)
-        .then((res) => {
-          expect(res).to.have.status(codes.OK);
-          expect(res).to.be.json;
-          expectFundingSource(res.body);
-          expect(res.body.status).to.equal(codes.OK);
-          expect(res.body.body._embedded["funding-sources"]).to.have.length(0);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    // Skipped because while the user exists in Dwolla from prior testing
-    // it doesn't exist in the ephemeral ganache instance used in test
-    xit("it should get Dwolla funding sources for 460852fc-c986-4d2d-aedb-e71d9e5aad37 (1 result)", (done) => {
-      const id = "460852fc-c986-4d2d-aedb-e71d9e5aad37";
-      chai
-        .request(server)
-        .get(`/users/${id}/funding-sources`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
@@ -1001,6 +1107,41 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+  });
+
+  describe("GET /users/:id/notifications", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    it("GET /user/:id/notifications: it should retrieve all notifications for user1, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser1}/notifications`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          // expect(res.body.length).to.equal(4);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("GET /user/:id/notifications: it should retrieve all notifications for user2, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser2}/notifications`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {

@@ -41,11 +41,18 @@ export async function configureEnvironment(): Promise<void> {
     "LOCAL_CURRENCY_MNEMONIC",
     "DERIVATION_PATH",
     "NUMBER_OPERATORS",
+    "OPERATOR_1_FUNDING_SOURCE",
+    "OPERATOR_2_FUNDING_SOURCE",
+    "AWS_REGION",
+    "AWS_POOL_ID",
+    "AWS_CLIENT_ID",
+    "AWS_TOKEN_TYPE",
     "DWOLLA_BASE_URL",
     "DWOLLA_APP_KEY",
     "DWOLLA_APP_SECRET",
     "DWOLLA_ENVIRONMENT",
     "WEBHOOK_SECRET",
+    "WEBHHOK_URL",
   ];
 
   configurationItems.forEach((element) => {

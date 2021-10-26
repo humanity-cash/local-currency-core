@@ -31,4 +31,16 @@ user.get(
   controller.getFundingSources
 );
 
+// Get and close notifications for a user
+user.get(
+  "/users/:id/notifications",
+  validators.getUser,
+  controller.getNotifications
+);
+user.delete(
+  "/users/:id/notifications/:notificationId",
+  validators.notifications,
+  controller.closeNotification
+);
+
 export default user;
