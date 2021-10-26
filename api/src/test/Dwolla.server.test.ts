@@ -2,13 +2,12 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import { getApp } from "../server";
 import { setupContracts, getSalt, createDummyEvent } from "./utils";
-import { log } from "../utils";
+import { httpUtils, log } from "../utils";
 import { codes } from "../utils/http";
 import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import {
   createPersonalVerifiedCustomer,
   createUnverifiedCustomer,
-  getAppToken,
   getFundingSourcesById,
 } from "../service/digital-banking/DwollaService";
 import {
@@ -19,10 +18,15 @@ import {
 import {
   createSignature,
   validSignature,
+  getAppToken,
 } from "../service/digital-banking/DwollaUtils";
 import faker from "faker";
 import { INewUserResponse } from "../types";
 import { mockDatabase } from "./setup/setup-db-integration";
+import {
+  deregisterWebhook,
+  registerWebhook,
+} from "src/service/digital-banking/DwollaWebhookService";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -41,6 +45,8 @@ describe("Dwolla test suite", () => {
   });
 
   describe("Dwolla: test basic configuration and utilities", () => {
+    let webhookUrl;
+
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -66,6 +72,17 @@ describe("Dwolla test suite", () => {
     it("Should request and receive a valid Dwolla OAuth token", async () => {
       const appToken = await getAppToken();
       expect(appToken).to.exist;
+    });
+
+    it("Should register a webhook", async () => {
+      webhookUrl = await registerWebhook();
+      expect(webhookUrl).to.exist;
+    });
+
+    it("Should deregister a webhook", async () => {
+      const response = await deregisterWebhook(webhookUrl);
+      expect(response).to.exist;
+      expect(response.status).to.equal(httpUtils.codes.OK);
     });
   });
 
@@ -196,7 +213,7 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post a supported webhook event and successfully process it, HTTP 202", (done) => {
-      event1 = createDummyEvent("customer_created", user.userId);
+      event1 = createDummyEvent("customer_created", user.userId, user.userId);
 
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
@@ -240,6 +257,7 @@ describe("Dwolla test suite", () => {
     it("it should post an unknown webhook event, HTTP 500", (done) => {
       const event2: DwollaEvent = createDummyEvent(
         "customer_bananas",
+        user.userId,
         user.userId
       );
       const signature = createSignature(
@@ -263,7 +281,8 @@ describe("Dwolla test suite", () => {
 
     it("it should post a known but unsupported webhook event, HTTP 422", (done) => {
       const event3: DwollaEvent = createDummyEvent(
-        "customer_suspended",
+        "customer_bank_transfer_completed",
+        user.userId,
         user.userId
       );
       const signature = createSignature(

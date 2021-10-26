@@ -3,11 +3,8 @@ import * as dwolla from "dwolla-v2";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import {
-  consumeWebhook,
-  getFundingSourcesById,
-  getIAVTokenById,
-} from "src/service/digital-banking/DwollaService";
+import {  getFundingSourcesById, getIAVTokenById} from "src/service/digital-banking/DwollaService";
+import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import { isDevelopment, isProduction, log } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
@@ -20,6 +17,7 @@ import {
   IWithdrawal,
 } from "src/types";
 import { httpUtils } from "src/utils";
+import { AppNotificationService } from "src/database/service";
 
 const codes = httpUtils.codes;
 
@@ -44,6 +42,43 @@ export async function getUser(req: Request, res: Response): Promise<void> {
     else {
       httpUtils.serverError(err, res);
     }
+  }
+}
+
+export async function getNotifications(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    const notifications: AppNotificationService.IAppNotificationDBItem[] =
+      await AppNotificationService.findByUserId(id);
+    notifications?.sort((a,b) => {return a.timestamp - b.timestamp});
+    httpUtils.createHttpResponse(notifications || [], codes.OK, res);
+  } catch (err) {
+    if (err?.message?.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get deposits failed: user does not exist", res);
+    else httpUtils.serverError(err, res);
+  }
+}
+
+export async function closeNotification(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    // const id = req?.params?.id;
+    const dbId = req?.params?.notificationId;
+    const closed: boolean = await AppNotificationService.close(dbId);
+    httpUtils.createHttpResponse(
+      { message: `Notification closed: ${closed}` },
+      codes.OK,
+      res
+    );
+  } catch (err) {
+    if (err?.message?.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get deposits failed: user does not exist", res);
+    else httpUtils.serverError(err, res);
   }
 }
 
@@ -85,7 +120,11 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
 async function shortcutUserCreation(userId: string): Promise<void> {
   if (isProduction()) throw "Error! Development utility used in production";
 
-  const event: DwollaEvent = createDummyEvent("customer_created", userId);
+  const event: DwollaEvent = createDummyEvent(
+    "customer_created",
+    userId,
+    userId
+  );
   const created: boolean = await consumeWebhook(event);
 
   if (created)
@@ -127,8 +166,8 @@ export async function deposit(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const deposit = req.body;
-    await OperatorService.deposit(id, deposit.amount);
     const wallet: IWallet = await PublicServices.getWallet(id);
+    await OperatorService.deposit(id, deposit.amount);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
