@@ -78,12 +78,12 @@ describe("Dwolla test suite", () => {
     it("Should register a webhook", async (): Promise<void> => {
       webhookUrl = await registerWebhook();
       expect(webhookUrl).to.exist;
-      console.log(webhookUrl);
+      log(webhookUrl);
     });
 
     it("Should list all webhooks", async (): Promise<void> => {
       const webhooks = await getAllWebhooks();
-      console.log(JSON.stringify(webhooks.body, null, 2));
+      log(JSON.stringify(webhooks.body, null, 2));
       expect(webhooks).to.exist;
     });
 
