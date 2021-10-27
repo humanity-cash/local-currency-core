@@ -69,9 +69,9 @@ export async function closeNotification(
   try {
     // const id = req?.params?.id;
     const dbId = req?.params?.notificationId;
-    const closed: boolean = await AppNotificationService.close(dbId);
+    await AppNotificationService.close(dbId);
     httpUtils.createHttpResponse(
-      { message: `Notification closed: ${closed}` },
+      { message: `Notification ${dbId} closed` },
       codes.OK,
       res
     );
