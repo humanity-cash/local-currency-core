@@ -15,18 +15,42 @@ import {
 import { webhookMint } from "../OperatorService";
 
 export async function registerWebhook(): Promise<string> {
-  const appToken: dwolla.Client = await getAppToken();
-  const webhook = {
-    url: process.env.WEBHOOK_URL,
-    secret: process.env.WEBHOOK_SECRET,
-  };
-  const response: dwolla.Response = await appToken.post(
-    process.env.DWOLLA_BASE_URL + "webhook-subscriptions/",
-    webhook
-  );
-  const webhookUrl = response.headers.get("location");
-  log(`Webhook ${webhook.url} successfully registered, location ${webhookUrl}`);
-  return webhookUrl;
+  try {
+    const appToken: dwolla.Client = await getAppToken();
+    const webhook = {
+      url: process.env.WEBHOOK_URL,
+      secret: process.env.WEBHOOK_SECRET,
+    };
+    const response: dwolla.Response = await appToken.post(
+      process.env.DWOLLA_BASE_URL + "webhook-subscriptions/",
+      webhook
+    );
+    const webhookUrl = response.headers.get("location");
+    log(
+      `Webhook ${webhook.url} successfully registered, location ${webhookUrl}`
+    );
+    return webhookUrl;
+  } catch (err) {
+    if (err.body.code == "MaxNumberOfResources") {
+      const webhooks: dwolla.Response = await getAllWebhooks();
+      const sortedWebhooks = webhooks.body._embedded[
+        "webhook-subscriptions"
+      ].sort((a, b) => {
+        const aCreated = a.created.toUpperCase();
+        const bCreated = b.created.toUpperCase();
+        if (aCreated < bCreated) return -1;
+        else if (aCreated > bCreated) return 1;
+        else return 0;
+      });
+
+      const webhookToDelete = sortedWebhooks[0]?._links?.self?.href;
+      log(`Deleting oldest webhook ${webhookToDelete}`);
+      await deregisterWebhook(webhookToDelete);
+
+      log(`Retrying register new webhook...`);
+      return await registerWebhook();
+    } else throw err;
+  }
 }
 
 export async function deregisterWebhook(
@@ -35,6 +59,12 @@ export async function deregisterWebhook(
   const appToken: dwolla.Client = await getAppToken();
   const response: dwolla.Response = await appToken.delete(webhookUrl);
   log(`Webhook ${webhookUrl} successfully deregistered`);
+  return response;
+}
+
+export async function getAllWebhooks(): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const response: dwolla.Response = await appToken.get("webhook-subscriptions");
   return response;
 }
 
@@ -177,9 +207,8 @@ export async function consumeWebhook(
             eventToProcess,
             "Your bank transfer has been created"
           );
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;
@@ -198,9 +227,8 @@ export async function consumeWebhook(
             "Your bank transfer has been cancelled\nPlease contact support for assistance",
             "ERR"
           );
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;
@@ -219,9 +247,8 @@ export async function consumeWebhook(
             "Your bank transfer has failed\nPlease contact support for assistance",
             "ERR"
           );
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;
@@ -240,9 +267,8 @@ export async function consumeWebhook(
             "Could not create a bank transfer\nPlease contact support for assistance",
             "ERR"
           );
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;
@@ -261,9 +287,8 @@ export async function consumeWebhook(
       case "customer_transfer_created":
         try {
           await notifyUserWithReason(eventToProcess, "Bank transfer created");
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;
@@ -282,9 +307,8 @@ export async function consumeWebhook(
             "Your bank transfer was cancelled\nPlease contact support for assistance",
             "ERR"
           );
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;
@@ -303,9 +327,8 @@ export async function consumeWebhook(
             "Your bank transfer has failed\nPlease contact support for assistance",
             "ERR"
           );
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
           await DwollaTransferService.updateStatus(
-            transfer.body.id,
+            eventToProcess.resourceId,
             eventToProcess.topic
           );
           processed = true;

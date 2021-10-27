@@ -39,7 +39,11 @@ export function validSignature(
 ): boolean {
   try {
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${payloadBody}...`
+      `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${JSON.stringify(
+        payloadBody,
+        null,
+        2
+      )}...`
     );
     const hash = crypto
       .createHmac("sha256", webhookSecret)
