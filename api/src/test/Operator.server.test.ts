@@ -15,7 +15,10 @@ import { INewUser } from "../types";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { mockDatabase } from "./setup/setup-db-integration";
-import { DwollaTransferService, AppNotificationService } from "src/database/service";
+import {
+  DwollaTransferService,
+  AppNotificationService,
+} from "src/database/service";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -100,7 +103,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser1 = res.body.userId;          
+          dwollaIdUser1 = res.body.userId;
           done();
         })
         .catch((err) => {
@@ -126,7 +129,9 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           createFundingSourceForTest(dwollaIdUser1).then(() => {
-            console.log(`Test only - created funding source for ${dwollaIdUser1}`);
+            console.log(
+              `Test only - created funding source for ${dwollaIdUser1}`
+            );
             done();
           });
         })
@@ -169,7 +174,9 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           createFundingSourceForTest(dwollaIdUser2).then(() => {
-            console.log(`Test only - created funding source for ${dwollaIdUser2}`);
+            console.log(
+              `Test only - created funding source for ${dwollaIdUser2}`
+            );
             done();
           });
         })
@@ -288,7 +295,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users/:userId/deposit (deposit for user)", () => {
-    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -422,9 +428,10 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async () : Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
-        (await DwollaTransferService.getByUserId(dwollaIdUser1))?.filter((element) => element.type == "DEPOSIT");
+    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async (): Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdUser1)
+      )?.filter((element) => element.type == "DEPOSIT");
       log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
 
       for (let i = 0; i < deposits?.length; i++) {
@@ -449,9 +456,10 @@ describe("Operator endpoints test", () => {
       }
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 202", async () : Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
-      (await DwollaTransferService.getByUserId(dwollaIdUser2))?.filter((element) => element.type == "DEPOSIT");
+    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 202", async (): Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdUser2)
+      )?.filter((element) => element.type == "DEPOSIT");
       log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
 
       for (let i = 0; i < deposits?.length; i++) {
@@ -582,7 +590,7 @@ describe("Operator endpoints test", () => {
         .catch((err) => {
           done(err);
         });
-    });      
+    });
 
     it("it should withdraw from user1, HTTP 202", (done) => {
       chai
@@ -616,9 +624,10 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async () : Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
-        (await DwollaTransferService.getByUserId(dwollaIdUser1))?.filter((element) => element.type == "WITHDRAWAL");
+    it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdUser1)
+      )?.filter((element) => element.type == "WITHDRAWAL");
       log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
 
       for (let i = 0; i < withdrawals?.length; i++) {
@@ -643,9 +652,10 @@ describe("Operator endpoints test", () => {
       }
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async () : Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
-        (await DwollaTransferService.getByUserId(dwollaIdUser2))?.filter((element) => element.type == "WITHDRAWAL");
+    it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdUser2)
+      )?.filter((element) => element.type == "WITHDRAWAL");
       log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
 
       for (let i = 0; i < withdrawals?.length; i++) {
@@ -669,7 +679,6 @@ describe("Operator endpoints test", () => {
           });
       }
     });
-
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
@@ -1116,7 +1125,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("GET /users/:id/notifications", () => {
-    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -1150,20 +1158,25 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("DELETE /user/:id/notifications: it should close a notification, HTTP 200", async () : Promise<void> => {      
-      const input : AppNotificationService.ICreateAppNotificationDBItem = {
+    it("DELETE /user/:id/notifications: it should close a notification, HTTP 200", async (): Promise<void> => {
+      const input: AppNotificationService.ICreateAppNotificationDBItem = {
         message: "Test",
         closed: false,
         level: "INFO",
         userId: dwollaIdUser1,
-        timestamp: Date.now()
-      }
-      const notification : AppNotificationService.IAppNotificationDBItem = await AppNotificationService.create(input);
+        timestamp: Date.now(),
+      };
+      const notification: AppNotificationService.IAppNotificationDBItem =
+        await AppNotificationService.create(input);
       console.log(notification);
 
-      const res = await chai.request(server).delete(`/users/${dwollaIdUser1}/notifications/${notification.dbId}`);
+      const res = await chai
+        .request(server)
+        .delete(`/users/${dwollaIdUser1}/notifications/${notification.dbId}`);
       expect(res).to.have.status(codes.OK);
-      expect(res.body.message).to.equal(`Notification ${notification.dbId} closed`);
+      expect(res.body.message).to.equal(
+        `Notification ${notification.dbId} closed`
+      );
     });
   });
 });

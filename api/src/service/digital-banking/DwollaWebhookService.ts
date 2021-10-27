@@ -2,7 +2,12 @@ import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
 import { newWallet } from "../contracts";
 import { log, userNotification } from "src/utils";
-import { duplicateWebhookExists, getAppToken, getDwollaResourceFromEvent, getDwollaCustomerFromEvent } from "./DwollaUtils";
+import {
+  duplicateWebhookExists,
+  getAppToken,
+  getDwollaResourceFromEvent,
+  getDwollaCustomerFromEvent,
+} from "./DwollaUtils";
 import {
   DwollaEventService,
   DwollaTransferService,
@@ -333,8 +338,8 @@ export async function consumeWebhook(
             )}`
           );
 
-          if(!transferDBItem)
-              throw `DwollaWebhookService.ts::consumeWebhook() Database record for this event does not exist yet, is there a timing issue?`;
+          if (!transferDBItem)
+            throw `DwollaWebhookService.ts::consumeWebhook() Database record for this event does not exist yet, is there a timing issue?`;
 
           // Notify user of transfer completion
           await notifyUserWithReason(

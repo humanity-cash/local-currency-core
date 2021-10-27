@@ -15,7 +15,7 @@ import { Response } from "dwolla-v2";
 import {
   createUnverifiedCustomer,
   createTransfer,
-  getFundingSourceLinkForUser
+  getFundingSourceLinkForUser,
 } from "./digital-banking/DwollaService";
 import { DwollaTransferService } from "src/database/service";
 import {
@@ -67,47 +67,52 @@ async function createDwollaTransfer(
   userId: string,
   operatorId: string
 ) {
-    // 1 Construct transfer request
-    const transferRequest: DwollaTransferRequest = {
-      _links: {
-        source: {
-          href: fundingSourceLink,
-        },
-        destination: {
-          href: fundingTargetLink,
-        },
+  // 1 Construct transfer request
+  const transferRequest: DwollaTransferRequest = {
+    _links: {
+      source: {
+        href: fundingSourceLink,
       },
-      amount: {
-        currency: "USD",
-        value: amount,
+      destination: {
+        href: fundingTargetLink,
       },
-    };
+    },
+    amount: {
+      currency: "USD",
+      value: amount,
+    },
+  };
 
-    // 2 Inititate Dwolla transfer
-    const transferResponse: Response = await createTransfer(transferRequest);
-    log(
-      `OperatorService.ts::createDwollaTransfer() ${transferResponse.headers.get("location")}`
-    );
+  // 2 Inititate Dwolla transfer
+  const transferResponse: Response = await createTransfer(transferRequest);
+  log(
+    `OperatorService.ts::createDwollaTransfer() ${transferResponse.headers.get(
+      "location"
+    )}`
+  );
 
-    // 3 Get newly created transfer
-    const transferToUse : Response = await getDwollaResourceFromLocation(transferResponse.headers.get("location"));
+  // 3 Get newly created transfer
+  const transferToUse: Response = await getDwollaResourceFromLocation(
+    transferResponse.headers.get("location")
+  );
 
-    // 4 Save to DB
-    const now = Date.now();
-    const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
-      id: transferToUse.body.id,
-      userId: userId,
-      operatorId: operatorId,
-      fundingSource: transferToUse.body._links["source-funding-source"].href,
-      fundingTarget: transferToUse.body._links["destination-funding-source"].href,
-      amount: transferToUse.body.amount.value,
-      status: transferToUse.body.status,
-      type: type,
-      created: now,
-      updated: now,
-    };
-    const transferDBItem: DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.create(transfer);
-    return transferDBItem;
+  // 4 Save to DB
+  const now = Date.now();
+  const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
+    id: transferToUse.body.id,
+    userId: userId,
+    operatorId: operatorId,
+    fundingSource: transferToUse.body._links["source-funding-source"].href,
+    fundingTarget: transferToUse.body._links["destination-funding-source"].href,
+    amount: transferToUse.body.amount.value,
+    status: transferToUse.body.status,
+    type: type,
+    created: now,
+    updated: now,
+  };
+  const transferDBItem: DwollaTransferService.IDwollaTransferDBItem =
+    await DwollaTransferService.create(transfer);
+  return transferDBItem;
 }
 
 export async function deposit(

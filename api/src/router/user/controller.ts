@@ -3,7 +3,10 @@ import * as dwolla from "dwolla-v2";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import {  getFundingSourcesById, getIAVTokenById} from "src/service/digital-banking/DwollaService";
+import {
+  getFundingSourcesById,
+  getIAVTokenById,
+} from "src/service/digital-banking/DwollaService";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import { isDevelopment, isProduction, log } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
@@ -53,7 +56,9 @@ export async function getNotifications(
     const id = req?.params?.id;
     const notifications: AppNotificationService.IAppNotificationDBItem[] =
       await AppNotificationService.findByUserId(id);
-    notifications?.sort((a,b) => {return a.timestamp - b.timestamp});
+    notifications?.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
     httpUtils.createHttpResponse(notifications || [], codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
