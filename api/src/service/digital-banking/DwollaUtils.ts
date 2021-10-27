@@ -1,11 +1,11 @@
 import crypto from "crypto";
 import { Buffer } from "buffer";
 import { log } from "src/utils";
-import { DwollaClientOptions } from "./DwollaTypes";
-import { Client } from "dwolla-v2";
+import { DwollaClientOptions, DwollaEvent } from "./DwollaTypes";
+import * as dwolla from "dwolla-v2";
 import { DwollaEventService } from "src/database/service";
 
-export async function getAppToken(): Promise<Client> {
+export async function getAppToken(): Promise<dwolla.Client> {
   const options: DwollaClientOptions =
     process.env.DWOLLA_ENVIRONMENT == "sandbox"
       ? {
@@ -18,7 +18,7 @@ export async function getAppToken(): Promise<Client> {
           secret: process.env.DWOLLA_APP_SECRET,
           environment: "production",
         };
-  return new Client(options);
+  return new dwolla.Client(options);
 }
 
 export function createSignature(
@@ -76,4 +76,26 @@ export async function duplicateWebhookExists(id: string): Promise<boolean> {
     log(`DwollaUtils.ts::duplicateExists: No duplicate for Event ${id} found`);
     return false;
   }
+}
+
+export async function getDwollaCustomerFromEvent(
+  event: DwollaEvent
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res = await appToken.get(event._links.customer.href);
+  return res;
+}
+
+export async function getDwollaResourceFromEvent(
+  event: DwollaEvent
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res = await appToken.get(event._links.resource.href);
+  return res;
+}
+
+export async function getDwollaResourceFromLocation(location:string): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res = await appToken.get(location);
+  return res;
 }

@@ -2,7 +2,7 @@ import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
 import { newWallet } from "../contracts";
 import { log, userNotification } from "src/utils";
-import { duplicateWebhookExists, getAppToken } from "./DwollaUtils";
+import { duplicateWebhookExists, getAppToken, getDwollaResourceFromEvent, getDwollaCustomerFromEvent } from "./DwollaUtils";
 import {
   DwollaEventService,
   DwollaTransferService,
@@ -43,22 +43,6 @@ function logSupported(topic: string) {
   log(
     `DwollaWebhookService.ts::consumeWebhook() Supported topic ${topic} received and beginning processing...`
   );
-}
-
-async function getDwollaCustomerFromEvent(
-  event: DwollaEvent
-): Promise<dwolla.Response> {
-  const appToken: dwolla.Client = await getAppToken();
-  const res = await appToken.get(event._links.customer.href);
-  return res;
-}
-
-async function getDwollaResourceFromEvent(
-  event: DwollaEvent
-): Promise<dwolla.Response> {
-  const appToken: dwolla.Client = await getAppToken();
-  const res = await appToken.get(event._links.resource.href);
-  return res;
 }
 
 async function notifyUserWithReason(
