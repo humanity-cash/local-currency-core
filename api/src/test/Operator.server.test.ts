@@ -340,7 +340,6 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/deposit`)
         .send({ amount: "99.99" })
         .then((res) => {
-          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -357,7 +356,6 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "11.11" })
         .then((res) => {
-          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -374,7 +372,6 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "22.22" })
         .then((res) => {
-          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -391,7 +388,6 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "33.33" })
         .then((res) => {
-          // console.log(res);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
