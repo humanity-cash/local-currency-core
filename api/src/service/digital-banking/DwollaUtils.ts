@@ -94,7 +94,9 @@ export async function getDwollaResourceFromEvent(
   return res;
 }
 
-export async function getDwollaResourceFromLocation(location:string): Promise<dwolla.Response> {
+export async function getDwollaResourceFromLocation(
+  location: string
+): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
   const res = await appToken.get(location);
   return res;
