@@ -50,8 +50,7 @@ export async function findByUserId(
   if (response?.length > 0) {
     response.forEach((item) => {
       const pushItem = removeMongoMeta(item.toObject());
-      if(!pushItem.closed)
-        items.push(pushItem);
+      if (!pushItem.closed) items.push(pushItem);
     });
   }
   return items;
