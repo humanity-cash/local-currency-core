@@ -43,4 +43,8 @@ user.delete(
   controller.closeNotification
 );
 
+// add verifications for user
+user.post("/users/:id/verify/customer", validators.addCustomerVerification, controller.addCustomerVerification);
+user.post("/users/:id/verify/business", validators.addBusinessVerification, controller.addBusinessVerification);
+
 export default user;
