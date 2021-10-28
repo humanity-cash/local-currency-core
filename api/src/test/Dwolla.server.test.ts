@@ -25,6 +25,7 @@ import { INewUserResponse } from "../types";
 import { mockDatabase } from "./setup/setup-db-integration";
 import {
   deregisterWebhook,
+  getAllWebhooks,
   registerWebhook,
 } from "src/service/digital-banking/DwollaWebhookService";
 
@@ -69,17 +70,24 @@ describe("Dwolla test suite", () => {
       done();
     });
 
-    it("Should request and receive a valid Dwolla OAuth token", async () => {
+    it("Should request and receive a valid Dwolla OAuth token", async (): Promise<void> => {
       const appToken = await getAppToken();
       expect(appToken).to.exist;
     });
 
-    it("Should register a webhook", async () => {
+    it("Should register a webhook", async (): Promise<void> => {
       webhookUrl = await registerWebhook();
       expect(webhookUrl).to.exist;
+      log(webhookUrl);
     });
 
-    it("Should deregister a webhook", async () => {
+    it("Should list all webhooks", async (): Promise<void> => {
+      const webhooks = await getAllWebhooks();
+      log(JSON.stringify(webhooks.body, null, 2));
+      expect(webhooks).to.exist;
+    });
+
+    it("Should deregister a webhook", async (): Promise<void> => {
       const response = await deregisterWebhook(webhookUrl);
       expect(response).to.exist;
       expect(response.status).to.equal(httpUtils.codes.OK);

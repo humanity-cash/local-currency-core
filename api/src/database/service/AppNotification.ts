@@ -29,7 +29,7 @@ export async function create(
 
 export async function close(dbId: string): Promise<boolean> {
   const response = await AppNotification.updateOne(
-    { dbId: dbId },
+    { _id: dbId },
     { closed: true }
   );
   if (response.n == 0 || response.nModified == 0)
@@ -48,7 +48,10 @@ export async function findByUserId(
   const response = await AppNotification.find({ userId: userId });
   const items: IAppNotificationDBItem[] = [];
   if (response?.length > 0) {
-    response.forEach((item) => items.push(removeMongoMeta(item.toObject())));
+    response.forEach((item) => {
+      const pushItem = removeMongoMeta(item.toObject());
+      if (!pushItem.closed) items.push(pushItem);
+    });
   }
   return items;
 }
