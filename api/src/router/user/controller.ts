@@ -1,23 +1,30 @@
-import { Request, Response } from "express";
 import * as dwolla from "dwolla-v2";
+import { Request, Response } from "express";
+import { AppNotificationService } from "src/database/service";
+import * as AuthService from "src/service/AuthService";
+import { getFundingSourcesById, getIAVTokenById } from "src/service/digital-banking/DwollaService";
+import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
+import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
-import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import {  getFundingSourcesById, getIAVTokenById} from "src/service/digital-banking/DwollaService";
-import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
-import { isDevelopment, isProduction, log } from "src/utils";
-import { createDummyEvent } from "../../test/utils";
-
 import {
+  BusinessDetails,
+  CustomerDetails,
+  IAddBusinessVerification,
+  IAddCustomerVerification,
+  IBusinessDowllaId,
+  ICustomerDowllaId,
   IDeposit,
+  IDowllaNewUser,
   INewUser,
   INewUserResponse,
   ITransferEvent,
   IWallet,
-  IWithdrawal,
+  IWithdrawal
 } from "src/types";
-import { httpUtils } from "src/utils";
-import { AppNotificationService } from "src/database/service";
+import { httpUtils, isDevelopment, isProduction, log } from "src/utils";
+import { createDummyEvent } from "../../test/utils";
+
 
 const codes = httpUtils.codes;
 
@@ -53,7 +60,7 @@ export async function getNotifications(
     const id = req?.params?.id;
     const notifications: AppNotificationService.IAppNotificationDBItem[] =
       await AppNotificationService.findByUserId(id);
-    notifications?.sort((a,b) => {return a.timestamp - b.timestamp});
+    notifications?.sort((a, b) => { return a.timestamp - b.timestamp });
     httpUtils.createHttpResponse(notifications || [], codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
@@ -137,15 +144,48 @@ async function shortcutUserCreation(userId: string): Promise<void> {
     );
 }
 
+function isObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
+};
+
+export function isEmptyObject(i: unknown): boolean {
+  if (!i || !isObject(i)) return true
+  const keys = Object.keys(i);
+
+  return Boolean(keys.length);
+}
+
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUser: INewUser = req.body;
-    const businessName: string = newUser.businessName || "";
-    if (businessName) newUser.email = newUser.authUserId + "@humanity.cash";
-
     const newUserResponse: INewUserResponse = await OperatorService.createUser(
-      newUser
+      newUser.dowllaDetails
     );
+    const isCustomer = () => newUser?.customerDetails && !isEmptyObject(newUser?.customerDetails);
+    const isBusiness = () => newUser?.businessDetails && !isEmptyObject(newUser?.businessDetails);
+    let result = {}; //new user created in db
+
+    if (isCustomer) {
+      result = await AuthService.createCustomer({
+        consent: true,
+        customer: {
+          ...newUser.customerDetails,
+          dowllaId: newUserResponse.userId,
+          resourceUri: newUserResponse.resourceUri
+        },
+        email: newUser.email,
+      })
+    } else if (isBusiness) {
+      result = await AuthService.createBusiness({
+        consent: true,
+        business: {
+          ...newUser.businessDetails,
+          dowllaId: newUserResponse.userId,
+          resourceUri: newUserResponse.resourceUri
+        },
+        email: newUser.email,
+      })
+    }
 
     if (isDevelopment()) {
       log(`[NODE_ENV="development"] Performing webhook shortcut...`);
@@ -154,7 +194,122 @@ export async function createUser(req: Request, res: Response): Promise<void> {
       log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
     }
 
-    httpUtils.createHttpResponse(newUserResponse, codes.CREATED, res);
+    httpUtils.createHttpResponse(result, codes.CREATED, res);
+  } catch (err) {
+    if (err.message?.includes("ERR_USER_EXISTS"))
+      httpUtils.unprocessable("Create user failed: user already exists", res);
+    else httpUtils.serverError(err, res);
+  }
+}
+
+export async function addCustomerVerification(req: Request, res: Response): Promise<void> {
+  try {
+    const { customer, filter }: { customer: CustomerDetails, filter: IBusinessDowllaId } = req.body;
+    const { firstName, lastName, city, state, postalCode, address1, address2, avatar, tag } = customer;
+    const dowllaDetails: IDowllaNewUser = {
+      email: 'email@email.com', //?
+      authUserId: '', // ?
+      firstName,
+      lastName,
+      city,
+      state,
+      postalCode,
+      address1,
+      address2,
+      ipAddress: '',
+      rbn: '',
+    }
+
+    const newUserResponse: INewUserResponse = await OperatorService.createUser(
+      dowllaDetails
+    );
+    
+    const customerVerification: IAddCustomerVerification = {
+      customer: {
+        avatar,
+        tag,
+        address1,
+        address2,
+        city,
+        state,
+        postalCode,
+        firstName,
+        lastName,
+        dowllaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      }
+    };
+
+    const result = await AuthService.addCustomerVerification(filter.business.dowllaId, customerVerification);
+
+    if (isDevelopment()) {
+      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
+      await shortcutUserCreation(newUserResponse.userId);
+    } else {
+      log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
+    }
+
+    httpUtils.createHttpResponse(result, codes.CREATED, res);
+  } catch (err) {
+    if (err.message?.includes("ERR_USER_EXISTS"))
+      httpUtils.unprocessable("Create user failed: user already exists", res);
+    else httpUtils.serverError(err, res);
+  }
+}
+
+export async function addBusinessVerification(req: Request, res: Response): Promise<void> {
+  try {
+    const { business, filter }: { business: BusinessDetails, filter: ICustomerDowllaId } = req.body;
+    const { story, owner, rbn, ein, city, state, postalCode, address1, address2, avatar, tag, type,
+      industry,
+      phoneNumber, } = business;
+    const dowllaDetails: IDowllaNewUser = {
+      email: 'email@email.com', //?
+      authUserId: '', // ?
+      firstName: owner.firstName,
+      lastName: owner.lastName,
+      city,
+      state,
+      postalCode,
+      address1,
+      address2,
+      ipAddress: '',
+      rbn,
+    }
+
+    const newUserResponse: INewUserResponse = await OperatorService.createUser(
+      dowllaDetails
+    );
+    const businessVerification: IAddBusinessVerification = {
+      business: {
+        story,
+        tag,
+        rbn,
+        owner,
+        avatar,
+        type,
+        industry,
+        phoneNumber,
+        ein,
+        address1,
+        address2,
+        city,
+        state,
+        postalCode,
+        dowllaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      }
+    };
+    const result = await AuthService.addBusinessVerification(filter.customer.dowllaId, businessVerification);
+
+    if (isDevelopment()) {
+      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
+      await shortcutUserCreation(newUserResponse.userId);
+    } else {
+      log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
+    }
+
+    httpUtils.createHttpResponse(result, codes.CREATED, res);
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.unprocessable("Create user failed: user already exists", res);
@@ -277,3 +432,6 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
     else httpUtils.serverError(err, res);
   }
 }
+
+// const businessName: string = newUser.businessName || "";
+// if (businessName) newUser.email = newUser.authUserId + "@humanity.cash";
