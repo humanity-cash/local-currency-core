@@ -1,4 +1,5 @@
 import { Response } from "dwolla-v2";
+import { ObjectId } from "mongoose";
 
 export interface HealthResponse {
   blockNumber: number;
@@ -9,10 +10,12 @@ export interface HealthResponse {
   owner: string;
   walletFactory: string;
 }
+
 export interface ITransferOwnerRequest {
   newOwner: string;
   userId?: string;
 }
+
 export interface IWallet {
   userId: string;
   address: string;
@@ -22,38 +25,89 @@ export interface IWallet {
   totalBalance: number;
   customer?: Response;
 }
-export interface INewUser {
+
+export interface IDowllaNewUser {
+  email: string;
   firstName: string;
   lastName: string;
-  email: string;
   address1: string;
   address2?: string;
   city: string;
   state: string;
   postalCode: string;
-  businessName?: string;
+  rbn?: string;
   ipAddress?: string;
   authUserId: string;
 }
+
+export interface BusinessDetails {
+  story: string,
+  tag: string,
+  avatar: string,
+  type: string,
+  rbn: string,
+  industry: string,
+  ein: string,
+  address1: string,
+  address2: string,
+  city: string,
+  state: string,
+  postalCode: string,
+  phoneNumber: string,
+  owner: {
+    firstName: string,
+    lastName: string,
+    address1: string,
+    address2: string,
+    city: string,
+    state: string,
+    postalCode: string
+  }
+}
+
+export interface CustomerDetails {
+  avatar: string;
+  tag: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface INewUser {
+  email: string;
+  consent: boolean;
+  dowllaDetails: IDowllaNewUser;
+  businessDetails?: BusinessDetails;
+  customerDetails?: CustomerDetails;
+}
+
 export interface INewUserResponse {
   userId: string;
   resourceUri: string;
 }
+
 export interface IEventBase {
   transactionHash: string;
   blockNumber: number;
   timestamp: string | number;
 }
+
 export interface IDeposit extends IEventBase {
   operator: string;
   userId: string;
   value: string;
 }
+
 export interface IWithdrawal extends IEventBase {
   operator: string;
   userId: string;
   value: string;
 }
+
 export interface ITransferEvent extends IEventBase {
   fromUserId: string;
   fromAddress: string;
@@ -62,6 +116,7 @@ export interface ITransferEvent extends IEventBase {
   value: string;
   type: string;
 }
+
 export interface IOperatorTotal {
   operator: string;
   totalDeposits: string;
@@ -69,6 +124,21 @@ export interface IOperatorTotal {
   currentOutstanding: string;
   deposits: IDeposit[];
   withdrawals: IWithdrawal[];
+}
+
+export interface UpdateUser {
+	verifiedCustomer?: boolean
+	verifiedBusiness?: boolean
+	customer?: Customer
+	business?: Business
+}
+
+export interface IAddCustomerVerification {
+	customer: Customer
+}
+
+export interface IAddBusinessVerification {
+	business: Business
 }
 
 export interface User {
@@ -94,7 +164,7 @@ export interface Business {
 	state: string,
 	postalCode: string,
 	phoneNumber: string,
-	dowllaId: string,
+	dowllaId: DowllaId,
 	resourceUri: string,
 	owner: {
 		firstName: string,
@@ -117,6 +187,36 @@ export interface Customer {
 	postalCode: string,
 	firstName: string,
 	lastName: string,
-	dowllaId: string,
+	dowllaId: DowllaId,
 	resourceUri: string,
 }
+
+export type DowllaId = string;
+
+export type ICustomerDowllaId = { customer: { dowllaId: DowllaId }};
+
+export type IBusinessDowllaId = { business: { dowllaId: DowllaId }};
+
+export interface INewBusinessDocument {
+	consent: boolean
+	verifiedCustomer: boolean
+	verifiedBusiness: boolean
+	business: Business & { _id: ObjectId }
+	email: string
+	createdAt: Date
+	updatedAt: Date
+	dbId: ObjectId 
+}
+
+export interface INewCustomerDocument {
+	consent: boolean
+	verifiedCustomer: boolean
+	verifiedBusiness: boolean
+	customer: Customer & { _id: ObjectId }
+	email: string
+	createdAt: Date
+	updatedAt: Date
+	dbId: ObjectId 
+}
+
+export type IMongooseMetadata = { __v: number; _id: ObjectId };
