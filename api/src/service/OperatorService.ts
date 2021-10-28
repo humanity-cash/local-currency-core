@@ -6,16 +6,16 @@ import {
   IDeposit, IDowllaNewUser, INewUserResponse, IOperatorTotal, ITransferEvent,
   IWithdrawal
 } from "src/types";
-import { httpUtils, log, sleep } from "src/utils";
+import { log } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
 import {
-  createTransfer, createUnverifiedCustomer, getFundingSourceLinkForUser,
-  getTransferCollectionForUser
+  createTransfer, createUnverifiedCustomer, getFundingSourceLinkForUser
 } from "./digital-banking/DwollaService";
 import {
   DwollaTransferRequest, DwollaUnverifiedCustomerRequest
 } from "./digital-banking/DwollaTypes";
+import { getDwollaResourceFromLocation } from "./digital-banking/DwollaUtils";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
 export async function createUser(newUser: IDowllaNewUser): Promise<INewUserResponse> {
@@ -58,183 +58,54 @@ async function createDwollaTransfer(
   amount: string,
   type: string,
   userId: string,
-  operatorId: string,
-  retryCount?:number
+  operatorId: string
 ) {
-
-  let retryReponse : DwollaTransferService.IDwollaTransferDBItem;
-  const retryTimeoutMs = 1000;
-  const maxRetries = 5;
-  log(`OperatorServices.ts::createDwollaTransfer Retry count is ${retryCount ? retryCount : 0}`);
-
-  if(!retryCount){
-    // Construct transfer request
-    const transferRequest: DwollaTransferRequest = {
-      _links: {
-        source: {
-          href: fundingSourceLink,
-        },
-        destination: {
-          href: fundingTargetLink,
-        },
+  // 1 Construct transfer request
+  const transferRequest: DwollaTransferRequest = {
+    _links: {
+      source: {
+        href: fundingSourceLink,
       },
-      amount: {
-        currency: "USD",
-        value: amount,
+      destination: {
+        href: fundingTargetLink,
       },
-    };
+    },
+    amount: {
+      currency: "USD",
+      value: amount,
+    },
+  };
 
-    // Inititate Dwolla transfer
-    const transferResponse: Response = await createTransfer(transferRequest);
-    log(
-      `OperatorService.ts::createDwollaTransfer() ${JSON.stringify(
-        transferResponse,
-        null,
-        2
-      )}`
-    );
-
-    // Error checking
-    if (
-      !(
-        transferResponse.status == httpUtils.codes.CREATED ||
-        transferResponse.status == httpUtils.codes.OK
-      )
-    ){ 
-      const error = `OperatorService.ts::createDwollaTransfer() Failed creating Dwolla deposit request (status ${transferResponse.status}) for userId ${userId}, see logs for details`;
-      console.log(error);
-      if(!retryCount || retryCount < maxRetries){
-        console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-        await sleep(retryTimeoutMs);
-        retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-      }
-      else
-        throw error;
-    }
-  }
-
-  // Retrieve transfers for user
-  const transfers: Response = await getTransferCollectionForUser(userId);
-
-  // Error checking
-  if (transfers?.body?._embedded?.transfers?.length == 0){ 
-    const error = `OperatorService.ts::createDwollaTransfer() No transfers exist for userId ${userId}, see logs for details`;
-    console.log(error);
-    if(!retryCount || retryCount < maxRetries){
-      console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(retryTimeoutMs);
-      retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-    }
-    else
-      throw error;
-  }
-
-  if (transfers.status != httpUtils.codes.OK){ 
-    const error =`OperatorService.ts::createDwollaTransfer() Failed creating Dwolla deposit request for userId ${userId}, see logs for details`;
-    console.log(error);
-    if(!retryCount || retryCount < maxRetries){
-      console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(retryTimeoutMs);
-      retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-    }
-    else
-      throw error;
-  }
-
+  // 2 Inititate Dwolla transfer
+  const transferResponse: Response = await createTransfer(transferRequest);
   log(
-    `OperatorService.ts::createDwollaTransfer() Transfers for user ${userId} are ${JSON.stringify(
-      transfers,
-      null,
-      2
+    `OperatorService.ts::createDwollaTransfer() ${transferResponse.headers.get(
+      "location"
     )}`
   );
 
-  // Sort transfers by date
-  const sortedTransfers = transfers?.body?._embedded?.transfers?.sort(function (
-    a,
-    b
-  ) {
-    const createdA = a.created.toUpperCase(); // ignore upper and lowercase
-    const createdB = b.created.toUpperCase(); // ignore upper and lowercase
-    if (createdA < createdB) {
-      return -1;
-    }
-    if (createdA > createdB) {
-      return 1;
-    }
-    return 0;
-  });
-  log(`OperatorService.ts::createDwollaTransfer() sorted transfers from Dwolla are ${JSON.stringify(transfers, null,2)}`);
+  // 3 Get newly created transfer
+  const transferToUse: Response = await getDwollaResourceFromLocation(
+    transferResponse.headers.get("location")
+  );
 
-  const transferToUse = sortedTransfers[sortedTransfers.length-1];
-
-  if(!transferToUse){ 
-    const error = `OperatorService.ts::createDwollaTransfer() No transfers exist for userId ${userId}, see logs for details`;
-    console.log(error);
-    if(!retryCount || retryCount < maxRetries){
-      console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(retryTimeoutMs);
-      retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-    }
-    else
-      throw error;
-  }
-
-  // Error checking
-  if(transferToUse?._links["source-funding-source"].href != fundingSourceLink){
-    const error = `OperatorService.ts::createDwollaTransfer() Transfer from Dwolla _links[destination-funding-source] of ${transferToUse._links["source-funding-source"].href} does not match expected fundingSourceLink of ${fundingSourceLink}`; 
-    console.log(error);
-    if(!retryCount || retryCount < maxRetries){
-      console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(retryTimeoutMs);
-      retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-    }
-    else
-      throw error;
-  }
-  if(transferToUse?._links["destination-funding-source"].href != fundingTargetLink){
-    const error = `OperatorService.ts::createDwollaTransfer() Transfer from Dwolla _links[destination-funding-source] of ${transferToUse._links["destination-funding-source"].href} does not match expected fundingTargetLink of ${fundingTargetLink}`; 
-    console.log(error);
-    if(!retryCount || retryCount < maxRetries){
-      console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(retryTimeoutMs);
-      retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-    }
-    else
-      throw error;
-  }
-  if(parseFloat(transferToUse?.amount.value) != parseFloat(amount)){
-    const error = `OperatorService.ts::createDwollaTransfer() Transfer from Dwolla amount.value of ${transferToUse.amount.value} does not match expected amount of ${amount}`; 
-    console.log(error);
-    if(!retryCount || retryCount < maxRetries){
-      console.log(`OperatorService.ts::createDwollaTransfer() Waiting 3000ms before retrieving transfers from Dwolla and retrying this method. Retry count is ${retryCount ? retryCount : 0}`);
-      await sleep(retryTimeoutMs);
-      retryReponse = await createDwollaTransfer(fundingSourceLink, fundingTargetLink, amount, type, userId, operatorId, retryCount ? (retryCount+1): 1);
-    }
-    else
-      throw error;
-  }
-
-  if(!retryReponse){
-    const now = Date.now();
-    const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
-      id: transferToUse.id,
-      userId: userId,
-      operatorId: operatorId,
-      fundingSource: transferToUse._links["source-funding-source"].href,
-      fundingTarget: transferToUse._links["destination-funding-source"].href,
-      amount: transferToUse.amount.value,
-      status: transferToUse.status,
-      type: type,
-      created: now,
-      updated: now,
-    };
-    const transferDBItem: DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.create(transfer);
-    return transferDBItem;
-  }
-  else
-    return retryReponse;
-
+  // 4 Save to DB
+  const now = Date.now();
+  const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
+    id: transferToUse.body.id,
+    userId: userId,
+    operatorId: operatorId,
+    fundingSource: transferToUse.body._links["source-funding-source"].href,
+    fundingTarget: transferToUse.body._links["destination-funding-source"].href,
+    amount: transferToUse.body.amount.value,
+    status: transferToUse.body.status,
+    type: type,
+    created: now,
+    updated: now,
+  };
+  const transferDBItem: DwollaTransferService.IDwollaTransferDBItem =
+    await DwollaTransferService.create(transfer);
+  return transferDBItem;
 }
 
 export async function deposit(

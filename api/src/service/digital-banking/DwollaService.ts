@@ -106,16 +106,6 @@ export async function getIAVTokenById(id: string): Promise<string> {
   return iavToken.body.token;
 }
 
-export async function getTransferCollectionForUser(
-  userId: string
-): Promise<dwolla.Response> {
-  const appToken: dwolla.Client = await getAppToken();
-  const transfers: dwolla.Response = await appToken.get(
-    process.env.DWOLLA_BASE_URL + "customers/" + userId + "/transfers"
-  );
-  return transfers;
-}
-
 export async function createTransfer(
   transfer: DwollaTransferRequest
 ): Promise<dwolla.Response> {
@@ -124,9 +114,8 @@ export async function createTransfer(
     process.env.DWOLLA_BASE_URL + "transfers",
     transfer
   );
-  log(
-    `DwollaService.ts::createTransfer() Result ${JSON.stringify(res, null, 2)}`
-  );
+  const location = res.headers.get("location");
+  log(`DwollaService.ts::createTransfer() Result ${location}`);
   return res;
 }
 

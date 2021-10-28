@@ -60,7 +60,9 @@ export async function getNotifications(
     const id = req?.params?.id;
     const notifications: AppNotificationService.IAppNotificationDBItem[] =
       await AppNotificationService.findByUserId(id);
-    notifications?.sort((a, b) => { return a.timestamp - b.timestamp });
+    notifications?.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
     httpUtils.createHttpResponse(notifications || [], codes.OK, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
@@ -76,9 +78,9 @@ export async function closeNotification(
   try {
     // const id = req?.params?.id;
     const dbId = req?.params?.notificationId;
-    const closed: boolean = await AppNotificationService.close(dbId);
+    await AppNotificationService.close(dbId);
     httpUtils.createHttpResponse(
-      { message: `Notification closed: ${closed}` },
+      { message: `Notification ${dbId} closed` },
       codes.OK,
       res
     );
