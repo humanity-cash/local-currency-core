@@ -1,37 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  IDeposit,
-  ITransferEvent,
-  IWithdrawal,
-  INewUser,
-  IOperatorTotal,
-  INewUserResponse,
-} from "src/types";
-import * as contracts from "./contracts";
 import BN from "bn.js";
-import * as web3Utils from "web3-utils";
-import { httpUtils, log } from "src/utils";
 import { Response } from "dwolla-v2";
-import {
-  createUnverifiedCustomer,
-  createTransfer,
-  getFundingSourceLinkForUser,
-  getTransferCollectionForUser,
-} from "./digital-banking/DwollaService";
 import { DwollaTransferService } from "src/database/service";
 import {
-  DwollaUnverifiedCustomerRequest,
-  DwollaTransferRequest,
+  IDeposit, IDowllaNewUser, INewUserResponse, IOperatorTotal, ITransferEvent,
+  IWithdrawal
+} from "src/types";
+import { httpUtils, log, sleep } from "src/utils";
+import * as web3Utils from "web3-utils";
+import * as contracts from "./contracts";
+import {
+  createTransfer, createUnverifiedCustomer, getFundingSourceLinkForUser,
+  getTransferCollectionForUser
+} from "./digital-banking/DwollaService";
+import {
+  DwollaTransferRequest, DwollaUnverifiedCustomerRequest
 } from "./digital-banking/DwollaTypes";
-import { sleep } from "src/utils";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
-export async function createUser(newUser: INewUser): Promise<INewUserResponse> {
+export async function createUser(newUser: IDowllaNewUser): Promise<INewUserResponse> {
   const request: DwollaUnverifiedCustomerRequest = {
     firstName: newUser.firstName,
     lastName: newUser.lastName,
     email: newUser.email,
-    businessName: newUser.businessName,
+    businessName: newUser.rbn,
     ipAddress: newUser.ipAddress,
     correlationId: newUser.authUserId,
   };
