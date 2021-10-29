@@ -141,6 +141,16 @@ export interface IAddBusinessVerification {
 	business: Business
 }
 
+export interface INewUserInput {
+	consent: boolean
+	verifiedCustomer: boolean
+	verifiedBusiness: boolean
+	email: string
+	customer?: Customer
+	business?: Business
+}
+
+
 export interface User {
 	consent: boolean
 	verifiedCustomer: boolean
@@ -148,6 +158,7 @@ export interface User {
 	email: string
 	customer?: Customer
 	business?: Business
+  dbId: ObjectId
 }
 
 export interface Business {
@@ -193,9 +204,9 @@ export interface Customer {
 
 export type DowllaId = string;
 
-export type ICustomerDowllaId = { customer: { dowllaId: DowllaId }};
+export type ICustomerDowllaId = { "customer.dowllaId": DowllaId };
 
-export type IBusinessDowllaId = { business: { dowllaId: DowllaId }};
+export type IBusinessDowllaId = { "business.dowllaId": DowllaId };
 
 export interface INewBusinessDocument {
 	consent: boolean

@@ -25,7 +25,7 @@ export const BusinessSchema = new mongoose.Schema({
 		state: String,
 		postalCode: String
 	}
-})
+}, { _id: false })
 
 export const BusinessModel = mongoose.model("Business", BusinessSchema);
 
@@ -41,8 +41,7 @@ export const CustomerSchema = new mongoose.Schema({
 	lastName: String,
 	dowllaId: String,
 	resourceUri: String,
-
-})
+}, { _id: false })
 
 export const CustomerModel = mongoose.model("Customer", CustomerSchema);
 

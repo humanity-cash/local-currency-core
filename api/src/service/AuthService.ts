@@ -17,7 +17,7 @@ export async function createCustomer(input: Pick<User, 'email' | 'consent' | 'cu
 			customer: input.customer,
 			email: input.email,
 		});
-		delete user.customer._id;
+		delete user?.customer?._id;
 		return { success: true, data: user };
 	} catch (error) {
 		log(error);
@@ -38,7 +38,7 @@ export async function createBusiness(input: Pick<User, 'email' | 'consent' | 'bu
 			business: input.business,
 			email: input.email,
 		});
-		delete user.business._id;
+		delete user?.business?._id;
 		return { success: true, data: user };
 	} catch (error) {
 		log(error);
@@ -47,17 +47,28 @@ export async function createBusiness(input: Pick<User, 'email' | 'consent' | 'bu
 };
 
 export async function addCustomerVerification(dowllaId: DowllaId,
-	verification: IAddCustomerVerification): Promise<any> {
-	const filter: IBusinessDowllaId = { 'business': { 'dowllaId': dowllaId } };
-	const response = await UserDatabaseService.update(filter,
-		{ ...verification, verifiedCustomer: true });
-	return response;
+	verification: IAddCustomerVerification): Promise<GenericDatabaseResponse<User>> {
+	try {
+		if (!verification?.customer || !dowllaId) { return { success: false, error: "Invalid Inputs" } };
+		const filter: IBusinessDowllaId = { 'business.dowllaId': dowllaId };
+		const response = await UserDatabaseService.update<User>(filter,
+			{ ...verification, verifiedCustomer: true });
+		return { success: true, data: response };
+	} catch (error) {
+		console.log(error);
+		return { success: false, error: "Something went wrong!" };
+	}
 }
 
 export async function addBusinessVerification(dowllaId: DowllaId,
-	verification: IAddBusinessVerification): Promise<any> {
-	const filter: ICustomerDowllaId = { 'customer': { 'dowllaId': dowllaId } };
-	const response = await UserDatabaseService.update(filter,
-		{ ...verification, verifiedBusiness: true });
-	return response;
+	verification: IAddBusinessVerification): Promise<GenericDatabaseResponse<User>> {
+	try {
+		if (!verification?.business || !dowllaId) { return { success: false, error: "Invalid Inputs" } };
+		const filter: ICustomerDowllaId = { 'customer.dowllaId': dowllaId };
+		const response = await UserDatabaseService.update<User>(filter,
+			{ ...verification, verifiedBusiness: true });
+		return { success: true, data: response };
+	} catch (error) {
+		return { success: false, error: "Something went wrong!" }
+	}
 }
