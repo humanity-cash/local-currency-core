@@ -8,31 +8,68 @@ const notificationIdInParams = [
 ];
 
 export const createUser = [
-  body("authUserId").isString(),
-  body("authUserId").custom((value, { req }) => {
-    const businessName: string = req.body.businessName || "";
-    if (businessName) {
-      if (value.charAt(0) != "m") {
-        throw "Business accounts authUserId must begin with the prefix 'm'";
-      }
-    } else {
-      if (value.charAt(0) != "p") {
-        throw "Personal accounts authUserId must begin with the prefix 'p'";
-      }
-    }
-    return true;
-  }),
-  body("firstName").isString(),
-  body("lastName").isString(),
-  body("email").isString(),
-  body("address1").isString(),
-  body("address2").isString(),
-  body("city").isString(),
-  body("state").isString(),
-  body("postalCode").isString(),
-  body("businessName").optional(),
+  body("consent").isBoolean(),
+  body("email").isEmail(), 
+  body("type").isString(), // 'customer' | 'business'
+  body("customer.tag").optional().isString(),
+  body("customer.avatar").optional().isString(),
+  body("customer.address1").optional().isString(),
+  body("customer.address2").optional().isString(),
+  body("customer.city").optional().isString(),
+  body("customer.state").optional().isString(),
+  body("customer.postalCode").optional().isString(),
+  body("customer.firstName").optional().isString(),
+  body("customer.lastName").optional().isString(),
+  body("business.story").optional().isString(),
+  body("business.tag").optional().isString(),
+  body("business.avatar").optional().isString(),
+  body("business.type").optional().isString(),
+  body("business.rbn").optional().isString(),
+  body("business.industry").optional().isString(),
+  body("business.ein").optional().isString(),
+  body("business.address1").optional().isString(),
+  body("business.address2").optional().isString(),
+  body("business.city").optional().isString(),
+  body("business.state").optional().isString(),
+  body("business.postalCode").optional().isString(),
+  body("business.phoneNumber").optional().isString(),
+  body("business.owner.firstName").optional().isString(),
+  body("business.owner.lastName").optional().isString(),
+  body("business.owner.email").optional().isString(),
+  body("business.owner.address1").optional().isString(),
+  body("business.owner.address2").optional().isString(),
+  body("business.owner.city").optional().isString(),
+  body("business.owner.state").optional().isString(),
+  body("business.owner.postalCode").optional().isString(),
   mwVaildator,
-];
+]
+
+// export const createUser = [
+//   body("authUserId").isString(),
+//   body("authUserId").custom((value, { req }) => {
+//     const businessName: string = req.body.businessName || "";
+//     if (businessName) {
+//       if (value.charAt(0) != "m") {
+//         throw "Business accounts authUserId must begin with the prefix 'm'";
+//       }
+//     } else {
+//       if (value.charAt(0) != "p") {
+//         throw "Personal accounts authUserId must begin with the prefix 'p'";
+//       }
+//     }
+//     return true;
+//   }),
+//   body("firstName").isString(),
+//   body("lastName").isString(),
+//   body("email").isString(),
+//   body("address1").isString(),
+//   body("address2").isString(),
+//   body("city").isString(),
+//   body("state").isString(),
+//   body("postalCode").isString(),
+//   body("businessName").optional(),
+//   mwVaildator,
+// ];
 
 export const notifications = [...idInParams, ...notificationIdInParams];
 
@@ -40,7 +77,7 @@ export const getUser = [...idInParams];
 
 export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
 
-export const addCustomerVerification = [
+export const addCustomer = [
   ...idInParams, 
   body("business.dowllaId").isString(),
   body("customer.tag").isString(),
@@ -55,7 +92,7 @@ export const addCustomerVerification = [
   mwVaildator
 ];
 
-export const addBusinessVerification = [
+export const addBusiness = [
   ...idInParams, 
   body("customer.dowllaId").isString(),
   body("business.story").isString(),
