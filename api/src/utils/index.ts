@@ -1,6 +1,6 @@
+import { AppNotificationService } from "src/database/service";
 import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
-import { AppNotificationService } from "src/database/service";
 // import { LogService } from "src/database/service";
 
 export { cryptoUtils, httpUtils };
@@ -55,4 +55,15 @@ export function isProduction(): boolean {
 
 export function isTest(): boolean {
   return process.env.NODE_ENV == "test";
+}
+
+function isObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
+};
+
+export function isEmptyObject(i: unknown): boolean {
+  if (!i || !isObject(i)) return true
+  const keys = Object.keys(i);
+
+  return Boolean(keys.length);
 }
