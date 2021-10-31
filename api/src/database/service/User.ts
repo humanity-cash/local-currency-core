@@ -1,4 +1,5 @@
-import { IBusinessDowllaId, ICustomerDowllaId, INewUserInput, UpdateUser } from "src/types";
+import { ObjectId } from "mongoose";
+import { IBusinessDwollaId, ICustomerDwollaId, INewUserInput } from "src/types";
 import { User as UserSchema } from "../schema";
 import { removeMongoMeta } from "../utils/index";
 
@@ -10,14 +11,14 @@ export async function create<T>(input: INewUserInput): Promise<T> {
 	return removeMongoMeta(response?.toObject());
 };
 
-type UserFilter = IBusinessDowllaId | ICustomerDowllaId;
+type UserFilter = IBusinessDwollaId | ICustomerDwollaId | { "_id": ObjectId };
 
-export async function update<T>(filter: UserFilter, update: UpdateUser): Promise<T> {
+export async function update<T>(filter: UserFilter, update: any): Promise<T> {
 	const response = await UserSchema.findOneAndUpdate(filter, update, { upsert: false, new: true });
 	return removeMongoMeta(response?.toObject());
 }
 
-export async function get(email: string): Promise<any> {
-	const response = await UserSchema.findOne({ email });
+export async function get<T>(filter: Record<string, string | boolean | ObjectId>): Promise<T> {
+	const response = await UserSchema.findOne(filter);
 	return removeMongoMeta(response?.toObject());
 }
