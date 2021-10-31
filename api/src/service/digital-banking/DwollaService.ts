@@ -1,14 +1,13 @@
 import * as dwolla from "dwolla-v2";
+import { httpUtils, isProduction, log } from "src/utils";
+import { IDwollaNewUserResponse } from "../../types";
 import {
   DwollaFundingSourceRequest,
   DwollaPersonalVerifiedCustomerRequest,
   DwollaTransferRequest,
-  DwollaUnverifiedCustomerRequest,
+  DwollaUnverifiedCustomerRequest
 } from "./DwollaTypes";
-import { INewUserResponse } from "../../types";
-import { isProduction, log } from "src/utils";
 import { getAppToken } from "./DwollaUtils";
-import { httpUtils } from "src/utils";
 
 export async function getDwollaCustomerById(
   id: string
@@ -121,7 +120,7 @@ export async function createTransfer(
 
 export async function createPersonalVerifiedCustomer(
   customer: DwollaPersonalVerifiedCustomerRequest
-): Promise<INewUserResponse> {
+): Promise<IDwollaNewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
@@ -131,7 +130,7 @@ export async function createPersonalVerifiedCustomer(
         customerURL
     );
     const result = await appToken.get(customerURL);
-    const response: INewUserResponse = {
+    const response: IDwollaNewUserResponse = {
       userId: result.body.id,
       resourceUri: customerURL,
     };
@@ -144,7 +143,7 @@ export async function createPersonalVerifiedCustomer(
 
 export async function createUnverifiedCustomer(
   customer: DwollaUnverifiedCustomerRequest
-): Promise<INewUserResponse> {
+): Promise<IDwollaNewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
@@ -154,7 +153,7 @@ export async function createUnverifiedCustomer(
         customerURL
     );
     const result = await appToken.get(customerURL);
-    const response: INewUserResponse = {
+    const response: IDwollaNewUserResponse = {
       userId: result.body.id,
       resourceUri: customerURL,
     };
