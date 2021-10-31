@@ -44,7 +44,7 @@ user.delete(
 );
 
 // add verifications for user
-user.post("/users/:id/verify/customer", validators.addCustomerVerification, controller.addCustomerVerification);
-user.post("/users/:id/verify/business", validators.addBusinessVerification, controller.addBusinessVerification);
+user.post("/users/:id/customer", validators.addCustomer, controller.addCustomer);
+user.post("/users/:id/business", validators.addBusiness, controller.addBusiness);
 
 export default user;
