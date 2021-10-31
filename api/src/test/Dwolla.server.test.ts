@@ -1,33 +1,30 @@
+import { afterAll, beforeAll, beforeEach, describe, it } from "@jest/globals";
 import chai from "chai";
 import chaiHttp from "chai-http";
-import { getApp } from "../server";
-import { setupContracts, getSalt, createDummyEvent } from "./utils";
-import { httpUtils, log } from "../utils";
-import { codes } from "../utils/http";
-import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
-import {
-  createPersonalVerifiedCustomer,
-  createUnverifiedCustomer,
-  getFundingSourcesById,
-} from "../service/digital-banking/DwollaService";
-import {
-  DwollaUnverifiedCustomerRequest,
-  DwollaEvent,
-  DwollaPersonalVerifiedCustomerRequest,
-} from "../service/digital-banking/DwollaTypes";
-import {
-  createSignature,
-  validSignature,
-  getAppToken,
-} from "../service/digital-banking/DwollaUtils";
 import faker from "faker";
-import { INewUserResponse } from "../types";
-import { mockDatabase } from "./setup/setup-db-integration";
 import {
   deregisterWebhook,
   getAllWebhooks,
-  registerWebhook,
+  registerWebhook
 } from "src/service/digital-banking/DwollaWebhookService";
+import { getApp } from "../server";
+import {
+  createPersonalVerifiedCustomer,
+  createUnverifiedCustomer,
+  getFundingSourcesById
+} from "../service/digital-banking/DwollaService";
+import {
+  DwollaEvent,
+  DwollaPersonalVerifiedCustomerRequest, DwollaUnverifiedCustomerRequest
+} from "../service/digital-banking/DwollaTypes";
+import {
+  createSignature, getAppToken, validSignature
+} from "../service/digital-banking/DwollaUtils";
+import { IDwollaNewUserResponse } from "../types";
+import { httpUtils, log } from "../utils";
+import { codes } from "../utils/http";
+import { mockDatabase } from "./setup/setup-db-integration";
+import { createDummyEvent, getSalt, setupContracts } from "./utils";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -198,7 +195,7 @@ describe("Dwolla test suite", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    let user: INewUserResponse;
+    let user: IDwollaNewUserResponse;
     let event1: DwollaEvent;
 
     it(`Should create a personal unverified customer and return the entity link for usage in this test suite`, async () => {

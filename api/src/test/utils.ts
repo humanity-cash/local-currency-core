@@ -1,24 +1,23 @@
-import { Contract, SendOptions } from "web3-eth-contract";
-import { getProvider } from "../utils/getProvider";
-import * as web3Utils from "web3-utils";
-import Web3 from "web3";
-import { getAppToken } from "src/service/digital-banking/DwollaUtils";
-import {
-  DwollaEvent,
-  DwollaFundingSourceRequest,
-  DwollaPersonalVerifiedCustomerRequest,
-} from "../service/digital-banking/DwollaTypes";
+import faker from "faker";
 import {
   createFundingSource,
   createPersonalVerifiedCustomer,
   getFundingSourceLinkForUser,
   initiateMicroDepositsForUser,
-  verifyMicroDepositsForUser,
+  verifyMicroDepositsForUser
 } from "src/service/digital-banking/DwollaService";
+import { getAppToken } from "src/service/digital-banking/DwollaUtils";
 import { v4 } from "uuid";
-import { INewUser, INewUserResponse } from "../types";
-import faker from "faker";
-import { cryptoUtils, log } from "../utils";
+import Web3 from "web3";
+import { Contract, SendOptions } from "web3-eth-contract";
+import * as web3Utils from "web3-utils";
+import {
+  DwollaEvent,
+  DwollaFundingSourceRequest,
+  DwollaPersonalVerifiedCustomerRequest
+} from "../service/digital-banking/DwollaTypes";
+import { log } from "../utils";
+import { getProvider } from "../utils/getProvider";
 
 let sendOptions: SendOptions;
 let web3: Web3;
@@ -31,24 +30,30 @@ export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export function createFakeUser(isBusiness = false): INewUser {
-  const user: INewUser = {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    address1: faker.address.streetAddress(),
-    address2: faker.address.secondaryAddress(),
-    city: faker.address.city(),
-    postalCode: faker.address.zipCode(),
-    state: faker.address.stateAbbr(),
-    email: getSalt() + faker.internet.email(),
-    ipAddress: faker.internet.ip().toString(),
-    authUserId: "",
-    businessName: isBusiness
-      ? faker.name.lastName() + "'s fake business"
-      : undefined,
+export function createFakeUser(isBusiness = false) {
+  const newCustomerData = {
+    base: {
+      email: "tech@hc.com",
+      consent: true,
+    },
+    customer: {
+      avatar: "customeravatar",
+      tag: "customertag",
+      address1: "customeraddress1",
+      address2: "customeraddress2",
+      city: "customercity",
+      state: "customerstate",
+      postalCode: "customerpostalCode",
+      firstName: "customerfirstName",
+      lastName: "customerlastName",
+      dowllaId: "customerdowlladId",
+      resourceUri: "customerresourceUri",
+    }
+  }
+  const user = {
+    customer: { ...newCustomerData.customer },
+    ...newCustomerData.base
   };
-  user.authUserId =
-    (isBusiness ? "m_" : "p_") + cryptoUtils.toBytes32(user.email);
   log(user);
   return user;
 }
@@ -80,7 +85,7 @@ export async function createOperatorsForTest(): Promise<void> {
     dateOfBirth,
     ssn,
   };
-  const operatorResponse1: INewUserResponse =
+  const operatorResponse1 =
     await createPersonalVerifiedCustomer(operator1);
   await createFundingSourceForTest(operatorResponse1.userId);
   const fundingSourceLink1 = await getFundingSourceLinkForUser(
@@ -114,7 +119,7 @@ export async function createOperatorsForTest(): Promise<void> {
     dateOfBirth,
     ssn,
   };
-  const operatorResponse2: INewUserResponse =
+  const operatorResponse2 =
     await createPersonalVerifiedCustomer(operator2);
   await createFundingSourceForTest(operatorResponse2.userId);
   const fundingSourceLink2 = await getFundingSourceLinkForUser(
@@ -315,3 +320,17 @@ function replaceTokens(
     bytecode
   );
 }
+
+    // firstName: faker.name.firstName(),
+    // lastName: faker.name.lastName(),
+    // address1: faker.address.streetAddress(),
+    // address2: faker.address.secondaryAddress(),
+    // city: faker.address.city(),
+    // postalCode: faker.address.zipCode(),
+    // state: faker.address.stateAbbr(),
+    // email: getSalt() + faker.internet.email(),
+    // ipAddress: faker.internet.ip().toString(),
+    // authUserId: "",
+    // businessName: isBusiness
+    //   ? faker.name.lastName() + "'s fake business"
+    //   : undefined,
