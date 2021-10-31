@@ -3,7 +3,7 @@ import BN from "bn.js";
 import { Response } from "dwolla-v2";
 import { DwollaTransferService } from "src/database/service";
 import {
-  IDeposit, IDowllaNewUser, INewUserResponse, IOperatorTotal, ITransferEvent,
+  IDeposit, IDwollaNewUserInput, IDwollaNewUserResponse, IOperatorTotal, ITransferEvent,
   IWithdrawal
 } from "src/types";
 import { log } from "src/utils";
@@ -18,16 +18,16 @@ import {
 import { getDwollaResourceFromLocation } from "./digital-banking/DwollaUtils";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
-export async function createUser(newUser: IDowllaNewUser): Promise<INewUserResponse> {
+export async function createUser(newUser: IDwollaNewUserInput): Promise<IDwollaNewUserResponse> {
   const request: DwollaUnverifiedCustomerRequest = {
     firstName: newUser.firstName,
     lastName: newUser.lastName,
     email: newUser.email,
     businessName: newUser.rbn,
     ipAddress: newUser.ipAddress,
-    correlationId: newUser.authUserId,
+    correlationId: String(newUser.dbId),
   };
-  const response: INewUserResponse = await createUnverifiedCustomer(request);
+  const response: IDwollaNewUserResponse = await createUnverifiedCustomer(request);
   log(`Created new customer in Dwolla: ${JSON.stringify(response)}`);
   return response;
 }
