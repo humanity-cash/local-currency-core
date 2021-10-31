@@ -10,7 +10,6 @@ export interface HealthResponse {
   owner: string;
   walletFactory: string;
 }
-
 export interface ITransferOwnerRequest {
   newOwner: string;
   userId?: string;
@@ -26,8 +25,7 @@ export interface IWallet {
   customer?: Response;
 }
 
-export interface IDowllaNewUser {
-  email: string;
+export interface BaseUser {
   firstName: string;
   lastName: string;
   address1: string;
@@ -35,12 +33,25 @@ export interface IDowllaNewUser {
   city: string;
   state: string;
   postalCode: string;
-  rbn?: string;
-  ipAddress?: string;
-  authUserId: string;
 }
 
-export interface BusinessDetails {
+export interface IDwollaNewUserInput extends BaseUser {
+  email: string;
+  rbn?: string;
+  ipAddress?: string;
+  dbId: ObjectId;
+}
+
+export interface IDwollaNewUserResponse {
+  userId: string;
+  resourceUri: string;
+}
+
+export type ICustomerDwollaId = { "customer.dwollaId": DwollaId };
+
+export type IBusinessDwollaId = { "business.dwollaId": DwollaId };
+
+export interface IDBMiniNewBusinessInput {
   story: string,
   tag: string,
   avatar: string,
@@ -54,41 +65,79 @@ export interface BusinessDetails {
   state: string,
   postalCode: string,
   phoneNumber: string,
-  owner: {
-    firstName: string,
-    lastName: string,
-    address1: string,
-    address2: string,
-    city: string,
-    state: string,
-    postalCode: string
-  }
+  owner: BaseUser
 }
 
-export interface CustomerDetails {
+export interface IDBMiniNewCustomerInput extends BaseUser {
   avatar: string;
   tag: string;
-  address1: string;
-  address2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  firstName: string;
-  lastName: string;
 }
 
-export interface INewUser {
+export interface IDBUser {
+  consent: boolean
+  verifiedCustomer: boolean
+  verifiedBusiness: boolean
+  email: string
+  customer?: Customer
+  business?: Business
+  dbId: ObjectId
+}
+
+export interface IAPINewUser {
   email: string;
   consent: boolean;
-  dowllaDetails: IDowllaNewUser;
-  businessDetails?: BusinessDetails;
-  customerDetails?: CustomerDetails;
+  type: 'customer' | 'business';
+  isNew?: boolean; 
+  business?: IDBMiniNewBusinessInput;
+  customer?: IDBMiniNewCustomerInput;
 }
 
-export interface INewUserResponse {
-  userId: string;
-  resourceUri: string;
+
+export interface IUpdateUser {
+  verifiedCustomer?: boolean
+  verifiedBusiness?: boolean
+	customer?: Customer
+	business?: Business
 }
+
+export interface INewUserInput {
+	consent: boolean
+	verifiedCustomer: boolean
+	verifiedBusiness: boolean
+	email: string
+	customer?: Customer
+	business?: Business
+}
+
+
+export interface Business {
+	story: string,
+	tag: string,
+	avatar: string,
+	type: string,
+	rbn: string,
+	industry: string,
+	ein: string,
+	address1: string,
+	address2: string,
+	city: string,
+	state: string,
+	postalCode: string,
+	phoneNumber: string,
+	dwollaId?: DwollaId,
+	resourceUri?: string,
+	owner: BaseUser
+}
+
+export interface Customer extends BaseUser {
+	avatar: string,
+	tag: string,
+	dwollaId?: DwollaId,
+	resourceUri?: string,
+}
+
+export type DwollaId = string;
+
 
 export interface IEventBase {
   transactionHash: string;
@@ -124,110 +173,6 @@ export interface IOperatorTotal {
   currentOutstanding: string;
   deposits: IDeposit[];
   withdrawals: IWithdrawal[];
-}
-
-export interface UpdateUser {
-	verifiedCustomer?: boolean
-	verifiedBusiness?: boolean
-	customer?: Customer
-	business?: Business
-}
-
-export interface IAddCustomerVerification {
-	customer: Customer
-}
-
-export interface IAddBusinessVerification {
-	business: Business
-}
-
-export interface INewUserInput {
-	consent: boolean
-	verifiedCustomer: boolean
-	verifiedBusiness: boolean
-	email: string
-	customer?: Customer
-	business?: Business
-}
-
-
-export interface User {
-	consent: boolean
-	verifiedCustomer: boolean
-	verifiedBusiness: boolean
-	email: string
-	customer?: Customer
-	business?: Business
-  dbId: ObjectId
-}
-
-export interface Business {
-	story: string,
-	tag: string,
-	avatar: string,
-	type: string,
-	rbn: string,
-	industry: string,
-	ein: string,
-	address1: string,
-	address2: string,
-	city: string,
-	state: string,
-	postalCode: string,
-	phoneNumber: string,
-	dowllaId: DowllaId,
-	resourceUri: string,
-	owner: {
-		firstName: string,
-		lastName: string,
-		address1: string,
-		address2: string,
-		city: string,
-		state: string,
-		postalCode: string
-	}
-}
-
-export interface Customer {
-	avatar: string,
-	tag: string,
-	address1: string,
-	address2: string,
-	city: string,
-	state: string,
-	postalCode: string,
-	firstName: string,
-	lastName: string,
-	dowllaId: DowllaId,
-	resourceUri: string,
-}
-
-export type DowllaId = string;
-
-export type ICustomerDowllaId = { "customer.dowllaId": DowllaId };
-
-export type IBusinessDowllaId = { "business.dowllaId": DowllaId };
-
-export interface INewBusinessDocument {
-	consent: boolean
-	verifiedCustomer: boolean
-	verifiedBusiness: boolean
-	business: Business & { _id: ObjectId }
-	email: string
-	createdAt: Date
-	updatedAt: Date
-	dbId: ObjectId 
-}
-
-export interface INewCustomerDocument {
-	consent: boolean
-	verifiedCustomer: boolean
-	verifiedBusiness: boolean
-	customer: Customer & { _id: ObjectId }
-	email: string
-	createdAt: Date
-	updatedAt: Date
-	dbId: ObjectId 
 }
 
 export type IMongooseMetadata = { __v: number; _id: ObjectId };
