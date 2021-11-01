@@ -15,6 +15,11 @@ import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import BN from "bn.js";
 
+const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
+  fromBlock: 0,
+  toBlock: "latest",
+};
+
 const getControllerContract = async (): Promise<Contract> => {
   const { web3 } = await getProvider();
   const controller = new web3.eth.Contract(
@@ -215,9 +220,12 @@ async function getLogs(
 
 async function getFundingEvent(
   eventName: string,
-  options: PastEventOptions
+  options?: PastEventOptions
 ): Promise<IWithdrawal[] | IDeposit[]> {
   const response = [];
+  if (!options) {
+    options = DEFAULT_EVENT_OPTIONS;
+  }
   try {
     const controller: Contract = await getControllerContract();
     const events: EventData[] = await getLogs(eventName, controller, options);
@@ -399,12 +407,10 @@ export async function getTransfersForUser(
 }
 
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
-  const options: PastEventOptions = {
-    fromBlock: 0,
-    toBlock: "latest",
-  };
-  const deposits = await getDeposits(options);
-  const withdrawals = await getWithdrawals(options);
+  const deposits: IDeposit[] = await getDeposits(DEFAULT_EVENT_OPTIONS);
+  const withdrawals: IWithdrawal[] = await getWithdrawals(
+    DEFAULT_EVENT_OPTIONS
+  );
   const { operators } = await getProvider();
   const operatorTotals: IOperatorTotal[] = [];
 

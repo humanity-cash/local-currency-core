@@ -32,20 +32,14 @@ export async function registerWebhook(): Promise<string> {
     return webhookUrl;
   } catch (err) {
     if (err.body.code == "MaxNumberOfResources") {
-      const webhooks: dwolla.Response = await getAllWebhooks();
-      const sortedWebhooks = webhooks.body._embedded[
-        "webhook-subscriptions"
-      ].sort((a, b) => {
-        const aCreated = a.created.toUpperCase();
-        const bCreated = b.created.toUpperCase();
-        if (aCreated < bCreated) return -1;
-        else if (aCreated > bCreated) return 1;
-        else return 0;
-      });
+      const response: dwolla.Response = await getAllWebhooks();
+      const webhooks = response.body._embedded["webhook-subscriptions"];
 
-      const webhookToDelete = sortedWebhooks[0]?._links?.self?.href;
-      log(`Deleting oldest webhook ${webhookToDelete}`);
-      await deregisterWebhook(webhookToDelete);
+      for (let i = 0; i < webhooks?.length; i++) {
+        const webhook = webhooks[i]?._links?.self?.href;
+        log(`Deregistering webhook ${webhook}`);
+        await deregisterWebhook(webhook);
+      }
 
       log(`Retrying register new webhook...`);
       return await registerWebhook();
