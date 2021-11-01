@@ -176,10 +176,8 @@ export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUserInput: IAPINewUser = req.body;
     const { customer, business, email, type } = newUserInput
-    console.log("🚀 ~ file: controller.ts ~ line 179 ~ createUser ~ customer", customer)
     if (!customer && !business) return httpUtils.createHttpResponse({}, codes.BAD_REQUEST, res)
     const createDbResponse = await AuthService.createUser({ customer, business, email, consent: true }, type);
-    console.log("🚀 ~ file: controller.ts ~ line 182 ~ createUser ~ createDbResponse", createDbResponse)
     const dwollaDetails = constructDwollaDetails(createDbResponse.data, type, true);
     const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
       dwollaDetails
@@ -368,6 +366,3 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
     else httpUtils.serverError(err, res);
   }
 }
-
-// const businessName: string = newUser.businessName || "";
-// if (businessName) newUser.email = newUser.authUserId + "@humanity.cash";
