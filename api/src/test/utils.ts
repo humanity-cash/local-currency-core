@@ -320,17 +320,3 @@ function replaceTokens(
     bytecode
   );
 }
-
-    // firstName: faker.name.firstName(),
-    // lastName: faker.name.lastName(),
-    // address1: faker.address.streetAddress(),
-    // address2: faker.address.secondaryAddress(),
-    // city: faker.address.city(),
-    // postalCode: faker.address.zipCode(),
-    // state: faker.address.stateAbbr(),
-    // email: getSalt() + faker.internet.email(),
-    // ipAddress: faker.internet.ip().toString(),
-    // authUserId: "",
-    // businessName: isBusiness
-    //   ? faker.name.lastName() + "'s fake business"
-    //   : undefined,
