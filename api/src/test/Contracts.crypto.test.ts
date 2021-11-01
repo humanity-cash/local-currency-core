@@ -53,7 +53,7 @@ describe("Test low-level smart contract functions", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    it("Should return value of cUSDToken", async () => {
+    it("Should return value of local currency token", async () => {
       const token = await contracts.token();
       log(`cUSDToken == ${token}`);
       expect(token).toBeDefined();
@@ -163,40 +163,42 @@ describe("Test low-level smart contract functions", () => {
       const deposits = await contracts.getDepositsForUser(userId3);
       expect(deposits).toBeDefined();
       expect(deposits.length).toEqual(1);
-      log(`deposits == ${JSON.stringify(deposits, null, 2)}`);
+      console.log(`deposits == ${JSON.stringify(deposits, null, 2)}`);
     });
 
     it("Should get withdrawals for a user", async () => {
       const withdrawals = await contracts.getWithdrawalsForUser(userId3);
       expect(withdrawals).toBeDefined();
       expect(withdrawals.length).toEqual(1);
-      log(`withdrawals == ${JSON.stringify(withdrawals, null, 2)}`);
+      console.log(`withdrawals == ${JSON.stringify(withdrawals, null, 2)}`);
     });
 
     it("Should get transfers for a user", async () => {
       const transfers = await contracts.getTransfersForUser(userId3);
       expect(transfers).toBeDefined();
       expect(transfers.length).toEqual(1);
-      log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
+      console.log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
     });
   });
 
   describe("Get deposits and withdrawals", () => {
     it("Should retrieve and iterate all deposit events", async () => {
       const response = await contracts.getDeposits();
-      log(JSON.stringify(response, null, 2));
+      console.log(JSON.stringify(response, null, 2));
       expect(response).toBeDefined();
+      expect(response.length).toEqual(3);
     });
 
     it("Should retrieve and iterate all withdrawal events", async () => {
       const response = await contracts.getWithdrawals();
-      log(JSON.stringify(response, null, 2));
+      console.log(JSON.stringify(response, null, 2));
       expect(response).toBeDefined();
+      expect(response.length).toEqual(1);
     });
 
     it("Should retrieve funding totals for each operator (bank)", async () => {
       const response = await contracts.getFundingStatus();
-      log(JSON.stringify(response, null, 2));
+      console.log(JSON.stringify(response, null, 2));
       expect(response).toBeDefined();
     });
   });
