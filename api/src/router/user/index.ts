@@ -43,7 +43,6 @@ user.delete(
   controller.closeNotification
 );
 
-// add verifications for user
 user.post("/users/:id/customer", validators.addCustomer, controller.addCustomer);
 user.post("/users/:id/business", validators.addBusiness, controller.addBusiness);
 
