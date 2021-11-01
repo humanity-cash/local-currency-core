@@ -14,8 +14,29 @@ import {
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
 
+export async function deregisterWebhook(
+  webhookUrl: string
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const response: dwolla.Response = await appToken.delete(webhookUrl);
+  log(`Webhook ${webhookUrl} successfully deregistered`);
+  return response;
+}
+
+async function deregisterAllWebhooks(): Promise<void> {
+  const response: dwolla.Response = await getAllWebhooks();
+  const webhooks = response.body._embedded["webhook-subscriptions"];
+
+  for (let i = 0; i < webhooks?.length; i++) {
+    const webhook = webhooks[i]?._links?.self?.href;
+    console.log(`Deregistering webhook ${webhook}`);
+    await deregisterWebhook(webhook);
+  }
+}
+
 export async function registerWebhook(): Promise<string> {
   try {
+    await deregisterAllWebhooks();
     const appToken: dwolla.Client = await getAppToken();
     const webhook = {
       url: process.env.WEBHOOK_URL,
@@ -26,34 +47,17 @@ export async function registerWebhook(): Promise<string> {
       webhook
     );
     const webhookUrl = response.headers.get("location");
-    log(
+    console.log(
       `Webhook ${webhook.url} successfully registered, location ${webhookUrl}`
     );
     return webhookUrl;
   } catch (err) {
     if (err.body.code == "MaxNumberOfResources") {
-      const response: dwolla.Response = await getAllWebhooks();
-      const webhooks = response.body._embedded["webhook-subscriptions"];
-
-      for (let i = 0; i < webhooks?.length; i++) {
-        const webhook = webhooks[i]?._links?.self?.href;
-        log(`Deregistering webhook ${webhook}`);
-        await deregisterWebhook(webhook);
-      }
-
-      log(`Retrying register new webhook...`);
+      await deregisterAllWebhooks();
+      console.log(`Retrying register new webhook...`);
       return await registerWebhook();
     } else throw err;
   }
-}
-
-export async function deregisterWebhook(
-  webhookUrl: string
-): Promise<dwolla.Response> {
-  const appToken: dwolla.Client = await getAppToken();
-  const response: dwolla.Response = await appToken.delete(webhookUrl);
-  log(`Webhook ${webhookUrl} successfully deregistered`);
-  return response;
 }
 
 export async function getAllWebhooks(): Promise<dwolla.Response> {
