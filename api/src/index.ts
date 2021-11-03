@@ -4,6 +4,7 @@ import { getApp } from "./server";
 import { isDevelopment, isTest, log } from "src/utils";
 import { configureEnvironment } from "./utils/configuration";
 import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
+import { processDwollaSandboxSimulations } from "./test/utils";
 
 const app = getApp();
 
@@ -14,6 +15,11 @@ const runApp = async () => {
 	}
 	if(!isTest()){
 		await registerWebhook();
+	}
+	if(process.env.DWOLLA_ENVIRONMENT=="sandbox"){
+		setInterval(async () => {
+			await processDwollaSandboxSimulations();
+		}, 60000);  	
 	}
 	
 	app.listen(process.env.PORT, () => {

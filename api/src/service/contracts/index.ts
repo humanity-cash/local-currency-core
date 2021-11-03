@@ -15,6 +15,11 @@ import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import BN from "bn.js";
 
+const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
+  fromBlock: 0,
+  toBlock: "latest",
+};
+
 const getControllerContract = async (): Promise<Contract> => {
   const { web3 } = await getProvider();
   const controller = new web3.eth.Contract(
@@ -186,11 +191,8 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     wallet.methods.createdBlock().call(),
   ]);
 
-  log("Found wallet contract for userId " + userId);
-
   const controller = await getControllerContract();
   const b = await controller.methods.balanceOfWallet(userId).call();
-  log(b);
   const balance = parseFloat(web3Utils.fromWei(b, "ether"));
 
   const user: IWallet = {
@@ -215,9 +217,12 @@ async function getLogs(
 
 async function getFundingEvent(
   eventName: string,
-  options: PastEventOptions
+  options?: PastEventOptions
 ): Promise<IWithdrawal[] | IDeposit[]> {
   const response = [];
+  if (!options) {
+    options = DEFAULT_EVENT_OPTIONS;
+  }
   try {
     const controller: Contract = await getControllerContract();
     const events: EventData[] = await getLogs(eventName, controller, options);
@@ -288,16 +293,7 @@ export async function getTransfers(
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
 
-  const defaultOptions: PastEventOptions = {
-    fromBlock: 0,
-    toBlock: "latest",
-  };
-
-  const logs = await getLogs(
-    "TransferToEvent",
-    controller,
-    options || defaultOptions
-  );
+  const logs = await getLogs("TransferToEvent", controller, options);
 
   for (let i = 0; i < logs.length; i++) {
     const element = logs[i];
@@ -399,12 +395,6 @@ export async function getTransfersForUser(
 }
 
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
-  const options: PastEventOptions = {
-    fromBlock: 0,
-    toBlock: "latest",
-  };
-  const deposits = await getDeposits(options);
-  const withdrawals = await getWithdrawals(options);
   const { operators } = await getProvider();
   const operatorTotals: IOperatorTotal[] = [];
 
@@ -413,22 +403,20 @@ export async function getFundingStatus(): Promise<IOperatorTotal[]> {
     let totalWithdrawals: BN = new BN(0);
     let currentOutstanding: BN = new BN(0);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const depositsForOperator = deposits.filter((value, index) => {
-      return value.operator === operators[i];
-    });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const withdrawalsForOperator = withdrawals.filter((value, index) => {
-      return value.operator === operators[i];
-    });
+    const filter: PastEventOptions = {
+      filter: { _operator: operators[i] },
+      fromBlock: 0,
+      toBlock: "latest",
+    };
 
-    for (let j = 0; j < depositsForOperator?.length; j++) {
-      totalDeposits = totalDeposits.add(new BN(depositsForOperator[j].value));
+    const deposits: IDeposit[] = await getDeposits(filter);
+    const withdrawals: IWithdrawal[] = await getWithdrawals(filter);
+
+    for (let j = 0; j < deposits?.length; j++) {
+      totalDeposits = totalDeposits.add(new BN(deposits[j].value));
     }
-    for (let j = 0; j < withdrawalsForOperator?.length; j++) {
-      totalWithdrawals = totalWithdrawals.add(
-        new BN(withdrawalsForOperator[j].value)
-      );
+    for (let j = 0; j < withdrawals?.length; j++) {
+      totalWithdrawals = totalWithdrawals.add(new BN(withdrawals[j].value));
     }
 
     currentOutstanding = totalDeposits.sub(totalWithdrawals);
@@ -438,8 +426,8 @@ export async function getFundingStatus(): Promise<IOperatorTotal[]> {
       totalDeposits: web3Utils.fromWei(totalDeposits.toString()),
       totalWithdrawals: web3Utils.fromWei(totalWithdrawals.toString()),
       currentOutstanding: web3Utils.fromWei(currentOutstanding.toString()),
-      deposits: depositsForOperator,
-      withdrawals: withdrawalsForOperator,
+      deposits: deposits,
+      withdrawals: withdrawals,
     });
   }
 
