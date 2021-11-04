@@ -1,7 +1,7 @@
 import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
-import { isDevelopment, isTest, log } from "src/utils";
+import { isProduction, isTest, log } from "src/utils";
 import { configureEnvironment } from "./utils/configuration";
 import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
 import { processDwollaSandboxSimulations } from "./test/utils";
@@ -10,7 +10,7 @@ const app = getApp();
 
 const runApp = async () => {
 
-	if(!isDevelopment()){
+	if(isProduction()){
 		await configureEnvironment();
 	}
 	if(!isTest()){
