@@ -8,7 +8,7 @@ import {
   getIAVTokenById,
 } from "src/service/digital-banking/DwollaService";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
-import { isDevelopment, isProduction, log } from "src/utils";
+import { isProduction, log, isDevelopment } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
 import {
