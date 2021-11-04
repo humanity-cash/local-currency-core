@@ -99,13 +99,13 @@ async function createDwollaTransfer(
   // 4 Save to DB
   const now = Date.now();
   const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
-    id: transferToUse.body.id,
+    fundingTransferId: transferToUse.body.id,
     userId: userId,
     operatorId: operatorId,
     fundingSource: transferToUse.body._links["source-funding-source"].href,
     fundingTarget: transferToUse.body._links["destination-funding-source"].href,
     amount: transferToUse.body.amount.value,
-    status: transferToUse.body.status,
+    fundingStatus: transferToUse.body.status,
     type: type,
     created: now,
     updated: now,
@@ -151,9 +151,9 @@ export async function deposit(
   return transfer;
 }
 
-export async function webhookMint(id: string): Promise<boolean> {
+export async function webhookMint(fundingTransferId: string): Promise<boolean> {
   const transfer: DwollaTransferService.IDwollaTransferDBItem =
-    await DwollaTransferService.getById(id);
+    await DwollaTransferService.getByFundingTransferId(fundingTransferId);
   const result = await contracts.deposit(
     transfer.userId,
     transfer.amount,
