@@ -75,7 +75,7 @@ describe("Dwolla test suite", () => {
       expect(appToken).to.exist;
     });
 
-    it("Should register a webhook", async (): Promise<void> => {
+    xit("Should register a webhook", async (): Promise<void> => {
       webhookUrl = await registerWebhook();
       expect(webhookUrl).to.exist;
       log(webhookUrl);
@@ -87,7 +87,7 @@ describe("Dwolla test suite", () => {
       expect(webhooks).to.exist;
     });
 
-    it("Should deregister a webhook", async (): Promise<void> => {
+    xit("Should deregister a webhook", async (): Promise<void> => {
       const response = await deregisterWebhook(webhookUrl);
       expect(response).to.exist;
       expect(response.status).to.equal(httpUtils.codes.OK);
@@ -279,31 +279,6 @@ describe("Dwolla test suite", () => {
         .send(event2)
         .then((res) => {
           expect(res).to.have.status(codes.SERVER_ERROR);
-          log(JSON.parse(res.text));
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should post a known but unsupported webhook event, HTTP 422", (done) => {
-      const event3: DwollaEvent = createDummyEvent(
-        "customer_bank_transfer_completed",
-        user.userId,
-        user.userId
-      );
-      const signature = createSignature(
-        process.env.WEBHOOK_SECRET,
-        JSON.stringify(event3)
-      );
-      chai
-        .request(server)
-        .post("/webhook")
-        .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event3)
-        .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
           log(JSON.parse(res.text));
           done();
         })
