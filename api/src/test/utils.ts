@@ -7,6 +7,7 @@ import {
   verifyMicroDepositsForUser
 } from "src/service/digital-banking/DwollaService";
 import { getAppToken } from "src/service/digital-banking/DwollaUtils";
+import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
 import Web3 from "web3";
 import { Contract, SendOptions } from "web3-eth-contract";
@@ -30,30 +31,59 @@ export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export function createFakeUser(isBusiness = false) {
-  const newCustomerData = {
-    base: {
-      email: "tech@hc.com",
-      consent: true,
-    },
-    customer: {
-      avatar: "customeravatar",
-      tag: "customertag",
-      address1: "customeraddress1",
-      address2: "customeraddress2",
-      city: "customercity",
-      state: "customerstate",
-      postalCode: "customerpostalCode",
-      firstName: "customerfirstName",
-      lastName: "customerlastName",
-      dowllaId: "customerdowlladId",
-      resourceUri: "customerresourceUri",
-    }
+export const newBusinessData: Business = {
+	avatar: "businessavatar",
+	tag: "businesstag",
+	address1: "businessaddress1",
+	address2: "businessaddress2",
+	city: "businesscity",
+	state: "businessstate",
+	postalCode: "businesspostalCode",
+	story: "businessstory",
+	type: "type",
+	rbn: "rbn",
+	industry: "indu",
+	ein: "ein",
+	phoneNumber: "pn",
+	owner: {
+		firstName: "businessfirstNameowner",
+		lastName: "businesslastNameowner",
+		address1: "businessaddress1owner",
+		address2: "businessaddress2owner",
+		city: "businesscityowner",
+		state: "businessstateowner",
+		postalCode: "businesspostalCodeowner",
+	}
+}
+
+
+export const newCustomerData: Customer = {
+	firstName: faker.name.firstName(),
+	lastName: faker.name.lastName(),
+	address1: 'eheh',
+	address2: 'eheh',
+	city: 'eheh',
+	state: 'eheh',
+	postalCode: 'eheh',
+	avatar: 'eheh',
+	tag: 'eheh',
+}
+
+export function createFakeUser(isBusiness = false): IAPINewUser{
+  const newBusinessInput: IAPINewUser = {
+    consent: true,
+    email: faker.internet.email(),
+    type: 'business',
+    business: newBusinessData
   }
-  const user = {
-    customer: { ...newCustomerData.customer },
-    ...newCustomerData.base
-  };
+  const newCustomerInput: IAPINewUser = {
+    consent: true,
+    email: faker.internet.email(),
+    type: 'customer',
+    customer: newCustomerData
+  }
+
+  const user = isBusiness ? newBusinessInput : newCustomerInput
   log(user);
   return user;
 }

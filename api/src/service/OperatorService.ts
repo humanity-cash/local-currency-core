@@ -23,9 +23,9 @@ export async function createUser(newUser: IDwollaNewUserInput): Promise<IDwollaN
     firstName: newUser.firstName,
     lastName: newUser.lastName,
     email: newUser.email,
-    businessName: newUser.rbn || `${newUser.firstName} ${newUser.lastName}`,
+    businessName: newUser.rbn,
     ipAddress: newUser.ipAddress,
-    correlationId: String(newUser.dbId),
+    correlationId: newUser.correlationId, 
   };
   const response: IDwollaNewUserResponse = await createUnverifiedCustomer(request);
   log(`Created new customer in Dwolla: ${JSON.stringify(response)}`);

@@ -39,7 +39,7 @@ export interface IDwollaNewUserInput extends BaseUser {
   email: string;
   rbn?: string;
   ipAddress?: string;
-  dbId: ObjectId;
+  correlationId: string;
 }
 
 export interface IDwollaNewUserResponse {
