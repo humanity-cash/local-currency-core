@@ -37,9 +37,9 @@ export interface DwollaUnverifiedCustomerRequest {
   firstName: string;
   lastName: string;
   email: string;
-  businessName?: string;
+  businessName: string;
   ipAddress?: string;
-  correlationId?: string;
+  correlationId: string;
 }
 
 // _links	no	object	A _links JSON object containing an on-demand-authorization link relation. See example raw request and response below.
