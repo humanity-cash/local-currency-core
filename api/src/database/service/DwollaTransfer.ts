@@ -2,13 +2,15 @@ import { DwollaTransfer } from "../schema";
 import { removeMongoMeta } from "../utils/index";
 
 export interface ICreateDwollaTransferDBItem {
-  id: string;
+  fundingTransferId: string;
+  fundingStatus: string;
+  fundedTransferId?: string;
+  fundedStatus?: string;
   userId: string;
   operatorId: string;
   fundingSource: string;
   fundingTarget: string;
   amount: string;
-  status: string;
   type: string;
   created: number;
   updated: number;
@@ -22,13 +24,15 @@ export async function create(
   input: ICreateDwollaTransferDBItem
 ): Promise<IDwollaTransferDBItem> {
   const dwollaTransferItem = new DwollaTransfer({
-    id: input.id,
+    fundingTransferId: input.fundingTransferId,
+    fundingStatus: input.fundingStatus,
+    fundedTransferId: input.fundedTransferId,
+    fundedStatus: input.fundedStatus,
     userId: input.userId,
     operatorId: input.operatorId,
     fundingSource: input.fundingSource,
     fundingTarget: input.fundingTarget,
     amount: input.amount,
-    status: input.status,
     type: input.type,
     created: input.created,
     updated: input.updated,
@@ -42,8 +46,22 @@ export async function get(dbId: string): Promise<IDwollaTransferDBItem> {
   return removeMongoMeta(response.toObject());
 }
 
-export async function getById(id: string): Promise<IDwollaTransferDBItem> {
-  const response = await DwollaTransfer.find({ id: id });
+export async function getByFundingTransferId(
+  fundingTransferId: string
+): Promise<IDwollaTransferDBItem> {
+  const response = await DwollaTransfer.find({
+    fundingTransferId: fundingTransferId,
+  });
+  if (response?.length > 0) return removeMongoMeta(response[0].toObject());
+  else return undefined;
+}
+
+export async function getByFundedTransferId(
+  fundedTransferId: string
+): Promise<IDwollaTransferDBItem> {
+  const response = await DwollaTransfer.find({
+    fundedTransferId: fundedTransferId,
+  });
   if (response?.length > 0) return removeMongoMeta(response[0].toObject());
   else return undefined;
 }
@@ -61,15 +79,47 @@ export async function getByUserId(
   } else return undefined;
 }
 
-export async function updateStatus(
-  id: string,
-  status: string
+export async function updateStatusByFundingTransferId(
+  fundingTransferId: string,
+  fundingStatus: string
 ): Promise<boolean> {
   const response = await DwollaTransfer.updateOne(
-    { id: id },
-    { status: status, updated: Date.now() }
+    { fundingTransferId: fundingTransferId },
+    { fundingStatus: fundingStatus, updated: Date.now() }
   );
   if (response.n == 0 || response.nModified == 0)
-    throw Error(`No match in database for DwollaTransfer with id ${id}`);
+    throw Error(
+      `No match in database for DwollaTransfer with fundingTransferId ${fundingTransferId}`
+    );
+  return true;
+}
+
+export async function setFundedTransferId(
+  fundingTransferId: string,
+  fundedTransferId: string
+): Promise<boolean> {
+  const response = await DwollaTransfer.updateOne(
+    { fundingTransferId: fundingTransferId },
+    { fundedTransferId: fundedTransferId, updated: Date.now() }
+  );
+  if (response.n == 0 || response.nModified == 0)
+    throw Error(
+      `No match in database for DwollaTransfer with fundingTransferid ${fundingTransferId}`
+    );
+  return true;
+}
+
+export async function updateStatusByFundedTransferId(
+  fundedTransferId: string,
+  fundedStatus: string
+): Promise<boolean> {
+  const response = await DwollaTransfer.updateOne(
+    { fundedTransferId: fundedTransferId },
+    { fundedStatus: fundedStatus, updated: Date.now() }
+  );
+  if (response.n == 0 || response.nModified == 0)
+    throw Error(
+      `No match in database for DwollaTransfer with fundedTransferid ${fundedTransferId}`
+    );
   return true;
 }
