@@ -137,12 +137,15 @@ describe("Dwolla test suite", () => {
         const email = getSalt() + faker.internet.email();
         const ipAddress = faker.internet.ip().toString();
         const correlationId = getSalt() + faker.random.alphaNumeric();
+        const businessName =
+          "Personal  " + firstName + lastName
 
         const person: DwollaUnverifiedCustomerRequest = {
           firstName,
           lastName,
           email,
           ipAddress,
+          businessName,
           correlationId,
         };
         const response = await createUnverifiedCustomer(person);
@@ -210,6 +213,7 @@ describe("Dwolla test suite", () => {
         lastName,
         email,
         ipAddress,
+        businessName: `${firstName}+${lastName}`,
         correlationId,
       };
       user = await createUnverifiedCustomer(person);
