@@ -228,7 +228,7 @@ export async function addCustomer(req: Request, res: Response): Promise<void> {
 
 export async function addBusiness(req: Request, res: Response): Promise<void> {
   try {
-    const business: Omit<Business, 'dowllaId' | 'resourceUri'> = req?.body?.business;
+    const business: Omit<Business, 'dwollaId' | 'resourceUri'> = req?.body?.business;
     const customerDwollaId = req?.params?.id;
     const dbUser = await AuthService.updateUser(customerDwollaId, { business }, 'customer');
     const dwollaDetails = constructDwollaDetails(dbUser.data, 'business', false);
