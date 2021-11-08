@@ -12,7 +12,10 @@ import {
 import { codes } from "../utils/http";
 import { log } from "../utils";
 import { INewUser } from "../types";
-import { createSignature } from "../service/digital-banking/DwollaUtils";
+import {
+  createSignature,
+  getDwollaResourceFromLocation,
+} from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { mockDatabase } from "./setup/setup-db-integration";
 import {
@@ -129,9 +132,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           createFundingSourceForTest(dwollaIdUser1).then(() => {
-            console.log(
-              `Test only - created funding source for ${dwollaIdUser1}`
-            );
+            log(`Test only - created funding source for ${dwollaIdUser1}`);
             done();
           });
         })
@@ -174,9 +175,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           createFundingSourceForTest(dwollaIdUser2).then(() => {
-            console.log(
-              `Test only - created funding source for ${dwollaIdUser2}`
-            );
+            log(`Test only - created funding source for ${dwollaIdUser2}`);
             done();
           });
         })
@@ -433,7 +432,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < deposits?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          deposits[i].id,
+          deposits[i].fundingTransferId,
           dwollaIdUser1,
           "transfers"
         );
@@ -441,14 +440,59 @@ describe("Operator endpoints test", () => {
           process.env.WEBHOOK_SECRET,
           JSON.stringify(event)
         );
-        chai
+        const res = await chai
           .request(server)
           .post("/webhook")
           .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
+          .send(event);
+        expect(res).to.have.status(codes.ACCEPTED);
+      }
+    });
+
+    it("it should process a webhook for a customer_bank_transfer_completed event for user1's deposits, HTTP 202", async (): Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdUser1)
+      )?.filter((element) => element.type == "DEPOSIT");
+
+      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits?.length; i++) {
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          process.env.DWOLLA_BASE_URL +
+            "transfers/" +
+            deposits[i].fundingTransferId
+        );
+        log(
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funding transfer ${deposits[i].fundingTransferId}...`
+        );
+
+        const fundedTransferLink =
+          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        log(
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funded transfer ${fundedTransferLink}...`
+        );
+
+        const fundedTransfer = await getDwollaResourceFromLocation(
+          fundedTransferLink
+        );
+        log(JSON.stringify(fundedTransfer));
+
+        const event: DwollaEvent = createDummyEvent(
+          "customer_bank_transfer_completed",
+          fundedTransfer.body?.id,
+          dwollaIdUser1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        const res = await chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event);
+        expect(res).to.have.status(codes.ACCEPTED);
       }
     });
 
@@ -456,12 +500,13 @@ describe("Operator endpoints test", () => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdUser2)
       )?.filter((element) => element.type == "DEPOSIT");
+
       log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
 
       for (let i = 0; i < deposits?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          deposits[i].id,
+          deposits[i].fundingTransferId,
           dwollaIdUser2,
           "transfers"
         );
@@ -469,14 +514,57 @@ describe("Operator endpoints test", () => {
           process.env.WEBHOOK_SECRET,
           JSON.stringify(event)
         );
-        chai
+        const res = await chai
           .request(server)
           .post("/webhook")
           .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
+          .send(event);
+        expect(res).to.have.status(codes.ACCEPTED);
+      }
+    });
+
+    it("it should process a webhook for a customer_bank_transfer_completed event for user2's deposits, HTTP 202", async (): Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdUser2)
+      )?.filter((element) => element.type == "DEPOSIT");
+      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits?.length; i++) {
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          process.env.DWOLLA_BASE_URL +
+            "transfers/" +
+            deposits[i].fundingTransferId
+        );
+        log(
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${deposits[i].fundingTransferId}...`
+        );
+
+        const fundedTransferLink =
+          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        log(
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funded transfer ${fundedTransferLink}...`
+        );
+
+        const fundedTransfer = await getDwollaResourceFromLocation(
+          fundedTransferLink
+        );
+
+        const event: DwollaEvent = createDummyEvent(
+          "customer_bank_transfer_completed",
+          fundedTransfer.body?.id,
+          dwollaIdUser2,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        const res = await chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event);
+        expect(res).to.have.status(codes.ACCEPTED);
       }
     });
 
@@ -629,7 +717,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          withdrawals[i].id,
+          withdrawals[i].fundingTransferId,
           dwollaIdUser1,
           "transfers"
         );
@@ -657,7 +745,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          withdrawals[i].id,
+          withdrawals[i].fundingTransferId,
           dwollaIdUser1,
           "transfers"
         );
@@ -1164,7 +1252,7 @@ describe("Operator endpoints test", () => {
       };
       const notification: AppNotificationService.IAppNotificationDBItem =
         await AppNotificationService.create(input);
-      console.log(notification);
+      log(notification);
 
       const res = await chai
         .request(server)
