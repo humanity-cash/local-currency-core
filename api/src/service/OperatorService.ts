@@ -23,7 +23,7 @@ export async function createUser(newUser: IDwollaNewUserInput): Promise<IDwollaN
     firstName: newUser.firstName,
     lastName: newUser.lastName,
     email: newUser.email,
-    businessName: newUser.rbn,
+    businessName: newUser.rbn || `${newUser.firstName} ${newUser.lastName}`,
     ipAddress: newUser.ipAddress,
     correlationId: String(newUser.dbId),
   };
