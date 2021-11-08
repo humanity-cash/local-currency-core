@@ -14,7 +14,7 @@ export const BusinessSchema = new mongoose.Schema({
 	state: String,
 	postalCode: String,
 	phoneNumber: String,
-	dowllaId: String,
+	dwollaId: String,
 	resourceUri: String,
 	owner: {
 		firstName: String,
@@ -39,7 +39,7 @@ export const CustomerSchema = new mongoose.Schema({
 	postalCode: String,
 	firstName: String,
 	lastName: String,
-	dowllaId: String,
+	dwollaId: String,
 	resourceUri: String,
 }, { _id: false })
 
