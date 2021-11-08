@@ -82,19 +82,22 @@ export async function addCustomer(dwollaId: DwollaId,
 	}
 }
 
-export async function updateDwollaDetails(filter: ObjectId, update: { dwollaId: string, resourceUri: string }, type): Promise<GenericDatabaseResponse<IDBUser>> {
+export async function updateDwollaDetails(
+	filter: ObjectId, 
+	update: { dwollaId: string, resourceUri: string }, 
+	type: 'customer' | 'business'): Promise<GenericDatabaseResponse<IDBUser>> {
 	try {
 		const f = { '_id': filter };
+		const currentUser = await UserDatabaseService.get<IDBUser>(f);
 		const u = type === "business"
-			? { business: { resourceUri: update.resourceUri, dwollaId: update.dwollaId } }
-			: { customer: { resourceUri: update.resourceUri, dwollaId: update.dwollaId } }
+			? { verifiedBusiness: true, business: { ...currentUser?.business, owner: currentUser.business.owner, resourceUri: update.resourceUri, dwollaId: update.dwollaId } }
+			: { verifiedCustomer: true, customer: { ...currentUser?.customer, resourceUri: update.resourceUri, dwollaId: update.dwollaId } }
 		const response = await UserDatabaseService.update<IDBUser>(f, u);
 		return { success: true, data: response };
 	} catch (error) {
 		return { success: false, error: "Something went wrong!" }
 	}
 };
-
 
 export async function addBusiness(dwollaId: DwollaId,
 	verification: { business: Business }): Promise<GenericDatabaseResponse<IDBUser>> {

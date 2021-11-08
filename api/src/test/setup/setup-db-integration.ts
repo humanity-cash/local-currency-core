@@ -15,8 +15,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
   try {
-    await mockDatabase.dropDatabase()
-    await mockDatabase.closeMongooseConnection()
+    // await mockDatabase.dropDatabase()
+    // await mockDatabase.closeMongooseConnection()
   } catch (err) {
     console.log(`Err in db: afterEach: ${err}`)
   }

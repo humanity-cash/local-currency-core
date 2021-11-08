@@ -2,37 +2,38 @@ import chai from "chai";
 import chaiHttp from "chai-http";
 import { getApp } from "../server";
 import { log } from "../utils";
-import { codes } from "../utils/http";
+import { mockDatabase } from "./setup/setup-db-integration";
+import { createFakeUser, newBusinessData, newCustomerData } from "./utils";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
 
 describe("Auth Service API Test", () => {
+	let customerDwollaId;
+	let businessDwollaId;
+
+	beforeAll(async () => {
+		await mockDatabase.init();
+	});
+
+	afterAll(async (): Promise<void> => {
+		await mockDatabase.stop();
+	});
+
 	it("It should create customer", (done) => {
 		chai
 			.request(server)
 			.post("/users")
-			.send({
-				consent: true,
-				email: 'ee@hc.cc',
-				type: 'customer',
-				customer: {
-					firstName: 'eheh',
-					lastName: 'eheh',
-					address1: 'eheh',
-					address2: 'eheh',
-					city: 'eheh',
-					state: 'eheh',
-					postalCode: 'eheh',
-					avatar: 'eheh',
-					tag: 'eheh',
-					dwollaId: "dwollaId",
-					resourceUri: 'eheh',
-				}
-			})
+			.send(createFakeUser())
 			.then((res) => {
-				expect(res).to.have.status(codes.BAD_REQUEST);
+				expect(res.body.customer.dwollaId).to.exist;
+				expect(res.body.customer.resourceUri).to.exist;
+				expect(res.body.dbId).to.exist;
+				expect(res.body.verifiedCustomer).to.eql(true);
+				expect(res.body.verifiedBusiness).to.eql(false);
+				expect(res).to.have.status(201);
+				customerDwollaId = res.body.customer.dwollaId;
 				log(JSON.parse(res.text));
 				done();
 			})
@@ -40,57 +41,79 @@ describe("Auth Service API Test", () => {
 				done(err);
 			});
 	});
+	it('adds business to existing customer', (done) => {
+		chai
+			.request(server)
+			.post(`/users/${customerDwollaId}/business`)
+			.send({
+				customer: {
+					dwollaId: customerDwollaId,
+				},
+				business: newBusinessData,
+			})
+			.then((res) => {
+				expect(res).to.have.status(201);
+				expect(res.body.data.customer.dwollaId).to.exist;
+				expect(res.body.data.customer.resourceUri).to.exist;
+				expect(res.body.data.business.dwollaId).to.exist;
+				expect(res.body.data.business.resourceUri).to.exist;
+				expect(res.body.data.dbId).to.exist;
+				expect(res.body.data.verifiedCustomer).to.eql(true);
+				expect(res.body.data.verifiedBusiness).to.eql(true);
+				log(JSON.parse(res.text));
+				done();
+			})
+			.catch((err) => {
+				done(err);
+			});
+	})
+
+
+	it("It should create new business", (done) => {
+		chai
+			.request(server)
+			.post("/users")
+			.send(createFakeUser(true))
+			.then((res) => {
+				expect(res.body.business.dwollaId).to.exist;
+				expect(res.body.business.resourceUri).to.exist;
+				expect(res.body.dbId).to.exist;
+				expect(res.body.verifiedCustomer).to.eql(false);
+				expect(res.body.verifiedBusiness).to.eql(true);
+				expect(res).to.have.status(201);
+				businessDwollaId = res.body.business.dwollaId;
+				log(JSON.parse(res.text));
+				done();
+			})
+			.catch((err) => {
+				done(err);
+			});
+	});
+
+	it('adds customer to existing business', (done) => {
+		chai
+			.request(server)
+			.post(`/users/${businessDwollaId}/customer`)
+			.send({
+				business: {
+					dwollaId: businessDwollaId,
+				},
+				customer: newCustomerData,
+			})
+			.then((res) => {
+				expect(res).to.have.status(201);
+				expect(res.body.data.customer.dwollaId).to.exist;
+				expect(res.body.data.customer.resourceUri).to.exist;
+				expect(res.body.data.business.dwollaId).to.exist;
+				expect(res.body.data.business.resourceUri).to.exist;
+				expect(res.body.data.dbId).to.exist;
+				expect(res.body.data.verifiedCustomer).to.eql(true);
+				expect(res.body.data.verifiedBusiness).to.eql(true);
+				log(JSON.parse(res.text));
+				done();
+			})
+			.catch((err) => {
+				done(err);
+			});
+	})
 });
-
-// const newCustomerData = {
-// 	base: {
-// 		email: "tech@hc.com",
-// 		consent: true,
-// 	},
-// 	customer: {
-// 		avatar: "customeravatar",
-// 		tag: "customertag",
-// 		address1: "customeraddress1",
-// 		address2: "customeraddress2",
-// 		city: "customercity",
-// 		state: "customerstate",
-// 		postalCode: "customerpostalCode",
-// 		firstName: "customerfirstName",
-// 		lastName: "customerlastName",
-// 		dowllaId: "customerdowlladId",
-// 		resourceUri: "customerresourceUri",
-// 	}
-// }
-
-// const newBusinessData = {
-// 	base: {
-// 		email: "tech@hc.com",
-// 		consent: true,
-// 	},
-// 	business: {
-// 		avatar: "businessavatar",
-// 		tag: "businesstag",
-// 		address1: "businessaddress1",
-// 		address2: "businessaddress2",
-// 		city: "businesscity",
-// 		state: "businessstate",
-// 		postalCode: "businesspostalCode",
-// 		dowllaId: "businessdowlladId",
-// 		resourceUri: "businessresourceUri",
-// 		story: "businessstory",
-// 		type: "type",
-// 		rbn: "rbn",
-// 		industry: "indu",
-// 		ein: "ein",
-// 		phoneNumber: "pn",
-// 		owner: {
-// 			firstName: "businessfirstNameowner",
-// 			lastName: "businesslastNameowner",
-// 			address1: "businessaddress1owner",
-// 			address2: "businessaddress2owner",
-// 			city: "businesscityowner",
-// 			state: "businessstateowner",
-// 			postalCode: "businesspostalCodeowner",
-// 		}
-// 	}
-// }
