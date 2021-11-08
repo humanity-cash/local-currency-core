@@ -31,7 +31,6 @@ jobs:
         run: |
           cd api
           touch .env
-          yarn test:contracts
           yarn coverage
         env:
           DEBUG: "false"
