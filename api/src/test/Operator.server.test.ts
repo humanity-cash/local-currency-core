@@ -92,7 +92,7 @@ describe.only("Operator endpoints test", () => {
     await mockDatabase.stop();
   });
 
-  describe.only("POST /users (create user)", () => {
+  describe("POST /users (create user)", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
