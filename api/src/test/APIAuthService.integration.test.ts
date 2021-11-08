@@ -46,9 +46,6 @@ describe("Auth Service API Test", () => {
 			.request(server)
 			.post(`/users/${customerDwollaId}/business`)
 			.send({
-				customer: {
-					dwollaId: customerDwollaId,
-				},
 				business: newBusinessData,
 			})
 			.then((res) => {
@@ -95,9 +92,6 @@ describe("Auth Service API Test", () => {
 			.request(server)
 			.post(`/users/${businessDwollaId}/customer`)
 			.send({
-				business: {
-					dwollaId: businessDwollaId,
-				},
 				customer: newCustomerData,
 			})
 			.then((res) => {

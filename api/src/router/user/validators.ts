@@ -52,7 +52,6 @@ export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
 
 export const addCustomer = [
   ...idInParams, 
-  body("business.dwollaId").isString(),
   body("customer.tag").isString(),
   body("customer.avatar").isString(),
   body("customer.address1").isString(),
@@ -67,7 +66,6 @@ export const addCustomer = [
 
 export const addBusiness = [
   ...idInParams, 
-  body("customer.dwollaId").isString(),
   body("business.story").isString(),
   body("business.tag").isString(),
   body("business.avatar").isString(),
