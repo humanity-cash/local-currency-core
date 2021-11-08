@@ -77,7 +77,7 @@ function expectITransferEvent(transfer: unknown): void {
   expect(transfer).to.have.property("type");
 }
 
-describe.only("Operator endpoints test", () => {
+describe("Operator endpoints test", () => {
   const user1: IAPINewUser = createFakeUser();
   const user2: IAPINewUser = createFakeUser();
   const business1: IAPINewUser = createFakeUser(true);
@@ -92,7 +92,7 @@ describe.only("Operator endpoints test", () => {
     await mockDatabase.stop();
   });
 
-  describe.only("POST /users (create user)", () => {
+  describe("POST /users (create user)", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
