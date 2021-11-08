@@ -7,6 +7,7 @@ import {
   getAppToken,
   getDwollaResourceFromEvent,
   getDwollaCustomerFromEvent,
+  getDwollaResourceFromLocation,
 } from "./DwollaUtils";
 import {
   DwollaEventService,
@@ -66,12 +67,6 @@ export async function getAllWebhooks(): Promise<dwolla.Response> {
   return response;
 }
 
-function logUnsupported(topic: string) {
-  log(
-    `DwollaWebhookService.ts::consumeWebhook() Unsupported ${topic} received, nothing to do...`
-  );
-}
-
 function logSupported(topic: string) {
   log(
     `DwollaWebhookService.ts::consumeWebhook() Supported topic ${topic} received and beginning processing...`
@@ -87,10 +82,10 @@ async function notifyUserWithReason(
     logSupported(event.topic);
     const res = await getDwollaCustomerFromEvent(event);
     const customer = res.body;
-    userNotification(customer.id, message, level);
+    await userNotification(customer.id, message, level);
   } catch (err) {
     log(
-      `DwollaWebhookService.ts::consumeWebhook()error during ${event.topic} topic processing ${err}`
+      `DwollaWebhookService.ts::consumeWebhook() error during ${event.topic} topic processing ${err}`
     );
     throw err;
   }
@@ -102,6 +97,195 @@ async function contactSupport(event: DwollaEvent): Promise<void> {
     "Your account has encountered a problem that cannot be resolved automatically\nPlease contact support",
     "ERR"
   );
+}
+
+async function updateTransferStatusFromEvent(
+  eventToProcess: DwollaEvent,
+  transfer: dwolla.Response
+): Promise<void> {
+  await DwollaTransferService.updateStatusByFundingTransferId(
+    eventToProcess.resourceId,
+    eventToProcess.topic
+  );
+  log(
+    `DwollaWebhookService.ts::processTransferCompleted() Updated status of transfer fundingTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`
+  );
+
+  // Search for a secondary funded transfer
+  const fundedTransferLink = transfer.body?._links["funded-transfer"]?.href;
+
+  if (fundedTransferLink) {
+    // Retreive the funded transfer for logging
+    const fundedTransfer: dwolla.Response = await getDwollaResourceFromLocation(
+      fundedTransferLink
+    );
+
+    // Set the funded transfer ID which links the two legs of the Dwolla transfer together
+    await DwollaTransferService.setFundedTransferId(
+      eventToProcess.resourceId,
+      fundedTransfer.body?.id
+    );
+    log(
+      `DwollaWebhookService.ts::processTransferCompleted() fundedTansferId ${fundedTransfer.body.id} set for fundingTransferId ${eventToProcess.resourceId}`
+    );
+  }
+
+  await notifyUserWithReason(
+    eventToProcess,
+    `A funding bank transfer of ${
+      transfer.body?.amount?.value
+    } related to your account was ${
+      eventToProcess.topic.includes("completed") ? "completed" : "created"
+    }`
+  );
+}
+
+async function processTransferCompleted(
+  eventToProcess: DwollaEvent
+): Promise<boolean> {
+  try {
+    log(
+      `DwollaWebhookService.ts::processTransferCompleted() Processing ${eventToProcess.topic}`
+    );
+
+    // Get this transfer
+    const transfer = await getDwollaResourceFromEvent(eventToProcess);
+
+    // Attempt to update status in our database
+    try {
+      await updateTransferStatusFromEvent(eventToProcess, transfer);
+    } catch (err) {
+      if (err?.message?.includes("No match in database")) {
+        // If there is no match for this transfer in our database
+        // it means that this bank transfer was created by Dwolla as the matching leg
+        // of an existing deposit transfer we initiated from a customer (unverified)
+        // to the bank operator (verified) or vice versa
+
+        // We need to use the link of the "funding-transfer" to find the database record
+        // and the original transfer we created manually
+
+        const fundingTransferLink =
+          transfer.body?._links["funding-transfer"]?.href;
+        log(
+          `DwollaWebhookService.ts::consumeWebhook() Searching for related funding-transfer ${fundingTransferLink}`
+        );
+
+        // Retreive the funding transfer for logging
+        const fundingTransfer: dwolla.Response =
+          await getDwollaResourceFromLocation(fundingTransferLink);
+
+        // Get the database ID so we can log to the initiating user's notifications
+        const transferDBItem =
+          await DwollaTransferService.getByFundingTransferId(
+            fundingTransfer.body?.id
+          );
+
+        // Update the status of the funded transfer ID to the current topic
+        await DwollaTransferService.updateStatusByFundedTransferId(
+          eventToProcess.resourceId,
+          eventToProcess.topic
+        );
+        // If deposit, then mint new tokens
+        if (transferDBItem.type == "DEPOSIT") {
+          await webhookMint(transferDBItem.fundingTransferId);
+          await userNotification(
+            transferDBItem.userId,
+            `A deposit of ${fundingTransfer.body?.amount?.value} related to your account was completed`,
+            "INFO"
+          );
+        } else {
+          await userNotification(
+            transferDBItem.userId,
+            `A withdrawal of ${fundingTransfer.body?.amount?.value} related to your account was completed`,
+            "INFO"
+          );
+        }
+      } else throw err;
+    }
+    return true;
+  } catch (err) {
+    log(
+      `DwollaWebhookService.ts::processTransferCreated() Error during ${eventToProcess.topic} processing ${err}`
+    );
+    throw err;
+  }
+}
+
+async function processTransferCreated(
+  eventToProcess: DwollaEvent
+): Promise<boolean> {
+  try {
+    log(
+      `DwollaWebhookService.ts::processTransferCreated() Processing ${eventToProcess.topic}`
+    );
+
+    // Get this transfer
+    const transfer = await getDwollaResourceFromEvent(eventToProcess);
+
+    // Attempt to update status in our database
+    try {
+      await updateTransferStatusFromEvent(eventToProcess, transfer);
+    } catch (err) {
+      if (err?.message?.includes("No match in database")) {
+        // If there is no match for this transfer in our database
+        // it means that this bank transfer was created by Dwolla as the matching leg
+        // of an existing deposit transfer we initiated from a customer (unverified)
+        // to the bank operator (verified) or vice versa
+
+        // We need to use the link of the "funding-transfer" to find the database record
+        // and the original transfer we created manually
+
+        const fundingTransferLink =
+          transfer.body?._links["funding-transfer"]?.href;
+        log(
+          `DwollaWebhookService.ts::processTransferCreated() Searching for related funding-transfer ${fundingTransferLink}`
+        );
+
+        // Retreive the funding transfer for logging
+        const fundingTransfer: dwolla.Response =
+          await getDwollaResourceFromLocation(fundingTransferLink);
+
+        // Get the database ID so we can log to the initiating user's notifications
+        const transferDBItem =
+          await DwollaTransferService.getByFundingTransferId(
+            fundingTransfer.body?.id
+          );
+        log(
+          `DwollaWebhookService.ts::processTransferCreated() Funding transfer is ${JSON.stringify(
+            transferDBItem,
+            null,
+            2
+          )}`
+        );
+
+        // Set the funded transfer ID which links the two legs of the Dwolla transfer together
+        await DwollaTransferService.setFundedTransferId(
+          fundingTransfer.body?.id,
+          eventToProcess.resourceId
+        );
+
+        // Update the status of the funded transfer ID to the current topic
+        await DwollaTransferService.updateStatusByFundedTransferId(
+          eventToProcess.resourceId,
+          eventToProcess.topic
+        );
+
+        // Notify the user the funding leg of their transfer was created
+        await userNotification(
+          transferDBItem.userId,
+          `A funded bank transfer of ${fundingTransfer.body?.amount?.value} related to your account was created`,
+          "INFO"
+        );
+      } else throw err;
+    }
+
+    return true;
+  } catch (err) {
+    log(
+      `DwollaWebhookService.ts::processTransferCreated() Error during ${eventToProcess.topic} processing ${err}`
+    );
+    throw err;
+  }
 }
 
 export async function consumeWebhook(
@@ -199,23 +383,20 @@ export async function consumeWebhook(
         processed = true;
         break;
 
+      case "customer_transfer_created":
+        processed = await processTransferCreated(eventToProcess);
+        break;
+
+      case "customer_transfer_completed":
+        processed = await processTransferCompleted(eventToProcess);
+        break;
+
       case "customer_bank_transfer_created":
-        try {
-          await notifyUserWithReason(
-            eventToProcess,
-            "Your bank transfer has been created"
-          );
-          await DwollaTransferService.updateStatus(
-            eventToProcess.resourceId,
-            eventToProcess.topic
-          );
-          processed = true;
-        } catch (err) {
-          log(
-            `DwollaWebhookService.ts::consumeWebhook() Error during ${eventToProcess.topic} processing ${err}`
-          );
-          throw err;
-        }
+        processed = await processTransferCreated(eventToProcess);
+        break;
+
+      case "customer_bank_transfer_completed":
+        processed = await processTransferCompleted(eventToProcess);
         break;
 
       case "customer_bank_transfer_cancelled":
@@ -225,7 +406,7 @@ export async function consumeWebhook(
             "Your bank transfer has been cancelled\nPlease contact support for assistance",
             "ERR"
           );
-          await DwollaTransferService.updateStatus(
+          await DwollaTransferService.updateStatusByFundedTransferId(
             eventToProcess.resourceId,
             eventToProcess.topic
           );
@@ -245,7 +426,7 @@ export async function consumeWebhook(
             "Your bank transfer has failed\nPlease contact support for assistance",
             "ERR"
           );
-          await DwollaTransferService.updateStatus(
+          await DwollaTransferService.updateStatusByFundedTransferId(
             eventToProcess.resourceId,
             eventToProcess.topic
           );
@@ -265,27 +446,7 @@ export async function consumeWebhook(
             "Could not create a bank transfer\nPlease contact support for assistance",
             "ERR"
           );
-          await DwollaTransferService.updateStatus(
-            eventToProcess.resourceId,
-            eventToProcess.topic
-          );
-          processed = true;
-        } catch (err) {
-          log(
-            `DwollaWebhookService.ts::consumeWebhook() Error during ${eventToProcess.topic} processing ${err}`
-          );
-          throw err;
-        }
-        break;
-
-      case "customer_bank_transfer_completed":
-        logUnsupported(eventToProcess.topic);
-        break;
-
-      case "customer_transfer_created":
-        try {
-          await notifyUserWithReason(eventToProcess, "Bank transfer created");
-          await DwollaTransferService.updateStatus(
+          await DwollaTransferService.updateStatusByFundedTransferId(
             eventToProcess.resourceId,
             eventToProcess.topic
           );
@@ -305,7 +466,7 @@ export async function consumeWebhook(
             "Your bank transfer was cancelled\nPlease contact support for assistance",
             "ERR"
           );
-          await DwollaTransferService.updateStatus(
+          await DwollaTransferService.updateStatusByFundingTransferId(
             eventToProcess.resourceId,
             eventToProcess.topic
           );
@@ -325,59 +486,8 @@ export async function consumeWebhook(
             "Your bank transfer has failed\nPlease contact support for assistance",
             "ERR"
           );
-          await DwollaTransferService.updateStatus(
+          await DwollaTransferService.updateStatusByFundingTransferId(
             eventToProcess.resourceId,
-            eventToProcess.topic
-          );
-          processed = true;
-        } catch (err) {
-          log(
-            `DwollaWebhookService.ts::consumeWebhook() Error during ${eventToProcess.topic} processing ${err}`
-          );
-          throw err;
-        }
-        break;
-
-      case "customer_transfer_completed":
-        try {
-          const transfer = await getDwollaResourceFromEvent(eventToProcess);
-          log(
-            `DwollaWebhookService.ts::consumeWebhook() Event refers to transfer ${JSON.stringify(
-              transfer,
-              null,
-              2
-            )}`
-          );
-          const transferDBItem = await DwollaTransferService.getById(
-            transfer.body.id
-          );
-          log(
-            `DwollaWebhookService.ts::consumeWebhook() Event refers to database transfer ${JSON.stringify(
-              transferDBItem,
-              null,
-              2
-            )}`
-          );
-
-          if (!transferDBItem)
-            throw `DwollaWebhookService.ts::consumeWebhook() Database record for this event does not exist yet, is there a timing issue?`;
-
-          // Notify user of transfer completion
-          await notifyUserWithReason(
-            eventToProcess,
-            `Your ${
-              transferDBItem.type == "DEPOSIT" ? "deposit" : "withdrawal"
-            } of ${"$" + transferDBItem.amount} has completed successfully`
-          );
-
-          // If deposit, then mint new Berkshares
-          if (transferDBItem.type == "DEPOSIT") {
-            webhookMint(transferDBItem.id);
-          }
-
-          // Update DB item to show completed status
-          await DwollaTransferService.updateStatus(
-            transfer.body.id,
             eventToProcess.topic
           );
           processed = true;

@@ -39,7 +39,7 @@ export function validSignature(
 ): boolean {
   try {
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${JSON.stringify(
+      `DwollaUtils.ts::verifyGatewaySignature() Attempting to validate payloadBody ${JSON.stringify(
         payloadBody,
         null,
         2
@@ -55,13 +55,13 @@ export function validSignature(
       Buffer.from(hash)
     );
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is ${
+      `DwollaUtils.ts::verifyGatewaySignature() event with signature ${proposedSignature} is ${
         verified ? "valid" : "not valid"
       }`
     );
     return verified;
   } catch (e) {
-    log(`DwollaUtils.ts::verifyGatewaySignature: ${e}`);
+    log(`DwollaUtils.ts::verifyGatewaySignature() ${e}`);
   }
 }
 
@@ -70,14 +70,14 @@ export function validSignature(
 export async function duplicateWebhookExists(id: string): Promise<boolean> {
   const webhook = await DwollaEventService.findByObject(id);
   log(
-    `DwollaUtils::duplicateExists:: Response from DwollaEvent database is ${JSON.stringify(
+    `DwollaUtils.ts::duplicateExists() Response from DwollaEvent database is ${JSON.stringify(
       webhook
     )}`
   );
   if (webhook?.dbId) {
     return true;
   } else {
-    log(`DwollaUtils.ts::duplicateExists: No duplicate for Event ${id} found`);
+    log(`DwollaUtils.ts::duplicateExists() No duplicate for Event ${id} found`);
     return false;
   }
 }
@@ -87,6 +87,13 @@ export async function getDwollaCustomerFromEvent(
 ): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
   const res = await appToken.get(event._links.customer.href);
+  log(
+    `DwollaUtils.ts::getDwollaCustomerFromEvent() Event refers to customer ${JSON.stringify(
+      res.body,
+      null,
+      2
+    )}`
+  );
   return res;
 }
 
@@ -95,6 +102,13 @@ export async function getDwollaResourceFromEvent(
 ): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
   const res = await appToken.get(event._links.resource.href);
+  log(
+    `DwollaUtils.ts::getDwollaResourceFromEvent() Event refers to resource ${JSON.stringify(
+      res.body,
+      null,
+      2
+    )}`
+  );
   return res;
 }
 
@@ -103,5 +117,12 @@ export async function getDwollaResourceFromLocation(
 ): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
   const res = await appToken.get(location);
+  log(
+    `DwollaUtils.ts::getDwollaResourceFromLocation() Location refers to resource ${JSON.stringify(
+      res.body,
+      null,
+      2
+    )}`
+  );
   return res;
 }

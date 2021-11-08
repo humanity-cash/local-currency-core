@@ -7,6 +7,9 @@ import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
+import { isProduction, log, isDevelopment, httpUtils } from "src/utils";
+import { createDummyEvent } from "../../test/utils";
+
 import {
   Business,
   Customer,
@@ -15,8 +18,6 @@ import {
   IWallet,
   IWithdrawal
 } from "src/types";
-import { httpUtils, isDevelopment, isProduction, log } from "src/utils";
-import { createDummyEvent } from "../../test/utils";
 
 const codes = httpUtils.codes;
 
@@ -149,9 +150,9 @@ function constructDwollaDetails(data: IDBUser, type: 'customer' | 'business', is
 			postalCode: data.customer.postalCode,
 			address1: data.customer.address1,
 			address2: data.customer.address2,
-			dbId: data.dbId,
+			correlationId: `customer-${data.dbId}`,
 			ipAddress: '',
-			rbn: ''
+			rbn: data.customer.firstName + data.customer.lastName,
 		}
 		return dwollaDetails;
 	} else if (type === 'business') {
@@ -164,7 +165,7 @@ function constructDwollaDetails(data: IDBUser, type: 'customer' | 'business', is
 			postalCode: data.business.postalCode,
 			address1: data.business.address1,
 			address2: data.business.address2,
-			dbId: data.dbId,
+      correlationId: `business-${data.dbId}`,
 			rbn: data.business.rbn,
 			ipAddress: '',
 		}
@@ -200,9 +201,9 @@ export async function createUser(req: Request, res: Response): Promise<void> {
 
 export async function addCustomer(req: Request, res: Response): Promise<void> {
   try {
-    const customer: Omit<Customer, 'resourceUri' | 'dowllaId'> = req?.body?.customer;
-    const { id: businessDwollaId } = req?.params?.id;
-    const dbUser = await AuthService.updateUser(businessDwollaId, customer, 'business');
+    const customer: Omit<Customer, 'resourceUri' | 'dwollaId'> = req?.body?.customer;
+    const businessDwollaId = req?.params?.id;
+    const dbUser = await AuthService.updateUser(businessDwollaId, { customer }, 'business');
     const dwollaDetails = constructDwollaDetails(dbUser.data, 'customer', false);
     const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
       dwollaDetails
@@ -228,14 +229,14 @@ export async function addCustomer(req: Request, res: Response): Promise<void> {
 export async function addBusiness(req: Request, res: Response): Promise<void> {
   try {
     const business: Omit<Business, 'dowllaId' | 'resourceUri'> = req?.body?.business;
-    const { id: customerDwollaId } = req?.params?.id;
-    const dbUser = await AuthService.updateUser(customerDwollaId, business, 'customer');
-    const dwollaDetails = constructDwollaDetails(dbUser.data, 'customer', false);
+    const customerDwollaId = req?.params?.id;
+    const dbUser = await AuthService.updateUser(customerDwollaId, { business }, 'customer');
+    const dwollaDetails = constructDwollaDetails(dbUser.data, 'business', false);
     const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
       dwollaDetails
     );
     const updateResponse = await AuthService.updateDwollaDetails(dbUser.data.dbId,
-      { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, 'customer');
+      { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, 'business');
     if (isDevelopment()) {
       log(`[NODE_ENV="development"] Performing webhook shortcut...`);
       await shortcutUserCreation(newUserResponse.userId);
