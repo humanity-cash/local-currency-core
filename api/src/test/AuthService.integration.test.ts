@@ -1,28 +1,28 @@
+import faker from "faker";
 import * as AuthService from "src/service/AuthService";
+import { mockDatabase } from "./setup/setup-db-integration";
 
-// const newCustomerData = {
-// 	base: {
-// 		email: "tech@hc.com",
-// 		consent: true,
-// 	},
-// 	customer: {
-// 		avatar: "customeravatar",
-// 		tag: "customertag",
-// 		address1: "customeraddress1",
-// 		address2: "customeraddress2",
-// 		city: "customercity",
-// 		state: "customerstate",
-// 		postalCode: "customerpostalCode",
-// 		firstName: "customerfirstName",
-// 		lastName: "customerlastName",
-// 		dwollaId: "customerdowlladId",
-// 		resourceUri: "customerresourceUri",
-// 	}
-// }
+const newCustomerData = {
+	base: {
+		email: faker.internet.email(),
+		consent: true,
+	},
+	customer: {
+		avatar: "customeravatar",
+		tag: "customertag",
+		address1: "customeraddress1",
+		address2: "customeraddress2",
+		city: "customercity",
+		state: "customerstate",
+		postalCode: "customerpostalCode",
+		firstName: faker.name.firstName(),
+		lastName: faker.name.lastName(),
+	}
+}
 
 const newBusinessData = {
 	base: {
-		email: "tech@hc.com",
+		email: faker.internet.email(),
 		consent: true,
 	},
 	business: {
@@ -33,8 +33,6 @@ const newBusinessData = {
 		city: "businesscity",
 		state: "businessstate",
 		postalCode: "businesspostalCode",
-		dwollaId: "",
-		resourceUri: "",
 		story: "businessstory",
 		type: "type",
 		rbn: "rbn",
@@ -55,7 +53,14 @@ const newBusinessData = {
 
 describe("AuthService test suite", () => {
 	describe('create new user', () => {
-		it.only('Should create business successfully', async () => {
+		beforeAll(async () => {
+			await mockDatabase.init();
+		});
+
+		afterAll(async (): Promise<void> => {
+			await mockDatabase.stop();
+		});
+		it('Should create business successfully', async () => {
 			const response = await AuthService.createUser({
 				business: { ...newBusinessData.business },
 				...newBusinessData.base
@@ -71,7 +76,7 @@ describe("AuthService test suite", () => {
 			expect(response.data.business.type).toEqual(newBusinessData.business.type)
 			expect(response.data.business.rbn).toEqual(newBusinessData.business.rbn)
 			expect(response.data.business.industry).toEqual(newBusinessData.business.industry)
-			expect(response.data.business.resourceUri).toEqual("")
+			expect(response.data.business.resourceUri).toEqual(undefined)
 			expect(response.data.business.dwollaId).toEqual(undefined)
 			expect(response.data.business.postalCode).toEqual(newBusinessData.business.postalCode)
 			expect(response.data.business.state).toEqual(newBusinessData.business.state)
@@ -85,6 +90,25 @@ describe("AuthService test suite", () => {
 			expect(response.data.business.owner.city).toEqual(newBusinessData.business.owner.city)
 			expect(response.data.business.owner.state).toEqual(newBusinessData.business.owner.state)
 			expect(response.data.business.owner.postalCode).toEqual(newBusinessData.business.owner.postalCode)
+		})
+
+		it('Should create customer successfully', async () => {
+			const response = await AuthService.createUser({
+				customer: { ...newCustomerData.customer },
+				...newCustomerData.base
+			}, 'customer');
+
+			expect(response.success).toEqual(true)
+			expect(response.data.verifiedBusiness).toEqual(false)
+			expect(response.data.verifiedCustomer).toEqual(true)
+			expect(response.data.consent).toEqual(newCustomerData.base.consent)
+			expect(response.data.customer.lastName).toEqual(newCustomerData.customer.lastName)
+			expect(response.data.customer.firstName).toEqual(newCustomerData.customer.firstName)
+			expect(response.data.customer.address1).toEqual(newCustomerData.customer.address1)
+			expect(response.data.customer.address2).toEqual(newCustomerData.customer.address2)
+			expect(response.data.customer.city).toEqual(newCustomerData.customer.city)
+			expect(response.data.customer.state).toEqual(newCustomerData.customer.state)
+			expect(response.data.customer.postalCode).toEqual(newCustomerData.customer.postalCode)
 		})
 	})
 });
