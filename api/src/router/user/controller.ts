@@ -179,6 +179,7 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
       dwollaDetails
     );
+    
     const updateResponse = await AuthService.updateDwollaDetails(createDbResponse.data.dbId,
       { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, type);
       
@@ -235,11 +236,12 @@ export async function addBusiness(req: Request, res: Response): Promise<void> {
     );
     const updateResponse = await AuthService.updateDwollaDetails(dbUser.data.dbId,
       { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, 'business');
-    if (isDevelopment()) {
-      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
+
+    if (shouldSimulateWebhook()) {
+      log(`Simulating webhook for user creation...`);
       await shortcutUserCreation(newUserResponse.userId);
     } else {
-      log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
+      log(`Webhook will create user on-chain...`);
     }
 
     httpUtils.createHttpResponse(updateResponse, codes.CREATED, res);
