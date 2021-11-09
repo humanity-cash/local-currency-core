@@ -33,7 +33,7 @@ jobs:
           touch .env
           yarn coverage
         env:
-          DEBUG: "false"
+          DEBUG: "true"
           NODE_ENV: "development"
           LOCAL_CURRENCY_PROVIDER: "web3"
           LOCAL_CURRENCY_RPC_HOST: "http://localhost:8545"
@@ -47,7 +47,7 @@ jobs:
           DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
           DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
           DWOLLA_ENVIRONMENT: sandbox
-          WEBHOOK_SECRET: 0000000000000000000000000000000000000000000001
+          WEBHOOK_SECRET: 0000000000000000000000000000000000000000000003
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached
