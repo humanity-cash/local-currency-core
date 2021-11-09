@@ -1,6 +1,6 @@
 name: Build
 
-on: [ pull_request ]
+on: [ push, pull_request ]
 
 jobs:
   build-api:
@@ -47,7 +47,11 @@ jobs:
           DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
           DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
           DWOLLA_ENVIRONMENT: sandbox
-          WEBHOOK_SECRET: 0000000000000000000000000000000000000000000003
+          WEBHOOK_SECRET: 0000000000000000000000000000000000000000000009
+          REGISTER_WEBHOOK: "false"
+          SIMULATE_WEBHOOK: "false"
+          SIMULATE_BANKING: "false"
+          USE_MANAGED_SECRETS: "false"
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached
