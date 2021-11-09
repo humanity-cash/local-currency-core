@@ -15,33 +15,29 @@ services:
     image: us.gcr.io/celo-org/geth:alfajores
     restart: unless-stopped
     volumes:
-      - celo_data:/root/.celo
+      - celo-data:/root/.celo
     ports:
       - "8545:8545"
       - "8546:8546"
       - "30303:30303"
       - "30303:30303/udp"
-    command: ["--verbosity", "3", "--syncmode", "full", "--rpc", "--rpcaddr", "0.0.0.0", "--rpcapi", "eth,net,web3,debug,admin,personal", "--light.serve", "0", "--light.maxpeers", "1000", "--maxpeers", "1100", "--nousb", "--alfajores", "--datadir", "/root/.celo"]
+    command: ["--verbosity", "3", "--syncmode", "full", "--gcmode", "archive", "--rpc", "--rpcaddr", "0.0.0.0", "--rpcapi", "eth,net,web3,debug,admin,personal", "--rpcvhosts=*", "--light.serve", "0", "--light.maxpeers", "1000", "--maxpeers", "1100", "--nousb", "--alfajores", "--datadir", "/root/.celo"]
 
   local-currency-api:
-    x-aws-policies:
-    - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
-    depends_on: 
+    depends_on:
+      - celo-node 
       - local-currency-db
+    build: ./
     image: local-currency-core:api
-    x-aws-pull_credentials: "arn:aws:secretsmanager:eu-north-1:741204600220:secret:dockerhubAccessToken-FuYCes"
     command: ["yarn", "start"]
     ports:
       - "3000:3000"
-      # x-aws-protocol: http
     environment:
       DEBUG: "true"
       NODE_ENV: development
       REGION: eu-north-1
       SECRET_NAME: LOCAL_CURRENCY_API_ALFAJORES
-
-      # Keep these here as a backstop for when using NODE_ENV: development
-      LOCAL_CURRENCY_RPC_HOST: "https://alfajores-forno.celo-testnet.org/"
+      LOCAL_CURRENCY_RPC_HOST: "http://celo-node:8545"
       LOCAL_CURRENCY_ADDRESS: "0xa493032Db59AcbcBF148F5C3660786ef8c6caa42"
       LOCAL_CURRENCY_MNEMONIC: "truth half motor knee sad flee oxygen gossip announce train soon renew"
       DERIVATION_PATH: "m/44'/52752'/0'"
@@ -50,12 +46,18 @@ services:
       DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
       DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
       DWOLLA_ENVIRONMENT: sandbox
-      WEBHOOK_SECRET: 0000000000000000000000000000000000000000000001
-      WEBHOOK_URL: "https://alfajores.api.humanity.cash/webhook"
+      WEBHOOK_SECRET: 0000000000000000000000000000000000000000000003
+      WEBHOOK_URL: "https://alfajores2.api.humanity.cash/webhook"
+      REGISTER_WEBHOOK: "true"
+      SIMULATE_WEBHOOK: "false"
+      SIMULATE_BANKING: "false"
+      USE_MANAGED_SECRETS: "false"
+      OPERATOR_1_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/7fe7a621-e494-4369-965f-214477122331"
+      OPERATOR_2_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/2bbb3d39-1e43-4c34-8e00-a96b286f3bab"      
       MONGO_URL: "mongodb://root:example@local-currency-db:27017"
-      VIRTUAL_HOST: alfajores.api.humanity.cash
+      VIRTUAL_HOST: alfajores2.api.humanity.cash
       VIRTUAL_PORT: 3000
-      LETSENCRYPT_HOST: alfajores.api.humanity.cash
+      LETSENCRYPT_HOST: alfajores2.api.humanity.cash
 
   nginx-proxy:
     depends_on:
@@ -70,6 +72,7 @@ services:
       - letsencrypt-certs:/etc/nginx/certs
       - letsencrypt-vhost-d:/etc/nginx/vhost.d
       - letsencrypt-html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
 
   letsencrypt-proxy:
     image: jrcs/letsencrypt-nginx-proxy-companion
@@ -81,6 +84,7 @@ services:
       - letsencrypt-certs:/etc/nginx/certs
       - letsencrypt-vhost-d:/etc/nginx/vhost.d
       - letsencrypt-html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
     environment:
       - DEFAULT_EMAIL=tech@humanity.cash
       - NGINX_PROXY_CONTAINER=nginx-proxy
@@ -90,7 +94,8 @@ networks:
       name: nginx-proxy
 volumes:
   db_data:
-  celo_data:
+  celo-data:
   letsencrypt-certs:
   letsencrypt-vhost-d:
   letsencrypt-html:
+  acme:
