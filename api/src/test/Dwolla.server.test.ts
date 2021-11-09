@@ -100,7 +100,7 @@ describe("Dwolla test suite", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    it(`Should create ${CUSTOMERS_TO_CREATE} personal verified customer and return the entity link`, async () => {
+    xit(`Should create ${CUSTOMERS_TO_CREATE} personal verified customer and return the entity link`, async () => {
       for (let i = 0; i < CUSTOMERS_TO_CREATE; i++) {
         const firstName = "Personal Verified " + faker.name.firstName();
         const lastName = faker.name.lastName();
