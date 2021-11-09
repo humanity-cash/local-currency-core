@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { ObjectId } from "mongoose";
 import { IBusinessDwollaId, ICustomerDwollaId, INewUserInput } from "src/types";
 import { User as UserSchema } from "../schema";
