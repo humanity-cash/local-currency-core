@@ -34,7 +34,7 @@ jobs:
           yarn coverage
         env:
           DEBUG: "true"
-          NODE_ENV: "development"
+          NODE_ENV: "test"
           LOCAL_CURRENCY_PROVIDER: "web3"
           LOCAL_CURRENCY_RPC_HOST: "http://localhost:8545"
           LOCAL_CURRENCY_ADDRESS: ""
