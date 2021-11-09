@@ -7,12 +7,6 @@ import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
-import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
-import {
-  getFundingSourcesById,
-  getIAVTokenById,
-} from "src/service/digital-banking/DwollaService";
-import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import { isDwollaProduction, log, shouldSimulateWebhook, httpUtils } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
@@ -139,6 +133,7 @@ async function shortcutUserCreation(userId: string): Promise<void> {
   if (created) log(`User ${userId} created with dummy webhook...`);
   else log(`User ${userId} not created, check logs for details`);
 }
+
 function constructDwollaDetails(data: IDBUser, type: 'customer' | 'business', isNew: boolean) {
 	const email = isNew ? data.email : `${data.dbId}@humanity.cash`;
 	if (type === 'customer') {
@@ -186,12 +181,14 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     );
     const updateResponse = await AuthService.updateDwollaDetails(createDbResponse.data.dbId,
       { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, type);
-    if (isDevelopment()) {
-      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
+      
+    if (shouldSimulateWebhook()) {
+      log(`Simulating webhook for user creation...`);
       await shortcutUserCreation(newUserResponse.userId);
     } else {
-      log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
+      log(`Webhook will create user on-chain...`);
     }
+
     httpUtils.createHttpResponse(updateResponse.data, codes.CREATED, res);
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))

@@ -1,13 +1,11 @@
 import * as dwolla from "dwolla-v2";
-import { httpUtils, isProduction, log } from "src/utils";
-import { IDwollaNewUserResponse } from "../../types";
 import {
   DwollaFundingSourceRequest,
   DwollaPersonalVerifiedCustomerRequest,
   DwollaTransferRequest,
   DwollaUnverifiedCustomerRequest
 } from "./DwollaTypes";
-import { INewUserResponse } from "../../types";
+import { IDwollaNewUserResponse } from "../../types";
 import { isDwollaProduction, log, httpUtils } from "src/utils";
 import { getAppToken } from "./DwollaUtils";
 
