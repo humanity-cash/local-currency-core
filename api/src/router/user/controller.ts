@@ -182,6 +182,8 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     
     const updateResponse = await AuthService.updateDwollaDetails(createDbResponse.data.dbId,
       { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, type);
+    if (shouldSimulateWebhook()) {
+      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
       
     if (shouldSimulateWebhook()) {
       log(`Simulating webhook for user creation...`);
@@ -236,7 +238,6 @@ export async function addBusiness(req: Request, res: Response): Promise<void> {
     );
     const updateResponse = await AuthService.updateDwollaDetails(dbUser.data.dbId,
       { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, 'business');
-
     if (shouldSimulateWebhook()) {
       log(`Simulating webhook for user creation...`);
       await shortcutUserCreation(newUserResponse.userId);
