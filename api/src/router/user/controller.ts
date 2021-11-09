@@ -123,7 +123,8 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
 }
 
 async function shortcutUserCreation(userId: string): Promise<void> {
-  if (isDwollaProduction()) throw Error("Development utility incorrectly used in production");
+  if (isDwollaProduction())
+    throw Error("Development utility incorrectly used in production");
 
   const event: DwollaEvent = createDummyEvent(
     "customer_created",
@@ -132,14 +133,8 @@ async function shortcutUserCreation(userId: string): Promise<void> {
   );
   const created: boolean = await consumeWebhook(event);
 
-  if (created)
-    log(
-      `User ${userId} created with dummy webhook...`
-    );
-  else
-    log(
-      `User ${userId} not created, check logs for details`
-    );
+  if (created) log(`User ${userId} created with dummy webhook...`);
+  else log(`User ${userId} not created, check logs for details`);
 }
 
 export async function createUser(req: Request, res: Response): Promise<void> {
