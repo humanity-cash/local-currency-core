@@ -122,6 +122,30 @@ export async function getUser(dwollaId: string, type: 'customer' | 'business'): 
 	}
 };
 
+interface UserData {
+	name: string
+}
+
+export async function getUserData(dwollaId: string): Promise<GenericDatabaseResponse<UserData>> {
+	try {
+		const businessFilter = { 'business.dwollaId': dwollaId }
+		const customerFilter = { 'customer.dwollaId': dwollaId }
+		const response: UserData = {
+			name: ''
+		}
+		const c = await UserDatabaseService.get<IDBUser>(customerFilter);
+		const b = await UserDatabaseService.get<IDBUser>(businessFilter);
+		if(c) {
+			response.name = `${c.customer.firstName} ${c.customer.lastName}`;
+		} else if (b) {
+			response.name = b.business.rbn;
+		}
+		return { success: true, data: response };
+	} catch (error) {
+		return { success: false, error: "Something went wrong!" }
+	}
+};
+
 export async function updateUser(dwollaId: string, update: any, type: 'business' | 'customer'):  Promise<GenericDatabaseResponse<IDBUser>>{
 	try {
 		const f = type === 'business' ? { 'business.dwollaId': dwollaId } : { 'customer.dwollaId': dwollaId }
