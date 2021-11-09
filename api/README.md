@@ -63,3 +63,33 @@ yarn prettier
 | POST  | /transfer/controller  | Transfer ownership of the controller contract | Token / AWS Cognito  |
 | POST  | /transfer/user        | Transfer ownership of a user/wallet           | Token / AWS Cognito  |
 | POST  | /webhook/             | Hosted endpoint for Dwolla to post to         | Authenticated header |
+
+### Environment variable configuration
+
+#### `process.env.NODE_ENV = "development"`
+
+| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                        |
+| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ---------------------------- |
+| sandbox            | .env file           | Yes                | Yes                              | Yes                       | Alfajores API server         |
+| production         | AWS Secrets Manager | Yes                | Yes                              | No                        | INVALID CONFIGURATION        |
+
+#### `process.env.NODE_ENV = "test"`
+
+| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                        |
+| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ---------------------------- |
+| sandbox            | .env file           | No                 | No                               | Yes                       | `yarn test` / GitHub Actions |
+| production         | AWS Secrets Manager | No                 | No                               | No                        | INVALID CONFIGURATION        |
+
+#### `process.env.NODE_ENV = "production"`
+
+| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                        |
+| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ---------------------------- |
+| sandbox            | .env file           | Yes                | No                               | Yes                       | INVALID CONFIGURATION        |
+| production         | AWS Secrets Manager | Yes                | No                               | No                        | Mainnet API server           |
+
+#### `process.env.NODE_ENV = "anythingelse"`
+
+| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                                 |
+| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ------------------------------------- |
+| sandbox            | .env file           | Yes                | No                               | Yes                       | INVALID CONFIGURATION                 |
+| production         | AWS Secrets Manager | Yes                | No                               | No                        | Valid |
