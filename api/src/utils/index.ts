@@ -45,14 +45,26 @@ export function log(...data: any[]): void {
   // });
 }
 
-export function isDevelopment(): boolean {
-  return process.env.NODE_ENV == "development";
+export function shouldRegisterWebhook() : boolean {
+  return process.env.REGISTER_WEBHOOK == "true" || process.env.REGISTER_WEBHOOK == "TRUE";
+}
+export function shouldSimulateWebhook() : boolean {
+  return process.env.SIMULATE_WEBHOOK == "true" || process.env.SIMULATE_WEBHOOK == "TRUE";
+}
+export function shouldSimulateBanking() : boolean {
+  return process.env.SIMULATE_WEBHOOK == "true" || process.env.SIMULATE_WEBHOOK == "TRUE";
+}
+export function isDwollaProduction() : boolean {
+  return process.env.DWOLLA_ENVIRONMENT == "production" || process.env.DWOLLA_ENVIRONMENT == "PRODUCTION";
+}
+export function shouldUseManagedSecrets() : boolean {
+  return process.env.USE_MANAGED_SECRETS == "true" || process.env.USE_MANAGED_SECRETS == "TRUE";
 }
 
-export function isProduction(): boolean {
-  return process.env.NODE_ENV == "production";
-}
-
-export function isTest(): boolean {
-  return process.env.NODE_ENV == "test";
+export function logSettings() : void {
+  console.log(`shouldRegisterWebhook()   == ${shouldRegisterWebhook()}`);
+  console.log(`shouldSimulateWebhook()   == ${shouldSimulateWebhook()}`);
+  console.log(`shouldSimulateBanking()   == ${shouldSimulateBanking()}`);
+  console.log(`isDwollaProduction()      == ${isDwollaProduction()}`);
+  console.log(`shouldUseManagedSecrets() == ${shouldUseManagedSecrets()}`);
 }

@@ -6,7 +6,7 @@ import {
   DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
 import { INewUserResponse } from "../../types";
-import { isProduction, log } from "src/utils";
+import { isDwollaProduction, log } from "src/utils";
 import { getAppToken } from "./DwollaUtils";
 import { httpUtils } from "src/utils";
 
@@ -51,7 +51,7 @@ export async function getFundingSourceLinkForUser(
 export async function initiateMicroDepositsForUser(
   userId: string
 ): Promise<boolean> {
-  if (isProduction())
+  if (isDwollaProduction())
     throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
 
   const fundingSourceLink = await getFundingSourceLinkForUser(userId);
@@ -64,7 +64,7 @@ export async function initiateMicroDepositsForUser(
 export async function verifyMicroDepositsForUser(
   userId: string
 ): Promise<boolean> {
-  if (isProduction())
+  if (isDwollaProduction())
     throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
 
   const fundingSourceLink = await getFundingSourceLinkForUser(userId);
@@ -87,7 +87,7 @@ export async function createFundingSource(
   fundingSource: DwollaFundingSourceRequest,
   userId: string
 ): Promise<dwolla.Response> {
-  if (isProduction())
+  if (isDwollaProduction())
     throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
 
   const appToken: dwolla.Client = await getAppToken();
