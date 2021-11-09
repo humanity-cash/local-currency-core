@@ -8,7 +8,7 @@ import {
   getIAVTokenById,
 } from "src/service/digital-banking/DwollaService";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
-import { isProduction, log, isDevelopment } from "src/utils";
+import { isDwollaProduction, log, shouldSimulateWebhook } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
 import {
@@ -123,7 +123,7 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
 }
 
 async function shortcutUserCreation(userId: string): Promise<void> {
-  if (isProduction()) throw "Error! Development utility used in production";
+  if (isDwollaProduction()) throw Error("Development utility incorrectly used in production");
 
   const event: DwollaEvent = createDummyEvent(
     "customer_created",
@@ -134,11 +134,11 @@ async function shortcutUserCreation(userId: string): Promise<void> {
 
   if (created)
     log(
-      `[NODE_ENV="development"] User ${userId} created with dummy webhook POST`
+      `User ${userId} created with dummy webhook...`
     );
   else
     log(
-      `[NODE_ENV="development"] User ${userId} not created, check logs for details`
+      `User ${userId} not created, check logs for details`
     );
 }
 
@@ -152,11 +152,11 @@ export async function createUser(req: Request, res: Response): Promise<void> {
       newUser
     );
 
-    if (isDevelopment()) {
-      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
+    if (shouldSimulateWebhook()) {
+      log(`Simulating webhook for user creation...`);
       await shortcutUserCreation(newUserResponse.userId);
     } else {
-      log(`[NODE_ENV!="development"] Webhook will create user on-chain...`);
+      log(`Webhook will create user on-chain...`);
     }
 
     httpUtils.createHttpResponse(newUserResponse, codes.CREATED, res);
