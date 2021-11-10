@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export const BusinessSchema = new mongoose.Schema(
   {
     story: String,
+    walletAddress: { type: String, unique: true, sparse: true },
     tag: String,
     avatar: String,
     type: String,
@@ -35,6 +36,7 @@ export const BusinessModel = mongoose.model("Business", BusinessSchema);
 export const CustomerSchema = new mongoose.Schema(
   {
     avatar: String,
+    walletAddress: { type: String, unique: true, sparse: true },
     tag: String,
     address1: String,
     address2: String,
