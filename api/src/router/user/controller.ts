@@ -2,21 +2,33 @@ import * as dwolla from "dwolla-v2";
 import { Request, Response } from "express";
 import { AppNotificationService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
-import { getFundingSourcesById, getIAVTokenById } from "src/service/digital-banking/DwollaService";
+import {
+  getFundingSourcesById,
+  getIAVTokenById,
+} from "src/service/digital-banking/DwollaService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
-import { isDwollaProduction, log, shouldSimulateWebhook, httpUtils } from "src/utils";
+import {
+  isDwollaProduction,
+  log,
+  shouldSimulateWebhook,
+  httpUtils,
+} from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
 import {
   Business,
   Customer,
-  IAPINewUser, IDBUser,
-  IDeposit, IDwollaNewUserInput, IDwollaNewUserResponse, ITransferEvent,
+  IAPINewUser,
+  IDBUser,
+  IDeposit,
+  IDwollaNewUserInput,
+  IDwollaNewUserResponse,
+  ITransferEvent,
   IWallet,
-  IWithdrawal
+  IWithdrawal,
 } from "src/types";
 
 const codes = httpUtils.codes;
@@ -134,38 +146,42 @@ async function shortcutUserCreation(userId: string): Promise<void> {
   else log(`User ${userId} not created, check logs for details`);
 }
 
-function constructDwollaDetails(data: IDBUser, type: 'customer' | 'business', isNew: boolean) {
-	const email = isNew ? data.email : `${data.dbId}@humanity.cash`;
-	if (type === 'customer') {
-		const dwollaDetails: IDwollaNewUserInput = {
-			email,
-			firstName: data.customer.firstName,
-			lastName: data.customer.lastName,
-			city: data.customer.city,
-			state: data.customer.state,
-			postalCode: data.customer.postalCode,
-			address1: data.customer.address1,
-			address2: data.customer.address2,
-			correlationId: `customer-${data.dbId}`,
-			ipAddress: ''
-		}
-		return dwollaDetails;
-	} else if (type === 'business') {
-		const dwollaDetails: IDwollaNewUserInput = {
-			email,
-			firstName: data.business.owner.firstName,
-			lastName: data.business.owner.lastName,
-			city: data.business.city,
-			state: data.business.state,
-			postalCode: data.business.postalCode,
-			address1: data.business.address1,
-			address2: data.business.address2,
+function constructDwollaDetails(
+  data: IDBUser,
+  type: "customer" | "business",
+  isNew: boolean
+) {
+  const email = isNew ? data.email : `${data.dbId}@humanity.cash`;
+  if (type === "customer") {
+    const dwollaDetails: IDwollaNewUserInput = {
+      email,
+      firstName: data.customer.firstName,
+      lastName: data.customer.lastName,
+      city: data.customer.city,
+      state: data.customer.state,
+      postalCode: data.customer.postalCode,
+      address1: data.customer.address1,
+      address2: data.customer.address2,
+      correlationId: `customer-${data.dbId}`,
+      ipAddress: "",
+    };
+    return dwollaDetails;
+  } else if (type === "business") {
+    const dwollaDetails: IDwollaNewUserInput = {
+      email,
+      firstName: data.business.owner.firstName,
+      lastName: data.business.owner.lastName,
+      city: data.business.city,
+      state: data.business.state,
+      postalCode: data.business.postalCode,
+      address1: data.business.address1,
+      address2: data.business.address2,
       correlationId: `business-${data.dbId}`,
-			rbn: data.business.rbn,
-			ipAddress: '',
-		}
-		return dwollaDetails;
-	}
+      rbn: data.business.rbn,
+      ipAddress: "",
+    };
+    return dwollaDetails;
+  }
 }
 
 export async function createUser(req: Request, res: Response): Promise<void> {
@@ -178,15 +194,27 @@ export async function createUser(req: Request, res: Response): Promise<void> {
 
     log(newUserInput);
 
-    const createDbResponse = await AuthService.createUser({ customer, business, email, consent: true }, type);
-    const dwollaDetails : IDwollaNewUserInput = constructDwollaDetails(createDbResponse.data, type, true);
-    const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
-      dwollaDetails
+    const createDbResponse = await AuthService.createUser(
+      { customer, business, email, consent: true },
+      type
     );
-    
-    const updateResponse = await AuthService.updateDwollaDetails(createDbResponse.data.dbId,
-      { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, type);
-      
+    const dwollaDetails: IDwollaNewUserInput = constructDwollaDetails(
+      createDbResponse.data,
+      type,
+      true
+    );
+    const newUserResponse: IDwollaNewUserResponse =
+      await OperatorService.createUser(dwollaDetails);
+
+    const updateResponse = await AuthService.updateDwollaDetails(
+      createDbResponse.data.dbId,
+      {
+        dwollaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      },
+      type
+    );
+
     if (shouldSimulateWebhook()) {
       log(`Simulating webhook for user creation...`);
       await shortcutUserCreation(newUserResponse.userId);
@@ -204,15 +232,29 @@ export async function createUser(req: Request, res: Response): Promise<void> {
 
 export async function addCustomer(req: Request, res: Response): Promise<void> {
   try {
-    const customer: Omit<Customer, 'resourceUri' | 'dwollaId'> = req?.body?.customer;
+    const customer: Omit<Customer, "resourceUri" | "dwollaId"> =
+      req?.body?.customer;
     const businessDwollaId = req?.params?.id;
-    const dbUser = await AuthService.updateUser(businessDwollaId, { customer }, 'business');
-    const dwollaDetails = constructDwollaDetails(dbUser.data, 'customer', false);
-    const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
-      dwollaDetails
+    const dbUser = await AuthService.updateUser(
+      businessDwollaId,
+      { customer },
+      "business"
     );
-    const updateResponse = await AuthService.updateDwollaDetails(dbUser.data.dbId,
-      { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, 'customer');
+    const dwollaDetails = constructDwollaDetails(
+      dbUser.data,
+      "customer",
+      false
+    );
+    const newUserResponse: IDwollaNewUserResponse =
+      await OperatorService.createUser(dwollaDetails);
+    const updateResponse = await AuthService.updateDwollaDetails(
+      dbUser.data.dbId,
+      {
+        dwollaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      },
+      "customer"
+    );
 
     if (shouldSimulateWebhook()) {
       log(`Simulating webhook for user creation...`);
@@ -231,15 +273,29 @@ export async function addCustomer(req: Request, res: Response): Promise<void> {
 
 export async function addBusiness(req: Request, res: Response): Promise<void> {
   try {
-    const business: Omit<Business, 'dwollaId' | 'resourceUri'> = req?.body?.business;
+    const business: Omit<Business, "dwollaId" | "resourceUri"> =
+      req?.body?.business;
     const customerDwollaId = req?.params?.id;
-    const dbUser = await AuthService.updateUser(customerDwollaId, { business }, 'customer');
-    const dwollaDetails = constructDwollaDetails(dbUser.data, 'business', false);
-    const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
-      dwollaDetails
+    const dbUser = await AuthService.updateUser(
+      customerDwollaId,
+      { business },
+      "customer"
     );
-    const updateResponse = await AuthService.updateDwollaDetails(dbUser.data.dbId,
-      { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, 'business');
+    const dwollaDetails = constructDwollaDetails(
+      dbUser.data,
+      "business",
+      false
+    );
+    const newUserResponse: IDwollaNewUserResponse =
+      await OperatorService.createUser(dwollaDetails);
+    const updateResponse = await AuthService.updateDwollaDetails(
+      dbUser.data.dbId,
+      {
+        dwollaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      },
+      "business"
+    );
     if (shouldSimulateWebhook()) {
       log(`Simulating webhook for user creation...`);
       await shortcutUserCreation(newUserResponse.userId);

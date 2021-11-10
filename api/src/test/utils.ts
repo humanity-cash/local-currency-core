@@ -4,7 +4,7 @@ import {
   createPersonalVerifiedCustomer,
   getFundingSourceLinkForUser,
   initiateMicroDepositsForUser,
-  verifyMicroDepositsForUser
+  verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
 import { getAppToken } from "src/service/digital-banking/DwollaUtils";
 import { Business, Customer, IAPINewUser } from "src/types";
@@ -15,7 +15,7 @@ import * as web3Utils from "web3-utils";
 import {
   DwollaEvent,
   DwollaFundingSourceRequest,
-  DwollaPersonalVerifiedCustomerRequest
+  DwollaPersonalVerifiedCustomerRequest,
 } from "../service/digital-banking/DwollaTypes";
 import { log } from "../utils";
 import { getProvider } from "../utils/getProvider";
@@ -31,7 +31,7 @@ export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export function newBusinessData() : Business {
+export function newBusinessData(): Business {
   return {
     avatar: "businessavatar",
     tag: "businesstag",
@@ -54,12 +54,12 @@ export function newBusinessData() : Business {
       city: faker.address.city(),
       state: faker.address.state(),
       postalCode: faker.address.zipCode(),
-    }
-  }
+    },
+  };
 }
 
-export function newCustomerData() : Customer {
-	return {
+export function newCustomerData(): Customer {
+  return {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     address1: faker.address.streetAddress(),
@@ -67,26 +67,26 @@ export function newCustomerData() : Customer {
     city: faker.address.city(),
     state: faker.address.state(),
     postalCode: faker.address.zipCode(),
-    avatar: 'eheh',
-    tag: 'eheh',
-  }
+    avatar: "eheh",
+    tag: "eheh",
+  };
 }
 
-export function createFakeUser(isBusiness = false): IAPINewUser{
+export function createFakeUser(isBusiness = false): IAPINewUser {
   const newBusinessInput: IAPINewUser = {
     consent: true,
     email: getSalt() + faker.internet.email(),
-    type: 'business',
-    business: newBusinessData()
-  }
+    type: "business",
+    business: newBusinessData(),
+  };
   const newCustomerInput: IAPINewUser = {
     consent: true,
     email: getSalt() + faker.internet.email(),
-    type: 'customer',
-    customer: newCustomerData()
-  }
+    type: "customer",
+    customer: newCustomerData(),
+  };
 
-  const user = isBusiness ? newBusinessInput : newCustomerInput
+  const user = isBusiness ? newBusinessInput : newCustomerInput;
   log(user);
   return user;
 }
@@ -118,8 +118,7 @@ export async function createOperatorsForTest(): Promise<void> {
     dateOfBirth,
     ssn,
   };
-  const operatorResponse1 =
-    await createPersonalVerifiedCustomer(operator1);
+  const operatorResponse1 = await createPersonalVerifiedCustomer(operator1);
   await createFundingSourceForTest(operatorResponse1.userId);
   const fundingSourceLink1 = await getFundingSourceLinkForUser(
     operatorResponse1.userId
@@ -152,8 +151,7 @@ export async function createOperatorsForTest(): Promise<void> {
     dateOfBirth,
     ssn,
   };
-  const operatorResponse2 =
-    await createPersonalVerifiedCustomer(operator2);
+  const operatorResponse2 = await createPersonalVerifiedCustomer(operator2);
   await createFundingSourceForTest(operatorResponse2.userId);
   const fundingSourceLink2 = await getFundingSourceLinkForUser(
     operatorResponse2.userId

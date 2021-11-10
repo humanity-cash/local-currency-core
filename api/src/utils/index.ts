@@ -85,11 +85,11 @@ export function logSettings(): void {
 }
 
 function isObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]';
-};
+  return Object.prototype.toString.call(obj) === "[object Object]";
+}
 
 export function isEmptyObject(i: unknown): boolean {
-  if (!i || !isObject(i)) return true
+  if (!i || !isObject(i)) return true;
   const keys = Object.keys(i);
 
   return Boolean(keys.length);

@@ -52,20 +52,20 @@ export type ICustomerDwollaId = { "customer.dwollaId": DwollaId };
 export type IBusinessDwollaId = { "business.dwollaId": DwollaId };
 
 export interface IDBMiniNewBusinessInput {
-  story: string,
-  tag: string,
-  avatar: string,
-  type: string,
-  rbn: string,
-  industry: string,
-  ein: string,
-  address1: string,
-  address2: string,
-  city: string,
-  state: string,
-  postalCode: string,
-  phoneNumber: string,
-  owner: BaseUser
+  story: string;
+  tag: string;
+  avatar: string;
+  type: string;
+  rbn: string;
+  industry: string;
+  ein: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  phoneNumber: string;
+  owner: BaseUser;
 }
 
 export interface IDBMiniNewCustomerInput extends BaseUser {
@@ -74,70 +74,67 @@ export interface IDBMiniNewCustomerInput extends BaseUser {
 }
 
 export interface IDBUser {
-  consent: boolean
-  verifiedCustomer: boolean
-  verifiedBusiness: boolean
-  email: string
-  customer?: Customer
-  business?: Business
-  dbId: ObjectId
+  consent: boolean;
+  verifiedCustomer: boolean;
+  verifiedBusiness: boolean;
+  email: string;
+  customer?: Customer;
+  business?: Business;
+  dbId: ObjectId;
 }
 
 export interface IAPINewUser {
   email: string;
   consent: boolean;
-  type: 'customer' | 'business';
-  isNew?: boolean; 
+  type: "customer" | "business";
+  isNew?: boolean;
   business?: IDBMiniNewBusinessInput;
   customer?: IDBMiniNewCustomerInput;
 }
 
-
 export interface IUpdateUser {
-  verifiedCustomer?: boolean
-  verifiedBusiness?: boolean
-	customer?: Customer
-	business?: Business
+  verifiedCustomer?: boolean;
+  verifiedBusiness?: boolean;
+  customer?: Customer;
+  business?: Business;
 }
 
 export interface INewUserInput {
-	consent: boolean
-	verifiedCustomer: boolean
-	verifiedBusiness: boolean
-	email: string
-	customer?: Customer
-	business?: Business
+  consent: boolean;
+  verifiedCustomer: boolean;
+  verifiedBusiness: boolean;
+  email: string;
+  customer?: Customer;
+  business?: Business;
 }
 
-
 export interface Business {
-	story: string,
-	tag: string,
-	avatar: string,
-	type: string,
-	rbn: string,
-	industry: string,
-	ein: string,
-	address1: string,
-	address2: string,
-	city: string,
-	state: string,
-	postalCode: string,
-	phoneNumber: string,
-	dwollaId?: DwollaId,
-	resourceUri?: string,
-	owner: BaseUser
+  story: string;
+  tag: string;
+  avatar: string;
+  type: string;
+  rbn: string;
+  industry: string;
+  ein: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  phoneNumber: string;
+  dwollaId?: DwollaId;
+  resourceUri?: string;
+  owner: BaseUser;
 }
 
 export interface Customer extends BaseUser {
-	avatar: string,
-	tag: string,
-	dwollaId?: DwollaId,
-	resourceUri?: string,
+  avatar: string;
+  tag: string;
+  dwollaId?: DwollaId;
+  resourceUri?: string;
 }
 
 export type DwollaId = string;
-
 
 export interface IEventBase {
   transactionHash: string;

@@ -9,5 +9,5 @@ export {
   DwollaTransferService,
   AppNotificationService,
   LogService,
-  UserService
+  UserService,
 };
