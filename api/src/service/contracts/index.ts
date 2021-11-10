@@ -14,6 +14,7 @@ import { Contract, EventData, PastEventOptions } from "web3-eth-contract";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import BN from "bn.js";
+import { TransferType } from "src/router/reports/controller";
 
 const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
   fromBlock: 0,
@@ -322,7 +323,6 @@ export async function getTransfers(
       transactionHash: element.transactionHash,
       blockNumber: element.blockNumber,
       timestamp: timestamp,
-      type: "TRANSFER",
     });
   }
   return transfers;
@@ -338,7 +338,7 @@ async function getOutoingTransfersForUser(
   };
   const transfers: ITransferEvent[] = await getTransfers(userFilter);
   transfers.forEach((transfer) => {
-    transfer.type = "OUT";
+    transfer.type = TransferType.OUT;
   });
   return transfers;
 }
@@ -369,7 +369,7 @@ async function getIncomingTransfersForUser(
     ...results[0] /*, ...results[1]*/,
   ];
   incomingTransfers.forEach((transfer) => {
-    transfer.type = "IN";
+    transfer.type = TransferType.IN;
   });
   return incomingTransfers;
 }
