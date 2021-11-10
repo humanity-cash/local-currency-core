@@ -31,56 +31,59 @@ export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export const newBusinessData: Business = {
-	avatar: "businessavatar",
-	tag: "businesstag",
-	address1: "businessaddress1",
-	address2: "businessaddress2",
-	city: "businesscity",
-	state: "businessstate",
-	postalCode: "businesspostalCode",
-	story: "businessstory",
-	type: "type",
-	rbn: "rbn",
-	industry: "indu",
-	ein: "ein",
-	phoneNumber: "pn",
-	owner: {
-		firstName: "businessfirstNameowner",
-		lastName: "businesslastNameowner",
-		address1: "businessaddress1owner",
-		address2: "businessaddress2owner",
-		city: "businesscityowner",
-		state: "businessstateowner",
-		postalCode: "businesspostalCodeowner",
-	}
+export function newBusinessData() : Business {
+  return {
+    avatar: "businessavatar",
+    tag: "businesstag",
+    address1: faker.address.streetAddress(),
+    address2: faker.address.secondaryAddress(),
+    city: faker.address.city(),
+    state: faker.address.state(),
+    postalCode: faker.address.zipCode(),
+    story: faker.lorem.paragraph(),
+    type: "type",
+    rbn: faker.company.companyName(),
+    industry: faker.commerce.department(),
+    ein: faker.random.alphaNumeric(),
+    phoneNumber: faker.phone.phoneNumber(),
+    owner: {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      address1: faker.address.streetAddress(),
+      address2: faker.address.secondaryAddress(),
+      city: faker.address.city(),
+      state: faker.address.state(),
+      postalCode: faker.address.zipCode(),
+    }
+  }
 }
 
-
-export const newCustomerData: Customer = {
-	firstName: faker.name.firstName(),
-	lastName: faker.name.lastName(),
-	address1: 'eheh',
-	address2: 'eheh',
-	city: 'eheh',
-	state: 'eheh',
-	postalCode: 'eheh',
-	avatar: 'eheh',
-	tag: 'eheh',
+export function newCustomerData() : Customer {
+	return {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    address1: faker.address.streetAddress(),
+    address2: faker.address.secondaryAddress(),
+    city: faker.address.city(),
+    state: faker.address.state(),
+    postalCode: faker.address.zipCode(),
+    avatar: 'eheh',
+    tag: 'eheh',
+  }
 }
 
 export function createFakeUser(isBusiness = false): IAPINewUser{
   const newBusinessInput: IAPINewUser = {
     consent: true,
-    email: faker.internet.email(),
+    email: getSalt() + faker.internet.email(),
     type: 'business',
-    business: newBusinessData
+    business: newBusinessData()
   }
   const newCustomerInput: IAPINewUser = {
     consent: true,
-    email: faker.internet.email(),
+    email: getSalt() + faker.internet.email(),
     type: 'customer',
-    customer: newCustomerData
+    customer: newCustomerData()
   }
 
   const user = isBusiness ? newBusinessInput : newCustomerInput

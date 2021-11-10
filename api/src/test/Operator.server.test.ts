@@ -93,6 +93,7 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users (create user)", () => {
+    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -114,33 +115,21 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
+    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async () : Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser1,
         dwollaIdUser1
       );
-
-
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
-      );
-      chai
-        .request(server)
-        .post("/webhook")
-        .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          createFundingSourceForTest(dwollaIdUser1).then(() => {
-            log(`Test only - created funding source for ${dwollaIdUser1}`);
-            done();
-          });
-        })
-        .catch((err) => {
-          done(err);
-        });
+      );      
+      const res = await chai.request(server).post("/webhook").set({ "X-Request-Signature-SHA-256": signature }).send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdUser1);
+      log(`Test only - created funding source for ${dwollaIdUser1}`);
+
     });
 
     it("it should create personal user2 and store the returned address, HTTP 201", (done) => {
@@ -159,7 +148,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", (done) => {
+    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", async () : Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser2,
@@ -169,21 +158,10 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      chai
-        .request(server)
-        .post("/webhook")
-        .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          createFundingSourceForTest(dwollaIdUser2).then(() => {
-            log(`Test only - created funding source for ${dwollaIdUser2}`);
-            done();
-          });
-        })
-        .catch((err) => {
-          done(err);
-        });
+      const res = await chai.request(server).post("/webhook").set({ "X-Request-Signature-SHA-256": signature }).send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdUser2)
+      log(`Test only - created funding source for ${dwollaIdUser2}`);
     });
 
     it("it should create business1 and store the returned address, HTTP 201", (done) => {
@@ -204,7 +182,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", (done) => {
+    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", async () : Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdBusiness1,
@@ -214,20 +192,8 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      chai
-        .request(server)
-        .post("/webhook")
-        .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          done();
-        })
-        .catch((err) => {
-          log(JSON.stringify(err, null, 2));
-
-          done(err);
-        });
+      const res = await chai.request(server).post("/webhook").set({ "X-Request-Signature-SHA-256": signature }).send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
     });
 
     it("it should fail to create user2 twice, HTTP 500", (done) => {
