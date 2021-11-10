@@ -46,7 +46,7 @@ describe("Auth Service API Test", () => {
 			.request(server)
 			.post(`/users/${customerDwollaId}/business`)
 			.send({
-				business: newBusinessData,
+				business: newBusinessData(),
 			})
 			.then((res) => {
 				expect(res).to.have.status(201);
@@ -63,8 +63,7 @@ describe("Auth Service API Test", () => {
 			.catch((err) => {
 				done(err);
 			});
-	})
-
+	});
 
 	it("It should create new business", (done) => {
 		chai
@@ -92,7 +91,7 @@ describe("Auth Service API Test", () => {
 			.request(server)
 			.post(`/users/${businessDwollaId}/customer`)
 			.send({
-				customer: newCustomerData,
+				customer: newCustomerData(),
 			})
 			.then((res) => {
 				expect(res).to.have.status(201);
