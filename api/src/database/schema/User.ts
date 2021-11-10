@@ -5,16 +5,16 @@ export const BusinessSchema = new mongoose.Schema({
 	tag: String,
 	avatar: String,
 	type: String,
-	rbn: { type: String, unique: true },
+	rbn: { type: String, unique: true, sparse: true },
 	industry: String,
-	ein: { type: String, unique: true },
+	ein: { type: String, unique: true, sparse: true },
 	address1: String,
 	address2: String,
 	city: String,
 	state: String,
 	postalCode: String,
 	phoneNumber: String,
-	dwollaId: { type: String, unique: true, index: true },
+	dwollaId: { type: String, index: true, unique: true, sparse: true },
 	resourceUri: String,
 	owner: {
 		firstName: String,
@@ -39,7 +39,7 @@ export const CustomerSchema = new mongoose.Schema({
 	postalCode: String,
 	firstName: String,
 	lastName: String,
-	dwollaId: { type: String, unique: true, index: true },
+	dwollaId: { type: String, index: true, unique: true, sparse: true },
 	resourceUri: String,
 }, { _id: false })
 
