@@ -2,28 +2,32 @@
 import { errors, verifierFactory } from '@southlane/cognito-jwt-verifier';
 import AWS from 'aws-sdk';
 import { Key } from 'aws-sdk/clients/iot';
-import { Body, BucketName } from 'aws-sdk/clients/s3';
+import { Body, Buckets, BucketName } from 'aws-sdk/clients/s3';
 
 AWS.config.update({
   region: 'us-west-1', accessKeyId: process.env.AWS_ACCESS_KEY
-,secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY });
+  , secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
 
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
-export async function listBuckets(): Promise<void> {
+export async function listBuckets(): Promise<Buckets> {
+  let buckets: Buckets = [];
   await s3.listBuckets(function (err, data) {
     if (err) {
       console.log("Error", err);
     } else {
-      return data.Buckets;
+      console.log("🚀 ~ file: aws.ts ~ line 21 ~ data.Buckets", data.Buckets);
+      buckets = data.Buckets;
     }
   });
 
+  return buckets;
 }
 
 export async function createBucket(name: string): Promise<void> {
   const bucketParams = {
-    Bucket: name 
+    Bucket: name
   };
   await s3.createBucket(bucketParams, function (err, data) {
     if (err) {
@@ -34,7 +38,7 @@ export async function createBucket(name: string): Promise<void> {
   });
 }
 
-export async function uploadFileToBukcet(bucketName: BucketName, filePath: Key, fileBody: Body ): Promise<void> {
+export async function uploadFileToBukcet(bucketName: BucketName, filePath: Key, fileBody: Body): Promise<void> {
   const params = {
     Bucket: bucketName,
     Key: filePath,
@@ -72,7 +76,7 @@ export async function getFileFromBukcet(bucketName: BucketName, fileName: Key): 
 
 export const MERCHANTS_TX_REPORTS = "merchants-tx-reports";
 
-export async function uploadMerchantReportToS3(filePath: Key, fileBody: Body): Promise<void> { 
+export async function uploadMerchantReportToS3(filePath: Key, fileBody: Body): Promise<void> {
   await uploadFileToBukcet(MERCHANTS_TX_REPORTS, filePath, fileBody);
 }
 
@@ -87,7 +91,7 @@ export const cognitoVerifier = () => verifierFactory({
 
 export const verifyCognitoToken = async (token: string): Promise<{ success: boolean, token: any }> => {
   try {
-		const verifier = cognitoVerifier().verify
+    const verifier = cognitoVerifier().verify
     const verifiedToken = await verifier(token);
 
     return { success: true, token: verifiedToken };
