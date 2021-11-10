@@ -171,18 +171,21 @@ function constructDwollaDetails(data: IDBUser, type: 'customer' | 'business', is
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUserInput: IAPINewUser = req.body;
-    const { customer, business, email, type } = newUserInput
-    if (!customer && !business) return httpUtils.createHttpResponse({}, codes.BAD_REQUEST, res)
+    const { customer, business, email, type } = newUserInput;
+
+    if (!customer && !business)
+      httpUtils.createHttpResponse({}, codes.BAD_REQUEST, res);
+
+    log(newUserInput);
+
     const createDbResponse = await AuthService.createUser({ customer, business, email, consent: true }, type);
-    const dwollaDetails = constructDwollaDetails(createDbResponse.data, type, true);
+    const dwollaDetails : IDwollaNewUserInput = constructDwollaDetails(createDbResponse.data, type, true);
     const newUserResponse: IDwollaNewUserResponse = await OperatorService.createUser(
       dwollaDetails
     );
     
     const updateResponse = await AuthService.updateDwollaDetails(createDbResponse.data.dbId,
       { dwollaId: newUserResponse.userId, resourceUri: newUserResponse.resourceUri }, type);
-    if (shouldSimulateWebhook()) {
-      log(`[NODE_ENV="development"] Performing webhook shortcut...`);
       
     if (shouldSimulateWebhook()) {
       log(`Simulating webhook for user creation...`);
@@ -192,7 +195,6 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     }
 
     httpUtils.createHttpResponse(updateResponse.data, codes.CREATED, res);
-    }
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.unprocessable("Create user failed: user already exists", res);
