@@ -2,29 +2,29 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { log } from "../../utils";
 
-jest.setTimeout(30000)
+jest.setTimeout(30000);
 
 beforeAll(async () => {
-  await mockDatabase.init()
-})
+  await mockDatabase.init();
+});
 
 beforeEach(async () => {
-  if (mockDatabase.isConnectionOpen()) return
-  await mockDatabase.openNewMongooseConnection()
-})
+  if (mockDatabase.isConnectionOpen()) return;
+  await mockDatabase.openNewMongooseConnection();
+});
 
 afterEach(async () => {
   try {
     // await mockDatabase.dropDatabase()
     // await mockDatabase.closeMongooseConnection()
   } catch (err) {
-    console.log(`Err in db: afterEach: ${err}`)
+    console.log(`Err in db: afterEach: ${err}`);
   }
-})
+});
 
 afterAll(async () => {
-  await mockDatabase.stop()
-})
+  await mockDatabase.stop();
+});
 
 export const mockDatabase = {
   mongoServer: null,

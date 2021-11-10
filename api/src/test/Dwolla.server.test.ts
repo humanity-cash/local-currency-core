@@ -5,20 +5,23 @@ import faker from "faker";
 import {
   deregisterWebhook,
   getAllWebhooks,
-  registerWebhook
+  registerWebhook,
 } from "src/service/digital-banking/DwollaWebhookService";
 import { getApp } from "../server";
 import {
   createPersonalVerifiedCustomer,
   createUnverifiedCustomer,
-  getFundingSourcesById
+  getFundingSourcesById,
 } from "../service/digital-banking/DwollaService";
 import {
   DwollaEvent,
-  DwollaPersonalVerifiedCustomerRequest, DwollaUnverifiedCustomerRequest
+  DwollaPersonalVerifiedCustomerRequest,
+  DwollaUnverifiedCustomerRequest,
 } from "../service/digital-banking/DwollaTypes";
 import {
-  createSignature, getAppToken, validSignature
+  createSignature,
+  getAppToken,
+  validSignature,
 } from "../service/digital-banking/DwollaUtils";
 import { IDwollaNewUserResponse } from "../types";
 import { httpUtils, log } from "../utils";
@@ -137,8 +140,7 @@ describe("Dwolla test suite", () => {
         const email = getSalt() + faker.internet.email();
         const ipAddress = faker.internet.ip().toString();
         const correlationId = getSalt() + faker.random.alphaNumeric();
-        const businessName =
-          "Personal  " + firstName + lastName
+        const businessName = "Personal  " + firstName + lastName;
 
         const person: DwollaUnverifiedCustomerRequest = {
           firstName,
