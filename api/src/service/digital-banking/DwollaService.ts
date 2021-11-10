@@ -3,7 +3,7 @@ import {
   DwollaFundingSourceRequest,
   DwollaPersonalVerifiedCustomerRequest,
   DwollaTransferRequest,
-  DwollaUnverifiedCustomerRequest
+  DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
 import { IDwollaNewUserResponse } from "../../types";
 import { isDwollaProduction, log, httpUtils } from "src/utils";

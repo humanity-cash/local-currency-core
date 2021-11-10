@@ -9,7 +9,7 @@ const notificationIdInParams = [
 
 export const createUser = [
   body("consent").isBoolean(),
-  body("email").isEmail(), 
+  body("email").isEmail(),
   body("type").isString(), // 'customer' | 'business'
   body("customer.tag").optional().isString(),
   body("customer.avatar").optional().isString(),
@@ -42,7 +42,7 @@ export const createUser = [
   body("business.owner.state").optional().isString(),
   body("business.owner.postalCode").optional().isString(),
   mwVaildator,
-]
+];
 
 export const notifications = [...idInParams, ...notificationIdInParams];
 
@@ -51,7 +51,7 @@ export const getUser = [...idInParams];
 export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
 
 export const addCustomer = [
-  ...idInParams, 
+  ...idInParams,
   body("customer.tag").isString(),
   body("customer.avatar").isString(),
   body("customer.address1").isString(),
@@ -61,11 +61,11 @@ export const addCustomer = [
   body("customer.postalCode").isString(),
   body("customer.firstName").isString(),
   body("customer.lastName").isString(),
-  mwVaildator
+  mwVaildator,
 ];
 
 export const addBusiness = [
-  ...idInParams, 
+  ...idInParams,
   body("business.story").isString(),
   body("business.tag").isString(),
   body("business.avatar").isString(),
@@ -86,7 +86,7 @@ export const addBusiness = [
   body("business.owner.city").isString(),
   body("business.owner.state").isString(),
   body("business.owner.postalCode").isString(),
-  mwVaildator
+  mwVaildator,
 ];
 
 export const withdraw = [...idInParams, body("amount").isString(), mwVaildator];
