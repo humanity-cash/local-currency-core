@@ -7,6 +7,7 @@ import { getApp } from "../server";
 import { log } from "../utils";
 import { codes } from "../utils/http";
 import { setupContracts } from "./utils";
+import { mockDatabase } from "./setup/setup-db-integration";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -14,10 +15,20 @@ const server = getApp();
 
 describe("Public endpoints test", () => {
   beforeAll(async () => {
+    await mockDatabase.init();
     await setupContracts();
   });
 
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
+  });
+
   describe("GET /health", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should retrieve heath data", (done) => {
       const stub = sinon
         .stub(aws, "verifyCognitoToken")
