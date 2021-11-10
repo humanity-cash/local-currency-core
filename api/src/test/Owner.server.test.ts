@@ -3,10 +3,10 @@ import chaiHttp from "chai-http";
 import { getApp } from "../server";
 import { createDummyEvent, createFakeUser, setupContracts } from "./utils";
 import { codes } from "../utils/http";
-import { describe, it, beforeAll } from "@jest/globals";
-import { INewUser } from "../types";
+import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
+import { mockDatabase } from "./setup/setup-db-integration";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -14,10 +14,20 @@ const server = getApp();
 
 describe("Owner/administrative endpoints test", () => {
   beforeAll(async () => {
+    await mockDatabase.init();
     await setupContracts();
   });
 
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
+  });
+
   describe("POST /admin/pause", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should pause, HTTP 202", (done) => {
       chai
         .request(server)
@@ -72,7 +82,12 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/user", () => {
-    const user1: INewUser = createFakeUser();
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    const user1 = createFakeUser();
     let dwollaIdUser1;
 
     it("it should fail to transfer wallet owner with invalid body, HTTP 400", (done) => {
@@ -97,7 +112,7 @@ describe("Owner/administrative endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser1 = res.body.userId;
+          dwollaIdUser1 = res.body.customer.dwollaId;
           done();
         })
         .catch((err) => {
@@ -108,6 +123,7 @@ describe("Owner/administrative endpoints test", () => {
     it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
+        dwollaIdUser1,
         dwollaIdUser1
       );
       const signature = createSignature(
@@ -164,6 +180,11 @@ describe("Owner/administrative endpoints test", () => {
   });
 
   describe("POST /admin/transfer/controller", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should fail to transfer controller with invalid body, HTTP 400", (done) => {
       chai
         .request(server)

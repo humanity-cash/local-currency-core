@@ -1,6 +1,25 @@
 import crypto from "crypto";
 import { Buffer } from "buffer";
 import { log } from "src/utils";
+import { DwollaClientOptions, DwollaEvent } from "./DwollaTypes";
+import * as dwolla from "dwolla-v2";
+import { DwollaEventService } from "src/database/service";
+
+export async function getAppToken(): Promise<dwolla.Client> {
+  const options: DwollaClientOptions =
+    process.env.DWOLLA_ENVIRONMENT == "sandbox"
+      ? {
+          key: process.env.DWOLLA_APP_KEY,
+          secret: process.env.DWOLLA_APP_SECRET,
+          environment: "sandbox",
+        }
+      : {
+          key: process.env.DWOLLA_APP_KEY,
+          secret: process.env.DWOLLA_APP_SECRET,
+          environment: "production",
+        };
+  return new dwolla.Client(options);
+}
 
 export function createSignature(
   webhookSecret: string,
@@ -20,7 +39,11 @@ export function validSignature(
 ): boolean {
   try {
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: Attempting to validate payloadBody ${payloadBody}...`
+      `DwollaUtils.ts::verifyGatewaySignature() Attempting to validate payloadBody ${JSON.stringify(
+        payloadBody,
+        null,
+        2
+      )}...`
     );
     const hash = crypto
       .createHmac("sha256", webhookSecret)
@@ -32,20 +55,74 @@ export function validSignature(
       Buffer.from(hash)
     );
     log(
-      `DwollaUtils.ts::verifyGatewaySignature: event with signature ${proposedSignature} is ${
+      `DwollaUtils.ts::verifyGatewaySignature() event with signature ${proposedSignature} is ${
         verified ? "valid" : "not valid"
       }`
     );
     return verified;
   } catch (e) {
-    log(`DwollaUtils.ts::verifyGatewaySignature: ${e}`);
+    log(`DwollaUtils.ts::verifyGatewaySignature() ${e}`);
   }
 }
 
 // Webhook events can be fired multiple times by Dwolla
-// Check for duplicate events in a queue or database
-export function duplicateExists(id: string): boolean {
-  // ToDo - check queue or database for a DwollaEvent with the same id attribute can be ignored
-  log(`DwollaUtils.ts::duplicateExists: No duplicate for Event ${id}`);
-  return false;
+// Check for duplicate events in database
+export async function duplicateWebhookExists(id: string): Promise<boolean> {
+  const webhook = await DwollaEventService.findByObject(id);
+  log(
+    `DwollaUtils.ts::duplicateExists() Response from DwollaEvent database is ${JSON.stringify(
+      webhook
+    )}`
+  );
+  if (webhook?.dbId) {
+    return true;
+  } else {
+    log(`DwollaUtils.ts::duplicateExists() No duplicate for Event ${id} found`);
+    return false;
+  }
+}
+
+export async function getDwollaCustomerFromEvent(
+  event: DwollaEvent
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res = await appToken.get(event._links.customer.href);
+  log(
+    `DwollaUtils.ts::getDwollaCustomerFromEvent() Event refers to customer ${JSON.stringify(
+      res.body,
+      null,
+      2
+    )}`
+  );
+  return res;
+}
+
+export async function getDwollaResourceFromEvent(
+  event: DwollaEvent
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res = await appToken.get(event._links.resource.href);
+  log(
+    `DwollaUtils.ts::getDwollaResourceFromEvent() Event refers to resource ${JSON.stringify(
+      res.body,
+      null,
+      2
+    )}`
+  );
+  return res;
+}
+
+export async function getDwollaResourceFromLocation(
+  location: string
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res = await appToken.get(location);
+  log(
+    `DwollaUtils.ts::getDwollaResourceFromLocation() Location refers to resource ${JSON.stringify(
+      res.body,
+      null,
+      2
+    )}`
+  );
+  return res;
 }
