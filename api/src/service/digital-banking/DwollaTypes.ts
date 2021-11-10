@@ -37,7 +37,7 @@ export interface DwollaUnverifiedCustomerRequest {
   firstName: string;
   lastName: string;
   email: string;
-  businessName: string;
+  businessName?: string;
   ipAddress?: string;
   correlationId: string;
 }
