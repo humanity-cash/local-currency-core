@@ -93,7 +93,6 @@ describe("Operator endpoints test", () => {
   });
 
   describe("POST /users (create user)", () => {
-    
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
@@ -115,7 +114,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async () : Promise<void> => {
+    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser1,
@@ -124,12 +123,15 @@ describe("Operator endpoints test", () => {
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
-      );      
-      const res = await chai.request(server).post("/webhook").set({ "X-Request-Signature-SHA-256": signature }).send(event);
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
       expect(res).to.have.status(codes.ACCEPTED);
       await createFundingSourceForTest(dwollaIdUser1);
       log(`Test only - created funding source for ${dwollaIdUser1}`);
-
     });
 
     it("it should create personal user2 and store the returned address, HTTP 201", (done) => {
@@ -148,7 +150,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", async () : Promise<void> => {
+    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser2,
@@ -158,9 +160,13 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      const res = await chai.request(server).post("/webhook").set({ "X-Request-Signature-SHA-256": signature }).send(event);
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
       expect(res).to.have.status(codes.ACCEPTED);
-      await createFundingSourceForTest(dwollaIdUser2)
+      await createFundingSourceForTest(dwollaIdUser2);
       log(`Test only - created funding source for ${dwollaIdUser2}`);
     });
 
@@ -182,7 +188,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", async () : Promise<void> => {
+    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdBusiness1,
@@ -192,7 +198,11 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      const res = await chai.request(server).post("/webhook").set({ "X-Request-Signature-SHA-256": signature }).send(event);
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
       expect(res).to.have.status(codes.ACCEPTED);
     });
 
@@ -1199,40 +1209,39 @@ describe("Operator endpoints test", () => {
   });
 });
 
+// it.skip("it should fail to create a personal user without 'p' prefixed to their authUserId, HTTP 400", (done) => {
+//   // // this test is not needed anymore
+//   // const personalUser: IDwollaNewUserInput = createFakeUser();
+//   // personalUser.authUserId = "invaliduserId";
+//   // chai
+//   //   .request(server)
+//   //   .post("/users")
+//   //   .send(personalUser)
+//   //   .then((res) => {
+//   //     expect(res).to.have.status(codes.BAD_REQUEST);
+//   //     expect(res).to.be.json;
+//   //     done();
+//   //   })
+//   //   .catch((err) => {
+//   //     done(err);
+//   //   });
+// });
 
-    // it.skip("it should fail to create a personal user without 'p' prefixed to their authUserId, HTTP 400", (done) => {
-    //   // // this test is not needed anymore
-    //   // const personalUser: IDwollaNewUserInput = createFakeUser();
-    //   // personalUser.authUserId = "invaliduserId";
-    //   // chai
-    //   //   .request(server)
-    //   //   .post("/users")
-    //   //   .send(personalUser)
-    //   //   .then((res) => {
-    //   //     expect(res).to.have.status(codes.BAD_REQUEST);
-    //   //     expect(res).to.be.json;
-    //   //     done();
-    //   //   })
-    //   //   .catch((err) => {
-    //   //     done(err);
-    //   //   });
-    // });
-
-    // it.skip("it should fail to create a business user without 'm' prefixed to their authUserId, HTTP 400", (done) => {
-    //   // this test is not needed anymore
-    //   expect(true).to.eql(true);
-    //   // const businessUser: IDwollaNewUserInput = createFakeUser(true);
-    //   // businessUser.authUserId = "invalidBusinessUserId";
-    //   // chai
-    //   //   .request(server)
-    //   //   .post("/users")
-    //   //   .send(businessUser)
-    //   //   .then((res) => {
-    //   //     expect(res).to.have.status(codes.BAD_REQUEST);
-    //   //     expect(res).to.be.json;
-    //   //     done();
-    //   //   })
-    //   //   .catch((err) => {
-    //   //     done(err);
-    //   //   });
-    // });
+// it.skip("it should fail to create a business user without 'm' prefixed to their authUserId, HTTP 400", (done) => {
+//   // this test is not needed anymore
+//   expect(true).to.eql(true);
+//   // const businessUser: IDwollaNewUserInput = createFakeUser(true);
+//   // businessUser.authUserId = "invalidBusinessUserId";
+//   // chai
+//   //   .request(server)
+//   //   .post("/users")
+//   //   .send(businessUser)
+//   //   .then((res) => {
+//   //     expect(res).to.have.status(codes.BAD_REQUEST);
+//   //     expect(res).to.be.json;
+//   //     done();
+//   //   })
+//   //   .catch((err) => {
+//   //     done(err);
+//   //   });
+// });

@@ -43,7 +43,15 @@ user.delete(
   controller.closeNotification
 );
 
-user.post("/users/:id/customer", validators.addCustomer, controller.addCustomer);
-user.post("/users/:id/business", validators.addBusiness, controller.addBusiness);
+user.post(
+  "/users/:id/customer",
+  validators.addCustomer,
+  controller.addCustomer
+);
+user.post(
+  "/users/:id/business",
+  validators.addBusiness,
+  controller.addBusiness
+);
 
 export default user;
