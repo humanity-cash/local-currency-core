@@ -1,27 +1,30 @@
+import { afterAll, beforeAll, beforeEach, describe, it } from "@jest/globals";
 import chai from "chai";
 import chaiHttp from "chai-http";
+import faker from "faker";
+import {
+  deregisterWebhook,
+  getAllWebhooks,
+  registerWebhook
+} from "src/service/digital-banking/DwollaWebhookService";
 import { getApp } from "../server";
-import { setupContracts, getSalt, createDummyEvent } from "./utils";
-import { log } from "../utils";
-import { codes } from "../utils/http";
-import { describe, it, beforeAll } from "@jest/globals";
 import {
   createPersonalVerifiedCustomer,
   createUnverifiedCustomer,
-  getAppToken,
-  getFundingSourcesById,
+  getFundingSourcesById
 } from "../service/digital-banking/DwollaService";
 import {
-  DwollaUnverifiedCustomerRequest,
   DwollaEvent,
-  DwollaPersonalVerifiedCustomerRequest,
+  DwollaPersonalVerifiedCustomerRequest, DwollaUnverifiedCustomerRequest
 } from "../service/digital-banking/DwollaTypes";
 import {
-  createSignature,
-  validSignature,
+  createSignature, getAppToken, validSignature
 } from "../service/digital-banking/DwollaUtils";
-import faker from "faker";
-import { INewUserResponse } from "../types";
+import { IDwollaNewUserResponse } from "../types";
+import { httpUtils, log } from "../utils";
+import { codes } from "../utils/http";
+import { mockDatabase } from "./setup/setup-db-integration";
+import { createDummyEvent, getSalt, setupContracts } from "./utils";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -31,10 +34,22 @@ const CUSTOMERS_TO_CREATE = 1;
 
 describe("Dwolla test suite", () => {
   beforeAll(async () => {
+    await mockDatabase.init();
     await setupContracts();
   });
 
+  afterAll(async (): Promise<void> => {
+    await mockDatabase.stop();
+  });
+
   describe("Dwolla: test basic configuration and utilities", () => {
+    let webhookUrl;
+
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
     it("it should create a signature for a dummy body and re-validate that signature", (done) => {
       const body: string = JSON.stringify({ dummy: "content" });
       const signature: string = createSignature(
@@ -52,14 +67,37 @@ describe("Dwolla test suite", () => {
       done();
     });
 
-    it("Should request and receive a valid Dwolla OAuth token", async () => {
+    it("Should request and receive a valid Dwolla OAuth token", async (): Promise<void> => {
       const appToken = await getAppToken();
       expect(appToken).to.exist;
+    });
+
+    xit("Should register a webhook", async (): Promise<void> => {
+      webhookUrl = await registerWebhook();
+      expect(webhookUrl).to.exist;
+      log(webhookUrl);
+    });
+
+    it("Should list all webhooks", async (): Promise<void> => {
+      const webhooks = await getAllWebhooks();
+      log(JSON.stringify(webhooks.body, null, 2));
+      expect(webhooks).to.exist;
+    });
+
+    xit("Should deregister a webhook", async (): Promise<void> => {
+      const response = await deregisterWebhook(webhookUrl);
+      expect(response).to.exist;
+      expect(response.status).to.equal(httpUtils.codes.OK);
     });
   });
 
   describe("Dwolla SDK test: creating customers and businesses", () => {
-    it(`Should create ${CUSTOMERS_TO_CREATE} personal verified customer and return the entity link`, async () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    xit(`Should create ${CUSTOMERS_TO_CREATE} personal verified customer and return the entity link`, async () => {
       for (let i = 0; i < CUSTOMERS_TO_CREATE; i++) {
         const firstName = "Personal Verified " + faker.name.firstName();
         const lastName = faker.name.lastName();
@@ -99,12 +137,15 @@ describe("Dwolla test suite", () => {
         const email = getSalt() + faker.internet.email();
         const ipAddress = faker.internet.ip().toString();
         const correlationId = getSalt() + faker.random.alphaNumeric();
+        const businessName =
+          "Personal  " + firstName + lastName
 
         const person: DwollaUnverifiedCustomerRequest = {
           firstName,
           lastName,
           email,
           ipAddress,
+          businessName,
           correlationId,
         };
         const response = await createUnverifiedCustomer(person);
@@ -152,7 +193,13 @@ describe("Dwolla test suite", () => {
   });
 
   describe("Server test: POST /webhook", () => {
-    let user: INewUserResponse;
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    let user: IDwollaNewUserResponse;
+    let event1: DwollaEvent;
 
     it(`Should create a personal unverified customer and return the entity link for usage in this test suite`, async () => {
       const firstName = "Personal Unverified " + faker.name.firstName();
@@ -166,6 +213,7 @@ describe("Dwolla test suite", () => {
         lastName,
         email,
         ipAddress,
+        businessName: `${firstName}+${lastName}`,
         correlationId,
       };
       user = await createUnverifiedCustomer(person);
@@ -174,19 +222,37 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post a supported webhook event and successfully process it, HTTP 202", (done) => {
-      const event: DwollaEvent = createDummyEvent(
-        "customer_created",
-        user.userId
-      );
+      event1 = createDummyEvent("customer_created", user.userId, user.userId);
+
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
-        JSON.stringify(event)
+        JSON.stringify(event1)
       );
       chai
         .request(server)
         .post("/webhook")
         .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
+        .send(event1)
+        .then((res) => {
+          expect(res).to.have.status(codes.ACCEPTED);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should accept (but not process) a duplicate webhook event, HTTP 202", (done) => {
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event1)
+      );
+      chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event1)
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           log(JSON.parse(res.text));
@@ -198,45 +264,22 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should post an unknown webhook event, HTTP 500", (done) => {
-      const event: DwollaEvent = createDummyEvent(
+      const event2: DwollaEvent = createDummyEvent(
         "customer_bananas",
+        user.userId,
         user.userId
       );
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
-        JSON.stringify(event)
+        JSON.stringify(event2)
       );
       chai
         .request(server)
         .post("/webhook")
         .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
+        .send(event2)
         .then((res) => {
           expect(res).to.have.status(codes.SERVER_ERROR);
-          log(JSON.parse(res.text));
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should post a known but unsupported webhook event, HTTP 422", (done) => {
-      const event: DwollaEvent = createDummyEvent(
-        "customer_suspended",
-        user.userId
-      );
-      const signature = createSignature(
-        process.env.WEBHOOK_SECRET,
-        JSON.stringify(event)
-      );
-      chai
-        .request(server)
-        .post("/webhook")
-        .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.UNPROCESSABLE);
           log(JSON.parse(res.text));
           done();
         })

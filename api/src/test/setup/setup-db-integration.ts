@@ -1,35 +1,32 @@
-/// <reference types="jest" />
-
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { log } from "../../utils";
-import { beforeAll, beforeEach, afterEach, afterAll } from "@jest/globals";
 
-// jest.setTimeout(30000);
+jest.setTimeout(30000)
 
-beforeAll(async (): Promise<void> => {
-  await mockDatabase.init();
-});
+beforeAll(async () => {
+  await mockDatabase.init()
+})
 
-beforeEach(async (): Promise<void> => {
-  if (mockDatabase.isConnectionOpen()) return;
-  await mockDatabase.openNewMongooseConnection();
-});
+beforeEach(async () => {
+  if (mockDatabase.isConnectionOpen()) return
+  await mockDatabase.openNewMongooseConnection()
+})
 
-afterEach(async (): Promise<void> => {
+afterEach(async () => {
   try {
-    await mockDatabase.dropDatabase();
-    await mockDatabase.closeMongooseConnection();
+    // await mockDatabase.dropDatabase()
+    // await mockDatabase.closeMongooseConnection()
   } catch (err) {
-    log(`Err in db: afterEach: ${err}`);
+    console.log(`Err in db: afterEach: ${err}`)
   }
-});
+})
 
-afterAll(async (): Promise<void> => {
-  await mockDatabase.stop();
-});
+afterAll(async () => {
+  await mockDatabase.stop()
+})
 
-const mockDatabase = {
+export const mockDatabase = {
   mongoServer: null,
   client: mongoose,
 
@@ -38,12 +35,8 @@ const mockDatabase = {
     this.mongoServer = newServer;
   },
 
-  dropTestDatabase: async function (): Promise<void> {
-    await this.client.connection.db.dropDatabase();
-  },
-
   stop: async function (): Promise<void> {
-    this.mongoServer.stop();
+    await this.mongoServer.stop();
   },
 
   dropDatabase: async function (): Promise<void> {
@@ -52,7 +45,7 @@ const mockDatabase = {
 
   openNewMongooseConnection: async function (): Promise<void> {
     try {
-      const uri = this.mongoServer.getUri();
+      const uri = await this.mongoServer.getUri();
       log("Mongo Test URI", uri);
       await this.client.connect(uri, {
         useCreateIndex: true,

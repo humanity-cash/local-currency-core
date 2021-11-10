@@ -1,19 +1,38 @@
 import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
-import { log } from "src/utils";
+import { isDwollaProduction, log, logSettings, shouldRegisterWebhook, shouldSimulateBanking, shouldSimulateWebhook, shouldUseManagedSecrets } from "src/utils";
 import { configureEnvironment } from "./utils/configuration";
+import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
+import { processDwollaSandboxSimulations } from "./test/utils";
 
 const app = getApp();
 
 const runApp = async () => {
 
-	if(process.env.NODE_ENV!="development"){
+	logSettings();
+
+	if(shouldUseManagedSecrets()){
 		await configureEnvironment();
 	}
+	if(shouldRegisterWebhook()){
+		if(shouldSimulateWebhook())
+			throw Error(`Invalid configuration, REGISTER_WEBHOOK and SIMULATE_WEBHOOK cannot both be "true"`);
 
+		await registerWebhook();
+	}
+	if(shouldSimulateBanking()){
+
+		if(isDwollaProduction())
+			throw Error(`Invalid configuration, SIMULATE_BANKING cannot be used in Dwolla production environment`);
+
+		setInterval(async () => {
+			await processDwollaSandboxSimulations();
+		}, 60000);  	
+	}
+	
 	app.listen(process.env.PORT, () => {
-		log(
+		log(			
 			"NODE_ENV:",
 			process.env.NODE_ENV,
 			"\nLOCAL_CURRENCY_ADDRESS:",
@@ -26,7 +45,7 @@ const runApp = async () => {
 			process.env.DERIVATION_PATH
 		);
 		log(`App listening at http://localhost:${process.env.PORT}`);
-		startDatabase(() => {log("App with database started")});
+		startDatabase(() => {log("App with database started")});		
 	});
 }
 

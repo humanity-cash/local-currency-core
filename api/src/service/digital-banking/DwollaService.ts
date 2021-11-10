@@ -1,22 +1,13 @@
 import * as dwolla from "dwolla-v2";
 import {
-  DwollaClientOptions,
-  DwollaEvent,
+  DwollaFundingSourceRequest,
   DwollaPersonalVerifiedCustomerRequest,
-  DwollaUnverifiedCustomerRequest,
+  DwollaTransferRequest,
+  DwollaUnverifiedCustomerRequest
 } from "./DwollaTypes";
-import { newWallet } from "../contracts";
-import { INewUserResponse } from "../../types";
-import { log } from "src/utils";
-
-export async function getAppToken(): Promise<dwolla.Client> {
-  const options: DwollaClientOptions = {
-    key: process.env.DWOLLA_APP_KEY,
-    secret: process.env.DWOLLA_APP_SECRET,
-    environment: "sandbox",
-  };
-  return new dwolla.Client(options);
-}
+import { IDwollaNewUserResponse } from "../../types";
+import { isDwollaProduction, log, httpUtils } from "src/utils";
+import { getAppToken } from "./DwollaUtils";
 
 export async function getDwollaCustomerById(
   id: string
@@ -38,6 +29,74 @@ export async function getFundingSourcesById(
   return fundingSources;
 }
 
+export async function getFundingSourceLinkForUser(
+  userId: string
+): Promise<string> {
+  const fundingSource: dwolla.Response = await getFundingSourcesById(userId);
+
+  // Error checking
+  if (fundingSource.status !== httpUtils.codes.OK)
+    throw `DwollaService.ts::getFundingSourceLinkForUser() Critical - could not retrieve funding sources for userId ${userId}`;
+
+  if (fundingSource.body?._embedded["funding-sources"].length == 0)
+    throw `DwollaService.ts::getFundingSourceLinkForUser() Critical - no funding sources for userId ${userId}`;
+
+  // Funding sources is an array but only retrieve the first option
+  const fundingSourceLink: string =
+    fundingSource.body._embedded["funding-sources"][0]._links["self"].href;
+  return fundingSourceLink;
+}
+
+export async function initiateMicroDepositsForUser(
+  userId: string
+): Promise<boolean> {
+  if (isDwollaProduction())
+    throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
+
+  const fundingSourceLink = await getFundingSourceLinkForUser(userId);
+  const appToken: dwolla.Client = await getAppToken();
+  await appToken.post(fundingSourceLink + "/micro-deposits");
+  await appToken.post(process.env.DWOLLA_BASE_URL + "sandbox-simulations");
+  return true;
+}
+
+export async function verifyMicroDepositsForUser(
+  userId: string
+): Promise<boolean> {
+  if (isDwollaProduction())
+    throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
+
+  const fundingSourceLink = await getFundingSourceLinkForUser(userId);
+  const appToken: dwolla.Client = await getAppToken();
+  const body = {
+    amount1: {
+      value: "0.03", //any random amount below 10c will confirm the micro deposit in sandbox
+      currency: "USD",
+    },
+    amount2: {
+      value: "0.09", //any random amount below 10c will confirm the micro deposit in sandbox
+      currency: "USD",
+    },
+  };
+  await appToken.post(fundingSourceLink + "/micro-deposits", body);
+  return true;
+}
+
+export async function createFundingSource(
+  fundingSource: DwollaFundingSourceRequest,
+  userId: string
+): Promise<dwolla.Response> {
+  if (isDwollaProduction())
+    throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
+
+  const appToken: dwolla.Client = await getAppToken();
+  const fundingSources: dwolla.Response = await appToken.post(
+    process.env.DWOLLA_BASE_URL + "customers/" + userId + "/funding-sources",
+    fundingSource
+  );
+  return fundingSources;
+}
+
 export async function getIAVTokenById(id: string): Promise<string> {
   const appToken: dwolla.Client = await getAppToken();
   const iavToken: dwolla.Response = await appToken.post(
@@ -46,159 +105,61 @@ export async function getIAVTokenById(id: string): Promise<string> {
   return iavToken.body.token;
 }
 
+export async function createTransfer(
+  transfer: DwollaTransferRequest
+): Promise<dwolla.Response> {
+  const appToken: dwolla.Client = await getAppToken();
+  const res: dwolla.Response = await appToken.post(
+    process.env.DWOLLA_BASE_URL + "transfers",
+    transfer
+  );
+  const location = res.headers.get("location");
+  log(`DwollaService.ts::createTransfer() Result ${location}`);
+  return res;
+}
+
 export async function createPersonalVerifiedCustomer(
   customer: DwollaPersonalVerifiedCustomerRequest
-): Promise<INewUserResponse> {
+): Promise<IDwollaNewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
     log(
-      "Dwolla.createPersonalVerifiedCustomer(), entity created @ " + customerURL
+      "DwollaService.ts::createPersonalVerifiedCustomer(), entity created @ " +
+        customerURL
     );
     const result = await appToken.get(customerURL);
-    const response: INewUserResponse = {
+    const response: IDwollaNewUserResponse = {
       userId: result.body.id,
       resourceUri: customerURL,
     };
     return response;
   } catch (e) {
-    log("Dwolla.createPersonalVerifiedCustomer(), error " + e);
+    log("DwollaService.ts::createPersonalVerifiedCustomer(), error " + e);
     throw e;
   }
 }
 
 export async function createUnverifiedCustomer(
   customer: DwollaUnverifiedCustomerRequest
-): Promise<INewUserResponse> {
+): Promise<IDwollaNewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
     const res: dwolla.Response = await appToken.post("customers", customer);
     const customerURL = res.headers.get("location");
-    log("Dwolla.createUnverifiedCustomer(), entity created @ " + customerURL);
+    log(
+      "DwollaService.ts::createUnverifiedCustomer(), entity created @ " +
+        customerURL
+    );
     const result = await appToken.get(customerURL);
-    const response: INewUserResponse = {
+    const response: IDwollaNewUserResponse = {
       userId: result.body.id,
       resourceUri: customerURL,
     };
     return response;
   } catch (e) {
-    log("Dwolla.createUnverifiedCustomer(), error " + e);
+    log("DwollaService.ts::createUnverifiedCustomer(), error " + e);
     throw e;
   }
-}
-
-function logUnsupported(topic: string) {
-  log(
-    `Dwolla.consumeWebhook() Unsupported ${topic} received, nothing to do...`
-  );
-}
-
-function logSupported(topic: string) {
-  log(
-    `Dwolla.consumeWebhook() Supported topic ${topic} received and beginning processing...`
-  );
-}
-
-export async function consumeWebhook(
-  eventToProcess: DwollaEvent
-): Promise<boolean> {
-  log("Dwolla.consumeWebhook() Processing Event:");
-  log(JSON.stringify(eventToProcess, null, 2));
-
-  let processed = false;
-
-  switch (eventToProcess.topic) {
-    case "customer_created":
-      try {
-        logSupported(eventToProcess.topic);
-        const appToken: dwolla.Client = await getAppToken();
-        const res = await appToken.get(eventToProcess._links.resource.href);
-        const customer = res.body;
-        const address = await newWallet(customer.id);
-        log(
-          `Dwolla.consumeWebhook() Successfully created new wallet on-chain for userId ${customer.id}, email ${customer.email}, with address ${address}`
-        );
-        processed = true;
-      } catch (err) {
-        log(
-          `Dwolla.consumeWebhook() error during 'customer_created' topic processing ${err}`
-        );
-        throw err;
-      }
-      break;
-
-    case "customer_suspended":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_activated":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_deactivated":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_added":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_removed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_unverified":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_negative":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_funding_source_updated":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_created	":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_cancelled":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_failed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_creation_failed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_bank_transfer_completed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_created":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_cancelled":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_failed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    case "customer_transfer_completed":
-      logUnsupported(eventToProcess.topic);
-      break;
-
-    default:
-      throw `Unknown topic ${eventToProcess.topic}, don't know how to process...`;
-  }
-
-  return processed;
 }

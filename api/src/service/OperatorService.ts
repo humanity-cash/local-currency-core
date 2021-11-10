@@ -1,30 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  IDeposit,
-  ITransferEvent,
-  IWithdrawal,
-  INewUser,
-  IOperatorTotal,
-  INewUserResponse,
-} from "src/types";
-import * as contracts from "./contracts";
 import BN from "bn.js";
-import * as web3Utils from "web3-utils";
+import { Response } from "dwolla-v2";
+import { DwollaTransferService } from "src/database/service";
+import {
+  IDeposit, IDwollaNewUserInput, IDwollaNewUserResponse, IOperatorTotal, ITransferEvent,
+  IWithdrawal
+} from "src/types";
 import { log } from "src/utils";
-import { createUnverifiedCustomer } from "./digital-banking/DwollaService";
-import { DwollaUnverifiedCustomerRequest } from "./digital-banking/DwollaTypes";
+import * as web3Utils from "web3-utils";
+import * as contracts from "./contracts";
+import {
+  createTransfer, createUnverifiedCustomer, getFundingSourceLinkForUser
+} from "./digital-banking/DwollaService";
+import {
+  DwollaTransferRequest, DwollaUnverifiedCustomerRequest
+} from "./digital-banking/DwollaTypes";
+import { getDwollaResourceFromLocation } from "./digital-banking/DwollaUtils";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
-export async function createUser(newUser: INewUser): Promise<INewUserResponse> {
+export async function createUser(newUser: IDwollaNewUserInput): Promise<IDwollaNewUserResponse> {
   const request: DwollaUnverifiedCustomerRequest = {
     firstName: newUser.firstName,
     lastName: newUser.lastName,
     email: newUser.email,
-    businessName: newUser.businessName,
+    businessName: newUser.rbn,
     ipAddress: newUser.ipAddress,
-    correlationId: newUser.authUserId,
+    correlationId: newUser.correlationId, 
   };
-  const response: INewUserResponse = await createUnverifiedCustomer(request);
+  const response: IDwollaNewUserResponse = await createUnverifiedCustomer(request);
   log(`Created new customer in Dwolla: ${JSON.stringify(response)}`);
   return response;
 }
@@ -49,16 +52,105 @@ async function getSortedOperators(): Promise<IOperatorTotal[]> {
   return sortedOperatorStats;
 }
 
+async function createDwollaTransfer(
+  fundingSourceLink: string,
+  fundingTargetLink: string,
+  amount: string,
+  type: string,
+  userId: string,
+  operatorId: string
+) {
+  // 1 Construct transfer request
+  const transferRequest: DwollaTransferRequest = {
+    _links: {
+      source: {
+        href: fundingSourceLink,
+      },
+      destination: {
+        href: fundingTargetLink,
+      },
+    },
+    amount: {
+      currency: "USD",
+      value: amount,
+    },
+  };
+
+  // 2 Inititate Dwolla transfer
+  const transferResponse: Response = await createTransfer(transferRequest);
+  log(
+    `OperatorService.ts::createDwollaTransfer() ${transferResponse.headers.get(
+      "location"
+    )}`
+  );
+
+  // 3 Get newly created transfer
+  const transferToUse: Response = await getDwollaResourceFromLocation(
+    transferResponse.headers.get("location")
+  );
+
+  // 4 Save to DB
+  const now = Date.now();
+  const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
+    fundingTransferId: transferToUse.body.id,
+    userId: userId,
+    operatorId: operatorId,
+    fundingSource: transferToUse.body._links["source-funding-source"].href,
+    fundingTarget: transferToUse.body._links["destination-funding-source"].href,
+    amount: transferToUse.body.amount.value,
+    fundingStatus: transferToUse.body.status,
+    type: type,
+    created: now,
+    updated: now,
+  };
+  const transferDBItem: DwollaTransferService.IDwollaTransferDBItem =
+    await DwollaTransferService.create(transfer);
+  return transferDBItem;
+}
+
 export async function deposit(
   userId: string,
   amount: string
-): Promise<boolean> {
+): Promise<DwollaTransferService.IDwollaTransferDBItem> {
   const sortedOperatorStats = await getSortedOperators();
-  log(`deposit():: depositing to operator ${sortedOperatorStats[0].operator}`);
-  const result = await contracts.deposit(
-    userId,
+  const operatorToUse = sortedOperatorStats[0].operator;
+  log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
+
+  const fundingSourceLink: string = await getFundingSourceLinkForUser(userId);
+  const fundingTargetLink: string = process.env.OPERATOR_1_FUNDING_SOURCE;
+  log(
+    `OperatorService()::deposit() funding source for user is ${fundingSourceLink}`
+  );
+  log(
+    `OperatorService()::deposit() funding target for user is ${fundingTargetLink}`
+  );
+
+  const transfer = await createDwollaTransfer(
+    fundingSourceLink,
+    fundingTargetLink,
     amount,
-    sortedOperatorStats[0].operator
+    "DEPOSIT",
+    userId,
+    operatorToUse
+  );
+  log(
+    `OperatorService()::deposit() Dwolla transfer created and logged to database: ${JSON.stringify(
+      transfer,
+      null,
+      2
+    )}`
+  );
+
+  return transfer;
+}
+
+export async function webhookMint(fundingTransferId: string): Promise<boolean> {
+  const transfer: DwollaTransferService.IDwollaTransferDBItem =
+    await DwollaTransferService.getByFundingTransferId(fundingTransferId);
+  const result = await contracts.deposit(
+    transfer.userId,
+    transfer.amount,
+    transfer.operatorId
   );
   return result.status;
 }
@@ -110,15 +202,33 @@ export async function withdraw(
     // If this operator has enough, then withdraw the full amount
     if (operatorOutstandingFunds.gte(amountToWithdraw)) {
       log(
-        `withdraw():: withdrawing ${amountToWithdraw.toString()} from operator ${
+        `OperatorService::withdraw():: withdrawing ${amountToWithdraw.toString()} from operator ${
           operator.operator
         } who has ${operatorOutstandingFunds.toString()} in outstanding funds`
       );
+
+      // Blockchain withdrawal first
       await contracts.withdraw(
         userId,
         web3Utils.fromWei(amountToWithdraw.toString()),
         operator.operator
       );
+
+      // Then Dwolla withdrawal
+      const fundingSourceLink: string = process.env.OPERATOR_1_FUNDING_SOURCE;
+      const fundingTargetLink: string = await getFundingSourceLinkForUser(
+        userId
+      );
+      await createDwollaTransfer(
+        fundingSourceLink,
+        fundingTargetLink,
+        web3Utils.fromWei(amountToWithdraw.toString()),
+        "WITHDRAWAL",
+        userId,
+        operator.operator
+      );
+
+      // Clear amountToWithdraw, we have satisfied the user's full redemption amount
       amountToWithdraw = new BN(0);
     }
 
@@ -129,9 +239,25 @@ export async function withdraw(
           operator.operator
         } who has ${operatorOutstandingFunds.toString()} in outstanding funds`
       );
+
+      // Blockchain withdrawal first
       await contracts.withdraw(
         userId,
         web3Utils.fromWei(operatorOutstandingFunds.toString()),
+        operator.operator
+      );
+
+      // Then Dwolla withdrawal
+      const fundingSourceLink: string = process.env.OPERATOR_1_FUNDING_SOURCE;
+      const fundingTargetLink: string = await getFundingSourceLinkForUser(
+        userId
+      );
+      await createDwollaTransfer(
+        fundingSourceLink,
+        fundingTargetLink,
+        web3Utils.fromWei(operatorOutstandingFunds.toString()),
+        "WITHDRAWAL",
+        userId,
         operator.operator
       );
 
