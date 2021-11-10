@@ -147,8 +147,7 @@ function constructDwollaDetails(data: IDBUser, type: 'customer' | 'business', is
 			address1: data.customer.address1,
 			address2: data.customer.address2,
 			correlationId: `customer-${data.dbId}`,
-			ipAddress: '',
-			rbn: data.customer.firstName + data.customer.lastName,
+			ipAddress: ''
 		}
 		return dwollaDetails;
 	} else if (type === 'business') {
