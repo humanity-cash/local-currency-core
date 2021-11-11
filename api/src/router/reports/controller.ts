@@ -22,6 +22,7 @@ async function mapTxToReport(tx: ITransferEvent[]): Promise<Report[]> {
   return result;
 }
 
+/**Exported only for testing */
 export async function corePeriodReport(
   i: PeriodReportInput
 ): Promise<Report[]> {
@@ -50,10 +51,10 @@ export async function corePeriodReport(
 
 export async function periodReport(req: Request, res: Response): Promise<void> {
   try {
-    const id = req?.params?.id;
+    const userId = req?.params?.userId;
     const { fromTime, toTime } = req?.body;
     const reports: Report[] = await corePeriodReport({
-      userId: id,
+      userId,
       fromTime,
       toTime,
     });
