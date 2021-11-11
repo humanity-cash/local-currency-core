@@ -2,8 +2,8 @@ import { Response } from "dwolla-v2";
 import { ObjectId } from "mongoose";
 
 export enum TransferType {
-	IN = 'IN',
-	OUT = 'OUT'
+  IN = "IN",
+  OUT = "OUT",
 }
 
 export type WalletAddress = string;
@@ -188,15 +188,15 @@ export type UserName = string;
 export type UnixDate = number;
 
 export interface PeriodReportInput {
-	userId: UserId 
-	fromTime: UnixDate,
-	toTime: UnixDate,
+  userId: UserId;
+  fromTime: UnixDate;
+  toTime: UnixDate;
 }
 
-export interface Report { 
-	TransferType: TransferType,
-	amount: number,
-	from: UserName,
-	to: UserName,
-	date: UnixDate
-};
+export interface Report {
+  TransferType: TransferType;
+  amount: number;
+  from: UserName;
+  to: UserName;
+  date: UnixDate;
+}

@@ -128,22 +128,22 @@ export async function updateDwollaDetails(
     const u =
       type === "business"
         ? {
-          verifiedBusiness: true,
-          business: {
-            ...currentUser?.business,
-            owner: currentUser.business.owner,
-            resourceUri: update.resourceUri,
-            dwollaId: update.dwollaId,
-          },
-        }
+            verifiedBusiness: true,
+            business: {
+              ...currentUser?.business,
+              owner: currentUser.business.owner,
+              resourceUri: update.resourceUri,
+              dwollaId: update.dwollaId,
+            },
+          }
         : {
-          verifiedCustomer: true,
-          customer: {
-            ...currentUser?.customer,
-            resourceUri: update.resourceUri,
-            dwollaId: update.dwollaId,
-          },
-        };
+            verifiedCustomer: true,
+            customer: {
+              ...currentUser?.customer,
+              resourceUri: update.resourceUri,
+              dwollaId: update.dwollaId,
+            },
+          };
     const response = await UserDatabaseService.update<IDBUser>(f, u);
     return { success: true, data: response };
   } catch (error) {
@@ -173,10 +173,15 @@ export async function addBusiness(
 }
 
 export async function getUser(
-  dwollaId: string,
+  dwollaId: string
 ): Promise<GenericDatabaseResponse<IDBUser>> {
   try {
-    const filter = { $or: [{ 'customer.dwollaId': dwollaId }, { 'business.dwollaId': dwollaId }] };
+    const filter = {
+      $or: [
+        { "customer.dwollaId": dwollaId },
+        { "business.dwollaId": dwollaId },
+      ],
+    };
     const response = await UserDatabaseService.get<IDBUser>(filter);
     return { success: true, data: response };
   } catch (error) {
@@ -186,13 +191,14 @@ export async function getUser(
 }
 
 export async function getUserByWalletAddress(
-  walletAddress: string,
+  walletAddress: string
 ): Promise<GenericDatabaseResponse<IDBUser>> {
   try {
     const filter = {
-      $or:
-        [{ 'customer.walletAddress': walletAddress }
-          , { 'business.walletAddress': walletAddress }]
+      $or: [
+        { "customer.walletAddress": walletAddress },
+        { "business.walletAddress": walletAddress },
+      ],
     };
     const response = await UserDatabaseService.get<IDBUser>(filter);
     return { success: true, data: response };
@@ -200,7 +206,6 @@ export async function getUserByWalletAddress(
     return { success: false, error };
   }
 }
-
 
 interface UserData {
   name: string;
@@ -238,10 +243,15 @@ export async function getUserData(
 export async function updateUser(
   dwollaId: string,
   update: any,
-  filter?: any,
+  filter?: any
 ): Promise<GenericDatabaseResponse<IDBUser>> {
   try {
-    const f = filter || { $or: [{ 'customer.dwollaId': dwollaId }, { 'business.dwollaId': dwollaId }] };
+    const f = filter || {
+      $or: [
+        { "customer.dwollaId": dwollaId },
+        { "business.dwollaId": dwollaId },
+      ],
+    };
     const response = await UserDatabaseService.update<IDBUser>(f, update);
     return { success: true, data: response };
   } catch (error) {
@@ -251,12 +261,14 @@ export async function updateUser(
 }
 
 interface UpdateWalletAddress {
-  walletAddress: string,
-  dwollaId: string
+  walletAddress: string;
+  dwollaId: string;
 }
 
-export async function updateWalletAddress({ walletAddress, dwollaId }: UpdateWalletAddress):
-  Promise<GenericDatabaseResponse<IDBUser>> {
+export async function updateWalletAddress({
+  walletAddress,
+  dwollaId,
+}: UpdateWalletAddress): Promise<GenericDatabaseResponse<IDBUser>> {
   try {
     const response = await getUser(dwollaId);
     let update;
@@ -265,11 +277,11 @@ export async function updateWalletAddress({ walletAddress, dwollaId }: UpdateWal
     const isCustomer = customer?.dwollaId === dwollaId;
     const isBusiness = business?.dwollaId === dwollaId;
     if (isCustomer) {
-      update = { ...customer, 'customer.walletAddress': walletAddress };
-      filter = { 'customer.dwollaId': dwollaId };
+      update = { ...customer, "customer.walletAddress": walletAddress };
+      filter = { "customer.dwollaId": dwollaId };
     } else if (isBusiness) {
-      update = { ...business, 'business.walletAddress': walletAddress };
-      filter = { 'business.dwollaId': dwollaId };
+      update = { ...business, "business.walletAddress": walletAddress };
+      filter = { "business.dwollaId": dwollaId };
     } else {
       return { success: false, error: "User not found!" };
     }
