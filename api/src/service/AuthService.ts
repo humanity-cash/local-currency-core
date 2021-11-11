@@ -69,7 +69,7 @@ async function createCustomer(
     return { success: true, data: user };
   } catch (error) {
     log(error);
-    return { success: false, error: "Something went wrong!" };
+    return { success: false, error };
   }
 }
 
@@ -93,7 +93,7 @@ async function createBusiness(
     return { success: true, data: user };
   } catch (error) {
     log(error);
-    return { success: false, error: "Something went wrong!" };
+    return { success: false, error };
   }
 }
 
@@ -112,8 +112,8 @@ export async function addCustomer(
     });
     return { success: true, data: response };
   } catch (error) {
-    console.log(error);
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -128,26 +128,27 @@ export async function updateDwollaDetails(
     const u =
       type === "business"
         ? {
-            verifiedBusiness: true,
-            business: {
-              ...currentUser?.business,
-              owner: currentUser.business.owner,
-              resourceUri: update.resourceUri,
-              dwollaId: update.dwollaId,
-            },
-          }
+          verifiedBusiness: true,
+          business: {
+            ...currentUser?.business,
+            owner: currentUser.business.owner,
+            resourceUri: update.resourceUri,
+            dwollaId: update.dwollaId,
+          },
+        }
         : {
-            verifiedCustomer: true,
-            customer: {
-              ...currentUser?.customer,
-              resourceUri: update.resourceUri,
-              dwollaId: update.dwollaId,
-            },
-          };
+          verifiedCustomer: true,
+          customer: {
+            ...currentUser?.customer,
+            resourceUri: update.resourceUri,
+            dwollaId: update.dwollaId,
+          },
+        };
     const response = await UserDatabaseService.update<IDBUser>(f, u);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -166,7 +167,8 @@ export async function addBusiness(
     });
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -178,7 +180,8 @@ export async function getUser(
     const response = await UserDatabaseService.get<IDBUser>(filter);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -194,7 +197,7 @@ export async function getUserByWalletAddress(
     const response = await UserDatabaseService.get<IDBUser>(filter);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    return { success: false, error };
   }
 }
 
@@ -227,7 +230,8 @@ export async function getUserData(
 
     return { success: true, data: result };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -241,7 +245,8 @@ export async function updateUser(
     const response = await UserDatabaseService.update<IDBUser>(f, update);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -270,6 +275,7 @@ export async function updateWalletAddress({ walletAddress, dwollaId }: UpdateWal
     }
     return updateUser(dwollaId, update, filter);
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
