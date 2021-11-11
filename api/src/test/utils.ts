@@ -2,7 +2,10 @@ import { Contract, SendOptions } from "web3-eth-contract";
 import { getProvider } from "../utils/getProvider";
 import * as web3Utils from "web3-utils";
 import Web3 from "web3";
-import { getAppToken } from "src/service/digital-banking/DwollaUtils";
+import {
+  getAppToken,
+  getIdempotencyHeader,
+} from "src/service/digital-banking/DwollaUtils";
 import {
   DwollaEvent,
   DwollaFundingSourceRequest,
@@ -126,7 +129,8 @@ export async function createOperatorsForTest(): Promise<void> {
 export async function processDwollaSandboxSimulations(): Promise<void> {
   const appToken = await getAppToken();
   const result = await appToken.post(
-    process.env.DWOLLA_BASE_URL + "sandbox-simulations"
+    process.env.DWOLLA_BASE_URL + "sandbox-simulations",
+    { headers: getIdempotencyHeader() }
   );
   log(
     `utils.ts::processDwollaSandboxSimulations, processed ${JSON.stringify(
