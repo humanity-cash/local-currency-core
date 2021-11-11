@@ -13,7 +13,11 @@ export async function create<T>(input: INewUserInput): Promise<T> {
   return removeMongoMeta(response?.toObject());
 }
 
-type UserFilter = IBusinessDwollaId | ICustomerDwollaId | { _id: ObjectId } | any;
+type UserFilter =
+  | IBusinessDwollaId
+  | ICustomerDwollaId
+  | { _id: ObjectId }
+  | any;
 
 export async function update<T>(filter: UserFilter, update: any): Promise<T> {
   const response = await UserSchema.findOneAndUpdate(filter, update, {
@@ -23,9 +27,7 @@ export async function update<T>(filter: UserFilter, update: any): Promise<T> {
   return removeMongoMeta(response?.toObject());
 }
 
-export async function get<T>(
-  filter: any
-): Promise<T> {
+export async function get<T>(filter: any): Promise<T> {
   const response = await UserSchema.findOne(filter);
   return removeMongoMeta(response?.toObject());
 }

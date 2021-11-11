@@ -307,7 +307,10 @@ export async function consumeWebhook(
           const res = await getDwollaResourceFromEvent(eventToProcess);
           const customer = res.body;
           const address = await newWallet(customer.id);
-          await updateWalletAddress({ walletAddress: address, dwollaId: customer.id });
+          await updateWalletAddress({
+            walletAddress: address,
+            dwollaId: customer.id,
+          });
           await notifyUserWithReason(
             eventToProcess,
             "Your account has been created"
