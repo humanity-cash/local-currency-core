@@ -14,6 +14,7 @@ import {
   DwollaTransferService,
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
+import { updateUser, updateWalletAddress } from "../AuthService";
 
 export async function deregisterWebhook(
   webhookUrl: string
@@ -306,6 +307,7 @@ export async function consumeWebhook(
           const res = await getDwollaResourceFromEvent(eventToProcess);
           const customer = res.body;
           const address = await newWallet(customer.id);
+          await updateWalletAddress({ walletAddress: address, dwollaId: customer.id });
           await notifyUserWithReason(
             eventToProcess,
             "Your account has been created"
