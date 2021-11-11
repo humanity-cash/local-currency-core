@@ -47,7 +47,8 @@ export async function registerWebhook(): Promise<string> {
     };
     const response: dwolla.Response = await appToken.post(
       process.env.DWOLLA_BASE_URL + "webhook-subscriptions/",
-      webhook
+      webhook,
+      getIdempotencyHeader()
     );
     const webhookUrl = response.headers.get("location");
     console.log(
