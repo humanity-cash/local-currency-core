@@ -200,3 +200,9 @@ export interface Report {
   to: UserName;
   date: UnixDate;
 }
+
+export type GenericDatabaseResponse<T, E = string> = {
+  success: boolean;
+  data?: T;
+  error?: E;
+};

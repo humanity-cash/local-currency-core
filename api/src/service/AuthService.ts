@@ -4,18 +4,13 @@ import {
   Business,
   Customer,
   DwollaId,
+  GenericDatabaseResponse,
   IBusinessDwollaId,
   ICustomerDwollaId,
   IDBUser,
   WalletAddress,
 } from "src/types";
 import { log } from "src/utils";
-
-type GenericDatabaseResponse<T, E = string> = {
-  success: boolean;
-  data?: T;
-  error?: E;
-};
 
 export async function createUser(
   data: Pick<IDBUser, "email" | "consent" | "customer" | "business">,
