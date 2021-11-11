@@ -4,6 +4,7 @@ import {
   IOperatorTotal,
   IWithdrawal,
   IDeposit,
+  TransferType,
 } from "src/types";
 import { toBytes32, getTimestampForBlock } from "src/utils/crypto";
 import { log } from "src/utils";
@@ -14,7 +15,6 @@ import { Contract, EventData, PastEventOptions } from "web3-eth-contract";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import BN from "bn.js";
-import { TransferType } from "src/router/reports/controller";
 
 const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
   fromBlock: 0,
