@@ -1,7 +1,6 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
 import { getApp } from "../server";
-import { log } from "../utils";
 import { mockDatabase } from "./setup/setup-db-integration";
 import { createFakeUser, newBusinessData, newCustomerData } from "./utils";
 
