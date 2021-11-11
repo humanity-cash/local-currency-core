@@ -66,30 +66,9 @@ yarn prettier
 
 ### Environment variable configuration
 
-#### `process.env.NODE_ENV = "development"`
-
-| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                        |
-| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ---------------------------- |
-| sandbox            | .env file           | Yes                | Yes                              | Yes                       | Alfajores API server         |
-| production         | AWS Secrets Manager | Yes                | Yes                              | No                        | INVALID CONFIGURATION        |
-
-#### `process.env.NODE_ENV = "test"`
-
-| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                        |
-| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ---------------------------- |
-| sandbox            | .env file           | No                 | No                               | Yes                       | `yarn test` / GitHub Actions |
-| production         | AWS Secrets Manager | No                 | No                               | No                        | INVALID CONFIGURATION        |
-
-#### `process.env.NODE_ENV = "production"`
-
-| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                        |
-| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ---------------------------- |
-| sandbox            | .env file           | Yes                | No                               | Yes                       | INVALID CONFIGURATION        |
-| production         | AWS Secrets Manager | Yes                | No                               | No                        | Mainnet API server           |
-
-#### `process.env.NODE_ENV = "anythingelse"`
-
-| DWOLLA_ENVIRONMENT | Variables           | Webhook Registered | Webhook User Creation Simulated  | Sanbox Banking Simulated  | Usage                                 |
-| ------------------ | ------------------- | ------------------ | -------------------------------- | ------------------------  | ------------------------------------- |
-| sandbox            | .env file           | Yes                | No                               | Yes                       | INVALID CONFIGURATION                 |
-| production         | AWS Secrets Manager | Yes                | No                               | No                        | Valid |
+| Variable            | Values            | Usage                                                                       |
+| -----------------   | ----------------- | --------------------------------------------------------------------------- |
+| REGISTER_WEBHOOK    | "true" / "false"  | Whether or not to register a webhook with the Dwolla API. Registering a webhook deletes all previously existing webhooks. |
+| SIMULATE_WEBHOOK    | "true" / "false"  | Whether or not to simulate webhook behaviour in development or test. Mutually exclusive with REGISTER_WEBHOOK. |
+| SIMULATE_BANKING    | "true" / "false"  | Whether or not to process fake banking (ACH) records in the Dwolla sandbox environment. Only relevant for sandbox. |
+| USE_MANAGED_SECRETS | "true" / "false"  | Whether or not to pull environment variables and secrets from AWS Secrets Manager rather than directly injected into the environment. |
