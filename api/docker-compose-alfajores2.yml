@@ -47,18 +47,18 @@ services:
       DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
       DWOLLA_ENVIRONMENT: sandbox
       WEBHOOK_SECRET: 0000000000000000000000000000000000000000000003
-      WEBHOOK_URL: "https://alfajores.api.humanity.cash/webhook"
+      WEBHOOK_URL: "https://alfajores2.api.humanity.cash/webhook"
       REGISTER_WEBHOOK: "true"
       SIMULATE_WEBHOOK: "false"
       SIMULATE_BANKING: "false"
       USE_MANAGED_SECRETS: "false"
-      DELETE_PRIOR_WEBHOOK: "false"
+      DELETE_PRIOR_WEBHOOK: "true"
       OPERATOR_1_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/7fe7a621-e494-4369-965f-214477122331"
       OPERATOR_2_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/2bbb3d39-1e43-4c34-8e00-a96b286f3bab"      
       MONGO_URL: "mongodb://root:example@local-currency-db:27017"
-      VIRTUAL_HOST: alfajores.api.humanity.cash
+      VIRTUAL_HOST: alfajores2.api.humanity.cash
       VIRTUAL_PORT: 3000
-      LETSENCRYPT_HOST: alfajores.api.humanity.cash
+      LETSENCRYPT_HOST: alfajores2.api.humanity.cash
 
   nginx-proxy:
     depends_on:
