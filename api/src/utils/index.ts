@@ -75,11 +75,18 @@ export function shouldUseManagedSecrets(): boolean {
     process.env.USE_MANAGED_SECRETS == "TRUE"
   );
 }
+export function shouldDeletePriorWebhooks(): boolean {
+  return (
+    process.env.DELETE_PRIOR_WEBHOOK == "true" ||
+    process.env.DELETE_PRIOR_WEBHOOK == "TRUE"
+  );
+}
 
 export function logSettings(): void {
-  console.log(`shouldRegisterWebhook()   == ${shouldRegisterWebhook()}`);
-  console.log(`shouldSimulateWebhook()   == ${shouldSimulateWebhook()}`);
-  console.log(`shouldSimulateBanking()   == ${shouldSimulateBanking()}`);
-  console.log(`isDwollaProduction()      == ${isDwollaProduction()}`);
-  console.log(`shouldUseManagedSecrets() == ${shouldUseManagedSecrets()}`);
+  console.log(`shouldRegisterWebhook()     == ${shouldRegisterWebhook()}`);
+  console.log(`shouldSimulateWebhook()     == ${shouldSimulateWebhook()}`);
+  console.log(`shouldSimulateBanking()     == ${shouldSimulateBanking()}`);
+  console.log(`isDwollaProduction()        == ${isDwollaProduction()}`);
+  console.log(`shouldUseManagedSecrets()   == ${shouldUseManagedSecrets()}`);
+  console.log(`shouldDeletePriorWebhooks() == ${shouldDeletePriorWebhooks()}`);
 }
