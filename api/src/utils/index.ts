@@ -2,6 +2,7 @@ import { AppNotificationService } from "src/database/service";
 import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
 import * as csvUtils from "./csv";
+import { GenericDatabaseResponse, IDBUser } from "src/types";
 // import { LogService } from "src/database/service";
 
 export { cryptoUtils, httpUtils, csvUtils };
@@ -94,4 +95,21 @@ export function isEmptyObject(i: unknown): boolean {
   const keys = Object.keys(i);
 
   return Boolean(keys.length);
+}
+
+export async function retryFunction(promise: Promise<GenericDatabaseResponse<IDBUser, string>>, count = 3):
+  Promise<GenericDatabaseResponse<IDBUser>> {
+  let response = {} as GenericDatabaseResponse<IDBUser>;
+  let i = 0;
+  while (i < count && !response?.success) {
+    const result = await promise;
+    if (result.success) {
+      response = result;
+      break;
+    }
+    response = result;
+    i++;
+  }
+
+  return response;
 }
