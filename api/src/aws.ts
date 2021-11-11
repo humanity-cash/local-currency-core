@@ -3,9 +3,11 @@ import { errors, verifierFactory } from '@southlane/cognito-jwt-verifier';
 import AWS from 'aws-sdk';
 import { Key } from 'aws-sdk/clients/iot';
 import { Body, Buckets, BucketName } from 'aws-sdk/clients/s3';
+import { log } from './utils';
 
 AWS.config.update({
-  region: 'us-west-1', accessKeyId: process.env.AWS_ACCESS_KEY
+  region: process.env.AWS_REGION
+  , accessKeyId: process.env.AWS_ACCESS_KEY
   , secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
@@ -28,11 +30,11 @@ export async function createBucket(name: string): Promise<void> {
   const bucketParams = {
     Bucket: name
   };
-  await s3.createBucket(bucketParams, function (err, data) {
-    if (err) {
-      console.log("Error", err);
+  await s3.createBucket(bucketParams, function (error, data) {
+    if (error) {
+      log(error)
     } else {
-      console.log("Success", data.Location);
+      log("Success", data.Location);
     }
   });
 }
