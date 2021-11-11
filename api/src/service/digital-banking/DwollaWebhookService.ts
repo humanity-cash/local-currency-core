@@ -14,7 +14,7 @@ import {
   DwollaTransferService,
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
-import { updateUser, updateWalletAddress } from "../AuthService";
+import { updateWalletAddress } from "../AuthService";
 
 export async function deregisterWebhook(
   webhookUrl: string
