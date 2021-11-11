@@ -17,7 +17,6 @@ export async function listBuckets(): Promise<Buckets> {
     if (err) {
       console.log("Error", err);
     } else {
-      console.log("🚀 ~ file: aws.ts ~ line 21 ~ data.Buckets", data.Buckets);
       buckets = data.Buckets;
     }
   });
