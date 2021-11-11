@@ -34,7 +34,6 @@ describe("Auth Service API Test", () => {
         expect(res.body.verifiedBusiness).to.eql(false);
         expect(res).to.have.status(201);
         customerDwollaId = res.body.customer.dwollaId;
-        log(JSON.parse(res.text));
         done();
       })
       .catch((err) => {
@@ -57,7 +56,6 @@ describe("Auth Service API Test", () => {
         expect(res.body.data.dbId).to.exist;
         expect(res.body.data.verifiedCustomer).to.eql(true);
         expect(res.body.data.verifiedBusiness).to.eql(true);
-        log(JSON.parse(res.text));
         done();
       })
       .catch((err) => {
@@ -78,7 +76,6 @@ describe("Auth Service API Test", () => {
         expect(res.body.verifiedBusiness).to.eql(true);
         expect(res).to.have.status(201);
         businessDwollaId = res.body.business.dwollaId;
-        log(JSON.parse(res.text));
         done();
       })
       .catch((err) => {
@@ -102,7 +99,6 @@ describe("Auth Service API Test", () => {
         expect(res.body.data.dbId).to.exist;
         expect(res.body.data.verifiedCustomer).to.eql(true);
         expect(res.body.data.verifiedBusiness).to.eql(true);
-        log(JSON.parse(res.text));
         done();
       })
       .catch((err) => {
