@@ -1,9 +1,10 @@
 import { AppNotificationService } from "src/database/service";
 import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
+import * as csvUtils from "./csv";
 // import { LogService } from "src/database/service";
 
-export { cryptoUtils, httpUtils };
+export { cryptoUtils, httpUtils, csvUtils };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sleep(ms) {
