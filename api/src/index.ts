@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import "./aliases";
 import startDatabase from "./database";
 import { getApp } from "./server";
