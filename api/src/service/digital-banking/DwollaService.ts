@@ -7,7 +7,7 @@ import {
 } from "./DwollaTypes";
 import { IDwollaNewUserResponse } from "../../types";
 import { isDwollaProduction, log, httpUtils } from "src/utils";
-import { getAppToken } from "./DwollaUtils";
+import { getAppToken, getIdempotencyHeader } from "./DwollaUtils";
 
 export async function getDwollaCustomerById(
   id: string
@@ -55,8 +55,12 @@ export async function initiateMicroDepositsForUser(
 
   const fundingSourceLink = await getFundingSourceLinkForUser(userId);
   const appToken: dwolla.Client = await getAppToken();
-  await appToken.post(fundingSourceLink + "/micro-deposits");
-  await appToken.post(process.env.DWOLLA_BASE_URL + "sandbox-simulations");
+  await appToken.post(fundingSourceLink + "/micro-deposits", {
+    headers: getIdempotencyHeader(),
+  });
+  await appToken.post(process.env.DWOLLA_BASE_URL + "sandbox-simulations", {
+    headers: getIdempotencyHeader(),
+  });
   return true;
 }
 
@@ -92,7 +96,8 @@ export async function createFundingSource(
   const appToken: dwolla.Client = await getAppToken();
   const fundingSources: dwolla.Response = await appToken.post(
     process.env.DWOLLA_BASE_URL + "customers/" + userId + "/funding-sources",
-    fundingSource
+    fundingSource,
+    getIdempotencyHeader()
   );
   return fundingSources;
 }
@@ -100,7 +105,8 @@ export async function createFundingSource(
 export async function getIAVTokenById(id: string): Promise<string> {
   const appToken: dwolla.Client = await getAppToken();
   const iavToken: dwolla.Response = await appToken.post(
-    process.env.DWOLLA_BASE_URL + "customers/" + id + "/iav-token"
+    process.env.DWOLLA_BASE_URL + "customers/" + id + "/iav-token",
+    { headers: getIdempotencyHeader() }
   );
   return iavToken.body.token;
 }
@@ -111,7 +117,8 @@ export async function createTransfer(
   const appToken: dwolla.Client = await getAppToken();
   const res: dwolla.Response = await appToken.post(
     process.env.DWOLLA_BASE_URL + "transfers",
-    transfer
+    transfer,
+    getIdempotencyHeader()
   );
   const location = res.headers.get("location");
   log(`DwollaService.ts::createTransfer() Result ${location}`);
@@ -123,7 +130,11 @@ export async function createPersonalVerifiedCustomer(
 ): Promise<IDwollaNewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
-    const res: dwolla.Response = await appToken.post("customers", customer);
+    const res: dwolla.Response = await appToken.post(
+      "customers",
+      customer,
+      getIdempotencyHeader()
+    );
     const customerURL = res.headers.get("location");
     log(
       "DwollaService.ts::createPersonalVerifiedCustomer(), entity created @ " +
@@ -146,7 +157,11 @@ export async function createUnverifiedCustomer(
 ): Promise<IDwollaNewUserResponse> {
   try {
     const appToken: dwolla.Client = await getAppToken();
-    const res: dwolla.Response = await appToken.post("customers", customer);
+    const res: dwolla.Response = await appToken.post(
+      "customers",
+      customer,
+      getIdempotencyHeader()
+    );
     const customerURL = res.headers.get("location");
     log(
       "DwollaService.ts::createUnverifiedCustomer(), entity created @ " +
