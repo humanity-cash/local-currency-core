@@ -4,21 +4,35 @@ import { log } from "src/utils";
 import { DwollaClientOptions, DwollaEvent } from "./DwollaTypes";
 import * as dwolla from "dwolla-v2";
 import { DwollaEventService } from "src/database/service";
+import { v4 } from "uuid";
+
+let appTokenRefreshed = 0;
+let appToken: dwolla.Client;
 
 export async function getAppToken(): Promise<dwolla.Client> {
-  const options: DwollaClientOptions =
-    process.env.DWOLLA_ENVIRONMENT == "sandbox"
-      ? {
-          key: process.env.DWOLLA_APP_KEY,
-          secret: process.env.DWOLLA_APP_SECRET,
-          environment: "sandbox",
-        }
-      : {
-          key: process.env.DWOLLA_APP_KEY,
-          secret: process.env.DWOLLA_APP_SECRET,
-          environment: "production",
-        };
-  return new dwolla.Client(options);
+  const msSinceRefreshed = Date.now() - appTokenRefreshed;
+  const msInTenMinutes = 10 * 60 * 1000;
+
+  if (msSinceRefreshed > msInTenMinutes) {
+    const options: DwollaClientOptions =
+      process.env.DWOLLA_ENVIRONMENT == "sandbox"
+        ? {
+            key: process.env.DWOLLA_APP_KEY,
+            secret: process.env.DWOLLA_APP_SECRET,
+            environment: "sandbox",
+          }
+        : {
+            key: process.env.DWOLLA_APP_KEY,
+            secret: process.env.DWOLLA_APP_SECRET,
+            environment: "production",
+          };
+    appToken = new dwolla.Client(options);
+    appTokenRefreshed = Date.now();
+    log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
+  } else {
+    log(`DwollaUtils.ts::getAppToken() Cached appToken returned`);
+  }
+  return appToken;
 }
 
 export function createSignature(
@@ -63,6 +77,10 @@ export function validSignature(
   } catch (e) {
     log(`DwollaUtils.ts::verifyGatewaySignature() ${e}`);
   }
+}
+
+export function getIdempotencyHeader(): { "Idempotency-Key"?: string } {
+  return { "Idempotency-Key": v4() };
 }
 
 // Webhook events can be fired multiple times by Dwolla
