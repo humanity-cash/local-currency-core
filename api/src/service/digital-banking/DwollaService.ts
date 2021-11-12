@@ -5,7 +5,7 @@ import {
   DwollaTransferRequest,
   DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
-import { INewUserResponse } from "../../types";
+import { IDwollaNewUserResponse } from "../../types";
 import { isDwollaProduction, log, httpUtils } from "src/utils";
 import { getAppToken, getIdempotencyHeader } from "./DwollaUtils";
 

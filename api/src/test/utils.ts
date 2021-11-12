@@ -18,19 +18,10 @@ import {
   initiateMicroDepositsForUser,
   verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
-import { getAppToken } from "src/service/digital-banking/DwollaUtils";
 import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
-import Web3 from "web3";
-import { Contract, SendOptions } from "web3-eth-contract";
-import * as web3Utils from "web3-utils";
-import {
-  DwollaEvent,
-  DwollaFundingSourceRequest,
-  DwollaPersonalVerifiedCustomerRequest,
-} from "../service/digital-banking/DwollaTypes";
 import { log } from "../utils";
-import { getProvider } from "../utils/getProvider";
+import * as faker from "faker";
 
 let sendOptions: SendOptions;
 let web3: Web3;
