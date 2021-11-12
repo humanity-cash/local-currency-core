@@ -35,6 +35,7 @@ services:
     environment:
       DEBUG: "true"
       NODE_ENV: development
+      PORT: 3000
       REGION: eu-north-1
       SECRET_NAME: LOCAL_CURRENCY_API_ALFAJORES
       LOCAL_CURRENCY_RPC_HOST: "http://celo-node:8545"

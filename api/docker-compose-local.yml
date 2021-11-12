@@ -22,6 +22,7 @@ services:
     environment:
       DEBUG: "true"
       NODE_ENV: development
+      PORT: 3000
       LOCAL_CURRENCY_RPC_HOST: "https://celo-alfajores--rpc.datahub.figment.io/apikey/25daa59318b13c1f83a8a444578fdb57/"
       LOCAL_CURRENCY_ADDRESS: "0xa493032Db59AcbcBF148F5C3660786ef8c6caa42"
       LOCAL_CURRENCY_MNEMONIC: "truth half motor knee sad flee oxygen gossip announce train soon renew"
