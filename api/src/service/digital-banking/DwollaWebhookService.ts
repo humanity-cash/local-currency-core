@@ -15,7 +15,6 @@ import {
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
 import { updateWalletAddress } from "../AuthService";
-import { GenericDatabaseResponse, IDBUser } from "src/types";
 
 export async function deregisterWebhook(
   webhookUrl: string
