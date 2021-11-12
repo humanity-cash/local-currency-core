@@ -20,7 +20,7 @@ import {
 } from "src/service/digital-banking/DwollaService";
 import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
-import { log } from "../utils";
+import { log, sleep } from "../utils";
 import * as faker from "faker";
 
 let sendOptions: SendOptions;
@@ -187,7 +187,9 @@ export async function createFundingSourceForTest(
     name: "Test Funding Source - Savings",
     channels: ["ACH"],
   };
-  await createFundingSource(fundingSource, userId);
+  const response = await createFundingSource(fundingSource, userId);
+  console.log(`createFundingSourceForTest() ${response.body}`);
+  await sleep(2000);
   await initiateMicroDepositsForUser(userId);
   await verifyMicroDepositsForUser(userId);
 }
