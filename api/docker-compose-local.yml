@@ -35,6 +35,7 @@ services:
       # WEBHOOK_URL: "https://alfajores2.api.humanity.cash/webhook"
       REGISTER_WEBHOOK: "false"
       SIMULATE_WEBHOOK: "true"
+      PORT: 3000
       SIMULATE_BANKING: "false"
       USE_MANAGED_SECRETS: "false"
       OPERATOR_1_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/7fe7a621-e494-4369-965f-214477122331"
