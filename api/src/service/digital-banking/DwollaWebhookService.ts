@@ -1,13 +1,14 @@
 import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
 import { newWallet } from "../contracts";
-import { log, retryFunction, userNotification } from "src/utils";
+import { retryFunction, log, shouldDeletePriorWebhooks, userNotification } from "src/utils";
 import {
   duplicateWebhookExists,
   getAppToken,
   getDwollaResourceFromEvent,
   getDwollaCustomerFromEvent,
   getDwollaResourceFromLocation,
+  getIdempotencyHeader,
 } from "./DwollaUtils";
 import {
   DwollaEventService,
@@ -38,7 +39,8 @@ async function deregisterAllWebhooks(): Promise<void> {
 
 export async function registerWebhook(): Promise<string> {
   try {
-    await deregisterAllWebhooks();
+    if (shouldDeletePriorWebhooks()) await deregisterAllWebhooks();
+
     const appToken: dwolla.Client = await getAppToken();
     const webhook = {
       url: process.env.WEBHOOK_URL,
@@ -46,7 +48,8 @@ export async function registerWebhook(): Promise<string> {
     };
     const response: dwolla.Response = await appToken.post(
       process.env.DWOLLA_BASE_URL + "webhook-subscriptions/",
-      webhook
+      webhook,
+      getIdempotencyHeader()
     );
     const webhookUrl = response.headers.get("location");
     console.log(

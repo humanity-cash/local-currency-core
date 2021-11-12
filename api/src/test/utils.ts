@@ -1,4 +1,16 @@
 import faker from "faker";
+import { Contract, SendOptions } from "web3-eth-contract";
+import { getProvider } from "../utils/getProvider";
+import * as web3Utils from "web3-utils";
+import {
+  getAppToken,
+  getIdempotencyHeader,
+} from "src/service/digital-banking/DwollaUtils";
+import {
+  DwollaEvent,
+  DwollaFundingSourceRequest,
+  DwollaPersonalVerifiedCustomerRequest,
+} from "../service/digital-banking/DwollaTypes";
 import {
   createFundingSource,
   createPersonalVerifiedCustomer,
@@ -6,19 +18,10 @@ import {
   initiateMicroDepositsForUser,
   verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
-import { getAppToken } from "src/service/digital-banking/DwollaUtils";
 import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
 import Web3 from "web3";
-import { Contract, SendOptions } from "web3-eth-contract";
-import * as web3Utils from "web3-utils";
-import {
-  DwollaEvent,
-  DwollaFundingSourceRequest,
-  DwollaPersonalVerifiedCustomerRequest,
-} from "../service/digital-banking/DwollaTypes";
 import { log } from "../utils";
-import { getProvider } from "../utils/getProvider";
 
 let sendOptions: SendOptions;
 let web3: Web3;
@@ -162,7 +165,8 @@ export async function createOperatorsForTest(): Promise<void> {
 export async function processDwollaSandboxSimulations(): Promise<void> {
   const appToken = await getAppToken();
   const result = await appToken.post(
-    process.env.DWOLLA_BASE_URL + "sandbox-simulations"
+    process.env.DWOLLA_BASE_URL + "sandbox-simulations",
+    { headers: getIdempotencyHeader() }
   );
   log(
     `utils.ts::processDwollaSandboxSimulations, processed ${JSON.stringify(
