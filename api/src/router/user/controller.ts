@@ -15,6 +15,7 @@ import {
   log,
   shouldSimulateWebhook,
   httpUtils,
+  dwollaUtils,
 } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
@@ -42,12 +43,27 @@ export async function getAllUsers(_req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function getUserByEmail(req: Request, res: Response): Promise<void> {
+  try {
+    const email = req?.params?.email;
+    const dbUser = await AuthService.getUserByEmail(email);
+    httpUtils.createHttpResponse([ dbUser.data ], codes.OK, res);
+  } catch (err) {
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
+  }
+}
+
 export async function getUser(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const user: IWallet = await PublicServices.getWallet(id);
+    const dbUser = await AuthService.getUser(id);
     // Create as an array of one item for API consistency
-    httpUtils.createHttpResponse([user], codes.OK, res);
+    httpUtils.createHttpResponse([{ dwolla: user, db: dbUser.data }], codes.OK, res);
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);
@@ -146,44 +162,6 @@ async function shortcutUserCreation(userId: string): Promise<void> {
   else log(`User ${userId} not created, check logs for details`);
 }
 
-function constructDwollaDetails(
-  data: IDBUser,
-  type: "customer" | "business",
-  isNew: boolean
-) {
-  const email = isNew ? data.email : `${data.dbId}@humanity.cash`;
-  if (type === "customer") {
-    const dwollaDetails: IDwollaNewUserInput = {
-      email,
-      firstName: data.customer.firstName,
-      lastName: data.customer.lastName,
-      city: data.customer.city,
-      state: data.customer.state,
-      postalCode: data.customer.postalCode,
-      address1: data.customer.address1,
-      address2: data.customer.address2,
-      correlationId: `customer-${data.dbId}`,
-      ipAddress: "",
-    };
-    return dwollaDetails;
-  } else if (type === "business") {
-    const dwollaDetails: IDwollaNewUserInput = {
-      email,
-      firstName: data.business.owner.firstName,
-      lastName: data.business.owner.lastName,
-      city: data.business.city,
-      state: data.business.state,
-      postalCode: data.business.postalCode,
-      address1: data.business.address1,
-      address2: data.business.address2,
-      correlationId: `business-${data.dbId}`,
-      rbn: data.business.rbn,
-      ipAddress: "",
-    };
-    return dwollaDetails;
-  }
-}
-
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
     const newUserInput: IAPINewUser = req.body;
@@ -198,7 +176,7 @@ export async function createUser(req: Request, res: Response): Promise<void> {
       { customer, business, email, consent: true },
       type
     );
-    const dwollaDetails: IDwollaNewUserInput = constructDwollaDetails(
+    const dwollaDetails: IDwollaNewUserInput = dwollaUtils.constructCreateUserInput(
       createDbResponse.data,
       type,
       true
@@ -238,9 +216,8 @@ export async function addCustomer(req: Request, res: Response): Promise<void> {
     const dbUser = await AuthService.updateUser(
       businessDwollaId,
       { customer },
-      "business"
     );
-    const dwollaDetails = constructDwollaDetails(
+    const dwollaDetails = dwollaUtils.constructCreateUserInput(
       dbUser.data,
       "customer",
       false
@@ -281,7 +258,7 @@ export async function addBusiness(req: Request, res: Response): Promise<void> {
       { business },
       "customer"
     );
-    const dwollaDetails = constructDwollaDetails(
+    const dwollaDetails = dwollaUtils.constructCreateUserInput(
       dbUser.data,
       "business",
       false
