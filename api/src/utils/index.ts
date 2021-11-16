@@ -2,10 +2,11 @@ import { AppNotificationService } from "src/database/service";
 import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
 import * as csvUtils from "./csv";
+import * as dwollaUtils from "./dwolla";
 import { GenericDatabaseResponse, IDBUser } from "src/types";
 // import { LogService } from "src/database/service";
 
-export { cryptoUtils, httpUtils, csvUtils };
+export { cryptoUtils, httpUtils, csvUtils, dwollaUtils };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sleep(ms) {
@@ -61,8 +62,8 @@ export function shouldSimulateWebhook(): boolean {
 }
 export function shouldSimulateBanking(): boolean {
   return (
-    process.env.SIMULATE_WEBHOOK == "true" ||
-    process.env.SIMULATE_WEBHOOK == "TRUE"
+    process.env.SIMULATE_BANKING == "true" ||
+    process.env.SIMULATE_BANKING == "TRUE"
   );
 }
 export function isDwollaProduction(): boolean {
