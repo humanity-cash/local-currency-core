@@ -1,4 +1,3 @@
-import faker from "faker";
 import { Contract, SendOptions } from "web3-eth-contract";
 import { getProvider } from "../utils/getProvider";
 import * as web3Utils from "web3-utils";
@@ -21,7 +20,8 @@ import {
 import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
 import Web3 from "web3";
-import { log } from "../utils";
+import { log, sleep } from "../utils";
+import * as faker from "faker";
 
 let sendOptions: SendOptions;
 let web3: Web3;
@@ -188,6 +188,7 @@ export async function createFundingSourceForTest(
     channels: ["ACH"],
   };
   await createFundingSource(fundingSource, userId);
+  await sleep(2000);
   await initiateMicroDepositsForUser(userId);
   await verifyMicroDepositsForUser(userId);
 }
