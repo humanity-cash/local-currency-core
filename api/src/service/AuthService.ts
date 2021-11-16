@@ -185,6 +185,20 @@ export async function getUser(
   }
 }
 
+export async function getUserByEmail(
+  email: string
+): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const filter = {
+      "email": email
+    };
+    const response = await UserDatabaseService.get<IDBUser>(filter);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error };
+  }
+}
+
 export async function getUserByWalletAddress(
   walletAddress: string
 ): Promise<GenericDatabaseResponse<IDBUser>> {
