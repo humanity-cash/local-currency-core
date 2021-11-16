@@ -11,7 +11,7 @@ COPY tsconfig.json /app/
 COPY src /app/src/
 RUN yarn build
 
-FROM node:slim AS runtime
+FROM node:12-slim AS runtime
 
 WORKDIR /app
 
