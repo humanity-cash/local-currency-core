@@ -59,8 +59,8 @@ export function shouldSimulateWebhook(): boolean {
 }
 export function shouldSimulateBanking(): boolean {
   return (
-    process.env.SIMULATE_WEBHOOK == "true" ||
-    process.env.SIMULATE_WEBHOOK == "TRUE"
+    process.env.SIMULATE_BANKING == "true" ||
+    process.env.SIMULATE_BANKING == "TRUE"
   );
 }
 export function isDwollaProduction(): boolean {
