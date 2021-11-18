@@ -23,65 +23,30 @@ import {
   AppNotificationService,
 } from "src/database/service";
 
+import {
+  expectBusiness,
+  expectFundingSource,
+  expectIDeposit,
+  expectITransferEvent,
+  expectIWallet,
+  expectIWithdrawal,
+} from "./expect";
+
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
-
-function expectIWallet(wallet: unknown): void {
-  log(wallet);
-  expect(wallet).to.have.property("userId");
-  expect(wallet).to.have.property("address");
-  expect(wallet).to.have.property("createdBlock");
-  expect(wallet).to.have.property("createdTimestamp");
-  expect(wallet).to.have.property("availableBalance");
-  expect(wallet).to.have.property("totalBalance");
-}
-
-function expectFundingSource(fundingSource: unknown): void {
-  log(fundingSource);
-  expect(fundingSource).to.have.property("status");
-  expect(fundingSource).to.have.property("headers");
-  expect(fundingSource).to.have.property("body");
-}
-
-function expectIDeposit(deposit: unknown): void {
-  log(deposit);
-  expect(deposit).to.have.property("transactionHash");
-  expect(deposit).to.have.property("blockNumber");
-  expect(deposit).to.have.property("timestamp");
-  expect(deposit).to.have.property("operator");
-  expect(deposit).to.have.property("userId");
-  expect(deposit).to.have.property("value");
-}
-
-function expectIWithdrawal(withdrawal: unknown): void {
-  log(withdrawal);
-  expect(withdrawal).to.have.property("transactionHash");
-  expect(withdrawal).to.have.property("blockNumber");
-  expect(withdrawal).to.have.property("timestamp");
-  expect(withdrawal).to.have.property("operator");
-  expect(withdrawal).to.have.property("userId");
-  expect(withdrawal).to.have.property("value");
-}
-
-function expectITransferEvent(transfer: unknown): void {
-  log(transfer);
-  expect(transfer).to.have.property("transactionHash");
-  expect(transfer).to.have.property("blockNumber");
-  expect(transfer).to.have.property("timestamp");
-  expect(transfer).to.have.property("fromUserId");
-  expect(transfer).to.have.property("fromAddress");
-  expect(transfer).to.have.property("toUserId");
-  expect(transfer).to.have.property("toAddress");
-  expect(transfer).to.have.property("value");
-  expect(transfer).to.have.property("type");
-}
 
 describe("Operator endpoints test", () => {
   const user1: IAPINewUser = createFakeUser();
   const user2: IAPINewUser = createFakeUser();
   const business1: IAPINewUser = createFakeUser(true);
-  let dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1;
+  const business2: IAPINewUser = createFakeUser(true);
+  const business3: IAPINewUser = createFakeUser(true);
+  let dwollaIdUser1: string,
+    dwollaIdUser2: string,
+    dwollaIdBusiness1: string,
+    dwollaIdBusiness2: string,
+    dwollaIdBusiness3: string;
 
   beforeAll(async () => {
     await mockDatabase.init();
@@ -1207,41 +1172,98 @@ describe("Operator endpoints test", () => {
       );
     });
   });
+
+  describe("GET /businesses/", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    it("it should create business2 and store the returned address, HTTP 201", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send(business2)
+        .then((res) => {
+          expect(res).to.have.status(codes.CREATED);
+          expect(res).to.be.json;
+          dwollaIdBusiness2 = res.body.business.dwollaId;
+          done();
+        })
+        .catch((err) => {
+          log(JSON.stringify(err, null, 2));
+
+          done(err);
+        });
+    });
+
+    it("it should create business3 and store the returned address, HTTP 201", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send(business3)
+        .then((res) => {
+          expect(res).to.have.status(codes.CREATED);
+          expect(res).to.be.json;
+          dwollaIdBusiness3 = res.body.business.dwollaId;
+          done();
+        })
+        .catch((err) => {
+          log(JSON.stringify(err, null, 2));
+
+          done(err);
+        });
+    });
+
+    it("it should post a supported webhook event for business2 and successfully process it, HTTP 202", async (): Promise<void> => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdBusiness2,
+        dwollaIdBusiness2
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+    });
+
+    it("it should post a supported webhook event for business3 and successfully process it, HTTP 202", async (): Promise<void> => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdBusiness3,
+        dwollaIdBusiness3
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+    });
+
+    it("GET /businesses/: it should retrieve all businesses, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/businesses`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res.body.length).to.equal(3);
+          for (let i = 0; i < res.body.length; i++) expectBusiness(res.body[i]);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+  });
 });
-
-// it.skip("it should fail to create a personal user without 'p' prefixed to their authUserId, HTTP 400", (done) => {
-//   // // this test is not needed anymore
-//   // const personalUser: IDwollaNewUserInput = createFakeUser();
-//   // personalUser.authUserId = "invaliduserId";
-//   // chai
-//   //   .request(server)
-//   //   .post("/users")
-//   //   .send(personalUser)
-//   //   .then((res) => {
-//   //     expect(res).to.have.status(codes.BAD_REQUEST);
-//   //     expect(res).to.be.json;
-//   //     done();
-//   //   })
-//   //   .catch((err) => {
-//   //     done(err);
-//   //   });
-// });
-
-// it.skip("it should fail to create a business user without 'm' prefixed to their authUserId, HTTP 400", (done) => {
-//   // this test is not needed anymore
-//   expect(true).to.eql(true);
-//   // const businessUser: IDwollaNewUserInput = createFakeUser(true);
-//   // businessUser.authUserId = "invalidBusinessUserId";
-//   // chai
-//   //   .request(server)
-//   //   .post("/users")
-//   //   .send(businessUser)
-//   //   .then((res) => {
-//   //     expect(res).to.have.status(codes.BAD_REQUEST);
-//   //     expect(res).to.be.json;
-//   //     done();
-//   //   })
-//   //   .catch((err) => {
-//   //     done(err);
-//   //   });
-// });
