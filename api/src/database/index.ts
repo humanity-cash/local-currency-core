@@ -11,7 +11,7 @@ const startDatabase = (cb: () => void): void => {
     return;
   }
   log(`Connecting to databse ${databaseURL}`);
-  mongoose.connect(databaseURL, {
+  mongoose.connect(databaseURL + '?authSource=admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });

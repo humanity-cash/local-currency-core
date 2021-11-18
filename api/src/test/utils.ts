@@ -1,7 +1,6 @@
 import { Contract, SendOptions } from "web3-eth-contract";
 import { getProvider } from "../utils/getProvider";
 import * as web3Utils from "web3-utils";
-import Web3 from "web3";
 import {
   getAppToken,
   getIdempotencyHeader,
@@ -20,6 +19,7 @@ import {
 } from "src/service/digital-banking/DwollaService";
 import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
+import Web3 from "web3";
 import { log, sleep } from "../utils";
 import * as faker from "faker";
 

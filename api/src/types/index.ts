@@ -1,6 +1,13 @@
 import { Response } from "dwolla-v2";
 import { ObjectId } from "mongoose";
 
+export enum TransferType {
+  IN = "IN",
+  OUT = "OUT",
+}
+
+export type WalletAddress = string;
+
 export interface HealthResponse {
   blockNumber: number;
   chainId: number;
@@ -113,6 +120,7 @@ export interface Business {
   tag: string;
   avatar: string;
   type: string;
+  walletAddress?: WalletAddress;
   rbn: string;
   industry: string;
   ein: string;
@@ -131,6 +139,7 @@ export interface Customer extends BaseUser {
   avatar: string;
   tag: string;
   dwollaId?: DwollaId;
+  walletAddress?: WalletAddress;
   resourceUri?: string;
 }
 
@@ -160,7 +169,7 @@ export interface ITransferEvent extends IEventBase {
   toUserId: string;
   toAddress: string;
   value: string;
-  type: string;
+  type?: TransferType;
 }
 
 export interface IOperatorTotal {
@@ -173,3 +182,27 @@ export interface IOperatorTotal {
 }
 
 export type IMongooseMetadata = { __v: number; _id: ObjectId };
+
+export type UserId = string;
+export type UserName = string;
+export type UnixDate = number;
+
+export interface PeriodReportInput {
+  userId: UserId;
+  fromTime: UnixDate;
+  toTime: UnixDate;
+}
+
+export interface Report {
+  TransferType: TransferType;
+  amount: number;
+  from: UserName;
+  to: UserName;
+  date: UnixDate;
+}
+
+export type GenericDatabaseResponse<T, E = string> = {
+  success: boolean;
+  data?: T;
+  error?: E;
+};
