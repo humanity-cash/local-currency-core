@@ -60,9 +60,8 @@ export async function getUser(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const user: IWallet = await PublicServices.getWallet(id);
-    const dbUser = await AuthService.getUser(id);
     // Create as an array of one item for API consistency
-    httpUtils.createHttpResponse([{ dwolla: user, db: dbUser.data }], codes.OK, res);
+    httpUtils.createHttpResponse([user], codes.OK, res);
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);
