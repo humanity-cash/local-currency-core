@@ -4,17 +4,13 @@ import {
   Business,
   Customer,
   DwollaId,
+  GenericDatabaseResponse,
   IBusinessDwollaId,
   ICustomerDwollaId,
   IDBUser,
+  WalletAddress,
 } from "src/types";
 import { log } from "src/utils";
-
-type GenericDatabaseResponse<T, E = string> = {
-  success: boolean;
-  data?: T;
-  error?: E;
-};
 
 export async function createUser(
   data: Pick<IDBUser, "email" | "consent" | "customer" | "business">,
@@ -68,7 +64,7 @@ async function createCustomer(
     return { success: true, data: user };
   } catch (error) {
     log(error);
-    return { success: false, error: "Something went wrong!" };
+    return { success: false, error };
   }
 }
 
@@ -92,7 +88,7 @@ async function createBusiness(
     return { success: true, data: user };
   } catch (error) {
     log(error);
-    return { success: false, error: "Something went wrong!" };
+    return { success: false, error };
   }
 }
 
@@ -111,8 +107,8 @@ export async function addCustomer(
     });
     return { success: true, data: response };
   } catch (error) {
-    console.log(error);
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -146,7 +142,8 @@ export async function updateDwollaDetails(
     const response = await UserDatabaseService.update<IDBUser>(f, u);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
@@ -165,23 +162,57 @@ export async function addBusiness(
     });
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
 export async function getUser(
-  dwollaId: string,
-  type: "customer" | "business"
+  dwollaId: string
 ): Promise<GenericDatabaseResponse<IDBUser>> {
   try {
-    const f =
-      type === "business"
-        ? { "business.dwollaId": dwollaId }
-        : { "customer.dwollaId": dwollaId };
-    const response = await UserDatabaseService.get<IDBUser>(f);
+    const filter = {
+      $or: [
+        { "customer.dwollaId": dwollaId },
+        { "business.dwollaId": dwollaId },
+      ],
+    };
+    const response = await UserDatabaseService.get<IDBUser>(filter);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
+  }
+}
+
+export async function getUserByEmail(
+  email: string
+): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const filter = {
+      "email": email
+    };
+    const response = await UserDatabaseService.get<IDBUser>(filter);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error };
+  }
+}
+
+export async function getUserByWalletAddress(
+  walletAddress: string
+): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const filter = {
+      $or: [
+        { "customer.walletAddress": walletAddress },
+        { "business.walletAddress": walletAddress },
+      ],
+    };
+    const response = await UserDatabaseService.get<IDBUser>(filter);
+    return { success: true, data: response };
+  } catch (error) {
+    return { success: false, error };
   }
 }
 
@@ -190,40 +221,82 @@ interface UserData {
 }
 
 export async function getUserData(
-  dwollaId: string
+  walletAdderss: WalletAddress
 ): Promise<GenericDatabaseResponse<UserData>> {
   try {
-    const businessFilter = { "business.dwollaId": dwollaId };
-    const customerFilter = { "customer.dwollaId": dwollaId };
-    const response: UserData = {
+    const result: UserData = {
       name: "",
     };
-    const c = await UserDatabaseService.get<IDBUser>(customerFilter);
-    const b = await UserDatabaseService.get<IDBUser>(businessFilter);
-    if (c) {
-      response.name = `${c.customer.firstName} ${c.customer.lastName}`;
-    } else if (b) {
-      response.name = b.business.rbn;
+    const response = await getUserByWalletAddress(walletAdderss);
+    if (!response.data || !response.success || response.error) {
+      return { success: true, data: result };
     }
-    return { success: true, data: response };
+    const user = response.data;
+    const isCustomer = user?.customer?.walletAddress === walletAdderss;
+    const isBusiness = user?.business?.walletAddress === walletAdderss;
+    if (isCustomer) {
+      result.name = `${user.customer.firstName} ${user.customer.lastName}`;
+    } else if (isBusiness) {
+      result.name = user.business.rbn;
+    } else {
+      return { success: false, error: "User not found!" };
+    }
+
+    return { success: true, data: result };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
   }
 }
 
 export async function updateUser(
   dwollaId: string,
   update: any,
-  type: "business" | "customer"
+  filter?: any
 ): Promise<GenericDatabaseResponse<IDBUser>> {
   try {
-    const f =
-      type === "business"
-        ? { "business.dwollaId": dwollaId }
-        : { "customer.dwollaId": dwollaId };
+    const f = filter || {
+      $or: [
+        { "customer.dwollaId": dwollaId },
+        { "business.dwollaId": dwollaId },
+      ],
+    };
     const response = await UserDatabaseService.update<IDBUser>(f, update);
     return { success: true, data: response };
   } catch (error) {
-    return { success: false, error: "Something went wrong!" };
+    log(error);
+    return { success: false, error };
+  }
+}
+
+interface UpdateWalletAddress {
+  walletAddress: string;
+  dwollaId: string;
+}
+
+export async function updateWalletAddress({
+  walletAddress,
+  dwollaId,
+}: UpdateWalletAddress): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const response = await getUser(dwollaId);
+    let update;
+    let filter;
+    const { customer, business } = response?.data;
+    const isCustomer = customer?.dwollaId === dwollaId;
+    const isBusiness = business?.dwollaId === dwollaId;
+    if (isCustomer) {
+      update = { ...customer, "customer.walletAddress": walletAddress };
+      filter = { "customer.dwollaId": dwollaId };
+    } else if (isBusiness) {
+      update = { ...business, "business.walletAddress": walletAddress };
+      filter = { "business.dwollaId": dwollaId };
+    } else {
+      return { success: false, error: "User not found!" };
+    }
+    return updateUser(dwollaId, update, filter);
+  } catch (error) {
+    log(error);
+    return { success: false, error };
   }
 }
