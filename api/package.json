@@ -18,6 +18,7 @@
     "test:dwolla": "yarn test --testPathPattern='dwolla'",
     "test:reports": "yarn test --testPathPattern='Reports'",
     "test:operator": "yarn test --testPathPattern='operator'",
+    "test:auth": "yarn test --testPathPattern='APIAuthService.integration.test'",
     "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
     "coverage:server": "yarn test:server --coverage",
     "coverage:contracts": "yarn test:contracts --coverage",
