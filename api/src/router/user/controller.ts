@@ -23,7 +23,6 @@ import {
   Business,
   Customer,
   IAPINewUser,
-  IDBUser,
   IDeposit,
   IDwollaNewUserInput,
   IDwollaNewUserResponse,
@@ -256,7 +255,6 @@ export async function addBusiness(req: Request, res: Response): Promise<void> {
     const dbUser = await AuthService.updateUser(
       customerDwollaId,
       { business },
-      "customer"
     );
     const dwollaDetails = dwollaUtils.constructCreateUserInput(
       dbUser.data,
