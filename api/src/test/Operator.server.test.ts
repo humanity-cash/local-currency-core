@@ -4,6 +4,7 @@ import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { getApp } from "../server";
 import {
   setupContracts,
+  newBusinessData,
   createDummyEvent,
   createFakeUser,
   processDwollaSandboxSimulations,
@@ -31,6 +32,7 @@ import {
   expectIWallet,
   expectIWithdrawal,
 } from "./expect";
+import { getUser } from "src/service/AuthService";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -43,6 +45,7 @@ describe("Operator endpoints test", () => {
   const business2: IAPINewUser = createFakeUser(true);
   const business3: IAPINewUser = createFakeUser(true);
   let dwollaIdUser1: string,
+    dwollaIdUser1Business: string,
     dwollaIdUser2: string,
     dwollaIdBusiness1: string,
     dwollaIdBusiness2: string,
@@ -57,13 +60,13 @@ describe("Operator endpoints test", () => {
     await mockDatabase.stop();
   });
 
-  describe("POST /users (create user)", () => {
+  describe.only("POST /users (create user)", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
     });
 
-    it("it should create personal user1 and store the returned address, HTTP 201", (done) => {
+    it.only("it should create personal user1 and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -79,7 +82,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async (): Promise<void> => {
+    it.only("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser1,
@@ -96,7 +99,43 @@ describe("Operator endpoints test", () => {
         .send(event);
       expect(res).to.have.status(codes.ACCEPTED);
       await createFundingSourceForTest(dwollaIdUser1);
+      const u = await getUser(dwollaIdUser1);
+      expect(u.data.customer.walletAddress).to.exist;
+
       log(`Test only - created funding source for ${dwollaIdUser1}`);
+    });
+
+    it.only("it should add business verification for user1 ,HTTP 202", async (): Promise<void> => {
+      const res1 = await chai
+        .request(server)
+        .post(`/users/${dwollaIdUser1}/business`)
+        .send({
+          business: newBusinessData(),
+        })
+      expect(res1.body.data.business.dwollaId).to.exist;
+      dwollaIdUser1Business = res1.body.data.business.dwollaId;
+    });
+
+    it.only("it should post a supported webhook event for user1(business) and successfully process it, HTTP 202", async (): Promise<void> => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdUser1Business,
+        dwollaIdUser1Business
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdUser1Business);
+      const user1Business = await getUser(dwollaIdUser1Business);
+      log(`Test only - created funding source for ${dwollaIdUser1Business}`);
+      expect(user1Business.data.business.walletAddress).to.exist;
     });
 
     it("it should create personal user2 and store the returned address, HTTP 201", (done) => {

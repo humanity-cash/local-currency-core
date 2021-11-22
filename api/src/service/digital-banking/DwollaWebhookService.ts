@@ -1,7 +1,7 @@
 import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
 import { newWallet } from "../contracts";
-import { log, shouldDeletePriorWebhooks, userNotification } from "src/utils";
+import { log, retryFunction, shouldDeletePriorWebhooks, userNotification } from "src/utils";
 import {
   duplicateWebhookExists,
   getAppToken,
@@ -15,7 +15,7 @@ import {
   DwollaTransferService,
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
-// import { updateWalletAddress } from "../AuthService";
+import { updateWalletAddress } from "../AuthService";
 
 export async function deregisterWebhook(
   webhookUrl: string
@@ -310,13 +310,13 @@ export async function consumeWebhook(
           const res = await getDwollaResourceFromEvent(eventToProcess);
           const customer = res.body;
           const address = await newWallet(customer.id);
-          // const updateUserWalletAddress = await updateWalletAddress({
-          //   walletAddress: address,
-          //   dwollaId: customer.id,
-          // });
-          // // const updateResponse = await retryFunction(updateUserWalletAddress, 3)
-          // if (updateUserWalletAddress.success) log(`Updated user ${customer.id} wallet address to ${address}`)
-          // if (!updateUserWalletAddress.success) log(`Failed to update user ${customer.id} wallet address to ${address}: ${updateUserWalletAddress.error}`)
+          const updateUserWalletAddress = updateWalletAddress({
+            walletAddress: address,
+            dwollaId: customer.id,
+          });
+          const updateResponse = await retryFunction(updateUserWalletAddress, 3)
+          if (updateResponse?.success) log(`Updated user ${customer?.id} wallet address to ${address}`)
+          if (!updateResponse?.success) log(`Failed to update user ${customer?.id} wallet address to ${address}: ${updateResponse?.error}`)
           await notifyUserWithReason(
             eventToProcess,
             "Your account has been created"
