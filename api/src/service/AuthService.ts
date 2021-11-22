@@ -289,7 +289,8 @@ export async function updateWalletAddress({
       update = { ...customer, "customer.walletAddress": walletAddress };
       filter = { "customer.dwollaId": dwollaId };
     } else if (isBusiness) {
-      update = { ...business, "business.walletAddress": walletAddress };
+      update = { ...business, 
+        owner: business.owner, "business.walletAddress": walletAddress };
       filter = { "business.dwollaId": dwollaId };
     } else {
       return { success: false, error: "User not found!" };
