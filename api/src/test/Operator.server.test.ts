@@ -60,13 +60,13 @@ describe("Operator endpoints test", () => {
     await mockDatabase.stop();
   });
 
-  describe.only("POST /users (create user)", () => {
+  describe("POST /users (create user)", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
     });
 
-    it.only("it should create personal user1 and store the returned address, HTTP 201", (done) => {
+    it("it should create personal user1 and store the returned address, HTTP 201", (done) => {
       chai
         .request(server)
         .post("/users")
@@ -82,7 +82,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it.only("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async (): Promise<void> => {
+    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser1,
@@ -105,7 +105,7 @@ describe("Operator endpoints test", () => {
       log(`Test only - created funding source for ${dwollaIdUser1}`);
     });
 
-    it.only("it should add business verification for user1 ,HTTP 202", async (): Promise<void> => {
+    it("it should add business verification for user1 ,HTTP 202", async (): Promise<void> => {
       const res1 = await chai
         .request(server)
         .post(`/users/${dwollaIdUser1}/business`)
@@ -116,7 +116,7 @@ describe("Operator endpoints test", () => {
       dwollaIdUser1Business = res1.body.data.business.dwollaId;
     });
 
-    it.only("it should post a supported webhook event for user1(business) and successfully process it, HTTP 202", async (): Promise<void> => {
+    it("it should post a supported webhook event for user1(business) and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser1Business,
