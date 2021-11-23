@@ -165,6 +165,8 @@ export interface IWithdrawal extends IEventBase {
 
 export interface ITransferEvent extends IEventBase {
   fromUserId: string;
+  fromName?: string;
+  toName?: string;
   fromAddress: string;
   toUserId: string;
   toAddress: string;
