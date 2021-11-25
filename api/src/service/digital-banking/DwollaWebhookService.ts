@@ -1,7 +1,7 @@
 import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
 import { newWallet } from "../contracts";
-import { log, retryFunction, shouldDeletePriorWebhooks, userNotification } from "src/utils";
+import { log, shouldDeletePriorWebhooks, userNotification } from "src/utils";
 import {
   duplicateWebhookExists,
   getAppToken,
@@ -310,11 +310,10 @@ export async function consumeWebhook(
           const res = await getDwollaResourceFromEvent(eventToProcess);
           const customer = res.body;
           const address = await newWallet(customer.id);
-          const updateUserWalletAddress = updateWalletAddress({
+          const updateResponse = await updateWalletAddress({
             walletAddress: address,
             dwollaId: customer.id,
           });
-          const updateResponse = await retryFunction(updateUserWalletAddress, 3)
           if (updateResponse?.success) log(`Updated user ${customer?.id} wallet address to ${address}`)
           if (!updateResponse?.success) log(`Failed to update user ${customer?.id} wallet address to ${address}: ${updateResponse?.error}`)
           await notifyUserWithReason(
