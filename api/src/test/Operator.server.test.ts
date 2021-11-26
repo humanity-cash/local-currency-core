@@ -1296,7 +1296,7 @@ describe("Operator endpoints test", () => {
         .get(`/businesses`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          expect(res.body.length).to.equal(3);
+          expect(res.body.length).to.equal(4);
           for (let i = 0; i < res.body.length; i++) expectBusiness(res.body[i]);
           done();
         })
