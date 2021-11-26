@@ -4,7 +4,6 @@ import { getApp } from "../server";
 import { createDummyEvent, createFakeUser, setupContracts } from "./utils";
 import { codes } from "../utils/http";
 import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
-import { INewUser } from "../types";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { mockDatabase } from "./setup/setup-db-integration";
@@ -88,7 +87,7 @@ describe("Owner/administrative endpoints test", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    const user1: INewUser = createFakeUser();
+    const user1 = createFakeUser();
     let dwollaIdUser1;
 
     it("it should fail to transfer wallet owner with invalid body, HTTP 400", (done) => {
@@ -113,7 +112,7 @@ describe("Owner/administrative endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser1 = res.body.userId;
+          dwollaIdUser1 = res.body.customer.dwollaId;
           done();
         })
         .catch((err) => {

@@ -1,9 +1,10 @@
+import { AppNotificationService } from "src/database/service";
 import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
-import { AppNotificationService } from "src/database/service";
-// import { LogService } from "src/database/service";
+import * as csvUtils from "./csv";
+import * as dwollaUtils from "./dwolla";
 
-export { cryptoUtils, httpUtils };
+export { cryptoUtils, httpUtils, csvUtils, dwollaUtils };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sleep(ms) {
@@ -89,4 +90,15 @@ export function logSettings(): void {
   console.log(`isDwollaProduction()        == ${isDwollaProduction()}`);
   console.log(`shouldUseManagedSecrets()   == ${shouldUseManagedSecrets()}`);
   console.log(`shouldDeletePriorWebhooks() == ${shouldDeletePriorWebhooks()}`);
+}
+
+function isObject(obj) {
+  return Object.prototype.toString.call(obj) === "[object Object]";
+}
+
+export function isEmptyObject(i: unknown): boolean {
+  if (!i || !isObject(i)) return true;
+  const keys = Object.keys(i);
+
+  return Boolean(keys.length);
 }

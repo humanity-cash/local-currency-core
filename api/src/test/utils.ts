@@ -1,7 +1,6 @@
 import { Contract, SendOptions } from "web3-eth-contract";
 import { getProvider } from "../utils/getProvider";
 import * as web3Utils from "web3-utils";
-import Web3 from "web3";
 import {
   getAppToken,
   getIdempotencyHeader,
@@ -18,10 +17,11 @@ import {
   initiateMicroDepositsForUser,
   verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
+import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
-import { INewUser, INewUserResponse } from "../types";
-import faker from "faker";
-import { cryptoUtils, log } from "../utils";
+import Web3 from "web3";
+import { log, sleep } from "../utils";
+import * as faker from "faker";
 
 let sendOptions: SendOptions;
 let web3: Web3;
@@ -34,24 +34,62 @@ export function getSalt(): string {
   return new Date().getTime().toString();
 }
 
-export function createFakeUser(isBusiness = false): INewUser {
-  const user: INewUser = {
+export function newBusinessData(): Business {
+  return {
+    avatar: "businessavatar",
+    tag: "businesstag",
+    address1: faker.address.streetAddress(),
+    address2: faker.address.secondaryAddress(),
+    city: faker.address.city(),
+    state: faker.address.state(),
+    postalCode: faker.address.zipCode(),
+    story: faker.lorem.paragraph(),
+    type: "type",
+    rbn: faker.company.companyName(),
+    industry: faker.commerce.department(),
+    ein: faker.random.alphaNumeric(),
+    phoneNumber: faker.phone.phoneNumber(),
+    owner: {
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
+      address1: faker.address.streetAddress(),
+      address2: faker.address.secondaryAddress(),
+      city: faker.address.city(),
+      state: faker.address.state(),
+      postalCode: faker.address.zipCode(),
+    },
+  };
+}
+
+export function newCustomerData(): Customer {
+  return {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     address1: faker.address.streetAddress(),
     address2: faker.address.secondaryAddress(),
     city: faker.address.city(),
+    state: faker.address.state(),
     postalCode: faker.address.zipCode(),
-    state: faker.address.stateAbbr(),
-    email: getSalt() + faker.internet.email(),
-    ipAddress: faker.internet.ip().toString(),
-    authUserId: "",
-    businessName: isBusiness
-      ? faker.name.lastName() + "'s fake business"
-      : undefined,
+    avatar: "eheh",
+    tag: "eheh",
   };
-  user.authUserId =
-    (isBusiness ? "m_" : "p_") + cryptoUtils.toBytes32(user.email);
+}
+
+export function createFakeUser(isBusiness = false): IAPINewUser {
+  const newBusinessInput: IAPINewUser = {
+    consent: true,
+    email: getSalt() + faker.internet.email(),
+    type: "business",
+    business: newBusinessData(),
+  };
+  const newCustomerInput: IAPINewUser = {
+    consent: true,
+    email: getSalt() + faker.internet.email(),
+    type: "customer",
+    customer: newCustomerData(),
+  };
+
+  const user = isBusiness ? newBusinessInput : newCustomerInput;
   log(user);
   return user;
 }
@@ -83,8 +121,7 @@ export async function createOperatorsForTest(): Promise<void> {
     dateOfBirth,
     ssn,
   };
-  const operatorResponse1: INewUserResponse =
-    await createPersonalVerifiedCustomer(operator1);
+  const operatorResponse1 = await createPersonalVerifiedCustomer(operator1);
   await createFundingSourceForTest(operatorResponse1.userId);
   const fundingSourceLink1 = await getFundingSourceLinkForUser(
     operatorResponse1.userId
@@ -117,8 +154,7 @@ export async function createOperatorsForTest(): Promise<void> {
     dateOfBirth,
     ssn,
   };
-  const operatorResponse2: INewUserResponse =
-    await createPersonalVerifiedCustomer(operator2);
+  const operatorResponse2 = await createPersonalVerifiedCustomer(operator2);
   await createFundingSourceForTest(operatorResponse2.userId);
   const fundingSourceLink2 = await getFundingSourceLinkForUser(
     operatorResponse2.userId
@@ -152,6 +188,7 @@ export async function createFundingSourceForTest(
     channels: ["ACH"],
   };
   await createFundingSource(fundingSource, userId);
+  await sleep(2000);
   await initiateMicroDepositsForUser(userId);
   await verifyMicroDepositsForUser(userId);
 }
