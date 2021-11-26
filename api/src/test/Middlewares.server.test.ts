@@ -41,7 +41,7 @@ describe("Middlewares", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    it("Incorrect token", (done) => {
+    it.skip("Incorrect token", (done) => {
       stub = sinon.stub(aws, "verifyCognitoToken");
       chai
         .request(server)
@@ -62,7 +62,7 @@ describe("Middlewares", () => {
     });
   });
 
-  it("Token does not exist", (done) => {
+  it.skip("Token does not exist", (done) => {
     stub = sinon.stub(aws, "verifyCognitoToken");
     chai
       .request(server)

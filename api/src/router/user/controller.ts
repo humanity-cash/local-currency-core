@@ -1,26 +1,35 @@
-import { Request, Response } from "express";
 import * as dwolla from "dwolla-v2";
-import * as OperatorService from "src/service/OperatorService";
-import * as PublicServices from "src/service/PublicService";
-import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
+import { Request, Response } from "express";
+import { AppNotificationService } from "src/database/service";
+import * as AuthService from "src/service/AuthService";
 import {
   getFundingSourcesById,
   getIAVTokenById,
 } from "src/service/digital-banking/DwollaService";
+import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
-import { isDwollaProduction, log, shouldSimulateWebhook } from "src/utils";
+import * as OperatorService from "src/service/OperatorService";
+import * as PublicServices from "src/service/PublicService";
+import {
+  isDwollaProduction,
+  log,
+  shouldSimulateWebhook,
+  httpUtils,
+  dwollaUtils,
+} from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
 import {
+  Business,
+  Customer,
+  IAPINewUser,
   IDeposit,
-  INewUser,
-  INewUserResponse,
+  IDwollaNewUserInput,
+  IDwollaNewUserResponse,
   ITransferEvent,
   IWallet,
   IWithdrawal,
 } from "src/types";
-import { httpUtils } from "src/utils";
-import { AppNotificationService } from "src/database/service";
 
 const codes = httpUtils.codes;
 
@@ -30,6 +39,20 @@ export async function getAllUsers(_req: Request, res: Response): Promise<void> {
     httpUtils.createHttpResponse(users, codes.OK, res);
   } catch (err) {
     httpUtils.serverError(err, res);
+  }
+}
+
+export async function getUserByEmail(req: Request, res: Response): Promise<void> {
+  try {
+    const email = req?.params?.email;
+    const dbUser = await AuthService.getUserByEmail(email);
+    httpUtils.createHttpResponse([ dbUser.data ], codes.OK, res);
+  } catch (err) {
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
   }
 }
 
@@ -139,12 +162,33 @@ async function shortcutUserCreation(userId: string): Promise<void> {
 
 export async function createUser(req: Request, res: Response): Promise<void> {
   try {
-    const newUser: INewUser = req.body;
-    const businessName: string = newUser.businessName || "";
-    if (businessName) newUser.email = newUser.authUserId + "@humanity.cash";
+    const newUserInput: IAPINewUser = req.body;
+    const { customer, business, email, type } = newUserInput;
 
-    const newUserResponse: INewUserResponse = await OperatorService.createUser(
-      newUser
+    if (!customer && !business)
+      httpUtils.createHttpResponse({}, codes.BAD_REQUEST, res);
+
+    log(newUserInput);
+
+    const createDbResponse = await AuthService.createUser(
+      { customer, business, email, consent: true },
+      type
+    );
+    const dwollaDetails: IDwollaNewUserInput = dwollaUtils.constructCreateUserInput(
+      createDbResponse.data,
+      type,
+      true
+    );
+    const newUserResponse: IDwollaNewUserResponse =
+      await OperatorService.createUser(dwollaDetails);
+
+    const updateResponse = await AuthService.updateDwollaDetails(
+      createDbResponse.data.dbId,
+      {
+        dwollaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      },
+      type
     );
 
     if (shouldSimulateWebhook()) {
@@ -154,7 +198,86 @@ export async function createUser(req: Request, res: Response): Promise<void> {
       log(`Webhook will create user on-chain...`);
     }
 
-    httpUtils.createHttpResponse(newUserResponse, codes.CREATED, res);
+    httpUtils.createHttpResponse(updateResponse.data, codes.CREATED, res);
+  } catch (err) {
+    if (err.message?.includes("ERR_USER_EXISTS"))
+      httpUtils.unprocessable("Create user failed: user already exists", res);
+    else httpUtils.serverError(err, res);
+  }
+}
+
+export async function addCustomer(req: Request, res: Response): Promise<void> {
+  try {
+    const customer: Omit<Customer, "resourceUri" | "dwollaId"> =
+      req?.body?.customer;
+    const businessDwollaId = req?.params?.id;
+    const dbUser = await AuthService.updateUser(
+      businessDwollaId,
+      { customer },
+    );
+    const dwollaDetails = dwollaUtils.constructCreateUserInput(
+      dbUser.data,
+      "customer",
+      false
+    );
+    const newUserResponse: IDwollaNewUserResponse =
+      await OperatorService.createUser(dwollaDetails);
+    const updateResponse = await AuthService.updateDwollaDetails(
+      dbUser.data.dbId,
+      {
+        dwollaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      },
+      "customer"
+    );
+
+    if (shouldSimulateWebhook()) {
+      log(`Simulating webhook for user creation...`);
+      await shortcutUserCreation(newUserResponse.userId);
+    } else {
+      log(`Webhook will create user on-chain...`);
+    }
+
+    httpUtils.createHttpResponse(updateResponse, codes.CREATED, res);
+  } catch (err) {
+    if (err.message?.includes("ERR_USER_EXISTS"))
+      httpUtils.unprocessable("Create user failed: user already exists", res);
+    else httpUtils.serverError(err, res);
+  }
+}
+
+export async function addBusiness(req: Request, res: Response): Promise<void> {
+  try {
+    const business: Omit<Business, "dwollaId" | "resourceUri"> =
+      req?.body?.business;
+    const customerDwollaId = req?.params?.id;
+    const dbUser = await AuthService.updateUser(
+      customerDwollaId,
+      { business },
+    );
+    const dwollaDetails = dwollaUtils.constructCreateUserInput(
+      dbUser.data,
+      "business",
+      false
+    );
+    const newUserResponse: IDwollaNewUserResponse =
+      await OperatorService.createUser(dwollaDetails);
+    const updateResponse = await AuthService.updateDwollaDetails(
+      dbUser.data.dbId,
+      {
+        dwollaId: newUserResponse.userId,
+        resourceUri: newUserResponse.resourceUri,
+      },
+      "business"
+    );
+    if (shouldSimulateWebhook()) {
+      log(`Simulating webhook for user creation...`);
+      await shortcutUserCreation(newUserResponse.userId);
+    } else {
+      log(`Webhook will create user on-chain...`);
+    }
+
+    httpUtils.createHttpResponse(updateResponse, codes.CREATED, res);
   } catch (err) {
     if (err.message?.includes("ERR_USER_EXISTS"))
       httpUtils.unprocessable("Create user failed: user already exists", res);

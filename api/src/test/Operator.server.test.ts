@@ -4,6 +4,7 @@ import { describe, it, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { getApp } from "../server";
 import {
   setupContracts,
+  newBusinessData,
   createDummyEvent,
   createFakeUser,
   processDwollaSandboxSimulations,
@@ -11,7 +12,7 @@ import {
 } from "./utils";
 import { codes } from "../utils/http";
 import { log } from "../utils";
-import { INewUser } from "../types";
+import { IAPINewUser } from "../types";
 import {
   createSignature,
   getDwollaResourceFromLocation,
@@ -23,65 +24,32 @@ import {
   AppNotificationService,
 } from "src/database/service";
 
+import {
+  expectBusiness,
+  expectFundingSource,
+  expectIDeposit,
+  expectITransferEvent,
+  expectIWallet,
+  expectIWithdrawal,
+} from "./expect";
+import { getUser } from "src/service/AuthService";
+
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
 
-function expectIWallet(wallet: unknown): void {
-  log(wallet);
-  expect(wallet).to.have.property("userId");
-  expect(wallet).to.have.property("address");
-  expect(wallet).to.have.property("createdBlock");
-  expect(wallet).to.have.property("createdTimestamp");
-  expect(wallet).to.have.property("availableBalance");
-  expect(wallet).to.have.property("totalBalance");
-}
-
-function expectFundingSource(fundingSource: unknown): void {
-  log(fundingSource);
-  expect(fundingSource).to.have.property("status");
-  expect(fundingSource).to.have.property("headers");
-  expect(fundingSource).to.have.property("body");
-}
-
-function expectIDeposit(deposit: unknown): void {
-  log(deposit);
-  expect(deposit).to.have.property("transactionHash");
-  expect(deposit).to.have.property("blockNumber");
-  expect(deposit).to.have.property("timestamp");
-  expect(deposit).to.have.property("operator");
-  expect(deposit).to.have.property("userId");
-  expect(deposit).to.have.property("value");
-}
-
-function expectIWithdrawal(withdrawal: unknown): void {
-  log(withdrawal);
-  expect(withdrawal).to.have.property("transactionHash");
-  expect(withdrawal).to.have.property("blockNumber");
-  expect(withdrawal).to.have.property("timestamp");
-  expect(withdrawal).to.have.property("operator");
-  expect(withdrawal).to.have.property("userId");
-  expect(withdrawal).to.have.property("value");
-}
-
-function expectITransferEvent(transfer: unknown): void {
-  log(transfer);
-  expect(transfer).to.have.property("transactionHash");
-  expect(transfer).to.have.property("blockNumber");
-  expect(transfer).to.have.property("timestamp");
-  expect(transfer).to.have.property("fromUserId");
-  expect(transfer).to.have.property("fromAddress");
-  expect(transfer).to.have.property("toUserId");
-  expect(transfer).to.have.property("toAddress");
-  expect(transfer).to.have.property("value");
-  expect(transfer).to.have.property("type");
-}
-
 describe("Operator endpoints test", () => {
-  const user1: INewUser = createFakeUser();
-  const user2: INewUser = createFakeUser();
-  const business1: INewUser = createFakeUser(true);
-  let dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1;
+  const user1: IAPINewUser = createFakeUser();
+  const user2: IAPINewUser = createFakeUser();
+  const business1: IAPINewUser = createFakeUser(true);
+  const business2: IAPINewUser = createFakeUser(true);
+  const business3: IAPINewUser = createFakeUser(true);
+  let dwollaIdUser1: string,
+    dwollaIdUser1Business: string,
+    dwollaIdUser2: string,
+    dwollaIdBusiness1: string,
+    dwollaIdBusiness2: string,
+    dwollaIdBusiness3: string;
 
   beforeAll(async () => {
     await mockDatabase.init();
@@ -106,7 +74,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser1 = res.body.userId;
+          dwollaIdUser1 = res.body.customer.dwollaId;
           done();
         })
         .catch((err) => {
@@ -114,7 +82,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", (done) => {
+    it("it should post a supported webhook event for user1 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser1,
@@ -124,21 +92,50 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      chai
+      const res = await chai
         .request(server)
         .post("/webhook")
         .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          createFundingSourceForTest(dwollaIdUser1).then(() => {
-            log(`Test only - created funding source for ${dwollaIdUser1}`);
-            done();
-          });
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdUser1);
+      const u = await getUser(dwollaIdUser1);
+      expect(u.data.customer.walletAddress).to.exist;
+
+      log(`Test only - created funding source for ${dwollaIdUser1}`);
+    });
+
+    it("it should add business verification for user1 ,HTTP 202", async (): Promise<void> => {
+      const res1 = await chai
+        .request(server)
+        .post(`/users/${dwollaIdUser1}/business`)
+        .send({
+          business: newBusinessData(),
         })
-        .catch((err) => {
-          done(err);
-        });
+      expect(res1.body.data.business.dwollaId).to.exist;
+      dwollaIdUser1Business = res1.body.data.business.dwollaId;
+    });
+
+    it("it should post a supported webhook event for user1(business) and successfully process it, HTTP 202", async (): Promise<void> => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdUser1Business,
+        dwollaIdUser1Business
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdUser1Business);
+      const user1Business = await getUser(dwollaIdUser1Business);
+      log(`Test only - created funding source for ${dwollaIdUser1Business}`);
+      expect(user1Business.data.business.walletAddress).to.exist;
     });
 
     it("it should create personal user2 and store the returned address, HTTP 201", (done) => {
@@ -149,7 +146,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdUser2 = res.body.userId;
+          dwollaIdUser2 = res.body.customer.dwollaId;
           done();
         })
         .catch((err) => {
@@ -157,7 +154,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", (done) => {
+    it("it should post a supported webhook event for user2 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdUser2,
@@ -167,21 +164,14 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      chai
+      const res = await chai
         .request(server)
         .post("/webhook")
         .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          createFundingSourceForTest(dwollaIdUser2).then(() => {
-            log(`Test only - created funding source for ${dwollaIdUser2}`);
-            done();
-          });
-        })
-        .catch((err) => {
-          done(err);
-        });
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdUser2);
+      log(`Test only - created funding source for ${dwollaIdUser2}`);
     });
 
     it("it should create business1 and store the returned address, HTTP 201", (done) => {
@@ -192,7 +182,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.CREATED);
           expect(res).to.be.json;
-          dwollaIdBusiness1 = res.body.userId;
+          dwollaIdBusiness1 = res.body.business.dwollaId;
           done();
         })
         .catch((err) => {
@@ -202,7 +192,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", (done) => {
+    it("it should post a supported webhook event for business1 and successfully process it, HTTP 202", async (): Promise<void> => {
       const event: DwollaEvent = createDummyEvent(
         "customer_created",
         dwollaIdBusiness1,
@@ -212,20 +202,12 @@ describe("Operator endpoints test", () => {
         process.env.WEBHOOK_SECRET,
         JSON.stringify(event)
       );
-      chai
+      const res = await chai
         .request(server)
         .post("/webhook")
         .set({ "X-Request-Signature-SHA-256": signature })
-        .send(event)
-        .then((res) => {
-          expect(res).to.have.status(codes.ACCEPTED);
-          done();
-        })
-        .catch((err) => {
-          log(JSON.stringify(err, null, 2));
-
-          done(err);
-        });
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
     });
 
     it("it should fail to create user2 twice, HTTP 500", (done) => {
@@ -235,40 +217,6 @@ describe("Operator endpoints test", () => {
         .send(user2)
         .then((res) => {
           expect(res).to.have.status(codes.SERVER_ERROR);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should fail to create a personal user without 'p' prefixed to their authUserId, HTTP 400", (done) => {
-      const personalUser: INewUser = createFakeUser();
-      personalUser.authUserId = "invaliduserId";
-      chai
-        .request(server)
-        .post("/users")
-        .send(personalUser)
-        .then((res) => {
-          expect(res).to.have.status(codes.BAD_REQUEST);
-          expect(res).to.be.json;
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("it should fail to create a business user without 'm' prefixed to their authUserId, HTTP 400", (done) => {
-      const businessUser: INewUser = createFakeUser(true);
-      businessUser.authUserId = "invalidBusinessUserId";
-      chai
-        .request(server)
-        .post("/users")
-        .send(businessUser)
-        .then((res) => {
-          expect(res).to.have.status(codes.BAD_REQUEST);
           expect(res).to.be.json;
           done();
         })
@@ -1261,6 +1209,100 @@ describe("Operator endpoints test", () => {
       expect(res.body.message).to.equal(
         `Notification ${notification.dbId} closed`
       );
+    });
+  });
+
+  describe("GET /businesses/", () => {
+    beforeEach(async (): Promise<void> => {
+      if (mockDatabase.isConnectionOpen()) return;
+      await mockDatabase.openNewMongooseConnection();
+    });
+
+    it("it should create business2 and store the returned address, HTTP 201", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send(business2)
+        .then((res) => {
+          expect(res).to.have.status(codes.CREATED);
+          expect(res).to.be.json;
+          dwollaIdBusiness2 = res.body.business.dwollaId;
+          done();
+        })
+        .catch((err) => {
+          log(JSON.stringify(err, null, 2));
+
+          done(err);
+        });
+    });
+
+    it("it should create business3 and store the returned address, HTTP 201", (done) => {
+      chai
+        .request(server)
+        .post("/users")
+        .send(business3)
+        .then((res) => {
+          expect(res).to.have.status(codes.CREATED);
+          expect(res).to.be.json;
+          dwollaIdBusiness3 = res.body.business.dwollaId;
+          done();
+        })
+        .catch((err) => {
+          log(JSON.stringify(err, null, 2));
+
+          done(err);
+        });
+    });
+
+    it("it should post a supported webhook event for business2 and successfully process it, HTTP 202", async (): Promise<void> => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdBusiness2,
+        dwollaIdBusiness2
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+    });
+
+    it("it should post a supported webhook event for business3 and successfully process it, HTTP 202", async (): Promise<void> => {
+      const event: DwollaEvent = createDummyEvent(
+        "customer_created",
+        dwollaIdBusiness3,
+        dwollaIdBusiness3
+      );
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event)
+      );
+      const res = await chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event);
+      expect(res).to.have.status(codes.ACCEPTED);
+    });
+
+    it("GET /businesses/: it should retrieve all businesses, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/businesses`)
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res.body.length).to.equal(4);
+          for (let i = 0; i < res.body.length; i++) expectBusiness(res.body[i]);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
     });
   });
 });
