@@ -1,8 +1,8 @@
 import { beforeAll, describe, it } from "@jest/globals";
 import chai from "chai";
 import chaiHttp from "chai-http";
-import * as sinon from "sinon";
-import * as aws from "../aws";
+// import * as sinon from "sinon";
+// import * as aws from "../aws";
 import { getApp } from "../server";
 import { log } from "../utils";
 import { codes } from "../utils/http";
@@ -30,9 +30,9 @@ describe("Public endpoints test", () => {
     });
 
     it("it should retrieve heath data", (done) => {
-      const stub = sinon
-        .stub(aws, "verifyCognitoToken")
-        .returns({ success: true });
+      // const stub = sinon
+      //   .stub(aws, "verifyCognitoToken")
+      //   .returns({ success: true });
       chai
         .request(server)
         .get("/health")
@@ -47,7 +47,7 @@ describe("Public endpoints test", () => {
           expect(res.body).to.haveOwnProperty("walletCount");
           expect(res.body).to.haveOwnProperty("owner");
           expect(res.body).to.haveOwnProperty("walletFactory");
-          expect(stub.calledOnce).to.eql(true);
+          // expect(stub.calledOnce).to.eql(true);
           done();
         })
         .catch((err) => {

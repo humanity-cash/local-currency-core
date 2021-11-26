@@ -4,6 +4,7 @@ import {
   IOperatorTotal,
   IWithdrawal,
   IDeposit,
+  TransferType,
 } from "src/types";
 import { toBytes32, getTimestampForBlock } from "src/utils/crypto";
 import { log } from "src/utils";
@@ -322,7 +323,6 @@ export async function getTransfers(
       transactionHash: element.transactionHash,
       blockNumber: element.blockNumber,
       timestamp: timestamp,
-      type: "TRANSFER",
     });
   }
   return transfers;
@@ -338,7 +338,7 @@ async function getOutoingTransfersForUser(
   };
   const transfers: ITransferEvent[] = await getTransfers(userFilter);
   transfers.forEach((transfer) => {
-    transfer.type = "OUT";
+    transfer.type = TransferType.OUT;
   });
   return transfers;
 }
@@ -369,7 +369,7 @@ async function getIncomingTransfersForUser(
     ...results[0] /*, ...results[1]*/,
   ];
   incomingTransfers.forEach((transfer) => {
-    transfer.type = "IN";
+    transfer.type = TransferType.IN;
   });
   return incomingTransfers;
 }

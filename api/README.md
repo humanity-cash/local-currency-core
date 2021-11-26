@@ -63,3 +63,12 @@ yarn prettier
 | POST  | /transfer/controller  | Transfer ownership of the controller contract | Token / AWS Cognito  |
 | POST  | /transfer/user        | Transfer ownership of a user/wallet           | Token / AWS Cognito  |
 | POST  | /webhook/             | Hosted endpoint for Dwolla to post to         | Authenticated header |
+
+### Environment variable configuration
+
+| Variable            | Values            | Usage                                                                       |
+| -----------------   | ----------------- | --------------------------------------------------------------------------- |
+| REGISTER_WEBHOOK    | "true" / "false"  | Whether or not to register a webhook with the Dwolla API. Registering a webhook deletes all previously existing webhooks. |
+| SIMULATE_WEBHOOK    | "true" / "false"  | Whether or not to simulate webhook behaviour in development or test. Mutually exclusive with REGISTER_WEBHOOK. |
+| SIMULATE_BANKING    | "true" / "false"  | Whether or not to process fake banking (ACH) records in the Dwolla sandbox environment. Only relevant for sandbox. |
+| USE_MANAGED_SECRETS | "true" / "false"  | Whether or not to pull environment variables and secrets from AWS Secrets Manager rather than directly injected into the environment. |

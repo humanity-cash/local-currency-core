@@ -1,40 +1,45 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import BN from "bn.js";
+import { Response } from "dwolla-v2";
+import { DwollaTransferService } from "src/database/service";
+import { getUserData } from "src/service/AuthService";
 import {
   IDeposit,
+  IDwollaNewUserInput,
+  IDwollaNewUserResponse,
+  IOperatorTotal,
   ITransferEvent,
   IWithdrawal,
-  INewUser,
-  IOperatorTotal,
-  INewUserResponse,
 } from "src/types";
-import * as contracts from "./contracts";
-import BN from "bn.js";
-import * as web3Utils from "web3-utils";
 import { log } from "src/utils";
-import { Response } from "dwolla-v2";
+import * as web3Utils from "web3-utils";
+import * as contracts from "./contracts";
 import {
-  createUnverifiedCustomer,
   createTransfer,
+  createUnverifiedCustomer,
   getFundingSourceLinkForUser,
 } from "./digital-banking/DwollaService";
-import { DwollaTransferService } from "src/database/service";
 import {
-  DwollaUnverifiedCustomerRequest,
   DwollaTransferRequest,
+  DwollaUnverifiedCustomerRequest,
 } from "./digital-banking/DwollaTypes";
 import { getDwollaResourceFromLocation } from "./digital-banking/DwollaUtils";
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
-export async function createUser(newUser: INewUser): Promise<INewUserResponse> {
+export async function createUser(
+  newUser: IDwollaNewUserInput
+): Promise<IDwollaNewUserResponse> {
   const request: DwollaUnverifiedCustomerRequest = {
     firstName: newUser.firstName,
     lastName: newUser.lastName,
     email: newUser.email,
-    businessName: newUser.businessName,
+    businessName: newUser.rbn,
     ipAddress: newUser.ipAddress,
-    correlationId: newUser.authUserId,
+    correlationId: newUser.correlationId,
   };
-  const response: INewUserResponse = await createUnverifiedCustomer(request);
+  const response: IDwollaNewUserResponse = await createUnverifiedCustomer(
+    request
+  );
   log(`Created new customer in Dwolla: ${JSON.stringify(response)}`);
   return response;
 }
@@ -178,7 +183,15 @@ export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
   const transfers = await contracts.getTransfersForUser(userId);
-  return transfers;
+  return Promise.all(transfers.map(async function (t) {
+    const fromUserData = await getUserData(t.fromAddress);
+    const toUserData = await getUserData(t.toAddress);
+    return {
+      ...t,
+      fromName: fromUserData?.data?.name,
+      toName: toUserData?.data?.name,
+    }
+  }))
 }
 
 export async function withdraw(
