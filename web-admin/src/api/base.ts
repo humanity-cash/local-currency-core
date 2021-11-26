@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 /**ENV! */
-const CORE_API_URL = '';
-
+const CORE_API_URL = "https://alfajores.api.humanity.cash";
 const httpRequest = axios.create({
 	baseURL: CORE_API_URL,
 });
@@ -25,8 +24,8 @@ const ErrorHandler = async (requestHandler: Function) => {
 	try {
 		const response = await requestHandler();
 		return response;
-	} catch (err) {
-		const readbleError = err.toJSON().message;
+	} catch (err: any) {
+		const readbleError = err?.toJSON().message;
 		console.log(`Http Request Error: ${readbleError}`);
 		return readbleError;
 	}
