@@ -4,8 +4,8 @@ import { mwVaildator } from "src/middlewares";
 const idInParams = [param("id").notEmpty(), mwVaildator];
 
 export const reportPeriod = [
-	...idInParams,
-	body("fromTime").isNumeric, //unix
-	body("toTime").isNumeric, //unix
-	mwVaildator,
+  ...idInParams,
+  body("fromTime").isNumeric, //unix
+  body("toTime").isNumeric, //unix
+  mwVaildator,
 ];

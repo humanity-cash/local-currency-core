@@ -42,11 +42,14 @@ export async function getAllUsers(_req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function getUserByEmail(req: Request, res: Response): Promise<void> {
+export async function getUserByEmail(
+  req: Request,
+  res: Response
+): Promise<void> {
   try {
     const email = req?.params?.email;
     const dbUser = await AuthService.getUserByEmail(email);
-    httpUtils.createHttpResponse([ dbUser.data ], codes.OK, res);
+    httpUtils.createHttpResponse([dbUser.data], codes.OK, res);
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);
@@ -174,11 +177,8 @@ export async function createUser(req: Request, res: Response): Promise<void> {
       { customer, business, email, consent: true },
       type
     );
-    const dwollaDetails: IDwollaNewUserInput = dwollaUtils.constructCreateUserInput(
-      createDbResponse.data,
-      type,
-      true
-    );
+    const dwollaDetails: IDwollaNewUserInput =
+      dwollaUtils.constructCreateUserInput(createDbResponse.data, type, true);
     const newUserResponse: IDwollaNewUserResponse =
       await OperatorService.createUser(dwollaDetails);
 
@@ -211,10 +211,7 @@ export async function addCustomer(req: Request, res: Response): Promise<void> {
     const customer: Omit<Customer, "resourceUri" | "dwollaId"> =
       req?.body?.customer;
     const businessDwollaId = req?.params?.id;
-    const dbUser = await AuthService.updateUser(
-      businessDwollaId,
-      { customer },
-    );
+    const dbUser = await AuthService.updateUser(businessDwollaId, { customer });
     const dwollaDetails = dwollaUtils.constructCreateUserInput(
       dbUser.data,
       "customer",
@@ -251,10 +248,7 @@ export async function addBusiness(req: Request, res: Response): Promise<void> {
     const business: Omit<Business, "dwollaId" | "resourceUri"> =
       req?.body?.business;
     const customerDwollaId = req?.params?.id;
-    const dbUser = await AuthService.updateUser(
-      customerDwollaId,
-      { business },
-    );
+    const dbUser = await AuthService.updateUser(customerDwollaId, { business });
     const dwollaDetails = dwollaUtils.constructCreateUserInput(
       dbUser.data,
       "business",
