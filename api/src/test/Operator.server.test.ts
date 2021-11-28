@@ -111,7 +111,7 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/business`)
         .send({
           business: newBusinessData(),
-        })
+        });
       expect(res1.body.data.business.dwollaId).to.exist;
       dwollaIdUser1Business = res1.body.data.business.dwollaId;
     });

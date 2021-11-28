@@ -183,15 +183,17 @@ export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
   const transfers = await contracts.getTransfersForUser(userId);
-  return Promise.all(transfers.map(async function (t) {
-    const fromUserData = await getUserData(t.fromAddress);
-    const toUserData = await getUserData(t.toAddress);
-    return {
-      ...t,
-      fromName: fromUserData?.data?.name,
-      toName: toUserData?.data?.name,
-    }
-  }))
+  return Promise.all(
+    transfers.map(async function (t) {
+      const fromUserData = await getUserData(t.fromAddress);
+      const toUserData = await getUserData(t.toAddress);
+      return {
+        ...t,
+        fromName: fromUserData?.data?.name,
+        toName: toUserData?.data?.name,
+      };
+    })
+  );
 }
 
 export async function withdraw(
