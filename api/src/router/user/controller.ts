@@ -379,7 +379,12 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const transfer = req.body;
-    await OperatorService.transferTo(id, transfer.toUserId, transfer.amount);
+    await OperatorService.transferTo(
+      id,
+      transfer.toUserId,
+      transfer.amount,
+      transfer.roundUpAmount
+    );
     const user: IWallet = await PublicServices.getWallet(id);
     httpUtils.createHttpResponse(user, codes.ACCEPTED, res);
   } catch (err) {

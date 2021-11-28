@@ -111,7 +111,7 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/business`)
         .send({
           business: newBusinessData(),
-        })
+        });
       expect(res1.body.data.business.dwollaId).to.exist;
       dwollaIdUser1Business = res1.body.data.business.dwollaId;
     });
@@ -832,7 +832,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should transfer user1 to user2, HTTP 202", (done) => {
+    it("it should transfer 1.11 from user1 to user2 (no round up), HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser1}/transfer`)
@@ -848,11 +848,51 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should transfer user2 to user1, HTTP 202", (done) => {
+    it("it should transfer 12.12 from user2 to user1 (no round up), HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/transfer`)
         .send({ toUserId: dwollaIdUser1, amount: "12.12" })
+        .then((res) => {
+          expect(res).to.have.status(codes.ACCEPTED);
+          expect(res).to.be.json;
+          expectIWallet(res.body);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should transfer 5.89 from user1 to user2, with 0.11 round up, HTTP 202", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${dwollaIdUser1}/transfer`)
+        .send({
+          toUserId: dwollaIdUser2,
+          amount: "5.89",
+          roundUpAmount: "0.11",
+        })
+        .then((res) => {
+          expect(res).to.have.status(codes.ACCEPTED);
+          expect(res).to.be.json;
+          expectIWallet(res.body);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should transfer 12.12 from user2 to user1 with 0.88 round up, HTTP 202", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${dwollaIdUser2}/transfer`)
+        .send({
+          toUserId: dwollaIdUser1,
+          amount: "12.12",
+          roundUpAmount: "0.88",
+        })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -890,7 +930,7 @@ describe("Operator endpoints test", () => {
       await processDwollaSandboxSimulations();
     });
 
-    it("it should get 1 transfer for user1, HTTP 200", (done) => {
+    it("it should get 5 transfer for user1 (including 1 round-ups), HTTP 200", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser1}/transfer`)
@@ -899,7 +939,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           log(res.body);
-          expect(res.body.length).to.equal(2);
+          expect(res.body.length).to.equal(5);
           for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
@@ -910,7 +950,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should get 1 transfer for user2, HTTP 200", (done) => {
+    it("it should get 5 transfer for user2 (including 1 round-ups), HTTP 200", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser2}/transfer`)
@@ -919,7 +959,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           log(res.body);
-          expect(res.body.length).to.equal(2);
+          expect(res.body.length).to.equal(5);
           for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
