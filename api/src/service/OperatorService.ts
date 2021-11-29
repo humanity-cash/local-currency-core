@@ -314,11 +314,8 @@ export async function transferTo(
   fromUserId: string,
   toUserId: string,
   amount: string,
-  roundUpAmount?: string
+  roundUpAmount = "0"
 ): Promise<boolean> {
-  if (!roundUpAmount) {
-    roundUpAmount = "0";
-  }
   return (
     await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)
   ).status;
