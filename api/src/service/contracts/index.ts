@@ -58,6 +58,14 @@ export async function token(): Promise<string> {
   return token;
 }
 
+export async function communityChestAddress(): Promise<string> {
+  const controller = await getControllerContract();
+  const communityChest = await controller.methods
+    .communityChestAddress()
+    .call();
+  return communityChest;
+}
+
 export async function getWalletAddress(userId: string): Promise<string> {
   const controller = await getControllerContract();
   const address = await controller.methods
@@ -149,14 +157,16 @@ export async function paused(): Promise<boolean> {
 export async function transferTo(
   fromUserId: string,
   toUserId: string,
-  amount: string
+  amount: string,
+  roundUpAmount: string
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
   const transfer = await controller.methods.transfer(
     toBytes32(fromUserId),
     toBytes32(toUserId),
-    web3Utils.toWei(amount, "ether")
+    web3Utils.toWei(amount, "ether"),
+    web3Utils.toWei(roundUpAmount, "ether")
   );
   return await sendTransaction(transfer);
 }
