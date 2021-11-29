@@ -117,6 +117,5 @@ export const transfer = [
   ...idInParams,
   body("toUserId").isString(),
   body("amount").isString(),
-  body("roundUpAmount").optional().isString(),
   mwVaildator,
 ];
