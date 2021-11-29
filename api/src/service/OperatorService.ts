@@ -182,15 +182,29 @@ export async function getWithdrawalsForUser(
 export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
+  const communityChestAddress = await contracts.communityChestAddress();
+
   const transfers = await contracts.getTransfersForUser(userId);
   return Promise.all(
     transfers.map(async function (t) {
-      const fromUserData = await getUserData(t.fromAddress);
-      const toUserData = await getUserData(t.toAddress);
+      const fromUserData =
+        t.fromAddress == communityChestAddress
+          ? undefined
+          : await getUserData(t.fromAddress);
+      const toUserData =
+        t.toAddress == communityChestAddress
+          ? undefined
+          : await getUserData(t.toAddress);
       return {
         ...t,
-        fromName: fromUserData?.data?.name,
-        toName: toUserData?.data?.name,
+        fromName:
+          t.fromAddress == communityChestAddress
+            ? "Transfer from Community Chest"
+            : fromUserData?.data?.name,
+        toName:
+          t.toAddress == communityChestAddress
+            ? "Transfer to Community Chest"
+            : toUserData?.data?.name,
       };
     })
   );
@@ -299,7 +313,10 @@ export async function withdraw(
 export async function transferTo(
   fromUserId: string,
   toUserId: string,
-  amount: string
+  amount: string,
+  roundUpAmount = "0"
 ): Promise<boolean> {
-  return (await contracts.transferTo(fromUserId, toUserId, amount)).status;
+  return (
+    await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)
+  ).status;
 }
