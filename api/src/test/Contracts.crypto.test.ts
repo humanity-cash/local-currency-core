@@ -59,6 +59,12 @@ describe("Test low-level smart contract functions", () => {
       expect(token).toBeDefined();
     });
 
+    it("Should return value of community chest", async () => {
+      const address = await contracts.communityChestAddress();
+      log(`communityChestAddress == ${address}`);
+      expect(address).toBeDefined();
+    });
+
     it("Should return value of owner", async () => {
       const owner = await contracts.owner();
       log(`owner == ${owner}`);
@@ -84,7 +90,7 @@ describe("Test low-level smart contract functions", () => {
       }
 
       log(users);
-      expect(users.length).toEqual(4);
+      expect(users.length).toEqual(5); // including Community Chest
     });
 
     it("Should create a new wallet", async () => {
@@ -149,7 +155,7 @@ describe("Test low-level smart contract functions", () => {
     });
 
     it("Should transfer between wallets", async () => {
-      const result = await contracts.transferTo(userId3, userId, "1.11");
+      const result = await contracts.transferTo(userId3, userId, "1.11", "0");
       expect(result).toBeDefined();
       log(JSON.stringify(result, null, 2));
 
@@ -157,6 +163,17 @@ describe("Test low-level smart contract functions", () => {
       const bal = utils.fromWei(balance, "ether");
       log(`balance == ${bal}`);
       expect(parseFloat(bal)).toEqual(10.0);
+    });
+
+    it("Should transfer between wallets (with round-up)", async () => {
+      const result = await contracts.transferTo(userId3, userId, "1.11", "0.89");
+      expect(result).toBeDefined();
+      log(JSON.stringify(result, null, 2));
+
+      const balance = await contracts.balanceOfWallet(userId3);
+      const bal = utils.fromWei(balance, "ether");
+      log(`balance == ${bal}`);
+      expect(parseFloat(bal)).toEqual(8.0);
     });
 
     it("Should get deposits for a user", async () => {
@@ -176,7 +193,7 @@ describe("Test low-level smart contract functions", () => {
     it("Should get transfers for a user", async () => {
       const transfers = await contracts.getTransfersForUser(userId3);
       expect(transfers).toBeDefined();
-      expect(transfers.length).toEqual(1);
+      expect(transfers.length).toEqual(3);
       log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
     });
   });
