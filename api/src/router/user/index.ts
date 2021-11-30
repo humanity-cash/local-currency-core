@@ -44,15 +44,33 @@ user.delete(
   controller.closeNotification
 );
 
+// Add Customer account to existing Business account
 user.post(
   "/users/:id/customer",
   validators.addCustomer,
   controller.addCustomer
 );
+
+// Add Business account to existing Customer account
 user.post(
   "/users/:id/business",
   validators.addBusiness,
   controller.addBusiness
 );
+
+// Update existing Customer Account
+user.put(
+  "/users/:id/customer/profile",
+  validators.updateCustomerProfile,
+  controller.updateCustomerProfile
+);
+
+// Update existing Business Account
+user.put(
+  "/users/:id/business/profile",
+  validators.updateBusinessProfile,
+  controller.updateBusinessProfile
+);
+
 
 export default user;

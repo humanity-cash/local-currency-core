@@ -14,6 +14,7 @@ export const BusinessSchema = new mongoose.Schema(
     address2: String,
     city: String,
     state: String,
+    website: String,
     postalCode: String,
     phoneNumber: String,
     dwollaId: { type: String, index: true, unique: true, sparse: true },
