@@ -116,6 +116,7 @@ export interface INewUserInput {
 }
 
 export interface Business {
+  website?: string;
   story: string;
   tag: string;
   avatar: string;
