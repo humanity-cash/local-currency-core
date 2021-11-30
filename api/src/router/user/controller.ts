@@ -4,21 +4,12 @@ import { AppNotificationService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
 import {
   getFundingSourcesById,
-  getIAVTokenById,
+  getIAVTokenById
 } from "src/service/digital-banking/DwollaService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
 import * as OperatorService from "src/service/OperatorService";
 import * as PublicServices from "src/service/PublicService";
-import {
-  isDwollaProduction,
-  log,
-  shouldSimulateWebhook,
-  httpUtils,
-  dwollaUtils,
-} from "src/utils";
-import { createDummyEvent } from "../../test/utils";
-
 import {
   Business,
   Customer,
@@ -28,8 +19,15 @@ import {
   IDwollaNewUserResponse,
   ITransferEvent,
   IWallet,
-  IWithdrawal,
+  IWithdrawal
 } from "src/types";
+import {
+  dwollaUtils, httpUtils, isDwollaProduction,
+  log,
+  shouldSimulateWebhook
+} from "src/utils";
+import { createDummyEvent } from "../../test/utils";
+
 
 const codes = httpUtils.codes;
 
@@ -205,6 +203,60 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     else httpUtils.serverError(err, res);
   }
 }
+
+export async function updateCustomerProfile(req: Request, res: Response): Promise<void> {
+  try {
+    const customer: Pick<Customer, "tag" | "avatar"> =
+      req?.body?.customer;
+    const customerDwollaId = req?.params?.id;
+    const dbUser = await AuthService.updateCustomerProfile({
+      customerDwollaId
+      , update: { tag: customer.tag, avatar: customer.avatar }
+    });
+
+    httpUtils.createHttpResponse(dbUser, codes.OK, res);
+  } catch (err) {
+    httpUtils.serverError(err, res);
+  }
+}
+
+export async function updateBusinessProfile(req: Request, res: Response): Promise<void> {
+  try {
+    const business: Pick<Business,
+      "tag"
+      | "avatar"
+      | "story"
+      | "address1"
+      | "address2"
+      | "phoneNumber"
+      | "city"
+      | "website"
+      | "postalCode"
+      | "state"> =
+      req?.body?.business;
+    const businessDwollaId = req?.params?.id;
+    const dbUser = await AuthService.updateBusinessProfile({
+      businessDwollaId
+      , update: {
+        tag: business.tag,
+        avatar: business.avatar,
+        story: business.story,
+        address1: business.address1,
+        address2: business.address2,
+        city: business.city,
+        postalCode: business.postalCode,
+        state: business.state,
+        website: business.website,
+        phoneNumber: business.phoneNumber
+      }
+    });
+
+    httpUtils.createHttpResponse(dbUser, codes.OK, res);
+  } catch (err) {
+    httpUtils.serverError(err, res);
+  }
+}
+
 
 export async function addCustomer(req: Request, res: Response): Promise<void> {
   try {

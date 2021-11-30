@@ -8,7 +8,7 @@ import {
   IBusinessDwollaId,
   ICustomerDwollaId,
   IDBUser,
-  WalletAddress,
+  WalletAddress
 } from "src/types";
 import { log } from "src/utils";
 
@@ -84,7 +84,6 @@ async function createBusiness(
       business: input.business,
       email: input.email,
     });
-    // delete user?.business?._id;
     return { success: true, data: user };
   } catch (error) {
     log(error);
@@ -269,10 +268,84 @@ export async function updateUser(
   }
 }
 
-interface UpdateWalletAddress {
+export interface UpdateWalletAddress {
   walletAddress: string;
   dwollaId: string;
 }
+
+export interface UpdateCustomerProfile {
+  customerDwollaId: string;
+  update: { tag: string, avatar: string };
+}
+
+export interface UpdateBusinessProfile {
+  businessDwollaId: string;
+  update: {
+    avatar: string,
+    tag: string,
+    story: string,
+    website: string,
+    address1: string,
+    address2: string,
+    city: string,
+    postalCode: string,
+    state: string,
+    phoneNumber: string,
+  };
+}
+
+export async function updateBusinessProfile({
+  businessDwollaId,
+  update,
+}: UpdateBusinessProfile): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const response = await getUser(businessDwollaId);
+    const { business } = response?.data;
+    const u = {
+      "business": {
+        ...business,
+        "owner": business.owner,
+        "avatar": update.avatar,
+        "tag": update.tag,
+        "story": update.story,
+        "website": update.website,
+        "address1": update.address1,
+        "address2": update.address2,
+        "city": update.city,
+        "postalCode": update.postalCode,
+        "state": update.state,
+        "phoneNumber": update.phoneNumber,
+      }
+    };
+    return updateUser(businessDwollaId, u);
+  } catch (error) {
+    log(error);
+    return { success: false, error };
+  }
+}
+
+export async function updateCustomerProfile({
+  customerDwollaId,
+  update,
+}: UpdateCustomerProfile): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const response = await getUser(customerDwollaId);
+    const { customer } = response?.data;
+    const u = {
+      "customer": {
+        ...customer,
+        "avatar": update.avatar,
+        "tag": update.tag
+      }
+    };
+    const updateResponse = await updateUser(customerDwollaId, u);
+    return updateResponse;
+  } catch (error) {
+    log(error);
+    return { success: false, error };
+  }
+}
+
 
 export async function updateWalletAddress({
   walletAddress,

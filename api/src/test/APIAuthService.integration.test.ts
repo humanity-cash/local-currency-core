@@ -39,6 +39,7 @@ describe("Auth Service API Test", () => {
         done(err);
       });
   });
+
   it("adds business to existing customer", (done) => {
     chai
       .request(server)
@@ -94,6 +95,67 @@ describe("Auth Service API Test", () => {
         expect(res.body.data.customer.dwollaId).to.exist;
         expect(res.body.data.customer.resourceUri).to.exist;
         expect(res.body.data.business.dwollaId).to.exist;
+        expect(res.body.data.business.resourceUri).to.exist;
+        expect(res.body.data.dbId).to.exist;
+        expect(res.body.data.verifiedCustomer).to.eql(true);
+        expect(res.body.data.verifiedBusiness).to.eql(true);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  });
+
+  it("updates customers profile", (done) => {
+    chai
+      .request(server)
+      .put(`/users/${customerDwollaId}/customer/profile`)
+      .send({
+        customer: { tag: "Latest Tag", avatar: "Latest Avatar" }
+      })
+      .then((res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.data.customer.avatar).to.eql("Latest Avatar")
+        expect(res.body.data.customer.tag).to.eql("Latest Tag")
+        expect(res.body.data.customer.dwollaId).to.exist;
+        expect(res.body.data.customer.dwollaId).to.exist;
+        expect(res.body.data.customer.resourceUri).to.exist;
+        expect(res.body.data.business.dwollaId).to.exist;
+        expect(res.body.data.business.resourceUri).to.exist;
+        expect(res.body.data.dbId).to.exist;
+        expect(res.body.data.verifiedCustomer).to.eql(true);
+        expect(res.body.data.verifiedBusiness).to.eql(true);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  });
+
+  it("updates business profile", (done) => {
+    chai
+      .request(server)
+      .put(`/users/${businessDwollaId}/business/profile`)
+      .send({
+        business: {
+          tag: "Latest Tag",
+          avatar: "Latest Avatar",
+          story: "Latest Story",
+          address1: "Latest address1",
+          address2: "de32de",
+          phoneNumber: "dee21e",
+          city: "dedew21",
+          website: "deadea",
+          postalCode: "podea",
+          state: "stattt"
+        }
+      })
+      .then((res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.data.business.avatar).to.eql("Latest Avatar")
+        expect(res.body.data.business.tag).to.eql("Latest Tag")
+        expect(res.body.data.business.dwollaId).to.exist;
+        expect(res.body.data.customer.dwollaId).to.exist;
         expect(res.body.data.business.resourceUri).to.exist;
         expect(res.body.data.dbId).to.exist;
         expect(res.body.data.verifiedCustomer).to.eql(true);

@@ -64,6 +64,28 @@ export const addCustomer = [
   mwVaildator,
 ];
 
+export const updateCustomerProfile = [
+  ...idInParams,
+  body("customer.tag").isString(),
+  body("customer.avatar").isString(),
+  mwVaildator,
+];
+
+export const updateBusinessProfile = [
+  ...idInParams,
+  body("business.story").isString(),
+  body("business.tag").isString(),
+  body("business.avatar").isString(),
+  body("business.address1").isString(),
+  body("business.address2").isString(),
+  body("business.city").isString(),
+  body("business.state").isString(),
+  body("business.postalCode").isString(),
+  body("business.phoneNumber").isString(),
+  mwVaildator,
+];
+
+
 export const addBusiness = [
   ...idInParams,
   body("business.story").isString(),
