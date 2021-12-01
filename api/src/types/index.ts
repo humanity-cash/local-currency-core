@@ -28,7 +28,6 @@ export interface IWallet {
   createdBlock: string;
   createdTimestamp: string | number;
   availableBalance: number;
-  totalBalance: number;
   customer?: Response;
 }
 
