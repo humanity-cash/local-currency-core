@@ -10,7 +10,6 @@ export function expectIWallet(wallet: unknown): void {
   expect(wallet).to.have.property("createdBlock");
   expect(wallet).to.have.property("createdTimestamp");
   expect(wallet).to.have.property("availableBalance");
-  expect(wallet).to.have.property("totalBalance");
 }
 
 export function expectFundingSource(fundingSource: unknown): void {
