@@ -3,6 +3,9 @@ services:
 
   local-currency-db:
     image: mongo
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
       - db_data:/data/db
     ports:
@@ -13,7 +16,9 @@ services:
 
   celo-node:
     image: us.gcr.io/celo-org/geth:alfajores
-    restart: unless-stopped
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
       - celo-data:/root/.celo
     ports:
@@ -24,6 +29,9 @@ services:
     command: ["--verbosity", "3", "--syncmode", "full", "--gcmode", "archive", "--rpc", "--rpcaddr", "0.0.0.0", "--rpcapi", "eth,net,web3,debug,admin,personal", "--rpcvhosts=*", "--light.serve", "0", "--light.maxpeers", "1000", "--maxpeers", "1100", "--nousb", "--alfajores", "--datadir", "/root/.celo"]
 
   local-currency-api:
+    deploy:
+      restart_policy:
+        condition: on-failure
     depends_on:
       - celo-node 
       - local-currency-db
