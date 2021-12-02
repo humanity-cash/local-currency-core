@@ -109,3 +109,8 @@ nodejs-server-server-generated-1.0.1
 faucet.sh
 upgrade.sh
 *.swp
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
