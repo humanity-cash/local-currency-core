@@ -201,7 +201,7 @@ export async function getWalletForAddress(address: string): Promise<IWallet> {
     address: address,
     createdBlock: createdBlock,
     createdTimestamp: await getTimestampForBlock(createdBlock),
-    availableBalance: balance
+    availableBalance: balance,
   };
   return user;
 }

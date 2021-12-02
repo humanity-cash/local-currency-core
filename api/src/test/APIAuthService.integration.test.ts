@@ -111,12 +111,12 @@ describe("Auth Service API Test", () => {
       .request(server)
       .put(`/users/${customerDwollaId}/customer/profile`)
       .send({
-        customer: { tag: "Latest Tag", avatar: "Latest Avatar" }
+        customer: { tag: "Latest Tag", avatar: "Latest Avatar" },
       })
       .then((res) => {
         expect(res).to.have.status(200);
-        expect(res.body.data.customer.avatar).to.eql("Latest Avatar")
-        expect(res.body.data.customer.tag).to.eql("Latest Tag")
+        expect(res.body.data.customer.avatar).to.eql("Latest Avatar");
+        expect(res.body.data.customer.tag).to.eql("Latest Tag");
         expect(res.body.data.customer.dwollaId).to.exist;
         expect(res.body.data.customer.dwollaId).to.exist;
         expect(res.body.data.customer.resourceUri).to.exist;
@@ -147,13 +147,13 @@ describe("Auth Service API Test", () => {
           city: "dedew21",
           website: "deadea",
           postalCode: "podea",
-          state: "stattt"
-        }
+          state: "stattt",
+        },
       })
       .then((res) => {
         expect(res).to.have.status(200);
-        expect(res.body.data.business.avatar).to.eql("Latest Avatar")
-        expect(res.body.data.business.tag).to.eql("Latest Tag")
+        expect(res.body.data.business.avatar).to.eql("Latest Avatar");
+        expect(res.body.data.business.tag).to.eql("Latest Tag");
         expect(res.body.data.business.dwollaId).to.exist;
         expect(res.body.data.customer.dwollaId).to.exist;
         expect(res.body.data.business.resourceUri).to.exist;
