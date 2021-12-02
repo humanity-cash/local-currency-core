@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Simple REST API to query and inititate actions on the Humanity Cash local currency smart contracts",
   "main": "index.js",
+  "engines": {
+    "node": ">=12 <13"
+  },
   "repository": "https://github.com/humanity-cash/local-currency-core.git",
   "author": "Aaron Boyd <aaronmboyd@gmail.com>",
   "contributors": [
