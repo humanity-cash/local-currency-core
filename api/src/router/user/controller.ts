@@ -4,7 +4,7 @@ import { AppNotificationService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
 import {
   getFundingSourcesById,
-  getIAVTokenById
+  getIAVTokenById,
 } from "src/service/digital-banking/DwollaService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
@@ -19,15 +19,16 @@ import {
   IDwollaNewUserResponse,
   ITransferEvent,
   IWallet,
-  IWithdrawal
+  IWithdrawal,
 } from "src/types";
 import {
-  dwollaUtils, httpUtils, isDwollaProduction,
+  dwollaUtils,
+  httpUtils,
+  isDwollaProduction,
   log,
-  shouldSimulateWebhook
+  shouldSimulateWebhook,
 } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
-
 
 const codes = httpUtils.codes;
 
@@ -204,14 +205,16 @@ export async function createUser(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function updateCustomerProfile(req: Request, res: Response): Promise<void> {
+export async function updateCustomerProfile(
+  req: Request,
+  res: Response
+): Promise<void> {
   try {
-    const customer: Pick<Customer, "tag" | "avatar"> =
-      req?.body?.customer;
+    const customer: Pick<Customer, "tag" | "avatar"> = req?.body?.customer;
     const customerDwollaId = req?.params?.id;
     const dbUser = await AuthService.updateCustomerProfile({
-      customerDwollaId
-      , update: { tag: customer.tag, avatar: customer.avatar }
+      customerDwollaId,
+      update: { tag: customer.tag, avatar: customer.avatar },
     });
 
     httpUtils.createHttpResponse(dbUser, codes.OK, res);
@@ -220,10 +223,14 @@ export async function updateCustomerProfile(req: Request, res: Response): Promis
   }
 }
 
-export async function updateBusinessProfile(req: Request, res: Response): Promise<void> {
+export async function updateBusinessProfile(
+  req: Request,
+  res: Response
+): Promise<void> {
   try {
-    const business: Pick<Business,
-      "tag"
+    const business: Pick<
+      Business,
+      | "tag"
       | "avatar"
       | "story"
       | "address1"
@@ -232,12 +239,12 @@ export async function updateBusinessProfile(req: Request, res: Response): Promis
       | "city"
       | "website"
       | "postalCode"
-      | "state"> =
-      req?.body?.business;
+      | "state"
+    > = req?.body?.business;
     const businessDwollaId = req?.params?.id;
     const dbUser = await AuthService.updateBusinessProfile({
-      businessDwollaId
-      , update: {
+      businessDwollaId,
+      update: {
         tag: business.tag,
         avatar: business.avatar,
         story: business.story,
@@ -247,8 +254,8 @@ export async function updateBusinessProfile(req: Request, res: Response): Promis
         postalCode: business.postalCode,
         state: business.state,
         website: business.website,
-        phoneNumber: business.phoneNumber
-      }
+        phoneNumber: business.phoneNumber,
+      },
     });
 
     httpUtils.createHttpResponse(dbUser, codes.OK, res);
@@ -256,7 +263,6 @@ export async function updateBusinessProfile(req: Request, res: Response): Promis
     httpUtils.serverError(err, res);
   }
 }
-
 
 export async function addCustomer(req: Request, res: Response): Promise<void> {
   try {
