@@ -1,8 +1,7 @@
 import cors from "cors";
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import morgan from "morgan";
 import router from "./router";
-import * as Controller from "./controllers";
 
 export function getApp(): Express {
   const app = express();
@@ -13,9 +12,6 @@ export function getApp(): Express {
   app.use(cors());
   app.set("x-powered-by", false);
   app.use(router);
-  app.get("/health", (req: Request, res: Response) => {
-    Controller.health(req, res);
-  });
 
   return app;
 };
