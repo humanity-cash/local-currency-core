@@ -85,7 +85,6 @@ export const updateBusinessProfile = [
   mwVaildator,
 ];
 
-
 export const addBusiness = [
   ...idInParams,
   body("business.story").isString(),
