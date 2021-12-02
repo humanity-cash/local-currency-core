@@ -4,11 +4,11 @@ import {
   createPersonalVerifiedCustomer,
   getFundingSourceLinkForUser,
   initiateMicroDepositsForUser,
-  verifyMicroDepositsForUser
+  verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
 import {
   getAppToken,
-  getIdempotencyHeader
+  getIdempotencyHeader,
 } from "src/service/digital-banking/DwollaUtils";
 import { Business, Customer, IAPINewUser } from "src/types";
 import { v4 } from "uuid";
@@ -18,7 +18,7 @@ import * as web3Utils from "web3-utils";
 import {
   DwollaEvent,
   DwollaFundingSourceRequest,
-  DwollaPersonalVerifiedCustomerRequest
+  DwollaPersonalVerifiedCustomerRequest,
 } from "../service/digital-banking/DwollaTypes";
 import { log, sleep } from "../utils";
 import { getProvider } from "../utils/getProvider";

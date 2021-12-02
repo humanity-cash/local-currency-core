@@ -72,5 +72,4 @@ user.put(
   controller.updateBusinessProfile
 );
 
-
 export default user;
