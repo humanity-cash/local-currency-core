@@ -31,11 +31,14 @@ export async function health(): Promise<HealthResponse> {
     contracts.walletFactory(),
   ]);
 
+  const controller = process.env.LOCAL_CURRENCY_ADDRESS;
+
   const response: HealthResponse = {
     blockNumber,
     chainId,
     nodeInfo,
     token,
+    controller,
     walletCount,
     owner,
     walletFactory,

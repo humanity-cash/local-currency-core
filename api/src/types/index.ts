@@ -13,6 +13,7 @@ export interface HealthResponse {
   chainId: number;
   nodeInfo: string;
   token: string;
+  controller: string;
   walletCount: string;
   owner: string;
   walletFactory: string;
