@@ -21,6 +21,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "_oldCommunityChestAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_newCommunityChestAddress",
+        "type": "address"
+      }
+    ],
+    "name": "CommunityChestUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "_oldFactoryAddress",
         "type": "address"
       },
@@ -32,6 +51,25 @@
       }
     ],
     "name": "FactoryUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_oldHumanityCashAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_newHumanityCashAddress",
+        "type": "address"
+      }
+    ],
+    "name": "HumanityCashUpdated",
     "type": "event"
   },
   {
@@ -83,6 +121,56 @@
       }
     ],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_redemptionFeeAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_redemptionFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "RedemptionFee",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "_oldNumerator",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "_oldDenominator",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "_newNumerator",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "_newDenominator",
+        "type": "int256"
+      }
+    ],
+    "name": "RedemptionFeeUpdated",
     "type": "event"
   },
   {
@@ -314,6 +402,19 @@
   },
   {
     "inputs": [],
+    "name": "HUMANITY_CASH",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "OPERATOR_ROLE",
     "outputs": [
       {
@@ -450,6 +551,19 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "humanityCashAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -902,6 +1016,37 @@
       }
     ],
     "name": "setCommunityChest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_humanityCashAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setHumanityCashAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "_numerator",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "_denominator",
+        "type": "int256"
+      }
+    ],
+    "name": "setRedemptionFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
