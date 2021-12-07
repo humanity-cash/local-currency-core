@@ -41,7 +41,7 @@ const getKit = async (): Promise<ContractKit> => {
     );
 
     // Add as many operators (bank) as configured
-    
+
     // These operators must already be preconfigured in Dwolla
     // and the environment variables:
 
@@ -51,8 +51,12 @@ const getKit = async (): Promise<ContractKit> => {
 
     // ... available to this environment
 
-    for(let i = 0;i < parseInt(process.env.NUMBER_OPERATORS); i++){
-      await addKeysFromMnemonic(kit, process.env[`OPERATOR_${i}_MNEMONIC`], parseInt(process.env[`OPERATOR_${i}_MNEMONIC_INDEX`]));
+    for (let i = 0; i < parseInt(process.env.NUMBER_OPERATORS); i++) {
+      await addKeysFromMnemonic(
+        kit,
+        process.env[`OPERATOR_${i}_MNEMONIC`],
+        parseInt(process.env[`OPERATOR_${i}_MNEMONIC_INDEX`])
+      );
     }
 
     log("Accounts:", kit.getWallet().getAccounts());
