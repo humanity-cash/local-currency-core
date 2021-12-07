@@ -429,7 +429,7 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
       );
     else if (err?.message?.includes("INVALID_ARGUMENT"))
       httpUtils.unprocessable(
-        "Transfer failed: invalid argument (probably a Web3 type error, e.g. negative number passed as uint256)",
+        "Withdrawal failed: invalid argument (probably a Web3 type error, e.g. negative number passed as uint256)",
         res
       );
     else httpUtils.serverError(err, res);
