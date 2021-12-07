@@ -208,6 +208,10 @@ describe("Operator endpoints test", () => {
         .set({ "X-Request-Signature-SHA-256": signature })
         .send(event);
       expect(res).to.have.status(codes.ACCEPTED);
+      await createFundingSourceForTest(dwollaIdBusiness1);
+      const u = await getUser(dwollaIdBusiness1);
+      expect(u.data.business?.walletAddress).to.exist;
+      log(`Test only - created funding source for ${dwollaIdBusiness1}`);
     });
 
     it("it should fail to create user2 twice, HTTP 500", (done) => {
@@ -281,11 +285,11 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should deposit to user1, HTTP 202", (done) => {
+    it("it should deposit $4.44 to user1, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser1}/deposit`)
-        .send({ amount: "99.99" })
+        .send({ amount: "4.44" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -297,7 +301,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should deposit to user2, HTTP 202", (done) => {
+    it("it should deposit $11.11 to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/deposit`)
@@ -313,7 +317,7 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should deposit again to user2, HTTP 202", (done) => {
+    it("it should deposit $22.22 again to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/deposit`)
@@ -329,11 +333,27 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should deposit again to user2, HTTP 202", (done) => {
+    it("it should deposit $33.33 again to user2, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/deposit`)
         .send({ amount: "33.33" })
+        .then((res) => {
+          expect(res).to.have.status(codes.ACCEPTED);
+          expect(res).to.be.json;
+          expectIWallet(res.body);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should deposit $999.99 business1, HTTP 202", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${dwollaIdBusiness1}/deposit`)
+        .send({ amount: "999.99" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -516,6 +536,78 @@ describe("Operator endpoints test", () => {
       }
     });
 
+    it("it should process a webhook for a customer_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
+      )?.filter((element) => element.type == "DEPOSIT");
+
+      log(`Deposits for business1 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          deposits[i].fundingTransferId,
+          dwollaIdBusiness1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        const res = await chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event);
+        expect(res).to.have.status(codes.ACCEPTED);
+      }
+    });
+
+    it("it should process a webhook for a customer_bank_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
+      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
+      )?.filter((element) => element.type == "DEPOSIT");
+      log(`Deposits for business1 are ${JSON.stringify(deposits, null, 2)}`);
+
+      for (let i = 0; i < deposits?.length; i++) {
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          process.env.DWOLLA_BASE_URL +
+            "transfers/" +
+            deposits[i].fundingTransferId
+        );
+        log(
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdBusiness1} with funding transfer ${deposits[i].fundingTransferId}...`
+        );
+
+        const fundedTransferLink =
+          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        log(
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdBusiness1} with funded transfer ${fundedTransferLink}...`
+        );
+
+        const fundedTransfer = await getDwollaResourceFromLocation(
+          fundedTransferLink
+        );
+
+        const event: DwollaEvent = createDummyEvent(
+          "customer_bank_transfer_completed",
+          fundedTransfer.body?.id,
+          dwollaIdBusiness1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        const res = await chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event);
+        expect(res).to.have.status(codes.ACCEPTED);
+      }
+    });
+
     it("it should return 1 deposit for user1, HTTP 200", (done) => {
       chai
         .request(server)
@@ -608,11 +700,26 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should withdraw from user2, HTTP 202", (done) => {
+    it("it should fail to withdraw from user2 because their balance is above $5.00, HTTP 422", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/withdraw`)
-        .send({ amount: "5.55" })
+        .send({ amount: "1.11" })
+        .then((res) => {
+          expect(res).to.have.status(codes.UNPROCESSABLE);
+          expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should withdraw from user1 for $3.33, HTTP 202", (done) => {
+      chai
+        .request(server)
+        .post(`/users/${dwollaIdUser1}/withdraw`)
+        .send({ amount: "3.33" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -624,11 +731,11 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should withdraw from user1, HTTP 202", (done) => {
+    it("it should withdraw again from user1 for $1.11, HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser1}/withdraw`)
-        .send({ amount: "7.77" })
+        .send({ amount: "1.11" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -640,11 +747,11 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should withdraw again from user1, HTTP 202", (done) => {
+    it("it should withdraw from business1 for $888.88, even though their balance is above the threshold, HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${dwollaIdUser1}/withdraw`)
-        .send({ amount: "77.77" })
+        .post(`/users/${dwollaIdBusiness1}/withdraw`)
+        .send({ amount: "888.88" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -711,6 +818,34 @@ describe("Operator endpoints test", () => {
           });
       }
     });
+
+    it("it should process a webhook for a customer_transfer_completed event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
+      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
+        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
+      )?.filter((element) => element.type == "WITHDRAWAL");
+      log(`Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`);
+
+      for (let i = 0; i < withdrawals?.length; i++) {
+        const event: DwollaEvent = createDummyEvent(
+          "customer_transfer_completed",
+          withdrawals[i].fundingTransferId,
+          dwollaIdBusiness1,
+          "transfers"
+        );
+        const signature = createSignature(
+          process.env.WEBHOOK_SECRET,
+          JSON.stringify(event)
+        );
+        chai
+          .request(server)
+          .post("/webhook")
+          .set({ "X-Request-Signature-SHA-256": signature })
+          .send(event)
+          .then((res) => {
+            expect(res).to.have.status(codes.ACCEPTED);
+          });
+      }
+    });
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
@@ -757,18 +892,14 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should return 1 withdrawals for user1, HTTP 200", (done) => {
+    it("it should return 0 withdrawals for user2, HTTP 204", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser2}/withdraw`)
         .send()
         .then((res) => {
-          expect(res).to.have.status(codes.OK);
+          expect(res).to.have.status(codes.NO_CONTENT);
           expect(res).to.be.json;
-          expect(res.body.length).to.equal(1);
-          for (let i = 0; i < res.body.length; i++) {
-            expectIWithdrawal(res.body[i]);
-          }
           done();
         })
         .catch((err) => {
@@ -832,11 +963,11 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should transfer 1.11 from user1 to user2 (no round up), HTTP 202", (done) => {
+    it("it should transfer 12.34 from user2 to user1 (no round up), HTTP 202", (done) => {
       chai
         .request(server)
-        .post(`/users/${dwollaIdUser1}/transfer`)
-        .send({ toUserId: dwollaIdUser2, amount: "1.11" })
+        .post(`/users/${dwollaIdUser2}/transfer`)
+        .send({ toUserId: dwollaIdUser1, amount: "12.34" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
@@ -848,11 +979,11 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should transfer 12.12 from user2 to user1 (no round up), HTTP 202", (done) => {
+    it("it should transfer 5.67 from user2 to user1 (no round up), HTTP 202", (done) => {
       chai
         .request(server)
         .post(`/users/${dwollaIdUser2}/transfer`)
-        .send({ toUserId: dwollaIdUser1, amount: "12.12" })
+        .send({ toUserId: dwollaIdUser1, amount: "5.67" })
         .then((res) => {
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
