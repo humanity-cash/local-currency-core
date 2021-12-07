@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { log } from "src/utils";
+import { log, shouldUseMongoTLS } from "src/utils";
 
 const startDatabase = (cb: () => void): void => {
   const databaseURL = process.env.MONGO_URL;
@@ -8,15 +8,23 @@ const startDatabase = (cb: () => void): void => {
     return;
   }
   log(`Connecting to databse ${databaseURL}`);
-  mongoose.connect(databaseURL + "&authSource=admin", {
-    auth: {
-      user: process.env.MONGO_DB_USER,
-      password: process.env.MONGO_DB_PASSWORD,
-    },
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    tlsCAFile: `rds-combined-ca-bundle.pem`,
-  });
+
+  if (shouldUseMongoTLS())
+    mongoose.connect(databaseURL + "&authSource=admin", {
+      auth: {
+        user: process.env.MONGO_DB_USER,
+        password: process.env.MONGO_DB_PASSWORD,
+      },
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      tlsCAFile: `rds-combined-ca-bundle.pem`,
+    });
+  else
+    mongoose.connect(databaseURL + "&authSource=admin", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
   const db = mongoose.connection;
   db.on("err", (error: unknown) => {
     log(`Error running MongoDB: ${error}`);
