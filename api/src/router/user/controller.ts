@@ -363,7 +363,10 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     await PublicServices.getWallet(id);
     const deposits: IDeposit[] = await OperatorService.getDepositsForUser(id);
-    httpUtils.createHttpResponse(deposits, codes.OK, res);
+    if(deposits?.length > 0)
+      httpUtils.createHttpResponse(deposits, codes.OK, res);
+    else
+      httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get deposits failed: user does not exist", res);
@@ -380,7 +383,10 @@ export async function getWithdrawals(
     await PublicServices.getWallet(id);
     const withdrawals: IWithdrawal[] =
       await OperatorService.getWithdrawalsForUser(id);
-    httpUtils.createHttpResponse(withdrawals, codes.OK, res);
+    if(withdrawals?.length > 0)
+      httpUtils.createHttpResponse(withdrawals, codes.OK, res);
+    else
+      httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get withdrawals failed: user does not exist", res);
@@ -393,7 +399,10 @@ export async function getTransfers(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     const transfers: ITransferEvent[] =
       await OperatorService.getTransfersForUser(id);
-    httpUtils.createHttpResponse(transfers, codes.OK, res);
+    if(transfers?.length > 0)
+      httpUtils.createHttpResponse(transfers, codes.OK, res);
+    else
+      httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get transfers failed: user does not exist", res);
