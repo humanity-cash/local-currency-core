@@ -363,10 +363,9 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     await PublicServices.getWallet(id);
     const deposits: IDeposit[] = await OperatorService.getDepositsForUser(id);
-    if(deposits?.length > 0)
+    if (deposits?.length > 0)
       httpUtils.createHttpResponse(deposits, codes.OK, res);
-    else
-      httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
+    else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get deposits failed: user does not exist", res);
@@ -383,10 +382,9 @@ export async function getWithdrawals(
     await PublicServices.getWallet(id);
     const withdrawals: IWithdrawal[] =
       await OperatorService.getWithdrawalsForUser(id);
-    if(withdrawals?.length > 0)
+    if (withdrawals?.length > 0)
       httpUtils.createHttpResponse(withdrawals, codes.OK, res);
-    else
-      httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
+    else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get withdrawals failed: user does not exist", res);
@@ -399,10 +397,9 @@ export async function getTransfers(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     const transfers: ITransferEvent[] =
       await OperatorService.getTransfersForUser(id);
-    if(transfers?.length > 0)
+    if (transfers?.length > 0)
       httpUtils.createHttpResponse(transfers, codes.OK, res);
-    else
-      httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
+    else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get transfers failed: user does not exist", res);
@@ -414,16 +411,24 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const withdrawal = req.body;
-    
+
     // Get wallet
     const wallet: IWallet = await PublicServices.getWallet(id);
 
     // Business rule, individuals may only withdraw if their balance is not greater than 5.00
     const dbUser = await AuthService.getUser(id);
 
-    if(dbUser.data.verifiedCustomer && dbUser.data.customer.dwollaId == id){
-      if(wallet.availableBalance > parseInt(process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT)){
-        httpUtils.unprocessable(`Withdrawal failed: Only business accounts may withdraw when their balance is over $${parseInt(process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT)}`, res);
+    if (dbUser.data.verifiedCustomer && dbUser.data.customer.dwollaId == id) {
+      if (
+        wallet.availableBalance >
+        parseInt(process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT)
+      ) {
+        httpUtils.unprocessable(
+          `Withdrawal failed: Only business accounts may withdraw when their balance is over $${parseInt(
+            process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT
+          )}`,
+          res
+        );
         return;
       }
     }
@@ -431,7 +436,6 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
     // Perform withdrawal
     await OperatorService.withdraw(id, withdrawal.amount);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
-
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Withdrawal failed: user does not exist", res);

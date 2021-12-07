@@ -166,7 +166,12 @@ describe("Test low-level smart contract functions", () => {
     });
 
     it("Should transfer between wallets (with round-up)", async () => {
-      const result = await contracts.transferTo(userId3, userId, "1.11", "0.89");
+      const result = await contracts.transferTo(
+        userId3,
+        userId,
+        "1.11",
+        "0.89"
+      );
       expect(result).toBeDefined();
       log(JSON.stringify(result, null, 2));
 
