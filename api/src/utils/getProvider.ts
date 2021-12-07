@@ -33,18 +33,29 @@ const getKit = async (): Promise<ContractKit> => {
     log("Loading Contract Kit!");
     kit = Kit.newKit(process.env.LOCAL_CURRENCY_RPC_HOST);
 
-    // Deployer at position 0
+    // Add Deployer/controller
     const deployer = await addKeysFromMnemonic(
       kit,
       process.env.LOCAL_CURRENCY_MNEMONIC,
-      0
+      parseInt(process.env.LOCAL_CURRENCY_MNEMONIC_INDEX)
     );
-    // Operators from 1-N
-    for (let i = 1; i <= parseInt(process.env.NUMBER_OPERATORS); i++) {
-      await addKeysFromMnemonic(kit, process.env.LOCAL_CURRENCY_MNEMONIC, i);
+
+    // Add as many operators (bank) as configured
+    
+    // These operators must already be preconfigured in Dwolla
+    // and the environment variables:
+
+    // OPERATOR_<N>_MNEMONIC
+    // OPERATOR_<N>_MNEMONIC_INDEX
+    // OPERATOR_<N>_DISPLAY_NAME
+
+    // ... available to this environment
+
+    for(let i = 0;i < parseInt(process.env.NUMBER_OPERATORS); i++){
+      await addKeysFromMnemonic(kit, process.env[`OPERATOR_${i}_MNEMONIC`], parseInt(process.env[`OPERATOR_${i}_MNEMONIC_INDEX`]));
     }
 
-    log("Custodian accounts:", kit.getWallet().getAccounts());
+    log("Accounts:", kit.getWallet().getAccounts());
     kit.defaultAccount = deployer;
   }
   return kit;
