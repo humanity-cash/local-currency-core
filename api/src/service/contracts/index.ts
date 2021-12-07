@@ -7,7 +7,7 @@ import {
   TransferType,
 } from "src/types";
 import { toBytes32, getTimestampForBlock } from "src/utils/crypto";
-import { log } from "src/utils";
+import { getOperatorDisplayName, log } from "src/utils";
 import Wallet from "./artifacts/Wallet.abi.json";
 import Controller from "./artifacts/Controller.abi.json";
 import { getProvider } from "src/utils/getProvider";
@@ -403,42 +403,71 @@ export async function getTransfersForUser(
   return transfers;
 }
 
+async function getWithdrawalsForOperator(operatorId:string) : Promise<{sum: BN, transactions: IWithdrawal[]}> {
+  let sum : BN = new BN(0);
+  
+  const filter: PastEventOptions = {
+    filter: { _operator: operatorId },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+
+  const transactions = await getWithdrawals(filter);
+  
+  for (let j = 0; j < transactions?.length; j++) {
+    sum = sum.add(new BN(transactions[j].value));
+  }
+  return {sum, transactions};
+}
+
+async function getDepositsForOperator(operatorId:string) : Promise<{sum: BN, transactions: IDeposit[]}> {
+  let sum : BN = new BN(0);
+  
+  const filter: PastEventOptions = {
+    filter: { _operator: operatorId },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+
+  const transactions = await getDeposits(filter);
+  
+  for (let j = 0; j < transactions?.length; j++) {
+    sum = sum.add(new BN(transactions[j].value));
+  }
+  return {sum, transactions};
+}
+
+async function getFundingStatusForOperator(operatorId:string) : Promise<IOperatorTotal> {
+
+  const promises = [getWithdrawalsForOperator(operatorId), getDepositsForOperator(operatorId)]
+  const results = await Promise.all(promises);
+  
+  const withdrawalSum: BN = results[0].sum;
+  const withdrawals : IWithdrawal[] = results[0].transactions;
+  const depositSum: BN = results[1].sum;
+  const deposits : IDeposit[] = results[1].transactions;
+
+  const operatorDisplayName : string = await getOperatorDisplayName(operatorId);
+  const currentOutstanding : BN = depositSum.sub(withdrawalSum);
+
+  const operatorStatus = {
+    operator: operatorId,
+    operatorDisplayName: operatorDisplayName,
+    totalDeposits: web3Utils.fromWei(depositSum.toString()),
+    totalWithdrawals: web3Utils.fromWei(withdrawalSum.toString()),
+    currentOutstanding: web3Utils.fromWei(currentOutstanding.toString()),
+    deposits: deposits,
+    withdrawals: withdrawals,
+  };
+  return operatorStatus;
+}
+
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
   const { operators } = await getProvider();
-  const operatorTotals: IOperatorTotal[] = [];
-
+  const promises = [];  
   for (let i = 0; i < operators?.length; i++) {
-    let totalDeposits: BN = new BN(0);
-    let totalWithdrawals: BN = new BN(0);
-    let currentOutstanding: BN = new BN(0);
-
-    const filter: PastEventOptions = {
-      filter: { _operator: operators[i] },
-      fromBlock: 0,
-      toBlock: "latest",
-    };
-
-    const deposits: IDeposit[] = await getDeposits(filter);
-    const withdrawals: IWithdrawal[] = await getWithdrawals(filter);
-
-    for (let j = 0; j < deposits?.length; j++) {
-      totalDeposits = totalDeposits.add(new BN(deposits[j].value));
-    }
-    for (let j = 0; j < withdrawals?.length; j++) {
-      totalWithdrawals = totalWithdrawals.add(new BN(withdrawals[j].value));
-    }
-
-    currentOutstanding = totalDeposits.sub(totalWithdrawals);
-
-    operatorTotals.push({
-      operator: operators[i],
-      totalDeposits: web3Utils.fromWei(totalDeposits.toString()),
-      totalWithdrawals: web3Utils.fromWei(totalWithdrawals.toString()),
-      currentOutstanding: web3Utils.fromWei(currentOutstanding.toString()),
-      deposits: deposits,
-      withdrawals: withdrawals,
-    });
+    promises.push(getFundingStatusForOperator(operators[i]));
   }
-
-  return operatorTotals;
+  const results = await Promise.all(promises);
+  return results;
 }
