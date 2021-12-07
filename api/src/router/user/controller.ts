@@ -414,9 +414,24 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const withdrawal = req.body;
-    await OperatorService.withdraw(id, withdrawal.amount);
+    
+    // Get wallet
     const wallet: IWallet = await PublicServices.getWallet(id);
+
+    // Business rule, individuals may only withdraw if their balance is not greater than 5.00
+    const dbUser = await AuthService.getUser(id);
+
+    if(dbUser.data.verifiedCustomer && dbUser.data.customer.dwollaId == id){
+      if(wallet.availableBalance > parseInt(process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT)){
+        httpUtils.unprocessable(`Withdrawal failed: Only business accounts may withdraw when their balance is over $${parseInt(process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT)}`, res);
+        return;
+      }
+    }
+
+    // Perform withdrawal
+    await OperatorService.withdraw(id, withdrawal.amount);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
+
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Withdrawal failed: user does not exist", res);
