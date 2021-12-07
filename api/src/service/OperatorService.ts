@@ -25,8 +25,6 @@ import {
 } from "./digital-banking/DwollaTypes";
 import { getDwollaResourceFromLocation } from "./digital-banking/DwollaUtils";
 
-
-
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
 export async function createUser(
   newUser: IDwollaNewUserInput
@@ -126,14 +124,15 @@ export async function deposit(
   userId: string,
   amount: string
 ): Promise<DwollaTransferService.IDwollaTransferDBItem> {
-
   const sortedOperatorStats = await getSortedOperators();
   const operatorToUse = sortedOperatorStats[0].operator;
   log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
 
   const fundingSourceLink: string = await getFundingSourceLinkForUser(userId);
-  const operatorUserId : string = await getOperatorUserId(operatorToUse);
-  const fundingTargetLink: string = await getFundingSourceLinkForUser(operatorUserId);
+  const operatorUserId: string = await getOperatorUserId(operatorToUse);
+  const fundingTargetLink: string = await getFundingSourceLinkForUser(
+    operatorUserId
+  );
   log(
     `OperatorService()::deposit() funding source is user ${userId} with funding source ${fundingSourceLink}`
   );
@@ -218,7 +217,6 @@ export async function withdraw(
   userId: string,
   amount: string
 ): Promise<boolean> {
-  
   if (parseInt(amount) === 0) {
     throw Error("ERR_ZERO_VALUE");
   }
@@ -235,10 +233,9 @@ export async function withdraw(
   // operators to serve the withdrawal
 
   while (amountToWithdraw.gtn(0)) {
-
     // Work backwards through the list of operators, sorted by currentOutstanding
     index--;
-    
+
     const operator = sortedOperatorStats[index];
     const operatorOutstandingFunds = new BN(
       web3Utils.toWei(operator.currentOutstanding, "ether")
@@ -246,11 +243,12 @@ export async function withdraw(
 
     // If this operator has enough, then withdraw the full amount
     if (operatorOutstandingFunds.gte(amountToWithdraw)) {
-      
       log(
         `OperatorService::withdraw():: withdrawing ${amountToWithdraw.toString()} entire withdrawal from operator ${
           operator.operator
-        } (${operator.operatorDisplayName}) who has ${operatorOutstandingFunds.toString()} in outstanding funds`
+        } (${
+          operator.operatorDisplayName
+        }) who has ${operatorOutstandingFunds.toString()} in outstanding funds`
       );
 
       // Blockchain withdrawal first
@@ -262,8 +260,12 @@ export async function withdraw(
 
       // Then Dwolla withdrawal
       const operatorUserId = await getOperatorUserId(operator.operator);
-      const fundingSourceLink: string = await getFundingSourceLinkForUser(operatorUserId);
-      const fundingTargetLink: string = await getFundingSourceLinkForUser(userId);
+      const fundingSourceLink: string = await getFundingSourceLinkForUser(
+        operatorUserId
+      );
+      const fundingTargetLink: string = await getFundingSourceLinkForUser(
+        userId
+      );
       await createDwollaTransfer(
         fundingSourceLink,
         fundingTargetLink,
@@ -282,7 +284,9 @@ export async function withdraw(
       log(
         `withdraw():: withdrawing partial amount ${operatorOutstandingFunds.toString()} from operator ${
           operator.operator
-        } (${operator.operator}) who has only ${operatorOutstandingFunds.toString()} in outstanding funds`
+        } (${
+          operator.operator
+        }) who has only ${operatorOutstandingFunds.toString()} in outstanding funds`
       );
 
       // Blockchain withdrawal first
@@ -294,7 +298,9 @@ export async function withdraw(
 
       // Then Dwolla withdrawal
       const operatorUserId = await getOperatorUserId(operator.operator);
-      const fundingSourceLink: string = await getFundingSourceLinkForUser(operatorUserId);
+      const fundingSourceLink: string = await getFundingSourceLinkForUser(
+        operatorUserId
+      );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
       );

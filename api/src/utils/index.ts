@@ -110,39 +110,43 @@ export function isEmptyObject(i: unknown): boolean {
   return Boolean(keys.length);
 }
 
-export async function getOperatorDisplayName(fromAddress:string) : Promise<string> {
-  
-  const {operators} = await getProvider();
-  let displayName : string;
+export async function getOperatorDisplayName(
+  fromAddress: string
+): Promise<string> {
+  const { operators } = await getProvider();
+  let displayName: string;
 
-  log(`utils.ts::getOperatorDisplayName: Operators are ${operators}, fromAddress is ${fromAddress}`);
+  log(
+    `utils.ts::getOperatorDisplayName: Operators are ${operators}, fromAddress is ${fromAddress}`
+  );
 
-  for(let i = 0;i<operators.length;i++){
-    if(fromAddress.toLowerCase() == operators[i].toLowerCase()){
-      displayName = process.env[`OPERATOR_${i+1}_DISPLAY_NAME`];
-    }      
+  for (let i = 0; i < operators.length; i++) {
+    if (fromAddress.toLowerCase() == operators[i].toLowerCase()) {
+      displayName = process.env[`OPERATOR_${i + 1}_DISPLAY_NAME`];
+    }
   }
 
-  if(!displayName)
+  if (!displayName)
     throw `Display name for operator ${fromAddress} cannot be found, incorrect environment variable configuration`;
-  
+
   return displayName;
 }
 
-export async function getOperatorUserId(fromAddress:string) : Promise<string> {
-  
-  const {operators} = await getProvider();
-  log(`utils.ts::getOperatorUserId: Operators are ${operators}, fromAddress is ${fromAddress}`);
-  let userId : string;
+export async function getOperatorUserId(fromAddress: string): Promise<string> {
+  const { operators } = await getProvider();
+  log(
+    `utils.ts::getOperatorUserId: Operators are ${operators}, fromAddress is ${fromAddress}`
+  );
+  let userId: string;
 
-  for(let i = 0;i<operators.length;i++){
-    if(fromAddress.toLowerCase() == operators[i].toLowerCase()){
-      userId = process.env[`OPERATOR_${i+1}_DWOLLA_USER_ID`];
-    }      
+  for (let i = 0; i < operators.length; i++) {
+    if (fromAddress.toLowerCase() == operators[i].toLowerCase()) {
+      userId = process.env[`OPERATOR_${i + 1}_DWOLLA_USER_ID`];
+    }
   }
 
-  if(!userId)
+  if (!userId)
     throw `UserId for operator ${fromAddress} cannot be found, incorrect environment variable configuration`;
-  
+
   return userId;
 }

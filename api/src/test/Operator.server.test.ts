@@ -823,7 +823,9 @@ describe("Operator endpoints test", () => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdBusiness1)
       )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`);
+      log(
+        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
+      );
 
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
