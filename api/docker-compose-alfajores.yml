@@ -71,8 +71,6 @@ services:
       OPERATOR_2_MNEMONIC_INDEX: 2
       OPERATOR_2_DISPLAY_NAME: "Salisbury Bank"
       USE_MONGO_TLS: "false"
-      MONGO_DB_USER: "root"
-      MONGO_DB_PASSWORD: "example"
       MONGO_URL: "mongodb://root:example@local-currency-db:27017"
       CUSTOMER_WITHDRAWAL_BALANCE_LIMIT: 5
       VIRTUAL_HOST: alfajores.api.humanity.cash

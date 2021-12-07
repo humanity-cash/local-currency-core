@@ -83,6 +83,11 @@ export function shouldDeletePriorWebhooks(): boolean {
     process.env.DELETE_PRIOR_WEBHOOK == "TRUE"
   );
 }
+export function shouldUseMongoTLS(): boolean {
+  return (
+    process.env.USE_MONGO_TLS == "true" || process.env.USE_MONGO_TLS == "TRUE"
+  );
+}
 
 export function logSettings(): void {
   console.log(`shouldRegisterWebhook()     == ${shouldRegisterWebhook()}`);
@@ -91,6 +96,7 @@ export function logSettings(): void {
   console.log(`isDwollaProduction()        == ${isDwollaProduction()}`);
   console.log(`shouldUseManagedSecrets()   == ${shouldUseManagedSecrets()}`);
   console.log(`shouldDeletePriorWebhooks() == ${shouldDeletePriorWebhooks()}`);
+  console.log(`shouldUseMongoTLS()         == ${shouldUseMongoTLS()}`);
 }
 
 function isObject(obj) {
