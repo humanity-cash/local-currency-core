@@ -177,6 +177,7 @@ export interface ITransferEvent extends IEventBase {
 
 export interface IOperatorTotal {
   operator: string;
+  operatorDisplayName: string;
   totalDeposits: string;
   totalWithdrawals: string;
   currentOutstanding: string;
