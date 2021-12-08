@@ -156,12 +156,16 @@ export interface IDeposit extends IEventBase {
   operator: string;
   userId: string;
   value: string;
+  fromName?: string;
+  toName?: string;
 }
 
 export interface IWithdrawal extends IEventBase {
   operator: string;
   userId: string;
   value: string;
+  fromName?: string;
+  toName?: string;
 }
 
 export interface ITransferEvent extends IEventBase {
