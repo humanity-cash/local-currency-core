@@ -27,6 +27,8 @@ export function expectIDeposit(deposit: unknown): void {
   expect(deposit).to.have.property("operator");
   expect(deposit).to.have.property("userId");
   expect(deposit).to.have.property("value");
+  expect(deposit).to.have.property("fromName");
+  expect(deposit).to.have.property("toName");
 }
 
 export function expectIWithdrawal(withdrawal: unknown): void {
@@ -37,6 +39,8 @@ export function expectIWithdrawal(withdrawal: unknown): void {
   expect(withdrawal).to.have.property("operator");
   expect(withdrawal).to.have.property("userId");
   expect(withdrawal).to.have.property("value");
+  expect(withdrawal).to.have.property("fromName");
+  expect(withdrawal).to.have.property("toName");
 }
 
 export function expectITransferEvent(transfer: unknown): void {

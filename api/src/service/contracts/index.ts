@@ -15,6 +15,7 @@ import { Contract, EventData, PastEventOptions } from "web3-eth-contract";
 import { TransactionReceipt } from "web3-core";
 import * as web3Utils from "web3-utils";
 import BN from "bn.js";
+import { getUserData } from "../AuthService";
 
 const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
   fromBlock: 0,
@@ -278,6 +279,14 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
     toBlock: "latest",
   };
   const deposits: IDeposit[] = await getDeposits(options);
+  const walletAddress = await getWalletAddress(userId);
+  const userDisplayName = await getUserData(walletAddress);
+
+  for(let i = 0;i<deposits.length;i++){
+    deposits[i].fromName = await getOperatorDisplayName(deposits[i].operator);
+    deposits[i].toName = userDisplayName.data.name;
+  }
+
   log(`UserDeposit logs: ${JSON.stringify(deposits, null, 2)}`);
   return deposits;
 }
@@ -293,6 +302,14 @@ export async function getWithdrawalsForUser(
     toBlock: "latest",
   };
   const withdrawals: IWithdrawal[] = await getWithdrawals(options);
+  const walletAddress = await getWalletAddress(userId);
+  const userDisplayName = await getUserData(walletAddress);
+  
+  for(let i = 0;i<withdrawals.length;i++){
+    withdrawals[i].fromName = await getOperatorDisplayName(withdrawals[i].operator);
+    withdrawals[i].toName = userDisplayName.data.name;
+  }
+
   log(`UserWithdrawal logs: ${JSON.stringify(withdrawals, null, 2)}`);
   return withdrawals;
 }
