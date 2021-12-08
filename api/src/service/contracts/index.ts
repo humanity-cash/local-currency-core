@@ -282,7 +282,7 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
   const walletAddress = await getWalletAddress(userId);
   const userDisplayName = await getUserData(walletAddress);
 
-  for(let i = 0;i<deposits.length;i++){
+  for (let i = 0; i < deposits.length; i++) {
     deposits[i].fromName = await getOperatorDisplayName(deposits[i].operator);
     deposits[i].toName = userDisplayName.data.name;
   }
@@ -304,9 +304,11 @@ export async function getWithdrawalsForUser(
   const withdrawals: IWithdrawal[] = await getWithdrawals(options);
   const walletAddress = await getWalletAddress(userId);
   const userDisplayName = await getUserData(walletAddress);
-  
-  for(let i = 0;i<withdrawals.length;i++){
-    withdrawals[i].fromName = await getOperatorDisplayName(withdrawals[i].operator);
+
+  for (let i = 0; i < withdrawals.length; i++) {
+    withdrawals[i].fromName = await getOperatorDisplayName(
+      withdrawals[i].operator
+    );
     withdrawals[i].toName = userDisplayName.data.name;
   }
 
