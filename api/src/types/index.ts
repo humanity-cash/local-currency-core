@@ -13,6 +13,7 @@ export interface HealthResponse {
   chainId: number;
   nodeInfo: string;
   token: string;
+  controller: string;
   walletCount: string;
   owner: string;
   walletFactory: string;
@@ -155,12 +156,16 @@ export interface IDeposit extends IEventBase {
   operator: string;
   userId: string;
   value: string;
+  fromName?: string;
+  toName?: string;
 }
 
 export interface IWithdrawal extends IEventBase {
   operator: string;
   userId: string;
   value: string;
+  fromName?: string;
+  toName?: string;
 }
 
 export interface ITransferEvent extends IEventBase {
@@ -176,6 +181,7 @@ export interface ITransferEvent extends IEventBase {
 
 export interface IOperatorTotal {
   operator: string;
+  operatorDisplayName: string;
   totalDeposits: string;
   totalWithdrawals: string;
   currentOutstanding: string;

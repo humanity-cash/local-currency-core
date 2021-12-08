@@ -11,7 +11,7 @@ import {
   ITransferEvent,
   IWithdrawal,
 } from "src/types";
-import { log } from "src/utils";
+import { getOperatorUserId, log } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
 import {
@@ -129,12 +129,15 @@ export async function deposit(
   log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
 
   const fundingSourceLink: string = await getFundingSourceLinkForUser(userId);
-  const fundingTargetLink: string = process.env.OPERATOR_1_FUNDING_SOURCE;
-  log(
-    `OperatorService()::deposit() funding source for user is ${fundingSourceLink}`
+  const operatorUserId: string = await getOperatorUserId(operatorToUse);
+  const fundingTargetLink: string = await getFundingSourceLinkForUser(
+    operatorUserId
   );
   log(
-    `OperatorService()::deposit() funding target for user is ${fundingTargetLink}`
+    `OperatorService()::deposit() funding source is user ${userId} with funding source ${fundingSourceLink}`
+  );
+  log(
+    `OperatorService()::deposit() funding target is operator ${operatorToUse} (${sortedOperatorStats[0].operatorDisplayName}) with funding target ${fundingTargetLink}`
   );
 
   const transfer = await createDwollaTransfer(
@@ -182,15 +185,29 @@ export async function getWithdrawalsForUser(
 export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
+  const communityChestAddress = await contracts.communityChestAddress();
+
   const transfers = await contracts.getTransfersForUser(userId);
   return Promise.all(
     transfers.map(async function (t) {
-      const fromUserData = await getUserData(t.fromAddress);
-      const toUserData = await getUserData(t.toAddress);
+      const fromUserData =
+        t.fromAddress == communityChestAddress
+          ? undefined
+          : await getUserData(t.fromAddress);
+      const toUserData =
+        t.toAddress == communityChestAddress
+          ? undefined
+          : await getUserData(t.toAddress);
       return {
         ...t,
-        fromName: fromUserData?.data?.name,
-        toName: toUserData?.data?.name,
+        fromName:
+          t.fromAddress == communityChestAddress
+            ? "Transfer from Community Chest"
+            : fromUserData?.data?.name,
+        toName:
+          t.toAddress == communityChestAddress
+            ? "Transfer to Community Chest"
+            : toUserData?.data?.name,
       };
     })
   );
@@ -209,13 +226,16 @@ export async function withdraw(
 
   const sortedOperatorStats = await getSortedOperators();
   let amountToWithdraw = new BN(web3Utils.toWei(amount, "ether"));
-  let index = sortedOperatorStats.length - 1;
+  let index = sortedOperatorStats.length;
 
   // In the off chance that a single operator cannot
   // fulfill a large withdrawal, we need to iterate multiple
   // operators to serve the withdrawal
 
   while (amountToWithdraw.gtn(0)) {
+    // Work backwards through the list of operators, sorted by currentOutstanding
+    index--;
+
     const operator = sortedOperatorStats[index];
     const operatorOutstandingFunds = new BN(
       web3Utils.toWei(operator.currentOutstanding, "ether")
@@ -224,9 +244,11 @@ export async function withdraw(
     // If this operator has enough, then withdraw the full amount
     if (operatorOutstandingFunds.gte(amountToWithdraw)) {
       log(
-        `OperatorService::withdraw():: withdrawing ${amountToWithdraw.toString()} from operator ${
+        `OperatorService::withdraw():: withdrawing ${amountToWithdraw.toString()} entire withdrawal from operator ${
           operator.operator
-        } who has ${operatorOutstandingFunds.toString()} in outstanding funds`
+        } (${
+          operator.operatorDisplayName
+        }) who has ${operatorOutstandingFunds.toString()} in outstanding funds`
       );
 
       // Blockchain withdrawal first
@@ -237,7 +259,10 @@ export async function withdraw(
       );
 
       // Then Dwolla withdrawal
-      const fundingSourceLink: string = process.env.OPERATOR_1_FUNDING_SOURCE;
+      const operatorUserId = await getOperatorUserId(operator.operator);
+      const fundingSourceLink: string = await getFundingSourceLinkForUser(
+        operatorUserId
+      );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
       );
@@ -257,9 +282,11 @@ export async function withdraw(
     // Otherwise only withdraw the total this operator has
     else {
       log(
-        `withdraw():: withdrawing ${operatorOutstandingFunds.toString()} from operator ${
+        `withdraw():: withdrawing partial amount ${operatorOutstandingFunds.toString()} from operator ${
           operator.operator
-        } who has ${operatorOutstandingFunds.toString()} in outstanding funds`
+        } (${
+          operator.operator
+        }) who has only ${operatorOutstandingFunds.toString()} in outstanding funds`
       );
 
       // Blockchain withdrawal first
@@ -270,7 +297,10 @@ export async function withdraw(
       );
 
       // Then Dwolla withdrawal
-      const fundingSourceLink: string = process.env.OPERATOR_1_FUNDING_SOURCE;
+      const operatorUserId = await getOperatorUserId(operator.operator);
+      const fundingSourceLink: string = await getFundingSourceLinkForUser(
+        operatorUserId
+      );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
       );
@@ -285,21 +315,24 @@ export async function withdraw(
 
       // Reduce the amount remaining to withdraw and iterate to the next operator
       amountToWithdraw = amountToWithdraw.sub(operatorOutstandingFunds);
-      index--;
 
-      if (index < 0)
+      if (index >= sortedOperatorStats?.length)
         throw Error(
           `withdraw():: Critical - cannot fulfil withdrawal ${amount} for userId ${userId}`
         );
     }
   }
+
   return amountToWithdraw.eqn(0);
 }
 
 export async function transferTo(
   fromUserId: string,
   toUserId: string,
-  amount: string
+  amount: string,
+  roundUpAmount = "0"
 ): Promise<boolean> {
-  return (await contracts.transferTo(fromUserId, toUserId, amount)).status;
+  return (
+    await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)
+  ).status;
 }
