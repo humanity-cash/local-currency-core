@@ -363,7 +363,9 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     await PublicServices.getWallet(id);
     const deposits: IDeposit[] = await OperatorService.getDepositsForUser(id);
-    httpUtils.createHttpResponse(deposits, codes.OK, res);
+    if (deposits?.length > 0)
+      httpUtils.createHttpResponse(deposits, codes.OK, res);
+    else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get deposits failed: user does not exist", res);
@@ -380,7 +382,9 @@ export async function getWithdrawals(
     await PublicServices.getWallet(id);
     const withdrawals: IWithdrawal[] =
       await OperatorService.getWithdrawalsForUser(id);
-    httpUtils.createHttpResponse(withdrawals, codes.OK, res);
+    if (withdrawals?.length > 0)
+      httpUtils.createHttpResponse(withdrawals, codes.OK, res);
+    else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get withdrawals failed: user does not exist", res);
@@ -393,7 +397,9 @@ export async function getTransfers(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     const transfers: ITransferEvent[] =
       await OperatorService.getTransfersForUser(id);
-    httpUtils.createHttpResponse(transfers, codes.OK, res);
+    if (transfers?.length > 0)
+      httpUtils.createHttpResponse(transfers, codes.OK, res);
+    else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get transfers failed: user does not exist", res);
@@ -405,8 +411,30 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const withdrawal = req.body;
-    await OperatorService.withdraw(id, withdrawal.amount);
+
+    // Get wallet
     const wallet: IWallet = await PublicServices.getWallet(id);
+
+    // Business rule, individuals may only withdraw if their balance is not greater than 5.00
+    const dbUser = await AuthService.getUser(id);
+
+    if (dbUser.data.verifiedCustomer && dbUser.data.customer.dwollaId == id) {
+      if (
+        wallet.availableBalance >
+        parseInt(process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT)
+      ) {
+        httpUtils.unprocessable(
+          `Withdrawal failed: Only business accounts may withdraw when their balance is over $${parseInt(
+            process.env.CUSTOMER_WITHDRAWAL_BALANCE_LIMIT
+          )}`,
+          res
+        );
+        return;
+      }
+    }
+
+    // Perform withdrawal
+    await OperatorService.withdraw(id, withdrawal.amount);
     httpUtils.createHttpResponse(wallet, codes.ACCEPTED, res);
   } catch (err) {
     if (err?.message?.includes("ERR_USER_NOT_EXIST"))
@@ -420,7 +448,7 @@ export async function withdraw(req: Request, res: Response): Promise<void> {
       );
     else if (err?.message?.includes("INVALID_ARGUMENT"))
       httpUtils.unprocessable(
-        "Transfer failed: invalid argument (probably a Web3 type error, e.g. negative number passed as uint256)",
+        "Withdrawal failed: invalid argument (probably a Web3 type error, e.g. negative number passed as uint256)",
         res
       );
     else httpUtils.serverError(err, res);
@@ -431,7 +459,12 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
   try {
     const id = req?.params?.id;
     const transfer = req.body;
-    await OperatorService.transferTo(id, transfer.toUserId, transfer.amount);
+    await OperatorService.transferTo(
+      id,
+      transfer.toUserId,
+      transfer.amount,
+      transfer.roundUpAmount
+    );
     const user: IWallet = await PublicServices.getWallet(id);
     httpUtils.createHttpResponse(user, codes.ACCEPTED, res);
   } catch (err) {
