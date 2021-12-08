@@ -3,6 +3,7 @@ import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
 import * as csvUtils from "./csv";
 import * as dwollaUtils from "./dwolla";
+import { getProvider } from "./getProvider";
 
 export { cryptoUtils, httpUtils, csvUtils, dwollaUtils };
 
@@ -82,6 +83,11 @@ export function shouldDeletePriorWebhooks(): boolean {
     process.env.DELETE_PRIOR_WEBHOOK == "TRUE"
   );
 }
+export function shouldUseMongoTLS(): boolean {
+  return (
+    process.env.USE_MONGO_TLS == "true" || process.env.USE_MONGO_TLS == "TRUE"
+  );
+}
 
 export function logSettings(): void {
   console.log(`shouldRegisterWebhook()     == ${shouldRegisterWebhook()}`);
@@ -90,6 +96,7 @@ export function logSettings(): void {
   console.log(`isDwollaProduction()        == ${isDwollaProduction()}`);
   console.log(`shouldUseManagedSecrets()   == ${shouldUseManagedSecrets()}`);
   console.log(`shouldDeletePriorWebhooks() == ${shouldDeletePriorWebhooks()}`);
+  console.log(`shouldUseMongoTLS()         == ${shouldUseMongoTLS()}`);
 }
 
 function isObject(obj) {
@@ -101,4 +108,45 @@ export function isEmptyObject(i: unknown): boolean {
   const keys = Object.keys(i);
 
   return Boolean(keys.length);
+}
+
+export async function getOperatorDisplayName(
+  fromAddress: string
+): Promise<string> {
+  const { operators } = await getProvider();
+  let displayName: string;
+
+  log(
+    `utils.ts::getOperatorDisplayName: Operators are ${operators}, fromAddress is ${fromAddress}`
+  );
+
+  for (let i = 0; i < operators.length; i++) {
+    if (fromAddress.toLowerCase() == operators[i].toLowerCase()) {
+      displayName = process.env[`OPERATOR_${i + 1}_DISPLAY_NAME`];
+    }
+  }
+
+  if (!displayName)
+    throw `Display name for operator ${fromAddress} cannot be found, incorrect environment variable configuration`;
+
+  return displayName;
+}
+
+export async function getOperatorUserId(fromAddress: string): Promise<string> {
+  const { operators } = await getProvider();
+  log(
+    `utils.ts::getOperatorUserId: Operators are ${operators}, fromAddress is ${fromAddress}`
+  );
+  let userId: string;
+
+  for (let i = 0; i < operators.length; i++) {
+    if (fromAddress.toLowerCase() == operators[i].toLowerCase()) {
+      userId = process.env[`OPERATOR_${i + 1}_DWOLLA_USER_ID`];
+    }
+  }
+
+  if (!userId)
+    throw `UserId for operator ${fromAddress} cannot be found, incorrect environment variable configuration`;
+
+  return userId;
 }
