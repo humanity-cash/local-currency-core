@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { log, shouldUseMongoTLS } from "src/utils";
 
-const startDatabase = (cb: () => void): void => {
+const startDatabase = (cb: (err?) => void): void => {
   const databaseURL = process.env.MONGO_URL;
   if (!databaseURL) {
     log("Databse URL is not set. Aborting.");
@@ -15,9 +15,11 @@ const startDatabase = (cb: () => void): void => {
         user: process.env.MONGO_DB_USER,
         password: process.env.MONGO_DB_PASSWORD,
       },
+      useCreateIndex: true,
+      tls: true,
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      tlsCAFile: `rds-combined-ca-bundle.pem`,
+      tlsCAFile: "rds-combined-ca-bundle.pem",
     });
   else
     mongoose.connect(databaseURL + "&authSource=admin", {
@@ -28,6 +30,7 @@ const startDatabase = (cb: () => void): void => {
   const db = mongoose.connection;
   db.on("err", (error: unknown) => {
     log(`Error running MongoDB: ${error}`);
+    cb(error);
   });
   db.once("open", () => {
     log("Started mongodb");
