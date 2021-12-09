@@ -14,4 +14,4 @@ export function getApp(): Express {
   app.use(router);
 
   return app;
-};
+}
