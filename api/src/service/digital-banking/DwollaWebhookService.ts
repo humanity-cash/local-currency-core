@@ -1,6 +1,6 @@
 import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
-import { newWallet } from "../contracts";
+import { newWallet, transferLaunchPoolBonus } from "../contracts";
 import { log, shouldDeletePriorWebhooks, userNotification } from "src/utils";
 import {
   duplicateWebhookExists,
@@ -355,11 +355,29 @@ export async function consumeWebhook(
         break;
 
       case "customer_funding_source_added":
-        await notifyUserWithReason(
-          eventToProcess,
-          "Your bank account has been linked"
-        );
-        processed = true;
+        try {
+          await notifyUserWithReason(
+            eventToProcess,
+            "Your bank account has been linked"
+          );
+          const res = await getDwollaResourceFromEvent(eventToProcess);
+          const customer = res.body;
+          const launchPoolBonusTransferred = await transferLaunchPoolBonus(
+            customer.id
+          );
+          if (launchPoolBonusTransferred) {
+            await notifyUserWithReason(
+              eventToProcess,
+              "Thank you for linking your bank account! You've received a promotional deposit of B$10"
+            );
+          }
+          processed = true;
+        } catch (err) {
+          log(
+            `DwollaWebhookService.ts::consumeWebhook() Error during ${eventToProcess.topic} topic processing ${err}`
+          );
+          throw err;
+        }
         break;
 
       case "customer_funding_source_removed":
