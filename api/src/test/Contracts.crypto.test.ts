@@ -201,6 +201,13 @@ describe("Test low-level smart contract functions", () => {
       expect(transfers.length).toEqual(3);
       log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
     });
+
+    it("Should perform a launch bonus transfer (1 usage) for a user", async () => {
+      const transferred: boolean = await contracts.transferLaunchPoolBonus(
+        userId3
+      );
+      expect(transferred);
+    });
   });
 
   describe("Get deposits and withdrawals", () => {
