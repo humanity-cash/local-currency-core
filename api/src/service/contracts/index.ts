@@ -159,7 +159,7 @@ export async function transferTo(
   fromUserId: string,
   toUserId: string,
   amount: string,
-  roundUpAmount: string
+  roundUpAmount = "0"
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
@@ -170,6 +170,30 @@ export async function transferTo(
     web3Utils.toWei(roundUpAmount, "ether")
   );
   return await sendTransaction(transfer);
+}
+
+export async function transferLaunchPoolBonus(
+  toUserId: string
+): Promise<boolean> {
+  const launchBonusAmount = web3Utils.toWei("10", "ether");
+  const MAX_LAUNCH_TRANSFERS = 5000;
+
+  const options: PastEventOptions = {
+    filter: {
+      _fromUserId: toBytes32("HUMANITY_CASH"),
+      _toUserId: toBytes32(toUserId),
+      _value: launchBonusAmount,
+    },
+    fromBlock: 0,
+    toBlock: "latest",
+  };
+
+  const transfers = await getTransfers(options);
+
+  if (transfers?.length < MAX_LAUNCH_TRANSFERS) {
+    await transferTo("HUMANITY_CASH", toUserId, "10.0");
+    return true;
+  } else return false;
 }
 
 export async function transferContractOwnership(
