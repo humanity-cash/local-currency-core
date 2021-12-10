@@ -90,7 +90,7 @@ describe("Test low-level smart contract functions", () => {
       }
 
       log(users);
-      expect(users.length).toEqual(5); // including Community Chest
+      expect(users.length).toEqual(6); // including Community Chest and Humanity Cash addresses
     });
 
     it("Should create a new wallet", async () => {
