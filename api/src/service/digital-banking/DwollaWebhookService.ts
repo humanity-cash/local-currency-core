@@ -360,7 +360,7 @@ export async function consumeWebhook(
             eventToProcess,
             "Your bank account has been linked"
           );
-          const res = await getDwollaResourceFromEvent(eventToProcess);
+          const res = await getDwollaCustomerFromEvent(eventToProcess);
           const customer = res.body;
           const launchPoolBonusTransferred = await transferLaunchPoolBonus(
             customer.id
