@@ -346,6 +346,13 @@ export async function getTransfers(
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
 
+  if(!options){
+    options =  {
+      fromBlock: 0,
+      toBlock: "latest",
+    };
+  }
+
   const logs = await getLogs("TransferToEvent", controller, options);
 
   for (let i = 0; i < logs.length; i++) {
