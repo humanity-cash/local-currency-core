@@ -59,9 +59,15 @@ describe("Test low-level smart contract functions", () => {
       expect(token).toBeDefined();
     });
 
-    it("Should return value of community chest", async () => {
+    it("Should return value of Community Chest", async () => {
       const address = await contracts.communityChestAddress();
       log(`communityChestAddress == ${address}`);
+      expect(address).toBeDefined();
+    });
+
+    it("Should return value of Humanity Cash address", async () => {
+      const address = await contracts.humanityCashAddress();
+      log(`humanityCashAddress == ${address}`);
       expect(address).toBeDefined();
     });
 
@@ -154,7 +160,7 @@ describe("Test low-level smart contract functions", () => {
       expect(parseFloat(bal)).toEqual(11.11);
     });
 
-    it("Should transfer between wallets", async () => {
+    it("Should transfer between wallets (no round-up)", async () => {
       const result = await contracts.transferTo(userId3, userId, "1.11", "0");
       expect(result).toBeDefined();
       log(JSON.stringify(result, null, 2));
@@ -197,9 +203,9 @@ describe("Test low-level smart contract functions", () => {
 
     it("Should get transfers for a user", async () => {
       const transfers = await contracts.getTransfersForUser(userId3);
-      expect(transfers).toBeDefined();
-      expect(transfers.length).toEqual(3);
       log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
+      expect(transfers).toBeDefined();
+      expect(transfers.length).toEqual(3);      
     });
 
     it("Should perform a launch bonus transfer (1 usage) for a user", async () => {
@@ -208,6 +214,14 @@ describe("Test low-level smart contract functions", () => {
       );
       expect(transferred);
     });
+
+    it("Should get transfers for a user after applying bonus transfer", async () => {
+      const transfers = await contracts.getTransfersForUser(userId3);
+      log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
+      expect(transfers).toBeDefined();
+      expect(transfers.length).toEqual(4);      
+    });
+
   });
 
   describe("Get deposits and withdrawals", () => {
