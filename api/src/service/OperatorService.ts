@@ -182,21 +182,19 @@ export async function getWithdrawalsForUser(
   return withdrawals;
 }
 
-async function isCommunityChest(walletAddress:string) {
+async function isCommunityChest(walletAddress: string) {
   const communityChestAddress = await contracts.communityChestAddress();
   return walletAddress == communityChestAddress;
 }
 
-async function isHumanityCash(walletAddress:string) {
+async function isHumanityCash(walletAddress: string) {
   const humanityCashAddress = await contracts.humanityCashAddress();
   return walletAddress == humanityCashAddress;
 }
 
-async function getDisplayNameFromAddress(walletAddress:string) {
-  if(await isCommunityChest(walletAddress))
-    return "Community Chest";
-  else if(await isHumanityCash(walletAddress))
-    return "Humanity Cash";
+async function getDisplayNameFromAddress(walletAddress: string) {
+  if (await isCommunityChest(walletAddress)) return "Community Chest";
+  else if (await isHumanityCash(walletAddress)) return "Humanity Cash";
   else {
     const userData = await getUserData(walletAddress);
     return userData?.data?.name;
@@ -206,7 +204,6 @@ async function getDisplayNameFromAddress(walletAddress:string) {
 export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
-
   // Need to manually get display names here to avoid API limits on calls
   const communityChestAddress = await contracts.communityChestAddress();
   const humanityCashAddress = await contracts.humanityCashAddress();
@@ -214,12 +211,22 @@ export async function getTransfersForUser(
   const transfers = await contracts.getTransfersForUser(userId);
   return Promise.all(
     transfers.map(async function (t) {
-      const fromName = t.fromAddress == communityChestAddress ? "Community Chest" : t.fromAddress == humanityCashAddress ? "Humanity Cash" : (await getUserData(t.fromAddress))?.data?.name;
-      const toName = t.toAddress == communityChestAddress ? "Community Chest" : t.toAddress == humanityCashAddress ? "Humanity Cash" : (await getUserData(t.toAddress))?.data?.name;
+      const fromName =
+        t.fromAddress == communityChestAddress
+          ? "Community Chest"
+          : t.fromAddress == humanityCashAddress
+          ? "Humanity Cash"
+          : (await getUserData(t.fromAddress))?.data?.name;
+      const toName =
+        t.toAddress == communityChestAddress
+          ? "Community Chest"
+          : t.toAddress == humanityCashAddress
+          ? "Humanity Cash"
+          : (await getUserData(t.toAddress))?.data?.name;
       return {
         ...t,
         fromName: fromName,
-        toName: toName
+        toName: toName,
       };
     })
   );
@@ -344,18 +351,33 @@ export async function transferTo(
   amount: string,
   roundUpAmount = "0"
 ): Promise<boolean> {
-  
-  const success : boolean = (await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)).status;
+  const success: boolean = (
+    await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)
+  ).status;
 
-  if(success){
-    const addressPromises = [contracts.getWalletAddress(fromUserId), contracts.getWalletAddress(toUserId)];
+  if (success) {
+    const addressPromises = [
+      contracts.getWalletAddress(fromUserId),
+      contracts.getWalletAddress(toUserId),
+    ];
     const addresses = await Promise.all(addressPromises);
-    const namePromises = [getDisplayNameFromAddress(addresses[0]), getDisplayNameFromAddress[addresses[1]]];
+    const namePromises = [
+      getDisplayNameFromAddress(addresses[0]),
+      getDisplayNameFromAddress[addresses[1]],
+    ];
     const names = await Promise.all(namePromises);
     const fromName = names[0];
     const toName = names[1];
-    await userNotification(fromUserId, `You've sucessfully sent B$${amount} to ${toName}`, "INFO");
-    await userNotification(toUserId, `You've recevied B$${amount} from ${fromName}`, "INFO");
+    await userNotification(
+      fromUserId,
+      `You've sucessfully sent B$${amount} to ${toName}`,
+      "INFO"
+    );
+    await userNotification(
+      toUserId,
+      `You've recevied B$${amount} from ${fromName}`,
+      "INFO"
+    );
   }
 
   return success;
