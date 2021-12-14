@@ -1,7 +1,12 @@
 import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
 import { newWallet, transferLaunchPoolBonus } from "../contracts";
-import { isDwollaProduction, log, shouldDeletePriorWebhooks, userNotification } from "src/utils";
+import {
+  isDwollaProduction,
+  log,
+  shouldDeletePriorWebhooks,
+  userNotification,
+} from "src/utils";
 import {
   duplicateWebhookExists,
   getAppToken,
@@ -369,40 +374,53 @@ export async function consumeWebhook(
           const res = await getDwollaCustomerFromEvent(eventToProcess);
           const customer = res.body;
           const fundingSources = await getFundingSourcesById(customer.id);
-          let fingerprint = fundingSources?.body?._embedded["funding-sources"][0].fingerprint;
+          let fingerprint =
+            fundingSources?.body?._embedded["funding-sources"][0].fingerprint;
 
-          if(!isDwollaProduction()){
+          if (!isDwollaProduction()) {
             // In sandbox, fingerprints are not fully unique
             fingerprint = fingerprint + customer.id;
           }
 
-          log(`Funding source verified for user ${customer.id}, with fingerprint ${fingerprint}`);
-          const launchPromotionRecord = await LaunchPromotionService.findByFingerprint(fingerprint);
+          log(
+            `Funding source verified for user ${customer.id}, with fingerprint ${fingerprint}`
+          );
+          const launchPromotionRecord =
+            await LaunchPromotionService.findByFingerprint(fingerprint);
 
-          if(!launchPromotionRecord){
-            log(`Funding source with fingerprint ${fingerprint} has not had promotional value applied`);
+          if (!launchPromotionRecord) {
+            log(
+              `Funding source with fingerprint ${fingerprint} has not had promotional value applied`
+            );
             const promotionsApplied = await LaunchPromotionService.getCount();
             log(`Number fo promotions applied so far is ${promotionsApplied}`);
 
-            if(promotionsApplied < 5000){
-              log(`Applying promotional bonus of B$10 to user ${customer.id} with funding source fingerprint ${fingerprint}`);
+            if (promotionsApplied < 5000) {
+              log(
+                `Applying promotional bonus of B$10 to user ${customer.id} with funding source fingerprint ${fingerprint}`
+              );
               const launchPoolBonusTransferred = await transferLaunchPoolBonus(
                 customer.id
               );
               if (launchPoolBonusTransferred) {
-                await LaunchPromotionService.create({fingerprint: fingerprint, promotionAmount: "10.0"});              
+                await LaunchPromotionService.create({
+                  fingerprint: fingerprint,
+                  promotionAmount: "10.0",
+                });
                 await notifyUserWithReason(
                   eventToProcess,
                   "Thank you for linking your bank account! You've received a promotional deposit of B$10"
                 );
               }
+            } else {
+              log(
+                `${promotionsApplied} promotions have already been applied, no more can be spent, skipping`
+              );
             }
-            else {
-              log(`${promotionsApplied} promotions have already been applied, no more can be spent, skipping`);
-            }
-          }
-          else{
-            log(`Funding source with fingerprint ${fingerprint} has already had promotional amount applied, skipping launch promotion`);
+          } else {
+            log(
+              `Funding source with fingerprint ${fingerprint} has already had promotional amount applied, skipping launch promotion`
+            );
           }
           processed = true;
         } catch (err) {
