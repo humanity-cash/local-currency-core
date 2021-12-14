@@ -34,15 +34,24 @@ jobs:
           yarn coverage
         env:
           DEBUG: "false"
+          NODE_ENV: "test"
           PORT: 3000
           LOCAL_CURRENCY_PROVIDER: "web3"
           LOCAL_CURRENCY_RPC_HOST: "http://localhost:8545"
           LOCAL_CURRENCY_ADDRESS: ""
           LOCAL_CURRENCY_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
+          LOCAL_CURRENCY_MNEMONIC_INDEX: 0
           NUMBER_OPERATORS: 2
-          OPERATOR_1_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/7fe7a621-e494-4369-965f-214477122331"
-          OPERATOR_2_FUNDING_SOURCE: "https://api-sandbox.dwolla.com/funding-sources/2bbb3d39-1e43-4c34-8e00-a96b286f3bab"
+          OPERATOR_1_DWOLLA_USER_ID: "608b7adc-4c73-46f7-88ee-85095e2c63f1"
+          OPERATOR_1_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
+          OPERATOR_1_MNEMONIC_INDEX: 1
+          OPERATOR_1_DISPLAY_NAME: "Lee Bank"
+          OPERATOR_2_DWOLLA_USER_ID: "a5426c13-a2f0-4812-b7be-3fc9b5a70de3"
+          OPERATOR_2_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
+          OPERATOR_2_MNEMONIC_INDEX: 2
+          OPERATOR_2_DISPLAY_NAME: "Salisbury Bank"
           DERIVATION_PATH: "m/44'/60'/0'"
+          CUSTOMER_WITHDRAWAL_BALANCE_LIMIT: 5
           DWOLLA_BASE_URL: "https://api-sandbox.dwolla.com/"
           DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
           DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
@@ -52,6 +61,7 @@ jobs:
           SIMULATE_WEBHOOK: "false"
           SIMULATE_BANKING: "false"
           USE_MANAGED_SECRETS: "false"
+          USE_MONGO_TLS: "false"          
       - name: Run check git
         run: |
           git diff --quiet --exit-code --cached

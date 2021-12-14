@@ -67,6 +67,14 @@ export async function communityChestAddress(): Promise<string> {
   return communityChest;
 }
 
+export async function humanityCashAddress(): Promise<string> {
+  const controller = await getControllerContract();
+  const humanityCashAddress = await controller.methods
+    .humanityCashAddress()
+    .call();
+  return humanityCashAddress;
+}
+
 export async function getWalletAddress(userId: string): Promise<string> {
   const controller = await getControllerContract();
   const address = await controller.methods
@@ -155,21 +163,51 @@ export async function paused(): Promise<boolean> {
   return paused;
 }
 
-export async function transferTo(
+async function transfer(
   fromUserId: string,
   toUserId: string,
   amount: string,
-  roundUpAmount: string
+  roundUpAmount = "0"
 ): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
   const controller = await getControllerContract();
   const transfer = await controller.methods.transfer(
-    toBytes32(fromUserId),
-    toBytes32(toUserId),
+    fromUserId,
+    toUserId,
     web3Utils.toWei(amount, "ether"),
     web3Utils.toWei(roundUpAmount, "ether")
   );
-  return await sendTransaction(transfer);
+  return sendTransaction(transfer);
+}
+
+export async function transferTo(
+  fromUserId: string,
+  toUserId: string,
+  amount: string,
+  roundUpAmount = "0"
+): Promise<TransactionReceipt> {
+  return transfer(
+    toBytes32(fromUserId),
+    toBytes32(toUserId),
+    amount,
+    roundUpAmount
+  );
+}
+
+export async function transferLaunchPoolBonus(
+  toUserId: string
+): Promise<boolean> {
+  const launchBonusAmount = "10.0";
+  const address = await humanityCashAddress();
+  const humanityCashWallet: IWallet = await getWalletForAddress(address);
+  console.log(JSON.stringify(humanityCashWallet));
+  return (
+    await transfer(
+      humanityCashWallet.userId,
+      toBytes32(toUserId),
+      launchBonusAmount
+    )
+  ).status;
 }
 
 export async function transferContractOwnership(
@@ -321,6 +359,13 @@ export async function getTransfers(
 ): Promise<ITransferEvent[]> {
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
+
+  if (!options) {
+    options = {
+      fromBlock: 0,
+      toBlock: "latest",
+    };
+  }
 
   const logs = await getLogs("TransferToEvent", controller, options);
 

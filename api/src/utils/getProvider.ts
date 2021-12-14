@@ -54,8 +54,8 @@ const getKit = async (): Promise<ContractKit> => {
     for (let i = 0; i < parseInt(process.env.NUMBER_OPERATORS); i++) {
       await addKeysFromMnemonic(
         kit,
-        process.env[`OPERATOR_${i}_MNEMONIC`],
-        parseInt(process.env[`OPERATOR_${i}_MNEMONIC_INDEX`])
+        process.env[`OPERATOR_${i + 1}_MNEMONIC`],
+        parseInt(process.env[`OPERATOR_${i + 1}_MNEMONIC_INDEX`])
       );
     }
 

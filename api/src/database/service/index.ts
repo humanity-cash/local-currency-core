@@ -3,6 +3,7 @@ import * as DwollaEventService from "./DwollaEvent";
 import * as DwollaTransferService from "./DwollaTransfer";
 import * as LogService from "./Log";
 import * as UserService from "./User";
+import * as LaunchPromotionService from "./LaunchPromotion";
 
 export {
   DwollaEventService,
@@ -10,4 +11,5 @@ export {
   AppNotificationService,
   LogService,
   UserService,
+  LaunchPromotionService,
 };

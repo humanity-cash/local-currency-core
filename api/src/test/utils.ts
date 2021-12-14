@@ -290,6 +290,15 @@ export async function setupContracts(): Promise<void> {
     .send(sendOptions);
   log("Token MINTER_ROLE granted to ", Controller.options.address);
 
+  // Mint launch pool tokens
+  const humanityCashAddress = await Controller.methods
+    .humanityCashAddress()
+    .call();
+  await Token.methods
+    .mint(humanityCashAddress, web3Utils.toWei("60000", "ether"))
+    .send(sendOptions);
+
+  // Renounce
   await Token.methods.renounceRole(MINTER_ROLE, owner).send(sendOptions);
   log("Token MINTER_ROLE revoked from ", owner);
 
