@@ -223,8 +223,34 @@ describe("Dwolla test suite", () => {
       expect(user.userId).to.exist;
     });
 
-    it("it should post a supported webhook event and successfully process it, HTTP 202", (done) => {
+    it("it should post a 'customer_created' webhook event and successfully process it, HTTP 202", (done) => {
       event1 = createDummyEvent("customer_created", user.userId, user.userId);
+
+      const signature = createSignature(
+        process.env.WEBHOOK_SECRET,
+        JSON.stringify(event1)
+      );
+      chai
+        .request(server)
+        .post("/webhook")
+        .set({ "X-Request-Signature-SHA-256": signature })
+        .send(event1)
+        .then((res) => {
+          expect(res).to.have.status(codes.ACCEPTED);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should post a 'customer_funding_source_added' webhook event and successfully process it, HTTP 202", (done) => {
+      event1 = createDummyEvent(
+        "customer_funding_source_added",
+        user.userId,
+        user.userId
+      );
 
       const signature = createSignature(
         process.env.WEBHOOK_SECRET,
