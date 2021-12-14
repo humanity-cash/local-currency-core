@@ -163,9 +163,14 @@ export async function paused(): Promise<boolean> {
   return paused;
 }
 
-async function transfer(fromUserId: string, toUserId: string, amount:string, roundUpAmount = "0") : Promise<TransactionReceipt> {
+async function transfer(
+  fromUserId: string,
+  toUserId: string,
+  amount: string,
+  roundUpAmount = "0"
+): Promise<TransactionReceipt> {
   const { sendTransaction } = await getProvider();
-  const controller = await getControllerContract();  
+  const controller = await getControllerContract();
   const transfer = await controller.methods.transfer(
     fromUserId,
     toUserId,
@@ -181,17 +186,28 @@ export async function transferTo(
   amount: string,
   roundUpAmount = "0"
 ): Promise<TransactionReceipt> {
-  return transfer(toBytes32(fromUserId), toBytes32(toUserId), amount, roundUpAmount);  
+  return transfer(
+    toBytes32(fromUserId),
+    toBytes32(toUserId),
+    amount,
+    roundUpAmount
+  );
 }
 
 export async function transferLaunchPoolBonus(
   toUserId: string
-): Promise<boolean> {  
+): Promise<boolean> {
   const launchBonusAmount = "10.0";
   const address = await humanityCashAddress();
-  const humanityCashWallet : IWallet = await getWalletForAddress(address);
+  const humanityCashWallet: IWallet = await getWalletForAddress(address);
   console.log(JSON.stringify(humanityCashWallet));
-  return (await transfer(humanityCashWallet.userId, toBytes32(toUserId), launchBonusAmount)).status;
+  return (
+    await transfer(
+      humanityCashWallet.userId,
+      toBytes32(toUserId),
+      launchBonusAmount
+    )
+  ).status;
 }
 
 export async function transferContractOwnership(
@@ -344,8 +360,8 @@ export async function getTransfers(
   const transfers: ITransferEvent[] = [];
   const controller: Contract = await getControllerContract();
 
-  if(!options){
-    options =  {
+  if (!options) {
+    options = {
       fromBlock: 0,
       toBlock: "latest",
     };

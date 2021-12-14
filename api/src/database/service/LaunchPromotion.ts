@@ -29,7 +29,7 @@ export async function findByFingerprint(
   else return undefined;
 }
 
-export async function getCount() : Promise<number> {
+export async function getCount(): Promise<number> {
   const response = await LaunchPromotion.find();
   return response.length;
 }
