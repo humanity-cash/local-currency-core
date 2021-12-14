@@ -29,8 +29,6 @@ export async function getAppToken(): Promise<dwolla.Client> {
     appToken = new dwolla.Client(options);
     appTokenRefreshed = Date.now();
     log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
-  } else {
-    log(`DwollaUtils.ts::getAppToken() Cached appToken returned`);
   }
   return appToken;
 }
