@@ -11,7 +11,7 @@ import {
   ITransferEvent,
   IWithdrawal,
 } from "src/types";
-import { getOperatorUserId, log } from "src/utils";
+import { getOperatorUserId, log, userNotification } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
 import {
@@ -182,32 +182,44 @@ export async function getWithdrawalsForUser(
   return withdrawals;
 }
 
+async function isCommunityChest(walletAddress:string) {
+  const communityChestAddress = await contracts.communityChestAddress();
+  return walletAddress == communityChestAddress;
+}
+
+async function isHumanityCash(walletAddress:string) {
+  const humanityCashAddress = await contracts.humanityCashAddress();
+  return walletAddress == humanityCashAddress;
+}
+
+async function getDisplayNameFromAddress(walletAddress:string) {
+  if(await isCommunityChest(walletAddress))
+    return "Community Chest";
+  else if(await isHumanityCash(walletAddress))
+    return "Humanity Cash";
+  else {
+    const userData = await getUserData(walletAddress);
+    return userData?.data?.name;
+  }
+}
+
 export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
+
+  // Need to manually get display names here to avoid API limits on calls
   const communityChestAddress = await contracts.communityChestAddress();
+  const humanityCashAddress = await contracts.humanityCashAddress();
 
   const transfers = await contracts.getTransfersForUser(userId);
   return Promise.all(
     transfers.map(async function (t) {
-      const fromUserData =
-        t.fromAddress == communityChestAddress
-          ? undefined
-          : await getUserData(t.fromAddress);
-      const toUserData =
-        t.toAddress == communityChestAddress
-          ? undefined
-          : await getUserData(t.toAddress);
+      const fromName = t.fromAddress == communityChestAddress ? "Community Chest" : t.fromAddress == humanityCashAddress ? "Humanity Cash" : (await getUserData(t.fromAddress))?.data?.name;
+      const toName = t.toAddress == communityChestAddress ? "Community Chest" : t.toAddress == humanityCashAddress ? "Humanity Cash" : (await getUserData(t.toAddress))?.data?.name;
       return {
         ...t,
-        fromName:
-          t.fromAddress == communityChestAddress
-            ? "Transfer from Community Chest"
-            : fromUserData?.data?.name,
-        toName:
-          t.toAddress == communityChestAddress
-            ? "Transfer to Community Chest"
-            : toUserData?.data?.name,
+        fromName: fromName,
+        toName: toName
       };
     })
   );
@@ -332,7 +344,19 @@ export async function transferTo(
   amount: string,
   roundUpAmount = "0"
 ): Promise<boolean> {
-  return (
-    await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)
-  ).status;
+  
+  const success : boolean = (await contracts.transferTo(fromUserId, toUserId, amount, roundUpAmount)).status;
+
+  if(success){
+    const addressPromises = [contracts.getWalletAddress(fromUserId), contracts.getWalletAddress(toUserId)];
+    const addresses = await Promise.all(addressPromises);
+    const namePromises = [getDisplayNameFromAddress(addresses[0]), getDisplayNameFromAddress[addresses[1]]];
+    const names = await Promise.all(namePromises);
+    const fromName = names[0];
+    const toName = names[1];
+    await userNotification(fromUserId, `You've sucessfully sent B$${amount} to ${toName}`, "INFO");
+    await userNotification(toUserId, `You've recevied B$${amount} from ${fromName}`, "INFO");
+  }
+
+  return success;
 }
