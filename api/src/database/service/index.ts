@@ -11,5 +11,5 @@ export {
   AppNotificationService,
   LogService,
   UserService,
-  LaunchPromotionService
+  LaunchPromotionService,
 };
