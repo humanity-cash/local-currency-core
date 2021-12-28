@@ -47,6 +47,7 @@ describe("Public endpoints test", () => {
           expect(res.body).to.haveOwnProperty("walletCount");
           expect(res.body).to.haveOwnProperty("owner");
           expect(res.body).to.haveOwnProperty("walletFactory");
+          expect(res.body).to.haveOwnProperty("controllerStatus");
           // expect(stub.calledOnce).to.eql(true);
           done();
         })
