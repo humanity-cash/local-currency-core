@@ -17,6 +17,7 @@ export interface HealthResponse {
   walletCount: string;
   owner: string;
   walletFactory: string;
+  controllerStatus: "PAUSED" | "ACTIVE";
 }
 export interface ITransferOwnerRequest {
   newOwner: string;
