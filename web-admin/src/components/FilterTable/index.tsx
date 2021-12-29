@@ -10,6 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { useHistory } from 'react-router-dom';
+import { ITransaction } from '../../types';
 
 
 const useStyles = makeStyles({
@@ -70,8 +71,6 @@ const TransactionIdTypeProvider = (props: any) => (
 	<DataTypeProvider formatterComponent={TransactionIdFormatter} {...props} />
 );
 
-const getRowId = (row: any) => row.id;
-
 const FilterTable = ({columns, rows}: any) => {
 	const transactionIdColumn = ['transactionId'];
 	const usernameColumn = ['username'];
@@ -80,7 +79,7 @@ const FilterTable = ({columns, rows}: any) => {
 
 	return (
 		<Paper>
-			<Grid rows={rows} columns={columns} getRowId={getRowId}>
+			<Grid rows={rows} columns={columns}>
 				<TransactionIdTypeProvider for={transactionIdColumn} />
 				<UsernameTypeProvider for={usernameColumn} />
 				<UserBankTypeProvider for={userBankColumn} />
