@@ -1,3 +1,7 @@
+import { AxiosResponse } from 'axios';
+
+export type AxiosPromiseResponse<T = unknown> = AxiosResponse<T>;
+
 export interface ContractData {
 	name: string;
 	address: string;
@@ -60,6 +64,16 @@ export interface ACHData {
 	berksharesBank: string;
 	bankAccount: string;
 	status: TransactionStatus;
+}
+
+export interface ITransaction {
+    transactionHash: string;
+    blockNumber: number,
+    timestamp: number;
+    userId: string;
+    operator: string;
+    value: string;
+    type: "Transfer In" | "Transfer Out" | "Deposit" | "Withdraw";
 }
 
 export interface ACHDataState {
