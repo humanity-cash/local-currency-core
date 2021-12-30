@@ -15,10 +15,7 @@ const useBlockchainData = (): BlockchainDataState => {
 	const updateACHData = async () => {
 		const deposits = await ACHAPI.getAllDeposits()
 		const withdrawals = await ACHAPI.getAllWithdrawals()
-		const transfers = await ContractsAPI.getAllTransfers()
-		const data = [...deposits, ...withdrawals, ...transfers].sort((t1, t2) => {
-			return t1.timestamp > t2.timestamp ? 1 : -1
-		}).map((tx) => {
+		const achTransactions = [...deposits, ...withdrawals].map((tx) => {
 			return {
 				transactionHash: tx.transactionHash,
 				amount: tx.value,
@@ -30,6 +27,24 @@ const useBlockchainData = (): BlockchainDataState => {
 				type: tx.type,
 				createdAt: moment(tx.timestamp).format("yyyy-MM-DD HH:mm:ss"),
 			}
+		})
+		
+		const transfers = await ContractsAPI.getAllTransfers()
+		const bTransactions = transfers.map((tx) => {
+			return {
+				transactionHash: tx.transactionHash,
+				amount: tx.value,
+				from: tx.fromAddress,
+				to: tx.toAddress,
+				fromUser: tx.fromUserId,
+				toUser: tx.toUserId,
+				blocksConfirmed: tx.blockNumber,
+				type: tx.type,
+				createdAt: moment(tx.timestamp).format("yyyy-MM-DD HH:mm:ss"),
+			}
+		})
+		const data = [...achTransactions, ...bTransactions].sort((t1, t2) => {
+			return t1.createdAt > t2.createdAt ? 1 : -1
 		})
 		setBlockchainDataState((pv: any) => ({ ...pv, data: data }));
 	}
