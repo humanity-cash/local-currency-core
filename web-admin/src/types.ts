@@ -66,7 +66,7 @@ export interface ACHData {
 	status: TransactionStatus;
 }
 
-export interface ITransaction {
+export interface IACHTransaction {
     transactionHash: string;
     blockNumber: number,
     timestamp: number;
@@ -74,6 +74,18 @@ export interface ITransaction {
     operator: string;
     value: string;
     type: "Transfer In" | "Transfer Out" | "Deposit" | "Withdraw";
+}
+
+export interface IBlockchainTransaction {
+	fromUserId: string,
+    fromAddress: string,
+    toUserId: string,
+    toAddress: string,
+    value: string,
+    transactionHash: string,
+    blockNumber: number,
+	timestamp: number,
+	type: "Transfer In" | "Transfer Out" | "Deposit" | "Withdraw" | "Transfer";
 }
 
 export interface ACHDataState {
