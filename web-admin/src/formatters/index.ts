@@ -1,10 +1,10 @@
-import { AxiosPromiseResponse, ITransaction } from '../types';
+import { AxiosPromiseResponse, IACHTransaction, IBlockchainTransaction } from '../types';
 
 const formatTransactionValue = (value: number | string): string => {
 	return String((Number(value) / 1000000000000000000).toFixed(2))
 }
 
-export const formatDeposits = (response: AxiosPromiseResponse<[]>): ITransaction[] => {
+export const formatDeposits = (response: AxiosPromiseResponse<[]>): IACHTransaction[] => {
 	return response?.data?.map((tx: any) => {
 		return {
 			transactionHash: tx.transactionHash,
@@ -18,7 +18,7 @@ export const formatDeposits = (response: AxiosPromiseResponse<[]>): ITransaction
 	})
 }
 
-export const formatWithdrawals = (response: AxiosPromiseResponse<[]>): ITransaction[] => {
+export const formatWithdrawals = (response: AxiosPromiseResponse<[]>): IACHTransaction[] => {
 	return response?.data?.map((tx: any) => {
 		return {
 			transactionHash: tx.transactionHash,
@@ -32,16 +32,18 @@ export const formatWithdrawals = (response: AxiosPromiseResponse<[]>): ITransact
 	})
 }
 
-export const formatTransfers = (response: AxiosPromiseResponse<[]>): ITransaction[] => {
+export const formatTransfers = (response: AxiosPromiseResponse<[]>): IBlockchainTransaction[] => {
 	return response?.data?.map((tx: any) => {
 		return {
+			fromUserId: tx.fromUserId,
+			fromAddress: tx.fromAddress,
+			toUserId: tx.toUserId,
+			toAddress: tx.toAddress,
+			value: formatTransactionValue(tx.value),
 			transactionHash: tx.transactionHash,
 			blockNumber: tx.blockNumber,
 			timestamp: tx.timestamp * 1000,
-			userId: tx.userId,
-			operator: tx.operator,
-			type: tx.value > 0 ? "Transfer In" : "Transfer Out",
-			value: formatTransactionValue(tx.value)
+			type: "Transfer"
 		}
 	})
 }

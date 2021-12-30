@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { useHistory } from 'react-router-dom';
-import { ITransaction } from '../../types';
+import { IACHTransaction } from '../../types';
 
 
 const useStyles = makeStyles({

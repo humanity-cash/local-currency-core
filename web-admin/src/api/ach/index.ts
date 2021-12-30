@@ -1,9 +1,9 @@
 import { STATS_DEPOSITS, STATS_OPERATOR, STATS_WITHDRAWAL } from "consts";
 import * as BaseAPI from '../base';
 import { formatWithdrawals, formatDeposits } from '../../formatters/index';
-import { ITransaction } from '../../types';
+import { IACHTransaction } from '../../types';
 
-export const getAllWithdrawals = async (): Promise<ITransaction[]> => {
+export const getAllWithdrawals = async (): Promise<IACHTransaction[]> => {
 	try {
 		const response = await BaseAPI.getRequest(STATS_WITHDRAWAL);
 
@@ -14,7 +14,7 @@ export const getAllWithdrawals = async (): Promise<ITransaction[]> => {
 	}
 }
 
-export const getAllDeposits = async (): Promise<ITransaction[]> => {
+export const getAllDeposits = async (): Promise<IACHTransaction[]> => {
 	try {
 		const response = await BaseAPI.getRequest(STATS_DEPOSITS);
 
