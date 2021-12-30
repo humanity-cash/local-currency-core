@@ -354,6 +354,46 @@ export async function getWithdrawalsForUser(
   return withdrawals;
 }
 
+export async function getRoundUps(
+  options?: PastEventOptions
+): Promise<ITransferEvent[]> {
+  const roundUpTransfers: ITransferEvent[] = [];
+  const controller: Contract = await getControllerContract();
+
+  if (!options) {
+    options = {
+      fromBlock: 0,
+      toBlock: "latest",
+    };
+  }
+
+  const logs : EventData[] = await getLogs("RoundUpEvent", controller, options);
+
+  for (let i = 0; i < logs.length; i++) {
+    const element = logs[i];
+    const toAddress = element.returnValues._toAddress;
+    const wallet = await getWalletContractFor(toAddress);
+    const toUserId = await wallet.methods.userId().call();
+    const fromAddress = await controller.methods
+      .getWalletAddress(element.returnValues._fromUserId)
+      .call();
+    const timestamp = await getTimestampForBlock(element.blockNumber);
+
+    roundUpTransfers.push({
+      fromUserId: element.returnValues._fromUserId,
+      fromAddress: fromAddress,
+      toUserId: toUserId,
+      toAddress: toAddress,
+      value: element.returnValues._amt,
+      transactionHash: element.transactionHash,
+      blockNumber: element.blockNumber,
+      timestamp: timestamp,
+      roundUp: true
+    });
+  }
+  return roundUpTransfers;
+}
+
 export async function getTransfers(
   options?: PastEventOptions
 ): Promise<ITransferEvent[]> {
@@ -401,12 +441,39 @@ export async function getTransfers(
   return transfers;
 }
 
+async function getCreatedBlockForUser(userId:string) : Promise<string> {
+  const walletAddress = await getWalletAddress(userId);
+  const wallet = await getWalletContractFor(walletAddress);
+  const createdBlock = await wallet.methods.createdBlock().call();
+  return createdBlock;
+}
+
+async function getRoundUpTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {  
+
+  const createdBlock = await getCreatedBlockForUser(userId);
+ 
+  const userFilter: PastEventOptions = {
+    filter: { _fromUserId: toBytes32(userId) },
+    fromBlock: createdBlock,
+    toBlock: "latest",
+  };
+  const transfers: ITransferEvent[] = await getRoundUps(userFilter);
+  transfers.forEach((transfer) => {
+    transfer.type = TransferType.OUT;
+  });
+  return transfers;
+}
+
 async function getOutoingTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
+
+  const createdBlock = await getCreatedBlockForUser(userId);
   const userFilter: PastEventOptions = {
     filter: { _fromUserId: toBytes32(userId) },
-    fromBlock: 0,
+    fromBlock: createdBlock,
     toBlock: "latest",
   };
   const transfers: ITransferEvent[] = await getTransfers(userFilter);
@@ -419,9 +486,10 @@ async function getOutoingTransfersForUser(
 async function getIncomingTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
+  const createdBlock = await getCreatedBlockForUser(userId);
   const userFilterUserId: PastEventOptions = {
     filter: { _toUserId: toBytes32(userId) },
-    fromBlock: 0,
+    fromBlock: createdBlock,
     toBlock: "latest",
   };
 
@@ -453,13 +521,16 @@ export async function getTransfersForUser(
   const promises = [
     getOutoingTransfersForUser(userId),
     getIncomingTransfersForUser(userId),
+    getRoundUpTransfersForUser(userId)
   ];
   const results = await Promise.all(promises);
   const outgoingTransfers: ITransferEvent[] = results[0];
   const incomingTransfers: ITransferEvent[] = results[1];
+  const roundUps: ITransferEvent[] = results[2];
   const transfers: ITransferEvent[] = [
     ...outgoingTransfers,
     ...incomingTransfers,
+    ...roundUps
   ];
   transfers.sort((a, b) => {
     return parseInt(a.timestamp.toString()) - parseInt(b.timestamp.toString());

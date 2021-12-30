@@ -178,6 +178,7 @@ export interface ITransferEvent extends IEventBase {
   toAddress: string;
   value: string;
   type?: TransferType;
+  roundUp?: boolean;
 }
 
 export interface IOperatorTotal {
