@@ -367,7 +367,7 @@ export async function getRoundUps(
     };
   }
 
-  const logs : EventData[] = await getLogs("RoundUpEvent", controller, options);
+  const logs: EventData[] = await getLogs("RoundUpEvent", controller, options);
 
   for (let i = 0; i < logs.length; i++) {
     const element = logs[i];
@@ -388,7 +388,7 @@ export async function getRoundUps(
       transactionHash: element.transactionHash,
       blockNumber: element.blockNumber,
       timestamp: timestamp,
-      roundUp: true
+      roundUp: true,
     });
   }
   return roundUpTransfers;
@@ -441,7 +441,7 @@ export async function getTransfers(
   return transfers;
 }
 
-async function getCreatedBlockForUser(userId:string) : Promise<string> {
+async function getCreatedBlockForUser(userId: string): Promise<string> {
   const walletAddress = await getWalletAddress(userId);
   const wallet = await getWalletContractFor(walletAddress);
   const createdBlock = await wallet.methods.createdBlock().call();
@@ -450,10 +450,9 @@ async function getCreatedBlockForUser(userId:string) : Promise<string> {
 
 async function getRoundUpTransfersForUser(
   userId: string
-): Promise<ITransferEvent[]> {  
-
+): Promise<ITransferEvent[]> {
   const createdBlock = await getCreatedBlockForUser(userId);
- 
+
   const userFilter: PastEventOptions = {
     filter: { _fromUserId: toBytes32(userId) },
     fromBlock: createdBlock,
@@ -469,7 +468,6 @@ async function getRoundUpTransfersForUser(
 async function getOutoingTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
-
   const createdBlock = await getCreatedBlockForUser(userId);
   const userFilter: PastEventOptions = {
     filter: { _fromUserId: toBytes32(userId) },
@@ -521,7 +519,7 @@ export async function getTransfersForUser(
   const promises = [
     getOutoingTransfersForUser(userId),
     getIncomingTransfersForUser(userId),
-    getRoundUpTransfersForUser(userId)
+    getRoundUpTransfersForUser(userId),
   ];
   const results = await Promise.all(promises);
   const outgoingTransfers: ITransferEvent[] = results[0];
@@ -530,7 +528,7 @@ export async function getTransfersForUser(
   const transfers: ITransferEvent[] = [
     ...outgoingTransfers,
     ...incomingTransfers,
-    ...roundUps
+    ...roundUps,
   ];
   transfers.sort((a, b) => {
     return parseInt(a.timestamp.toString()) - parseInt(b.timestamp.toString());
