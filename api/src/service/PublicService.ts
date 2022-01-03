@@ -21,7 +21,7 @@ export async function health(): Promise<HealthResponse> {
     walletCount,
     owner,
     walletFactory,
-    paused
+    paused,
   ] = await Promise.all([
     web3.eth.getBlockNumber(),
     web3.eth.getChainId(),
@@ -30,7 +30,7 @@ export async function health(): Promise<HealthResponse> {
     contracts.getWalletCount(),
     contracts.owner(),
     contracts.walletFactory(),
-    contracts.paused()
+    contracts.paused(),
   ]);
 
   const controller = process.env.LOCAL_CURRENCY_ADDRESS;
@@ -45,7 +45,7 @@ export async function health(): Promise<HealthResponse> {
     walletCount,
     owner,
     walletFactory,
-    controllerStatus    
+    controllerStatus,
   };
   return response;
 }
