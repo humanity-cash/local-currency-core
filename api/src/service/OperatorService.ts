@@ -373,11 +373,7 @@ export async function transferTo(
       `You've sucessfully sent B$${amount}`,
       "INFO"
     );
-    await userNotification(
-      toUserId,
-      `You've recevied B$${amount}`,
-      "INFO"
-    );
+    await userNotification(toUserId, `You've recevied B$${amount}`, "INFO");
   }
 
   return success;
