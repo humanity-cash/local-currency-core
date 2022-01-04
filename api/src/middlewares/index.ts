@@ -8,10 +8,9 @@ export const verifyRequest: express.RequestHandler = async (
   response: express.Response,
   next: express.NextFunction
 ) => {
-  if(process.env.NODE_ENV=="test"){
+  if (process.env.NODE_ENV == "test") {
     next();
-  }
-  else{
+  } else {
     const authHeader = request?.headers?.authorization;
     if (!authHeader) {
       response
@@ -39,7 +38,7 @@ export const verifyRequest: express.RequestHandler = async (
           .send({ message: "Internal error while verifying request!" });
       }
     }
-  }  
+  }
 };
 
 export const mwVaildator = (
