@@ -218,14 +218,13 @@ export type GenericDatabaseResponse<T, E = string> = {
 };
 
 export interface StatsUser {
-    firstName: string
-    lastName: string
-    email: string
-    dwollaId: string
-    balance: number
-    lastLogin: number
-    walletAddress: string
-    address: string
-    type: 'customer' | 'business'
+  firstName: string;
+  lastName: string;
+  email: string;
+  dwollaId: string;
+  balance: number;
+  lastLogin: number;
+  walletAddress: string;
+  address: string;
+  type: "customer" | "business";
 }
-
