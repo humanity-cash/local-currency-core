@@ -216,3 +216,16 @@ export type GenericDatabaseResponse<T, E = string> = {
   data?: T;
   error?: E;
 };
+
+export interface StatsUser {
+    firstName: string
+    lastName: string
+    email: string
+    dwollaId: string
+    balance: number
+    lastLogin: number
+    walletAddress: string
+    address: string
+    type: 'customer' | 'business'
+}
+
