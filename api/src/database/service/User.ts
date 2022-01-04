@@ -6,6 +6,7 @@ import {
   IBusinessDwollaId,
   ICustomerDwollaId,
   INewUserInput,
+  IDBUser,
 } from "src/types";
 import { User, User as UserSchema } from "../schema";
 import { removeMongoMeta } from "../utils/index";
@@ -37,14 +38,12 @@ export async function get<T>(filter: any): Promise<T> {
   return removeMongoMeta(response?.toObject());
 }
 
+export async function getAll(): Promise<IDBUser[]> {
+  const response = await User.find();
+  return response?.length > 0 ? response.map((doc) => removeMongoMeta(doc.toObject())) : [];
+}
+
 export async function getBusinesses(): Promise<Business[]> {
   const response = await User.find({ verifiedBusiness: true });
-  if (response?.length > 0) {
-    const result: Business[] = [];
-    response.forEach((element) => {
-      const business = removeMongoMeta(element.toObject()).business;
-      result.push(business);
-    });
-    return result;
-  } else return [];
-}
+  return response?.length > 0 ? response.map((doc) => removeMongoMeta(doc.toObject()).business) : [];
+};
