@@ -7,5 +7,6 @@ stats.get("/stats/deposit", controller.getAllDeposits);
 stats.get("/stats/withdrawal", controller.getAllWithdrawals);
 stats.get("/stats/operator", controller.getOperatorStatistics);
 stats.get("/stats/transfer", controller.getAllTransfers);
+stats.get("/stats/users", controller.getUsersStats);
 
 export default stats;
