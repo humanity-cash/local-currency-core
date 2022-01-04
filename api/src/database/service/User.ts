@@ -40,10 +40,14 @@ export async function get<T>(filter: any): Promise<T> {
 
 export async function getAll(): Promise<IDBUser[]> {
   const response = await User.find();
-  return response?.length > 0 ? response.map((doc) => removeMongoMeta(doc.toObject())) : [];
+  return response?.length > 0
+    ? response.map((doc) => removeMongoMeta(doc.toObject()))
+    : [];
 }
 
 export async function getBusinesses(): Promise<Business[]> {
   const response = await User.find({ verifiedBusiness: true });
-  return response?.length > 0 ? response.map((doc) => removeMongoMeta(doc.toObject()).business) : [];
-};
+  return response?.length > 0
+    ? response.map((doc) => removeMongoMeta(doc.toObject()).business)
+    : [];
+}

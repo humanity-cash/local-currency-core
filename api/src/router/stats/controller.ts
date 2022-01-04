@@ -8,13 +8,13 @@ import {
 } from "src/service/PublicService";
 import { httpUtils } from "src/utils";
 import {
-    IDBUser,
-    StatsUser,
+  IDBUser,
+  StatsUser,
   IDeposit,
   IWithdrawal,
   IOperatorTotal,
   ITransferEvent,
-  IWallet
+  IWallet,
 } from "src/types";
 import { UserService as UserDatabaseService } from "src/database/service";
 
@@ -71,53 +71,58 @@ export async function getAllTransfers(
 export async function getUsersStats(
   req: Request,
   res: Response
-): Promise<StatsUser []> {
-    try {
-        const users: IDBUser[] = await UserDatabaseService.getAll();
-        if(!users?.length) return [];
-        const businesses: StatsUser[] = [];
-        const customers: StatsUser[] = [];
+): Promise<StatsUser[]> {
+  try {
+    const users: IDBUser[] = await UserDatabaseService.getAll();
+    if (!users?.length) return [];
+    const businesses: StatsUser[] = [];
+    const customers: StatsUser[] = [];
 
-        await Promise.all(users.map(async (u: IDBUser): Promise<StatsUser []> => { 
-            if(u.verifiedBusiness) {
-                const business = u.business;
-                const walletData: IWallet = await PublicServices.getWallet(business.dwollaId)
-                const user: StatsUser = {
-                    firstName: business.owner.firstName,
-                    lastName: business.owner.lastName,
-                    email: u.email,
-                    dwollaId: business.dwollaId,
-                    balance: walletData.availableBalance,
-                    lastLogin: 0,
-                    walletAddress: business.walletAddress,
-                    address: `${business.address1} ${business.address2}`,
-                    type: 'business'
-                }
-                businesses.push(user);
-            }
-            if(u.verifiedCustomer) {
-                const customer = u.customer;
-                const walletData: IWallet = await PublicServices.getWallet(customer.dwollaId)
-                const user: StatsUser = {
-                    firstName: customer.firstName,
-                    lastName: customer.lastName,
-                    email: u.email,
-                    dwollaId: customer.dwollaId,
-                    balance: walletData.availableBalance,
-                    lastLogin: 0,
-                    walletAddress: customer.walletAddress,
-                    address: `${customer.address1} ${customer.address2}`,
-                    type: 'customer'
-                }
-                customers.push(user);
-            }
-            return;
-        }))
+    await Promise.all(
+      users.map(async (u: IDBUser): Promise<StatsUser[]> => {
+        if (u.verifiedBusiness) {
+          const business = u.business;
+          const walletData: IWallet = await PublicServices.getWallet(
+            business.dwollaId
+          );
+          const user: StatsUser = {
+            firstName: business.owner.firstName,
+            lastName: business.owner.lastName,
+            email: u.email,
+            dwollaId: business.dwollaId,
+            balance: walletData.availableBalance,
+            lastLogin: 0,
+            walletAddress: business.walletAddress,
+            address: `${business.address1} ${business.address2}`,
+            type: "business",
+          };
+          businesses.push(user);
+        }
+        if (u.verifiedCustomer) {
+          const customer = u.customer;
+          const walletData: IWallet = await PublicServices.getWallet(
+            customer.dwollaId
+          );
+          const user: StatsUser = {
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            email: u.email,
+            dwollaId: customer.dwollaId,
+            balance: walletData.availableBalance,
+            lastLogin: 0,
+            walletAddress: customer.walletAddress,
+            address: `${customer.address1} ${customer.address2}`,
+            type: "customer",
+          };
+          customers.push(user);
+        }
+        return;
+      })
+    );
 
-        const all = customers.concat(businesses);
-        httpUtils.createHttpResponse(all, codes.OK, res);
-    } catch(err) {
-        httpUtils.serverError(err, res);
-    }
-};
-
+    const all = customers.concat(businesses);
+    httpUtils.createHttpResponse(all, codes.OK, res);
+  } catch (err) {
+    httpUtils.serverError(err, res);
+  }
+}
