@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { ACHTransactionsTable } from 'screens/transactions';
 import BlockchainDataTable from 'screens/transactions/blockchain';
 import { UserTables } from 'types';
+import { useLocation } from 'react-router-dom';
 
 const useButtonsStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -102,16 +103,16 @@ const useStyles = makeStyles({
 const User = () => {
 	const [tableType, setTableType] = useState<UserTables>(UserTables.UserACHTRansactions);
 	const classes = useStyles();
-	const user = 'John Doe';
 	const bank = 'Bank Of';
-	const dowllaId = '01010101010101';
-	const outstandingBerkshares = '250B$';
-	const address = 'Tufnell Park 32';
 
+	const location = useLocation<any>();
+	const { user } = location.state || {user: undefined}
+	
 	return (
+		user &&
 		<div>
 			<div className={classes.wrapper}>
-				<div className={classes.title}>{`User: ${user}`}</div>
+				<div className={classes.title}>{`User: ${user.name}`}</div>
 				<div></div>
 				<div className={classes.fs18}>
 					<span className={classes.prop}>Created At:</span>
@@ -119,7 +120,7 @@ const User = () => {
 				</div>
 				<div className={classes.fs18}>
 					<span className={classes.prop}>Dowlla Id:</span>
-					{`${dowllaId}`}
+					{` ${user.dowllaId}`}
 				</div>
 				<div className={classes.fs18}>
 					<span className={classes.prop}>Bank:</span>
@@ -127,11 +128,11 @@ const User = () => {
 				</div>
 				<div className={classes.fs18}>
 					<span className={classes.prop}>Outstanding:</span>
-					{` ${outstandingBerkshares}`}
+					{` ${user.outstandingBalance} B$`}
 				</div>
 				<div className={classes.fs18}>
 					<span className={classes.prop}>Address:</span>
-					{` ${address}`}
+					{` ${user.address}`}
 				</div>
 			</div>
 			<div className={classes.achTitle}>
