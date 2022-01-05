@@ -118,7 +118,7 @@ const TableTemplate = (props: TableProps) => {
 									align={column.align}
 									onClick={() => {
 										return column.clickable
-											? column.onClick(value)
+											? column.onClick(value, row)
 											: null;
 									}}>
 									{column.format

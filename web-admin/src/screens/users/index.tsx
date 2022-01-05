@@ -3,6 +3,7 @@ import { useUsersData } from 'hooks';
 import moment from 'moment';
 import { useHistory } from 'react-router-dom';
 import { UserData } from 'types';
+import { UserDataState } from '../../types';
 
 interface Column {
 	id: keyof UserData;
@@ -10,7 +11,7 @@ interface Column {
   minWidth?: number;
   align?: 'right';
   format?: (value: any) => any;
-  onClick?: (value: any) => any;
+  onClick?: (value: any, row: any | undefined) => any;
   clickable?: boolean;
 }
 
@@ -22,7 +23,9 @@ const useColumns = () => {
 			label: 'Name',
 			minWidth: 170,
 			clickable: true,
-			onClick: (value: string) => history.push(`/user/${value}`),
+			onClick: (value: any) => {
+				history.push(`/user/${value}`)
+			},
 		},
 		{ id: 'email', label: 'Email', minWidth: 170 },
 		{ id: 'dowllaId', label: 'Dowlla Id', minWidth: 100 },
@@ -63,9 +66,9 @@ const useColumns = () => {
 
 const UsersTable = () => {
 	const columns = useColumns();
-	const data: UserData[] = useUsersData();
+	const state: UserDataState = useUsersData();
 
-	return <TableTemplate data={data} columns={columns} />;
+	return <TableTemplate data={state.data} columns={columns} />;
 };
 
 export default UsersTable;

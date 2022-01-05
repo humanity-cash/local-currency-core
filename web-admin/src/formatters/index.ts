@@ -1,7 +1,19 @@
-import { AxiosPromiseResponse, IACHTransaction, IBlockchainTransaction } from '../types';
+import { AxiosPromiseResponse, IACHTransaction, IBlockchainTransaction, IUser } from '../types';
 
 const formatTransactionValue = (value: number | string): string => {
 	return String((Number(value) / 1000000000000000000).toFixed(2))
+}
+
+export const formatUser = (response: AxiosPromiseResponse<[]>): IUser[] => {
+	return response?.data?.map((user: any) => {
+		return {
+			userId: user.userId,
+			address: user.address,
+			createdBlock: user.createdBlock,
+			createdTimestamp: user.createdTimestamp * 1000,
+			availableBalance: user.availableBalance
+		}
+	})
 }
 
 export const formatDeposits = (response: AxiosPromiseResponse<[]>): IACHTransaction[] => {
