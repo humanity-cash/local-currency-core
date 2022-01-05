@@ -23,8 +23,11 @@ const useColumns = () => {
 			label: 'Name',
 			minWidth: 170,
 			clickable: true,
-			onClick: (value: any) => {
-				history.push(`/user/${value}`)
+			onClick: (value: any, row: any | undefined) => {				
+				history.push({
+					pathname: `/user/${value}`,
+					state: {user: row}
+				})
 			},
 		},
 		{ id: 'email', label: 'Email', minWidth: 170 },
