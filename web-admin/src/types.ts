@@ -20,6 +20,10 @@ export interface ModalState {
 	modalProps: {};
 }
 
+export interface UserDataState {
+	data: UserData[]
+}
+
 export interface BlockchainDataState {
 	data: BlockchainData[]
 }
@@ -64,6 +68,14 @@ export interface ACHData {
 	berksharesBank: string;
 	bankAccount: string;
 	status: TransactionStatus;
+}
+
+export interface IUser {
+	userId: string;
+    address: string;
+    createdBlock: string;
+    createdTimestamp: number;
+    availableBalance: number;
 }
 
 export interface IACHTransaction {

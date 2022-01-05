@@ -3,6 +3,8 @@
 export const START_CONTRACT = '/admin/unpause'
 export const STOP_CONTRACT = '/admin/pause'
 
+export const USERS = "/users"
+
 export const STATS_DEPOSITS = '/stats/deposit'
 export const STATS_WITHDRAWAL = '/stats/withdrawal'
 export const STATS_OPERATOR = '/stats/operator'
