@@ -5,6 +5,7 @@ import stats from "./stats";
 import admin from "./admin";
 import businesses from "./businesses";
 import health from "./health";
+import content from "./content";
 
 const router = express();
 
@@ -14,5 +15,6 @@ router.use(user);
 router.use(stats);
 router.use(admin);
 router.use(businesses);
+router.use(content);
 
 export default router;
