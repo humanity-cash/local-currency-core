@@ -1,5 +1,5 @@
 import { body, param } from "express-validator";
-import { mwVaildator, verifyRequest } from "src/middlewares";
+import { mwVaildator } from "src/middlewares";
 
 const idInParams = [param("id").notEmpty(), mwVaildator];
 const notificationIdInParams = [
@@ -8,7 +8,6 @@ const notificationIdInParams = [
 ];
 
 export const createUser = [
-  verifyRequest,
   body("consent").isBoolean(),
   body("email").isEmail(),
   body("type").isString(), // 'customer' | 'business'
@@ -46,22 +45,19 @@ export const createUser = [
 ];
 
 export const notifications = [
-  verifyRequest,
   ...idInParams,
   ...notificationIdInParams,
 ];
 
-export const getUser = [verifyRequest, ...idInParams];
+export const getUser = [...idInParams];
 
 export const deposit = [
-  verifyRequest,
   ...idInParams,
   body("amount").isString(),
   mwVaildator,
 ];
 
 export const addCustomer = [
-  verifyRequest,
   ...idInParams,
   body("customer.tag").isString(),
   body("customer.avatar").isString(),
@@ -76,7 +72,6 @@ export const addCustomer = [
 ];
 
 export const updateCustomerProfile = [
-  verifyRequest,
   ...idInParams,
   body("customer.tag").isString(),
   body("customer.avatar").isString(),
@@ -84,7 +79,6 @@ export const updateCustomerProfile = [
 ];
 
 export const updateBusinessProfile = [
-  verifyRequest,
   ...idInParams,
   body("business.story").isString(),
   body("business.tag").isString(),
@@ -99,7 +93,6 @@ export const updateBusinessProfile = [
 ];
 
 export const addBusiness = [
-  verifyRequest,
   ...idInParams,
   body("business.story").isString(),
   body("business.tag").isString(),
@@ -125,14 +118,12 @@ export const addBusiness = [
 ];
 
 export const withdraw = [
-  verifyRequest,
   ...idInParams,
   body("amount").isString(),
   mwVaildator,
 ];
 
 export const transfer = [
-  verifyRequest,
   ...idInParams,
   body("toUserId").isString(),
   body("amount").isString(),
