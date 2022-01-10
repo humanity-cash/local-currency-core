@@ -8,17 +8,61 @@ import { Values } from "src/content/Values";
 
 const codes = httpUtils.codes;
 
+function randomInteger(upTo: number, includingZero = true): number {
+  return Math.floor(Math.random() * upTo + (includingZero ? 0 : 1));
+}
+
+function selectContentFromSource(
+  sourceContent: HomeScreenContent[],
+  random?: number
+): HomeScreenContent[] {
+  let selectedContent: HomeScreenContent[] = [];
+
+  if (random) {
+    for (let i = 0; i < random; i++) {
+      if (sourceContent.length > 0) {
+        const index = randomInteger(sourceContent.length);
+        selectedContent.push(sourceContent[index]);
+        sourceContent.splice(index, 1);
+      }
+    }
+  } else selectedContent = sourceContent;
+
+  return selectedContent;
+}
+
 export async function getContent(_req: Request, res: Response): Promise<void> {
   try {
-    const content: HomeScreenContent[] = [
-      ...DidYouKnow,
-      ...FeaturedArtists,
-      ...Heroes,
-      ...Values,
-    ];
+    const limit = _req?.query?.limit;
+    const random = _req?.query?.random;
+    let type = _req?.query?.type;
+
+    let content: HomeScreenContent[] = [];
+
+    if (!type) {
+      content = [...DidYouKnow, ...FeaturedArtists, ...Heroes, ...Values];
+    } else {
+      type = String(type).toUpperCase();
+
+      if (type == "DIDYOUKNOW") content = DidYouKnow;
+      if (type == "FEATUREDARTISTS") content = FeaturedArtists;
+      if (type == "HEROES") content = Heroes;
+      if (type == "VALUES") content = Values;
+    }
+
+    content = selectContentFromSource(content, random);
+
+    if (limit) {
+      content = content.slice(0, limit);
+    }
+
     httpUtils.createHttpResponse(content, codes.OK, res);
   } catch (err) {
     log(err);
-    httpUtils.createHttpResponse({ message: "Server error: " + err }, 500, res);
+    httpUtils.createHttpResponse(
+      { message: "Server error: " + err },
+      codes.SERVER_ERROR,
+      res
+    );
   }
 }
