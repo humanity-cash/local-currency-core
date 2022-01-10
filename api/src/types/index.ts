@@ -228,3 +228,21 @@ export interface StatsUser {
   address: string;
   type: "customer" | "business";
 }
+
+export interface HomeScreenContentLink {
+  url: string;
+  text: string;
+}
+
+export interface HomeScreenContent {
+  contentType:
+    | "Pictures"
+    | "Heroes"
+    | "DidYouKnow"
+    | "Values"
+    | "FeaturedArtists";
+  image: string;
+  links?: HomeScreenContentLink[];
+  textTitle?: string;
+  text: string;
+}
