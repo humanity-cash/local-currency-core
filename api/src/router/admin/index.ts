@@ -8,11 +8,13 @@ admin.post("/admin/pause", verifyRequest, controller.adminPause);
 admin.post("/admin/unpause", verifyRequest, controller.adminUnpause);
 admin.post(
   "/admin/transfer/controller",
+  verifyRequest,
   validator.transferOwnerController,
   controller.transferControllerOwner
 );
 admin.post(
   "/admin/transfer/user",
+  verifyRequest,
   validator.transferOwnerUser,
   controller.transferWalletOwner
 );

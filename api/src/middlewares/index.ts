@@ -20,11 +20,6 @@ export const verifyRequest: express.RequestHandler = async (
       try {
         const verifyResponse = await verifyCognitoToken(authHeader);
         if (verifyResponse?.success) {
-          /** Extract user Id from token
-            const id = verifyResponse.token.username;
-            request.userId = id;
-            console.log(`Verified ${id} successfully`);
-          */
           next();
         } else {
           response

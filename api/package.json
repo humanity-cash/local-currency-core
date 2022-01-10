@@ -20,6 +20,7 @@
     "test:server": "yarn test --testPathPattern='server'",
     "test:dwolla": "yarn test --testPathPattern='dwolla'",
     "test:reports": "yarn test --testPathPattern='Reports'",
+    "test:public": "yarn test --testPathPattern='public'",
     "test:operator": "yarn test --testPathPattern='operator'",
     "test:auth": "yarn test --testPathPattern='APIAuthService.integration.test'",
     "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
