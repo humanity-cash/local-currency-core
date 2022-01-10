@@ -217,10 +217,23 @@ export type GenericDatabaseResponse<T, E = string> = {
   error?: E;
 };
 
+export interface StatsUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  dwollaId: string;
+  balance: number;
+  lastLogin: number;
+  walletAddress: string;
+  address: string;
+  type: "customer" | "business";
+}
+
 export interface HomeScreenContentLink {
   url: string;
   text: string;
 }
+
 export interface HomeScreenContent {
   contentType:
     | "Pictures"
