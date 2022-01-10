@@ -44,18 +44,11 @@ export const createUser = [
   mwVaildator,
 ];
 
-export const notifications = [
-  ...idInParams,
-  ...notificationIdInParams,
-];
+export const notifications = [...idInParams, ...notificationIdInParams];
 
 export const getUser = [...idInParams];
 
-export const deposit = [
-  ...idInParams,
-  body("amount").isString(),
-  mwVaildator,
-];
+export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
 
 export const addCustomer = [
   ...idInParams,
@@ -117,11 +110,7 @@ export const addBusiness = [
   mwVaildator,
 ];
 
-export const withdraw = [
-  ...idInParams,
-  body("amount").isString(),
-  mwVaildator,
-];
+export const withdraw = [...idInParams, body("amount").isString(), mwVaildator];
 
 export const transfer = [
   ...idInParams,
