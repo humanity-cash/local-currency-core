@@ -1327,6 +1327,20 @@ describe("Operator endpoints test", () => {
           done(err);
         });
     });
+
+    it("GET /stats/users: it should retrieve all users, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get("/stats/users")
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          log(JSON.parse(res.text));
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
   });
 
   describe("GET /users/:id/notifications", () => {
