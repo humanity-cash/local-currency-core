@@ -1,15 +1,18 @@
 import { START_CONTRACT, STATS_TRANSFER, STOP_CONTRACT } from 'consts';
 import * as BaseAPI from '../base';
+import { formatTransfers } from '../../formatters/index';
+import { IBlockchainTransaction } from '../../types';
 
 type Hash = string;
 
-export const getAllTransfers = async () => {
+export const getAllTransfers = async (): Promise<IBlockchainTransaction[]> => {
 	try {
 		const response = await BaseAPI.getRequest(STATS_TRANSFER);
 
-		return response;
+		return formatTransfers(response);
 	}	catch(err) {
 		console.log('err', err);
+		return []
 	}
 }
 
