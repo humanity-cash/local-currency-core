@@ -9,7 +9,6 @@ const user = express();
 user.get("/users", controller.getAllUsers);
 user.post(
   "/users",
-  verifyRequest,
   validators.createUser,
   controller.createUser
 );
