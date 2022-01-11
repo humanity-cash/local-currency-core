@@ -1,8 +1,7 @@
 import { body } from "express-validator";
-import { mwVaildator, verifyRequest } from "src/middlewares";
+import { mwVaildator } from "src/middlewares";
 
 export const transferOwnerController = [
-  verifyRequest,
   body(
     "newOwner",
     "Transfer controller payload must contain string 'newOwner' attribute"
@@ -11,7 +10,6 @@ export const transferOwnerController = [
 ];
 
 export const transferOwnerUser = [
-  verifyRequest,
   body(
     "newOwner",
     "Transfer controller payload must contain string 'newOwner' attribute"
