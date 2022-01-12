@@ -7,11 +7,7 @@ const user = express();
 
 // Get and create user(s)
 user.get("/users", controller.getAllUsers);
-user.post(
-  "/users",
-  validators.createUser,
-  controller.createUser
-);
+user.post("/users", validators.createUser, controller.createUser);
 user.get("/users/:id", validators.getUser, controller.getUser); // User dwolla info
 user.get("/users/email/:email", controller.getUserByEmail); // User database info
 

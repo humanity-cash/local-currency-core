@@ -1,3 +1,3 @@
-import * as AWSService from './aws';
+import * as AWSService from "./aws";
 
 export { AWSService };
