@@ -33,7 +33,7 @@ export const MockUserData: UserData[] = [
     dowllaId: "9832322",
     outstandingBalance: 322,
     lastLogin: 9983283232,
-    type: "Buisness",
+    type: "Business",
     address: "Holloway 89832, Boston",
     blockchainAddress: "0x00000003220032",
   },

@@ -104,7 +104,7 @@ export async function setFundedTransferId(
   );
   if (response.n == 0 || response.nModified == 0)
     throw Error(
-      `No match in database for DwollaTransfer with fundingTransferid ${fundingTransferId}`
+      `No match in database for DwollaTransfer with fundingTransferId ${fundingTransferId}`
     );
   return true;
 }
@@ -119,7 +119,7 @@ export async function updateStatusByFundedTransferId(
   );
   if (response.n == 0 || response.nModified == 0)
     throw Error(
-      `No match in database for DwollaTransfer with fundedTransferid ${fundedTransferId}`
+      `No match in database for DwollaTransfer with fundedTransferId ${fundedTransferId}`
     );
   return true;
 }
