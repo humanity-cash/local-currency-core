@@ -8,7 +8,7 @@ const httpRequest = axios.create({
 });
 type Query = string;
 type Path = string;
-type Body = {};
+type Body = Record<string,unknown>;
 
 const _getRequest = (query: Query) => () => httpRequest.get(query);
 const _postRequest = (path: Path, body: Body) => () =>
@@ -22,6 +22,7 @@ const ErrorHandler = async (requestHandler: Function) => {
   try {
     const response = await requestHandler();
     return response;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     const readbleError = err?.toJSON().message;
     console.log(`Http Request Error: ${readbleError}`);

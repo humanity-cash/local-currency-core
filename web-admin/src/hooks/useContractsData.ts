@@ -7,6 +7,7 @@ import { ContractsState } from "../types";
 const useContractsState = (): ContractsState => {
   const [contractsState, setContractsState] = useStore(CONTRACTS_STORE);
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setContractsState((pv: any) => ({ ...pv, data: MockContractsData }));
   }, []);
 

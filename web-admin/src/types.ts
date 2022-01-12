@@ -17,7 +17,7 @@ export interface ContractsState {
 export interface ModalState {
   type: string;
   isOpen: boolean;
-  modalProps: {};
+  modalProps: Record<string, unknown>;
 }
 
 export interface BlockchainDataState {
@@ -38,7 +38,7 @@ export interface UserData {
   lastLogin: Time;
   blockchainAddress: string;
   address: string;
-  type: "Buisness" | "Personal";
+  type: "Business" | "Personal";
 }
 
 export interface BlockchainData {
