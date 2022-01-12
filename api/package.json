@@ -71,6 +71,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-spellcheck": "^0.0.19",
     "faker": "^5.5.3",
     "jest": "^27.0.4",
     "module-alias": "^2.2.2",
