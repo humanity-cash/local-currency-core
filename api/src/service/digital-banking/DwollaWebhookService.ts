@@ -126,7 +126,7 @@ async function updateTransferStatusFromEvent(
   const fundedTransferLink = transfer.body?._links["funded-transfer"]?.href;
 
   if (fundedTransferLink) {
-    // Retreive the funded transfer for logging
+    // Retrieve the funded transfer for logging
     const fundedTransfer: dwolla.Response = await getDwollaResourceFromLocation(
       fundedTransferLink
     );
@@ -181,7 +181,7 @@ async function processTransferCompleted(
           `DwollaWebhookService.ts::consumeWebhook() Searching for related funding-transfer ${fundingTransferLink}`
         );
 
-        // Retreive the funding transfer for logging
+        // Retrieve the funding transfer for logging
         const fundingTransfer: dwolla.Response =
           await getDwollaResourceFromLocation(fundingTransferLink);
 
@@ -252,7 +252,7 @@ async function processTransferCreated(
           `DwollaWebhookService.ts::processTransferCreated() Searching for related funding-transfer ${fundingTransferLink}`
         );
 
-        // Retreive the funding transfer for logging
+        // Retrieve the funding transfer for logging
         const fundingTransfer: dwolla.Response =
           await getDwollaResourceFromLocation(fundingTransferLink);
 

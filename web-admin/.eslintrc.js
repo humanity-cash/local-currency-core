@@ -10,7 +10,7 @@
       "spellcheck/spell-checker": [1,
         {
           "identifiers": false,
-          "templates": false,
+          "templates": true,
           "lang": "en_US",
           "skipWords": [
             "Href",
@@ -41,7 +41,8 @@
             "gists",
             "Axios",
             "Perf",
-            "BerkShares"
+            "BerkShares",
+            "matchers"
           ],
           "minLength" : 4
         }
