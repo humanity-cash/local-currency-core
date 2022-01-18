@@ -5,9 +5,5 @@ dist
 # don't lint nyc coverage output
 coverage
 
-# Ignore test strings
-src/test/utils.ts
-src/test/Utils.crypto.test.ts
-src/test/Dwolla.server.test.ts
-src/test/APIAuthService.integration.test.ts
-src/test/Reports.test.ts
+# Mock data
+src/components/mockData.ts

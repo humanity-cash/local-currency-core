@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertArrayToCSV(input: any[]): string {
   // Use first element to choose the keys and the order
   const keys = Object.keys(input[0]);
