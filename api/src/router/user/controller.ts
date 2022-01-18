@@ -212,11 +212,11 @@ export async function updateCustomerProfile(
   res: Response
 ): Promise<void> {
   try {
-    const customer: Pick<Customer, "tag" | "avatar"> = req?.body?.customer;
+    const customer: Pick<Customer, "tag"> = req?.body?.customer;
     const customerDwollaId = req?.params?.id;
     const dbUser = await AuthService.updateCustomerProfile({
       customerDwollaId,
-      update: { tag: customer.tag, avatar: customer.avatar },
+      update: { tag: customer.tag },
     });
 
     httpUtils.createHttpResponse(dbUser, codes.OK, res);
@@ -233,7 +233,6 @@ export async function updateBusinessProfile(
     const business: Pick<
       Business,
       | "tag"
-      | "avatar"
       | "story"
       | "address1"
       | "address2"
@@ -248,7 +247,6 @@ export async function updateBusinessProfile(
       businessDwollaId,
       update: {
         tag: business.tag,
-        avatar: business.avatar,
         story: business.story,
         address1: business.address1,
         address2: business.address2,
@@ -510,6 +508,11 @@ export async function uploadProfilePicture(
       fileName,
       fileData
     );
+    const updateUserResponse = await AuthService.updateUserProfilePicture(userId);
+    if(!updateUserResponse.success) {
+     httpUtils.createHttpResponse("", 500, res);
+     return;
+    }
     httpUtils.createHttpResponse({ tag: uploadResponse.ETag }, 200, res);
     return;
   } catch (err) {
