@@ -1,4 +1,5 @@
 import * as dwolla from "dwolla-v2";
+import { uploadFileToBukcet } from "src/aws";
 import { Request, Response } from "express";
 import { AppNotificationService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
@@ -30,6 +31,7 @@ import {
 } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 
+export const PROFILE_PICTURES_BUCKET = "profile-picture-user";
 const codes = httpUtils.codes;
 
 export async function getAllUsers(_req: Request, res: Response): Promise<void> {
@@ -483,5 +485,36 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
         res
       );
     else httpUtils.serverError(err, res);
+  }
+}
+
+export async function uploadProfilePicture(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const userId = req?.params?.id;
+    const file = req?.files?.file;
+    if (!file) {
+      httpUtils.unprocessable("File not provided", res);
+      return;
+    }
+    if (!file.data) {
+      httpUtils.unprocessable("File data is missing", res);
+      return;
+    }
+    const fileName = `${userId}-profile-picture.jpg`;
+    const fileData = file.data;
+    const uploadResponse = await uploadFileToBukcet(
+      PROFILE_PICTURES_BUCKET,
+      fileName,
+      fileData
+    );
+    httpUtils.createHttpResponse({ tag: uploadResponse.ETag }, 200, res);
+    return;
+  } catch (err) {
+    log(err);
+    httpUtils.createHttpResponse("", 500, res);
+    return;
   }
 }
