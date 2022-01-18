@@ -13,7 +13,6 @@ export const createUser = [
   body("email").isEmail(),
   body("type").isString(), // 'customer' | 'business'
   body("customer.tag").optional().isString(),
-  body("customer.avatar").optional().isString(),
   body("customer.address1").optional().isString(),
   body("customer.address2").optional().isString(),
   body("customer.city").optional().isString(),
@@ -23,7 +22,6 @@ export const createUser = [
   body("customer.lastName").optional().isString(),
   body("business.story").optional().isString(),
   body("business.tag").optional().isString(),
-  body("business.avatar").optional().isString(),
   body("business.type").optional().isString(),
   body("business.rbn").optional().isString(),
   body("business.industry").optional().isString(),
@@ -54,7 +52,6 @@ export const deposit = [...idInParams, body("amount").isString(), mwVaildator];
 export const addCustomer = [
   ...idInParams,
   body("customer.tag").optional().isString(),
-  body("customer.avatar").optional().isString(),
   body("customer.address1").optional().isString(),
   body("customer.address2").optional().isString(),
   body("customer.city").optional().isString(),
@@ -68,7 +65,6 @@ export const addCustomer = [
 export const updateCustomerProfile = [
   ...idInParams,
   body("customer.tag").isString(),
-  body("customer.avatar").isString(),
   mwVaildator,
 ];
 
@@ -76,7 +72,6 @@ export const updateBusinessProfile = [
   ...idInParams,
   body("business.story").isString(),
   body("business.tag").isString(),
-  body("business.avatar").isString(),
   body("business.address1").isString(),
   body("business.address2").isString(),
   body("business.city").isString(),
@@ -90,7 +85,6 @@ export const addBusiness = [
   ...idInParams,
   body("business.story").optional().isString(),
   body("business.tag").optional().isString(),
-  body("business.avatar").optional().isString(),
   body("business.type").optional().isString(),
   body("business.rbn").optional().isString(),
   body("business.industry").optional().isString(),
@@ -120,3 +114,5 @@ export const transfer = [
   body("roundUpAmount").optional().isString(),
   mwVaildator,
 ];
+
+export const uploadProfilePicture = [...idInParams, mwVaildator];

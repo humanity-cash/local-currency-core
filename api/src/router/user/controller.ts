@@ -1,4 +1,5 @@
 import * as dwolla from "dwolla-v2";
+import { uploadFileToBucket } from "src/aws";
 import { Request, Response } from "express";
 import { AppNotificationService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
@@ -29,7 +30,9 @@ import {
   shouldSimulateWebhook,
 } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
+import { serverError } from "src/utils/http";
 
+export const PROFILE_PICTURES_BUCKET = "profile-picture-user";
 const codes = httpUtils.codes;
 
 export async function getAllUsers(_req: Request, res: Response): Promise<void> {
@@ -210,11 +213,11 @@ export async function updateCustomerProfile(
   res: Response
 ): Promise<void> {
   try {
-    const customer: Pick<Customer, "tag" | "avatar"> = req?.body?.customer;
+    const customer: Pick<Customer, "tag"> = req?.body?.customer;
     const customerDwollaId = req?.params?.id;
     const dbUser = await AuthService.updateCustomerProfile({
       customerDwollaId,
-      update: { tag: customer.tag, avatar: customer.avatar },
+      update: { tag: customer.tag },
     });
 
     httpUtils.createHttpResponse(dbUser, codes.OK, res);
@@ -231,7 +234,6 @@ export async function updateBusinessProfile(
     const business: Pick<
       Business,
       | "tag"
-      | "avatar"
       | "story"
       | "address1"
       | "address2"
@@ -246,7 +248,6 @@ export async function updateBusinessProfile(
       businessDwollaId,
       update: {
         tag: business.tag,
-        avatar: business.avatar,
         story: business.story,
         address1: business.address1,
         address2: business.address2,
@@ -483,5 +484,41 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
         res
       );
     else httpUtils.serverError(err, res);
+  }
+}
+
+export async function uploadProfilePicture(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const userId = req?.params?.id;
+    const file = req?.files?.file;
+    if (!file) {
+      httpUtils.unprocessable("File not provided", res);
+      return;
+    }
+    if (!file.data) {
+      httpUtils.unprocessable("File data is missing", res);
+      return;
+    }
+    const fileName = `${userId}-profile-picture.jpg`;
+    const fileData = file.data;
+    const uploadResponse = await uploadFileToBucket(
+      PROFILE_PICTURES_BUCKET,
+      fileName,
+      fileData
+    );
+    await AuthService.updateUserProfilePicture(userId);
+    httpUtils.createHttpResponse(
+      { tag: uploadResponse.ETag },
+      httpUtils.codes.OK,
+      res
+    );
+    return;
+  } catch (err) {
+    log(err);
+    serverError(err, res);
+    return;
   }
 }

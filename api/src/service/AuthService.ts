@@ -10,13 +10,13 @@ import {
   IDBUser,
   WalletAddress,
 } from "src/types";
-import { log } from "src/utils";
+import { avatarUrlGenerator, log } from "src/utils";
 
 export async function createUser(
   data: Pick<IDBUser, "email" | "consent" | "customer" | "business">,
   type: "customer" | "business"
 ): Promise<GenericDatabaseResponse<IDBUser>> {
-  let response;
+  let response: GenericDatabaseResponse<IDBUser>;
   if (type === "customer") {
     response = await createCustomer({
       email: data.email,
@@ -55,7 +55,7 @@ async function createCustomer(
         city: input?.customer?.city || "",
         state: input?.customer?.state || "",
         postalCode: input?.customer?.postalCode || "",
-        avatar: input?.customer?.avatar || "",
+        avatar: process.env.CUSTOMER_DEFAULT_AVATAR_URL,
         tag: input?.customer?.tag || "",
       },
       email: input.email,
@@ -81,7 +81,10 @@ async function createBusiness(
       consent: input.consent,
       verifiedCustomer: false,
       verifiedBusiness: true,
-      business: input.business,
+      business: {
+        ...input.business,
+        avatar: process.env.BUSINESS_DEFAULT_AVATAR_URL,
+      },
       email: input.email,
     });
     return { success: true, data: user };
@@ -101,7 +104,10 @@ export async function addCustomer(
     }
     const filter: IBusinessDwollaId = { "business.dwollaId": dwollaId };
     const response = await UserDatabaseService.update<IDBUser>(filter, {
-      customer: verification.customer,
+      customer: {
+        ...verification.customer,
+        avatar: process.env.CUSTOMER_DEFAULT_AVATAR_URL,
+      },
       verifiedCustomer: true,
     });
     return { success: true, data: response };
@@ -156,7 +162,10 @@ export async function addBusiness(
     }
     const filter: ICustomerDwollaId = { "customer.dwollaId": dwollaId };
     const response = await UserDatabaseService.update<IDBUser>(filter, {
-      business: verification.business,
+      business: {
+        ...verification.business,
+        avatar: process.env.BUSINESS_DEFAULT_AVATAR_URL,
+      },
       verifiedBusiness: true,
     });
     return { success: true, data: response };
@@ -268,6 +277,37 @@ export async function updateUser(
   }
 }
 
+export async function updateUserProfilePicture(
+  dwollaId: string
+): Promise<GenericDatabaseResponse<IDBUser>> {
+  try {
+    const getUserResponse = await getUser(dwollaId);
+    const currentUser: IDBUser | undefined = getUserResponse?.data;
+    if (!currentUser) {
+      return { success: false, error: "User does not exist!" };
+    }
+    const isCustomer = currentUser.customer?.dwollaId === dwollaId;
+    const update = isCustomer
+      ? {
+          customer: {
+            ...currentUser?.customer,
+            avatar: avatarUrlGenerator(dwollaId),
+          },
+        }
+      : {
+          business: {
+            ...currentUser?.business,
+            avatar: avatarUrlGenerator(dwollaId),
+          },
+        };
+    const response = await updateUser(dwollaId, update);
+    return { success: true, data: response?.data };
+  } catch (error) {
+    log(error);
+    return { success: false, error };
+  }
+}
+
 export interface UpdateWalletAddress {
   walletAddress: string;
   dwollaId: string;
@@ -275,13 +315,12 @@ export interface UpdateWalletAddress {
 
 export interface UpdateCustomerProfile {
   customerDwollaId: string;
-  update: { tag: string; avatar: string };
+  update: { tag: string };
 }
 
 export interface UpdateBusinessProfile {
   businessDwollaId: string;
   update: {
-    avatar: string;
     tag: string;
     story: string;
     website: string;
@@ -305,7 +344,6 @@ export async function updateBusinessProfile({
       business: {
         ...business,
         owner: business.owner,
-        avatar: update.avatar,
         tag: update.tag,
         story: update.story,
         website: update.website,
@@ -334,7 +372,6 @@ export async function updateCustomerProfile({
     const u = {
       customer: {
         ...customer,
-        avatar: update.avatar,
         tag: update.tag,
       },
     };
