@@ -8,6 +8,7 @@ import { mockDatabase } from "./setup/setup-db-integration";
 import { createFakeUser } from "./utils";
 import { getUser } from "src/service/AuthService";
 import { avatarUrlGenerator } from "src/utils";
+import { codes } from "src/utils/http";
 
 jest.setTimeout(50000);
 
@@ -48,7 +49,7 @@ describe("Profile Picture Module", () => {
         expect(res.body.dbId).to.exist;
         expect(res.body.verifiedCustomer).to.eql(true);
         expect(res.body.verifiedBusiness).to.eql(false);
-        expect(res).to.have.status(201);
+        expect(res).to.have.status(codes.CREATED);
         customerDwollaId = res.body.customer.dwollaId;
         done();
       })
@@ -68,7 +69,7 @@ describe("Profile Picture Module", () => {
       .post("/users/" + customerDwollaId + "/upload/profilePicture")
       .attach("file", fs.readFileSync(filePath))
       .then((res) => {
-        expect(res).to.have.status(200);
+        expect(res).to.have.status(codes.OK);
         expect(res.body).to.be.haveOwnProperty("tag");
         done();
       })
