@@ -88,7 +88,7 @@ async function createDwollaTransfer(
     },
   };
 
-  // 2 Inititate Dwolla transfer
+  // 2 Initiate Dwolla transfer
   const transferResponse: Response = await createTransfer(transferRequest);
   log(
     `OperatorService.ts::createDwollaTransfer() ${transferResponse.headers.get(
@@ -337,7 +337,7 @@ export async function withdraw(
 
       if (index >= sortedOperatorStats?.length)
         throw Error(
-          `withdraw():: Critical - cannot fulfil withdrawal ${amount} for userId ${userId}`
+          `withdraw():: Critical - cannot fulfill withdrawal ${amount} for userId ${userId}`
         );
     }
   }
@@ -370,10 +370,10 @@ export async function transferTo(
     // const toName = names[1];
     await userNotification(
       fromUserId,
-      `You've sucessfully sent B$${amount}`,
+      `You've successfully sent B$${amount}`,
       "INFO"
     );
-    await userNotification(toUserId, `You've recevied B$${amount}`, "INFO");
+    await userNotification(toUserId, `You've received B$${amount}`, "INFO");
   }
 
   return success;

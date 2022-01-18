@@ -14,10 +14,6 @@
           "lang": "en_US",
           "skipWords": [
             "Href",
-            "checksum",
-            "cancelled",
-            "versa",
-            "mongodb",
             "Dwolla",
             "chai",
             "Webhook",
@@ -31,7 +27,7 @@
             "Idempotency",
             "Cognito",
             "sinon",
-            "tokeeeen",
+            "tokeeen",
             "unpause",
             "Hmac",
             "unix",
@@ -40,10 +36,13 @@
             "Middlewares",
             "Blockchain",
             "Func",
-            "uint256",
-            "Ownable",
-            "Unpaused",
-            "unprocessable"
+            "repos",
+            "gravatar",
+            "gists",
+            "Axios",
+            "Perf",
+            "BerkShares",
+            "matchers"
           ],
           "minLength" : 4
         }
@@ -52,7 +51,6 @@
     extends: [
       'eslint:recommended',
       'plugin:@typescript-eslint/recommended',
-      'prettier',
-      'prettier/@typescript-eslint'
+      'prettier'
     ]
   };

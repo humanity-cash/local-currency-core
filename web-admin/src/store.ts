@@ -1,28 +1,33 @@
 import { createStore } from "react-hookstore";
-import { ACHDataState, BlockchainDataState, ContractsState, ModalState } from "./types";
+import {
+  ACHDataState,
+  BlockchainDataState,
+  ContractsState,
+  ModalState,
+} from "./types";
 
-export const CONTRACTS_STORE = 'contracts_store';
-export const BLOCKCHAIN_DATA_STORE = 'blockchain_store';
-export const ACH_DATA_STORE = 'ach_store';
-export const MODAL_STORE = 'modal_store';
+export const CONTRACTS_STORE = "contracts_store";
+export const BLOCKCHAIN_DATA_STORE = "blockchain_store";
+export const ACH_DATA_STORE = "ach_store";
+export const MODAL_STORE = "modal_store";
 
-const ACHDataStoreInitialState: ACHDataState  = {
-	data: []
-}
+const ACHDataStoreInitialState: ACHDataState = {
+  data: [],
+};
 
-const BlockchainDataStoreInitialState: BlockchainDataState  = {
-	data: []
-}
+const BlockchainDataStoreInitialState: BlockchainDataState = {
+  data: [],
+};
 
-const contractsStoreInitialState: ContractsState  = {
-	data: []
-}
+const contractsStoreInitialState: ContractsState = {
+  data: [],
+};
 
 const modalStoreInitialState: ModalState = {
-		isOpen: false,
-		modalProps: {},
-		type: ''
-}
+  isOpen: false,
+  modalProps: {},
+  type: "",
+};
 
 createStore(CONTRACTS_STORE, contractsStoreInitialState);
 createStore(MODAL_STORE, modalStoreInitialState);
