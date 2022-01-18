@@ -120,3 +120,5 @@ export const transfer = [
   body("roundUpAmount").optional().isString(),
   mwVaildator,
 ];
+
+export const uploadProfilePicture = [...idInParams, mwVaildator];
