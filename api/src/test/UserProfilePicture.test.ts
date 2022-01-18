@@ -1,7 +1,7 @@
 import chai from "chai";
 import fs from "fs";
 import chaiHttp from "chai-http";
-import { getFileFromBukcet, listBuckets } from "../aws";
+import { getFileFromBucket, listBuckets } from "../aws";
 import { getApp } from "../server";
 import { PROFILE_PICTURES_BUCKET } from "../router/user/controller";
 import { mockDatabase } from "./setup/setup-db-integration";
@@ -83,7 +83,7 @@ describe("Profile Picture Module", () => {
   });
 
   it("It should return image from bucket", async () => {
-    const data = await getFileFromBukcet(
+    const data = await getFileFromBucket(
       PROFILE_PICTURES_BUCKET,
       `${customerDwollaId}-profile-picture.jpg`
     );

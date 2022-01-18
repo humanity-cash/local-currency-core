@@ -1,5 +1,5 @@
 import * as dwolla from "dwolla-v2";
-import { uploadFileToBukcet } from "src/aws";
+import { uploadFileToBucket } from "src/aws";
 import { Request, Response } from "express";
 import { AppNotificationService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
@@ -30,6 +30,7 @@ import {
   shouldSimulateWebhook,
 } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
+import { serverError } from "src/utils/http";
 
 export const PROFILE_PICTURES_BUCKET = "profile-picture-user";
 const codes = httpUtils.codes;
@@ -503,21 +504,17 @@ export async function uploadProfilePicture(
     }
     const fileName = `${userId}-profile-picture.jpg`;
     const fileData = file.data;
-    const uploadResponse = await uploadFileToBukcet(
+    const uploadResponse = await uploadFileToBucket(
       PROFILE_PICTURES_BUCKET,
       fileName,
       fileData
     );
-    const updateUserResponse = await AuthService.updateUserProfilePicture(userId);
-    if(!updateUserResponse.success) {
-     httpUtils.createHttpResponse("", 500, res);
-     return;
-    }
+    await AuthService.updateUserProfilePicture(userId);
     httpUtils.createHttpResponse({ tag: uploadResponse.ETag }, 200, res);
     return;
   } catch (err) {
     log(err);
-    httpUtils.createHttpResponse("", 500, res);
+    serverError(err, res);
     return;
   }
 }
