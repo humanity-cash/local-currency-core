@@ -2,6 +2,7 @@ import cors from "cors";
 import express, { Express } from "express";
 import morgan from "morgan";
 import router from "./router";
+import fileUpload from "express-fileupload";
 
 export function getApp(): Express {
   const app = express();
@@ -11,6 +12,7 @@ export function getApp(): Express {
   app.use(express.json({ type: "application/json" }));
   app.use(cors());
   app.set("x-powered-by", false);
+  app.use(fileUpload());
   app.use(router);
 
   return app;
