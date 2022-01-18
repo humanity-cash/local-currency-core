@@ -4,10 +4,10 @@ import { log, shouldUseMongoTLS } from "src/utils";
 const startDatabase = (cb: (err?) => void): void => {
   const databaseURL = process.env.MONGO_URL;
   if (!databaseURL) {
-    log("Databse URL is not set. Aborting.");
+    log("Database URL is not set. Aborting.");
     return;
   }
-  log(`Connecting to databse ${databaseURL}`);
+  log(`Connecting to database ${databaseURL}`);
 
   if (shouldUseMongoTLS())
     mongoose.connect(databaseURL + "&authSource=admin", {
