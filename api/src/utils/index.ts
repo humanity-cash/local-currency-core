@@ -151,9 +151,9 @@ export async function getOperatorUserId(fromAddress: string): Promise<string> {
   return userId;
 }
 
-export function avatarUrlGenerator(id: string){
- const IMGX_BASE_URL = process.env.IMGX_BASE_URL;
- const query = `${id}-profile-picture.jpg`;
+export function avatarUrlGenerator(id: string) {
+  const IMGX_BASE_URL = process.env.IMGX_BASE_URL;
+  const query = `${id}-profile-picture.jpg`;
 
- return `${IMGX_BASE_URL}${query}`
+  return `${IMGX_BASE_URL}${query}`;
 }
