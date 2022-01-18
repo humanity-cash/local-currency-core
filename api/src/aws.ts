@@ -50,7 +50,7 @@ export async function createBucket(
   }
 }
 
-export async function uploadFileToBukcet(
+export async function uploadFileToBucket(
   bucketName: BucketName,
   filePath: Key,
   fileBody: Body
@@ -62,6 +62,7 @@ export async function uploadFileToBukcet(
       Body: fileBody,
       ContentType: "application/octet-stream",
       CacheControl: "public, max-age=86400",
+      ACL: 'public-read',
     };
     const res = await s3.putObject(params).promise();
 
@@ -71,7 +72,7 @@ export async function uploadFileToBukcet(
   }
 }
 
-export async function getFileFromBukcet(
+export async function getFileFromBucket(
   bucketName: BucketName,
   fileName: Key
 ): Promise<PromiseResult<GetObjectOutput, Error>> {
@@ -93,7 +94,7 @@ export async function uploadMerchantReportToS3(
   filePath: Key,
   fileBody: Body
 ): Promise<void> {
-  await uploadFileToBukcet(MERCHANTS_TX_REPORTS, filePath, fileBody);
+  await uploadFileToBucket(MERCHANTS_TX_REPORTS, filePath, fileBody);
 }
 
 /**AWS Token Middleware Verifier**/
