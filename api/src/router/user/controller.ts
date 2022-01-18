@@ -510,7 +510,7 @@ export async function uploadProfilePicture(
       fileData
     );
     await AuthService.updateUserProfilePicture(userId);
-    httpUtils.createHttpResponse({ tag: uploadResponse.ETag }, 200, res);
+    httpUtils.createHttpResponse({ tag: uploadResponse.ETag }, httpUtils.codes.OK, res);
     return;
   } catch (err) {
     log(err);
