@@ -101,4 +101,12 @@ user.put(
   controller.updateBusinessProfile
 );
 
+// Update user profile picture
+user.post(
+  "/users/:id/upload/profilePicture",
+  verifyRequest,
+  validators.uploadProfilePicture,
+  controller.uploadProfilePicture
+);
+
 export default user;
