@@ -16,7 +16,7 @@ export async function createUser(
   data: Pick<IDBUser, "email" | "consent" | "customer" | "business">,
   type: "customer" | "business"
 ): Promise<GenericDatabaseResponse<IDBUser>> {
-  let response : GenericDatabaseResponse<IDBUser>;
+  let response: GenericDatabaseResponse<IDBUser>;
   if (type === "customer") {
     response = await createCustomer({
       email: data.email,
@@ -82,8 +82,8 @@ async function createBusiness(
       verifiedCustomer: false,
       verifiedBusiness: true,
       business: {
-       ...input.business,
-       avatar: process.env.BUSINESS_DEFAULT_AVATAR_URL,
+        ...input.business,
+        avatar: process.env.BUSINESS_DEFAULT_AVATAR_URL,
       },
       email: input.email,
     });
@@ -104,9 +104,9 @@ export async function addCustomer(
     }
     const filter: IBusinessDwollaId = { "business.dwollaId": dwollaId };
     const response = await UserDatabaseService.update<IDBUser>(filter, {
-      customer: { 
-       ...verification.customer,
-       avatar: process.env.CUSTOMER_DEFAULT_AVATAR_URL,
+      customer: {
+        ...verification.customer,
+        avatar: process.env.CUSTOMER_DEFAULT_AVATAR_URL,
       },
       verifiedCustomer: true,
     });
@@ -162,9 +162,9 @@ export async function addBusiness(
     }
     const filter: ICustomerDwollaId = { "customer.dwollaId": dwollaId };
     const response = await UserDatabaseService.update<IDBUser>(filter, {
-      business: { 
-       ...verification.business,
-       avatar: process.env.BUSINESS_DEFAULT_AVATAR_URL,
+      business: {
+        ...verification.business,
+        avatar: process.env.BUSINESS_DEFAULT_AVATAR_URL,
       },
       verifiedBusiness: true,
     });
@@ -277,34 +277,35 @@ export async function updateUser(
   }
 }
 
-
 export async function updateUserProfilePicture(
- dwollaId: string,
+  dwollaId: string
 ): Promise<GenericDatabaseResponse<IDBUser>> {
- try {
-  const getUserResponse = await getUser(dwollaId);
-  const currentUser: IDBUser | undefined = getUserResponse?.data;
-  if(!currentUser) {
-   return { success: false, error: "User does not exist!" };
+  try {
+    const getUserResponse = await getUser(dwollaId);
+    const currentUser: IDBUser | undefined = getUserResponse?.data;
+    if (!currentUser) {
+      return { success: false, error: "User does not exist!" };
+    }
+    const isCustomer = currentUser.customer?.dwollaId === dwollaId;
+    const update = isCustomer
+      ? {
+          customer: {
+            ...currentUser?.customer,
+            avatar: avatarUrlGenerator(dwollaId),
+          },
+        }
+      : {
+          business: {
+            ...currentUser?.business,
+            avatar: avatarUrlGenerator(dwollaId),
+          },
+        };
+    const response = await updateUser(dwollaId, update);
+    return { success: true, data: response?.data };
+  } catch (error) {
+    log(error);
+    return { success: false, error };
   }
-  const isCustomer = currentUser.customer?.dwollaId === dwollaId;
-  const update = isCustomer ? { 
-   customer: {
-    ...currentUser?.customer,
-    avatar: avatarUrlGenerator(dwollaId)
-   }
-  } : {
-   business: {
-    ...currentUser?.business,
-    avatar: avatarUrlGenerator(dwollaId)
-   }
-  };
-  const response = await updateUser(dwollaId, update);
-  return { success: true, data: response?.data };
- } catch (error) {
-  log(error);
-  return { success: false, error };
- }
 }
 
 export interface UpdateWalletAddress {
@@ -314,7 +315,7 @@ export interface UpdateWalletAddress {
 
 export interface UpdateCustomerProfile {
   customerDwollaId: string;
-  update: { tag: string; };
+  update: { tag: string };
 }
 
 export interface UpdateBusinessProfile {

@@ -62,7 +62,7 @@ export async function uploadFileToBucket(
       Body: fileBody,
       ContentType: "application/octet-stream",
       CacheControl: "public, max-age=86400",
-      ACL: 'public-read',
+      ACL: "public-read",
     };
     const res = await s3.putObject(params).promise();
 
@@ -101,7 +101,9 @@ export async function uploadMerchantReportToS3(
 
 const { JwtVerificationError, JwksNoMatchingKeyError } = errors;
 
-export const cognitoVerifier = (): { verify:  (token: string) => Promise<string> } =>
+export const cognitoVerifier = (): {
+  verify: (token: string) => Promise<string>;
+} =>
   verifierFactory({
     region: process.env.AWS_REGION,
     userPoolId: process.env.AWS_POOL_ID,
