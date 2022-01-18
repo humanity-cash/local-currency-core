@@ -1,8 +1,17 @@
 import { errors, verifierFactory } from "@southlane/cognito-jwt-verifier";
-import AWS from "aws-sdk";
+import AWS, { AWSError } from "aws-sdk";
 import { Key } from "aws-sdk/clients/iot";
-import { Body, Buckets, BucketName } from "aws-sdk/clients/s3";
-import { log } from "./utils";
+import {
+  Body,
+  BucketName,
+  PutObjectOutput,
+  ListBucketsOutput,
+  CreateBucketOutput,
+  GetObjectOutput,
+} from "aws-sdk/clients/s3";
+import { PromiseResult } from "aws-sdk/lib/request";
+
+/**AWS Client**/
 
 AWS.config.update({
   region: process.env.AWS_REGION,
@@ -10,73 +19,73 @@ AWS.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
+/**AWS-S3 Client**/
+
 const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 
-export async function listBuckets(): Promise<Buckets> {
-  let buckets: Buckets = [];
-  await s3.listBuckets(function (err, data) {
-    if (err) {
-      console.log("Error", err);
-    } else {
-      buckets = data.Buckets;
-    }
-  });
+export async function listBuckets(): Promise<
+  PromiseResult<ListBucketsOutput, AWSError>
+> {
+  try {
+    const buckets = await s3.listBuckets().promise();
 
-  return buckets;
+    return buckets;
+  } catch (error) {
+    return error;
+  }
 }
 
-export async function createBucket(name: string): Promise<void> {
-  const bucketParams = {
-    Bucket: name,
-  };
-  await s3.createBucket(bucketParams, function (error, data) {
-    if (error) {
-      log(error);
-    } else {
-      log("Success", data.Location);
-    }
-  });
+export async function createBucket(
+  bucketName: string
+): Promise<PromiseResult<CreateBucketOutput, AWSError>> {
+  try {
+    const bucketParams = {
+      Bucket: bucketName,
+    };
+    const response = await s3.createBucket(bucketParams).promise();
+
+    return response;
+  } catch (error) {
+    return error;
+  }
 }
 
 export async function uploadFileToBukcet(
   bucketName: BucketName,
   filePath: Key,
   fileBody: Body
-): Promise<void> {
-  const params = {
-    Bucket: bucketName,
-    Key: filePath,
-    Body: fileBody,
-    ContentType: "application/octet-stream",
-    CacheControl: "public, max-age=86400",
-  };
+): Promise<PromiseResult<PutObjectOutput, AWSError>> {
+  try {
+    const params = {
+      Bucket: bucketName,
+      Key: filePath,
+      Body: fileBody,
+      ContentType: "application/octet-stream",
+      CacheControl: "public, max-age=86400",
+    };
+    const res = await s3.putObject(params).promise();
 
-  await s3.putObject(params, function (err, data) {
-    if (err) {
-      console.log("Error in upload", err);
-    }
-    if (data) {
-      console.log("Upload Success", data);
-    }
-  });
+    return res;
+  } catch (error) {
+    return error;
+  }
 }
 
 export async function getFileFromBukcet(
   bucketName: BucketName,
   fileName: Key
-): Promise<Body> {
-  return new Promise(function (success, reject) {
-    s3.getObject({ Bucket: bucketName, Key: fileName }, function (error, data) {
-      if (error) {
-        reject(error);
-      } else {
-        const buffer: Body = data.Body;
-        // const a = buffer.toString();
-        success(buffer);
-      }
-    });
-  });
+): Promise<PromiseResult<GetObjectOutput, Error>> {
+  try {
+    const response = await s3
+      .getObject({ Bucket: bucketName, Key: fileName })
+      .promise();
+    return response;
+  } catch (error) {
+    return error;
+  }
 }
+
+/**Merchants CSV Transaction Reports**/
 
 export const MERCHANTS_TX_REPORTS = "merchants-tx-reports";
 
@@ -87,9 +96,11 @@ export async function uploadMerchantReportToS3(
   await uploadFileToBukcet(MERCHANTS_TX_REPORTS, filePath, fileBody);
 }
 
+/**AWS Token Middleware Verifier**/
+
 const { JwtVerificationError, JwksNoMatchingKeyError } = errors;
 
-export const cognitoVerifier = () =>
+export const cognitoVerifier = (): { verify:  (token: string) => Promise<string> } =>
   verifierFactory({
     region: process.env.AWS_REGION,
     userPoolId: process.env.AWS_POOL_ID,
@@ -99,7 +110,7 @@ export const cognitoVerifier = () =>
 
 export const verifyCognitoToken = async (
   token: string
-): Promise<{ success: boolean; token: any }> => {
+): Promise<{ success: boolean; token: string }> => {
   try {
     const verifier = cognitoVerifier().verify;
     const verifiedToken = await verifier(token);
