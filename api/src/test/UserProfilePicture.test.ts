@@ -59,8 +59,10 @@ describe("Profile Picture Module", () => {
   });
 
   it("Customer should have default avatar", async () => {
-      const u = await getUser(customerDwollaId);
-      expect(u.data.customer.avatar).to.eql(process.env.CUSTOMER_DEFAULT_AVATAR_URL);
+    const u = await getUser(customerDwollaId);
+    expect(u.data.customer.avatar).to.eql(
+      process.env.CUSTOMER_DEFAULT_AVATAR_URL
+    );
   });
 
   it("It should upload image successfully", (done) => {
@@ -79,8 +81,8 @@ describe("Profile Picture Module", () => {
   });
 
   it("Customer should have new avatar", async () => {
-      const u = await getUser(customerDwollaId);
-      expect(u.data.customer.avatar).to.eql(avatarUrlGenerator(customerDwollaId));
+    const u = await getUser(customerDwollaId);
+    expect(u.data.customer.avatar).to.eql(avatarUrlGenerator(customerDwollaId));
   });
 
   it("It should return image from bucket", async () => {
