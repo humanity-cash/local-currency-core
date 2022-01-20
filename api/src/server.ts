@@ -8,7 +8,8 @@ export function getApp(): Express {
   app.use(
     morgan(":method :url :status :res[content-length] - :response-time ms")
   );
-  app.use(express.json({ type: "application/json" }));
+  app.use(express.json({ type: "application/json", limit: "50mb" }));
+  app.use(express.urlencoded({limit: "50mb", extended: true}));
   app.use(cors());
   app.set("x-powered-by", false);
   app.use(router);
