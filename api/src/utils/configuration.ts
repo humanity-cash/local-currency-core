@@ -1,4 +1,8 @@
-import { SecretsManagerClient, GetSecretValueCommand, GetSecretValueCommandInput } from "@aws-sdk/client-secrets-manager";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+  GetSecretValueCommandInput,
+} from "@aws-sdk/client-secrets-manager";
 
 async function getSecrets(secretName: string, region: string): Promise<string> {
   let secret: string, decodedBinarySecret: string;
@@ -7,12 +11,11 @@ async function getSecrets(secretName: string, region: string): Promise<string> {
     region: region,
   });
 
-  const input: GetSecretValueCommandInput = {  
-   SecretId: secretName,
-  }
+  const input: GetSecretValueCommandInput = {
+    SecretId: secretName,
+  };
   const command = new GetSecretValueCommand(input);
-  const data = await client
-    .send(command)
+  const data = await client.send(command);
   if ("SecretString" in data) {
     secret = data.SecretString;
     console.log("Secrets are plaintext");
