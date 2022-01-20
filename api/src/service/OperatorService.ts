@@ -182,24 +182,24 @@ export async function getWithdrawalsForUser(
   return withdrawals;
 }
 
-// async function isCommunityChest(walletAddress: string) {
-//   const communityChestAddress = await contracts.communityChestAddress();
-//   return walletAddress == communityChestAddress;
-// }
+async function isCommunityChest(walletAddress: string) {
+  const communityChestAddress = await contracts.communityChestAddress();
+  return walletAddress == communityChestAddress;
+}
 
-// async function isHumanityCash(walletAddress: string) {
-//   const humanityCashAddress = await contracts.humanityCashAddress();
-//   return walletAddress == humanityCashAddress;
-// }
+async function isHumanityCash(walletAddress: string) {
+  const humanityCashAddress = await contracts.humanityCashAddress();
+  return walletAddress == humanityCashAddress;
+}
 
-// async function getDisplayNameFromAddress(walletAddress: string) {
-//   if (await isCommunityChest(walletAddress)) return "Community Chest";
-//   else if (await isHumanityCash(walletAddress)) return "Humanity Cash";
-//   else {
-//     const userData = await getUserData(walletAddress);
-//     return userData?.data?.name;
-//   }
-// }
+async function getDisplayNameFromAddress(walletAddress: string) {
+  if (await isCommunityChest(walletAddress)) return "Community Chest";
+  else if (await isHumanityCash(walletAddress)) return "Humanity Cash";
+  else {
+    const userData = await getUserData(walletAddress);
+    return userData?.data?.name;
+  }
+}
 
 export async function getTransfersForUser(
   userId: string
@@ -356,24 +356,29 @@ export async function transferTo(
   ).status;
 
   if (success) {
-    // const addressPromises = [
-    //   contracts.getWalletAddress(fromUserId),
-    //   contracts.getWalletAddress(toUserId),
-    // ];
-    // const addresses = await Promise.all(addressPromises);
-    // const namePromises = [
-    //   getDisplayNameFromAddress(addresses[0]),
-    //   getDisplayNameFromAddress[addresses[1]],
-    // ];
-    // const names = await Promise.all(namePromises);
-    // const fromName = names[0];
-    // const toName = names[1];
+    const addressPromises = [
+      contracts.getWalletAddress(fromUserId),
+      contracts.getWalletAddress(toUserId),
+    ];
+    const addresses = await Promise.all(addressPromises);
+
+    const fromName = await getDisplayNameFromAddress(addresses[0]);
+    const toName = await getDisplayNameFromAddress(addresses[1]);
+
+    log(
+      `OperatorService::transferTo() Transfer from ${addresses[0]} (${fromName}) to ${addresses[1]} (${toName})`
+    );
+
     await userNotification(
       fromUserId,
-      `You've successfully sent B$${amount}`,
+      `You've successfully sent B$${amount} to ${toName}`,
       "INFO"
     );
-    await userNotification(toUserId, `You've received B$${amount}`, "INFO");
+    await userNotification(
+      toUserId,
+      `You've received B$${amount} from ${fromName}`,
+      "INFO"
+    );
   }
 
   return success;
