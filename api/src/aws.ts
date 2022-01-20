@@ -9,13 +9,17 @@ import {
   PutObjectCommandInput,
   GetObjectCommand,
   GetObjectCommandInput,
+  CreateBucketCommandOutput,
+  ListBucketsCommandOutput,
+  PutObjectCommandOutput,
+  GetObjectCommandOutput,
 } from "@aws-sdk/client-s3";
 
 /**AWS-S3 Client**/
 
 const s3 = new S3Client({ region: "us-west-1" });
 
-export async function listBuckets() {
+export async function listBuckets(): Promise<ListBucketsCommandOutput> {
   try {
     const input: ListBucketsCommandInput = {};
     const command = new ListBucketsCommand(input);
@@ -27,7 +31,7 @@ export async function listBuckets() {
   }
 }
 
-export async function createBucket(bucketName: string) {
+export async function createBucket(bucketName: string): Promise<CreateBucketCommandOutput> {
   try {
     const input: CreateBucketCommandInput = {
       Bucket: bucketName,
@@ -41,7 +45,7 @@ export async function createBucket(bucketName: string) {
   }
 }
 
-export async function uploadFileToBucket(bucketName, filePath, fileBody) {
+export async function uploadFileToBucket(bucketName: string, filePath: string, fileBody: Buffer): Promise<PutObjectCommandOutput> {
   try {
     const input: PutObjectCommandInput = {
       Bucket: bucketName,
@@ -61,7 +65,7 @@ export async function uploadFileToBucket(bucketName, filePath, fileBody) {
   }
 }
 
-export async function getFileFromBucket(bucketName, fileName) {
+export async function getFileFromBucket(bucketName: string, fileName: string): Promise<GetObjectCommandOutput> {
   try {
     const input: GetObjectCommandInput = {
       Bucket: bucketName,
@@ -80,8 +84,8 @@ export async function getFileFromBucket(bucketName, fileName) {
 export const MERCHANTS_TX_REPORTS = "merchants-tx-reports";
 
 export async function uploadMerchantReportToS3(
-  filePath,
-  fileBody
+  filePath: string,
+  fileBody: Buffer
 ): Promise<void> {
   await uploadFileToBucket(MERCHANTS_TX_REPORTS, filePath, fileBody);
 }
