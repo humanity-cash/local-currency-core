@@ -31,7 +31,9 @@ export async function listBuckets(): Promise<ListBucketsCommandOutput> {
   }
 }
 
-export async function createBucket(bucketName: string): Promise<CreateBucketCommandOutput> {
+export async function createBucket(
+  bucketName: string
+): Promise<CreateBucketCommandOutput> {
   try {
     const input: CreateBucketCommandInput = {
       Bucket: bucketName,
@@ -45,7 +47,11 @@ export async function createBucket(bucketName: string): Promise<CreateBucketComm
   }
 }
 
-export async function uploadFileToBucket(bucketName: string, filePath: string, fileBody: Buffer): Promise<PutObjectCommandOutput> {
+export async function uploadFileToBucket(
+  bucketName: string,
+  filePath: string,
+  fileBody: Buffer
+): Promise<PutObjectCommandOutput> {
   try {
     const input: PutObjectCommandInput = {
       Bucket: bucketName,
@@ -65,7 +71,10 @@ export async function uploadFileToBucket(bucketName: string, filePath: string, f
   }
 }
 
-export async function getFileFromBucket(bucketName: string, fileName: string): Promise<GetObjectCommandOutput> {
+export async function getFileFromBucket(
+  bucketName: string,
+  fileName: string
+): Promise<GetObjectCommandOutput> {
   try {
     const input: GetObjectCommandInput = {
       Bucket: bucketName,
