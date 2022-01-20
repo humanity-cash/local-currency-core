@@ -42,7 +42,7 @@ export async function get(dbId: string): Promise<IAppNotificationDBItem> {
   return removeMongoMeta(response.toObject());
 }
 
-export async function findByUserId(
+export async function findOpenByUserId(
   userId: string
 ): Promise<IAppNotificationDBItem[]> {
   const response = await AppNotification.find({ userId: userId });
@@ -51,6 +51,20 @@ export async function findByUserId(
     response.forEach((item) => {
       const pushItem = removeMongoMeta(item.toObject());
       if (!pushItem.closed) items.push(pushItem);
+    });
+  }
+  return items;
+}
+
+export async function findAllByUserId(
+  userId: string
+): Promise<IAppNotificationDBItem[]> {
+  const response = await AppNotification.find({ userId: userId });
+  const items: IAppNotificationDBItem[] = [];
+  if (response?.length > 0) {
+    response.forEach((item) => {
+      const pushItem = removeMongoMeta(item.toObject());
+      items.push(pushItem);
     });
   }
   return items;
