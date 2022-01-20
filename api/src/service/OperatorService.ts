@@ -104,13 +104,15 @@ async function createDwollaTransfer(
   // 4 Save to DB
   const now = Date.now();
   const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
-    fundingTransferId: transferToUse.body.id,
+    fundingTransferId: type == "DEPOSIT" ? transferToUse.body.id : undefined,
+    fundingStatus: type == "DEPOSIT" ? transferToUse.body.status : undefined,
+    fundedTransferId: type == "WITHDRAWAL" ? transferToUse.body.id : undefined,
+    fundedStatus: type == "WITHDRAWAL" ? transferToUse.body.status : undefined,
     userId: userId,
     operatorId: operatorId,
     fundingSource: transferToUse.body._links["source-funding-source"].href,
     fundingTarget: transferToUse.body._links["destination-funding-source"].href,
-    amount: transferToUse.body.amount.value,
-    fundingStatus: transferToUse.body.status,
+    amount: transferToUse.body.amount.value,    
     type: type,
     created: now,
     updated: now,
