@@ -53,7 +53,9 @@ export async function getByFundingTransferId(
     fundingTransferId: fundingTransferId,
   });
   if (response?.length > 0) return removeMongoMeta(response[0].toObject());
-  else return undefined;
+  else throw Error(
+    `No match in database for DwollaTransfer with fundingTransferId ${fundingTransferId}`
+  );
 }
 
 export async function getByFundedTransferId(
@@ -63,7 +65,9 @@ export async function getByFundedTransferId(
     fundedTransferId: fundedTransferId,
   });
   if (response?.length > 0) return removeMongoMeta(response[0].toObject());
-  else return undefined;
+  else throw Error(
+    `No match in database for DwollaTransfer with fundedTransferId ${fundedTransferId}`
+  );
 }
 
 export async function getByUserId(
