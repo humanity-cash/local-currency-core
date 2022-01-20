@@ -82,8 +82,13 @@ export async function getNotifications(
 ): Promise<void> {
   try {
     const id = req?.params?.id;
-    const notifications: AppNotificationService.IAppNotificationDBItem[] =
-      await AppNotificationService.findByUserId(id);
+    const includeClosed = req?.query?.includeClosed;
+
+    let notifications: AppNotificationService.IAppNotificationDBItem[];
+    if (!includeClosed)
+      notifications = await AppNotificationService.findOpenByUserId(id);
+    else notifications = await AppNotificationService.findAllByUserId(id);
+
     notifications?.sort((a, b) => {
       return a.timestamp - b.timestamp;
     });
