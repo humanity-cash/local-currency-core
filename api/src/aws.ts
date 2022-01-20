@@ -50,7 +50,7 @@ export async function createBucket(
 export async function uploadFileToBucket(
   bucketName: string,
   filePath: string,
-  fileBody: Buffer
+  fileBody: Buffer | string
 ): Promise<PutObjectCommandOutput> {
   try {
     const input: PutObjectCommandInput = {
@@ -94,7 +94,7 @@ export const MERCHANTS_TX_REPORTS = "merchants-tx-reports";
 
 export async function uploadMerchantReportToS3(
   filePath: string,
-  fileBody: Buffer
+  fileBody: Buffer | string
 ): Promise<void> {
   await uploadFileToBucket(MERCHANTS_TX_REPORTS, filePath, fileBody);
 }
