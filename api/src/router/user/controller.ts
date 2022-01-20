@@ -499,12 +499,12 @@ export async function uploadProfilePicture(
       data.push(chunk);
     });
     req.on("end", async () => {
-      const bufferData = Buffer.concat(data).toString();
-      const fferData = Buffer.from(bufferData, "base64");
+      const stringData = Buffer.concat(data).toString(); //parse data
+      const bufferData = Buffer.from(stringData, "base64"); //convert to buffer
       const uploadResponse = await uploadFileToBucket(
         PROFILE_PICTURES_BUCKET,
         fileName,
-        fferData
+        bufferData
       );
       const updateResponse = await AuthService.updateUserProfilePicture(userId);
       httpUtils.createHttpResponse(
