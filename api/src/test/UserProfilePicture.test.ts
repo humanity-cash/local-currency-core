@@ -1,7 +1,7 @@
 import chai from "chai";
 import fs from "fs";
 import chaiHttp from "chai-http";
-import { getFileFromBucket, listBuckets } from "../aws";
+ import { getFileFromBucket, listBuckets } from "../aws";
 import { getApp } from "../server";
 import { PROFILE_PICTURES_BUCKET } from "../router/user/controller";
 import { mockDatabase } from "./setup/setup-db-integration";
@@ -9,6 +9,8 @@ import { createFakeUser } from "./utils";
 import { getUser } from "src/service/AuthService";
 import { avatarUrlGenerator } from "src/utils";
 import { codes } from "src/utils/http";
+import dotenv from 'dotenv';
+dotenv.config({path: '../../.env.test'});
 
 jest.setTimeout(50000);
 
@@ -18,7 +20,7 @@ const server = getApp();
 
 describe("Profile Picture Module", () => {
   const filePath = `${__dirname}/test-avatar.jpg`;
-  let customerDwollaId: string;
+  let customerDwollaId = "notActive";
 
   beforeAll(async () => {
     await mockDatabase.init();
@@ -66,10 +68,12 @@ describe("Profile Picture Module", () => {
   });
 
   it("It should upload image successfully", (done) => {
+   const file_buffer  = fs.readFileSync(filePath);
+   const base64Data = file_buffer.toString('base64');
     chai
       .request(server)
       .post("/users/" + customerDwollaId + "/upload/profilePicture")
-      .attach("file", fs.readFileSync(filePath))
+      .send(base64Data)
       .then((res) => {
         expect(res).to.have.status(codes.OK);
         expect(res.body).to.be.haveOwnProperty("tag");

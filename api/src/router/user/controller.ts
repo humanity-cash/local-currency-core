@@ -488,37 +488,38 @@ export async function transferTo(req: Request, res: Response): Promise<void> {
 }
 
 export async function uploadProfilePicture(
-  req: Request,
-  res: Response
+ req: Request,
+ res: Response
 ): Promise<void> {
-  try {
-    const userId = req?.params?.id;
-    const file = req?.files?.file;
-    if (!file) {
-      httpUtils.unprocessable("File not provided", res);
-      return;
-    }
-    if (!file.data) {
-      httpUtils.unprocessable("File data is missing", res);
-      return;
-    }
-    const fileName = `${userId}-profile-picture.jpg`;
-    const fileData = file.data;
-    const uploadResponse = await uploadFileToBucket(
-      PROFILE_PICTURES_BUCKET,
-      fileName,
-      fileData
-    );
-    await AuthService.updateUserProfilePicture(userId);
-    httpUtils.createHttpResponse(
-      { tag: uploadResponse.ETag },
-      httpUtils.codes.OK,
-      res
-    );
-    return;
-  } catch (err) {
-    log(err);
-    serverError(err, res);
-    return;
-  }
+ try {
+  const userId = req?.params?.id;
+  const fileName = `${userId}-profile-picture.jpg`;
+  const data: Buffer[] = [];
+  req.on("data", (chunk: Buffer) => {
+   data.push(chunk)
+  })
+  req.on("end", async () => {
+   const bufferData = Buffer.concat(data).toString();
+   const fferData = Buffer.from(bufferData, 'base64');
+   const uploadResponse = await uploadFileToBucket(
+    PROFILE_PICTURES_BUCKET,
+    fileName,
+    fferData 
+   );
+   const updateResponse = await AuthService.updateUserProfilePicture(userId);
+   httpUtils.createHttpResponse(
+    { tag: uploadResponse.ETag, user: updateResponse.data },
+    httpUtils.codes.OK,
+    res
+   );
+  })
+  req.on("err", (err) =>{
+   log(err);
+   serverError(err, res);
+  })
+ } catch (err) {
+  log(err);
+  serverError(err, res);
+  return;
+ }
 }
