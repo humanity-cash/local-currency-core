@@ -6,13 +6,23 @@ import * as validators from "./validators";
 const user = express();
 
 // Get and create user(s)
-user.get("/users", controller.getAllUsers);
-user.post("/users", validators.createUser, controller.createUser);
-user.get("/users/:id", validators.getUser, controller.getUser); // User dwolla info
-user.get("/users/email/:email", controller.getUserByEmail); // User database info
+user.get("/users", verifyRequest, controller.getAllUsers);
+user.post(
+  "/users",
+  verifyRequest,
+  validators.createUser,
+  controller.createUser
+);
+user.get("/users/:id", verifyRequest, validators.getUser, controller.getUser); // User dwolla info
+user.get("/users/email/:email", verifyRequest, controller.getUserByEmail); // User database info
 
 // Get and create deposit(s) for a user
-user.get("/users/:id/deposit", validators.getUser, controller.getDeposits);
+user.get(
+  "/users/:id/deposit",
+  verifyRequest,
+  validators.getUser,
+  controller.getDeposits
+);
 user.post(
   "/users/:id/deposit",
   verifyRequest,
@@ -21,7 +31,12 @@ user.post(
 );
 
 // Get and create withdrawal(s) for a user
-user.get("/users/:id/withdraw", validators.getUser, controller.getWithdrawals);
+user.get(
+  "/users/:id/withdraw",
+  verifyRequest,
+  validators.getUser,
+  controller.getWithdrawals
+);
 user.post(
   "/users/:id/withdraw",
   verifyRequest,
@@ -30,7 +45,12 @@ user.post(
 );
 
 // Get and create transfer(s) for a user
-user.get("/users/:id/transfer", validators.getUser, controller.getTransfers);
+user.get(
+  "/users/:id/transfer",
+  verifyRequest,
+  validators.getUser,
+  controller.getTransfers
+);
 user.post(
   "/users/:id/transfer",
   verifyRequest,
