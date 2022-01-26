@@ -103,22 +103,23 @@ export async function uploadMerchantReportToS3(
 
 const { JwtVerificationError, JwksNoMatchingKeyError } = errors;
 
-export const cognitoVerifier = (): {
-  verify: (token: string) => Promise<string>;
-} =>
-  verifierFactory({
-    region: process.env.AWS_REGION,
-    userPoolId: process.env.AWS_POOL_ID,
-    appClientId: process.env.AWS_CLIENT_ID,
-    tokenType: process.env.AWS_TOKEN_TYPE,
-  });
+enum TokenType {
+  Access = "access",
+  Id = "id",
+}
 
-export const verifyCognitoToken = async (
+const cognitoTokenVerifier = verifierFactory({
+  region: process.env.AWS_REGION,
+  userPoolId: process.env.AWS_POOL_ID,
+  appClientId: process.env.AWS_CLIENT_ID,
+  tokenType: TokenType.Access,
+});
+
+export async function verifyCognitoToken(
   token: string
-): Promise<{ success: boolean; token: string }> => {
+): Promise<{ success: boolean; token: string }> {
   try {
-    const verifier = cognitoVerifier().verify;
-    const verifiedToken = await verifier(token);
+    const verifiedToken = await cognitoTokenVerifier.verify(token);
 
     return { success: true, token: verifiedToken };
   } catch (e) {
@@ -127,8 +128,8 @@ export const verifyCognitoToken = async (
       e instanceof JwksNoMatchingKeyError
     ) {
       return { success: false, token: token };
+    } else {
+      return { success: false, token: token };
     }
-
-    return { success: false, token: token };
   }
-};
+}
