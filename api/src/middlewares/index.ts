@@ -1,47 +1,41 @@
 import express from "express";
 import { validationResult } from "express-validator";
-import { verifyCognitoToken } from "src/aws";
-import { httpUtils, log } from "src/utils";
+import { verifyCognitoToken } from "../aws";
+import { httpUtils } from "../utils";
 
-export const verifyRequest: express.RequestHandler = async (
+export async function verifyRequest(
   request: express.Request,
   response: express.Response,
   next: express.NextFunction
-) => {
-  const hack = true;
-  if (process.env.NODE_ENV == "test" || hack) {
-    next();
+): Promise<void> {
+  const authHeader = request?.headers?.authorization;
+  if (!authHeader) {
+    response
+      .status(httpUtils.codes.UNAUTHORIZED)
+      .send({ message: "No Auth Headers In Request" });
   } else {
-    const authHeader = request?.headers?.authorization;
-    if (!authHeader) {
-      response
-        .status(httpUtils.codes.UNAUTHORIZED)
-        .send({ message: "No Auth Headers In Request" });
-    } else {
-      try {
-        const verifyResponse = await verifyCognitoToken(authHeader);
-        if (verifyResponse?.success) {
-          next();
-        } else {
-          response
-            .status(httpUtils.codes.UNAUTHORIZED)
-            .send({ message: "User is Unauthorized" });
-        }
-      } catch (err) {
-        log("Error in verifying request", err);
+    try {
+      const verifyResponse = await verifyCognitoToken(authHeader);
+      if (verifyResponse?.success) {
+        next();
+      } else {
         response
-          .status(httpUtils.codes.SERVER_ERROR)
-          .send({ message: "Internal error while verifying request!" });
+          .status(httpUtils.codes.UNAUTHORIZED)
+          .send({ message: "User is Unauthorized" });
       }
+    } catch (err) {
+      response
+        .status(httpUtils.codes.SERVER_ERROR)
+        .send({ message: "Internal error while verifying request!" });
     }
   }
-};
+}
 
-export const mwVaildator = (
+export function mwVaildator(
   request: express.Request,
   response: express.Response,
   next: express.NextFunction
-): express.Response | void => {
+): express.Response | void {
   const errors = validationResult(request);
   if (!errors.isEmpty()) {
     return response
@@ -50,4 +44,4 @@ export const mwVaildator = (
   } else {
     next();
   }
-};
+}
