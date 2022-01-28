@@ -3,7 +3,7 @@ import { DwollaEvent } from "./DwollaTypes";
 import { newWallet, transferLaunchPoolBonus } from "../contracts";
 import {
   isDwollaProduction,
-  // log,
+  log,
   shouldDeletePriorWebhooks,
   userNotification,
 } from "src/utils";
@@ -23,8 +23,6 @@ import {
 import { webhookMint } from "../OperatorService";
 import { updateWalletAddress } from "../AuthService";
 import { getFundingSourcesById } from "./DwollaService";
-
-const log = console.log;
 
 export async function deregisterWebhook(
   webhookUrl: string
