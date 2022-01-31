@@ -9,8 +9,6 @@ import { createFakeUser } from "./utils";
 import { getUser } from "src/service/AuthService";
 import { avatarUrlGenerator } from "src/utils";
 import { codes } from "src/utils/http";
-import dotenv from "dotenv";
-dotenv.config({ path: "../../.env.test" });
 
 jest.setTimeout(50000);
 
@@ -18,7 +16,7 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
 
-describe("Profile Picture Module", () => {
+describe.skip("Profile Picture Module", () => {
   const filePath = `${__dirname}/test-avatar.jpg`;
   let customerDwollaId = "notActive";
 

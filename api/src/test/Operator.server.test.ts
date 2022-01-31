@@ -1930,8 +1930,6 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser1}/notifications`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          console.log(res.body);
-          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {
@@ -1945,8 +1943,6 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser2}/notifications`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          console.log(res.body);
-          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {
