@@ -33,8 +33,12 @@ function selectContentFromSource(
 
 export async function getContent(_req: Request, res: Response): Promise<void> {
   try {
-    const limit = _req?.query?.limit;
-    const random = _req?.query?.random;
+    const limit: number | undefined = _req?.query?.limit
+      ? Number(_req?.query?.limit)
+      : undefined;
+    const random: number | undefined = _req?.query?.random
+      ? Number(_req?.query?.random)
+      : undefined;
     let type = _req?.query?.type;
 
     let content: HomeScreenContent[] = [];

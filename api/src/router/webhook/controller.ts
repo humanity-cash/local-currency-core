@@ -22,9 +22,12 @@ export async function dwollaWebhook(
   try {
     const webhookSecret = process.env.WEBHOOK_SECRET;
     const proposedSignature = _req.headers["x-request-signature-sha-256"];
+
     if (
       !validSignature(
-        proposedSignature,
+        Array.isArray(proposedSignature)
+          ? proposedSignature[0]
+          : proposedSignature,
         webhookSecret,
         JSON.stringify(_req.body)
       )
