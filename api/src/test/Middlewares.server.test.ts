@@ -22,7 +22,7 @@ if (result.error) {
   throw result.error;
 }
 
-describe("Middlewares", () => {
+describe.skip("Middlewares", () => {
   beforeAll(async () => {
     await mockDatabase.init();
   });
