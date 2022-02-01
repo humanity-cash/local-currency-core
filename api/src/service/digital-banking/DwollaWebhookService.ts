@@ -33,6 +33,8 @@ export async function deregisterWebhook(
   return response;
 }
 
+const MAX_WEBHOOK_RETRIES = 3;
+
 async function deregisterAllWebhooks(): Promise<void> {
   const response: dwolla.Response = await getAllWebhooks();
   const webhooks = response.body._embedded["webhook-subscriptions"];
@@ -138,7 +140,7 @@ async function contactSupport(event: DwollaEvent): Promise<void> {
   );
 }
 
-async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
+async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEBHOOK_RETRIES): Promise<boolean> {
   try {
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Begin processing...`
@@ -160,6 +162,7 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
 
     // 1 Get transferDBObject and update status
     let transferDBOject: DwollaTransferService.IDwollaTransferDBItem;
+
     try {
       // 1A Attempt to get transfer from database for logging by fundingTransferId
       transferDBOject = await DwollaTransferService.getByFundingTransferId(
@@ -302,7 +305,7 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
         );
       } else {
         log(
-          `DwollaWebhookService.ts::processTransferCreated() Unknown error during ${eventToProcess.topic} processing ${err}`
+          `DwollaWebhookService.ts::processTransfer() Unknown error during inner ${eventToProcess.topic} processing ${err?.message}`
         );
         throw err;
       }
@@ -384,10 +387,38 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
 
     return true;
   } catch (err) {
-    log(
-      `DwollaWebhookService.ts::processTransferCreated() Error during ${eventToProcess.topic} processing ${err}`
-    );
-    throw err;
+
+    if(err?.message?.includes("No match in database")) {
+      
+      // In this edge case, we receive the webhook before 
+      // the database entry has been committed
+      log(
+        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: No match in database using either fundingTransferId or fundedTransferId`
+      );
+      log(
+        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount})`
+      );
+
+      if(retryCount > 0){
+        log(
+          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}, trying again...`
+        );
+        retryCount--;
+        await processTransfer(eventToProcess, retryCount);
+      }
+      else {
+        log(
+          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}. Perhaps there is an unknown error here? Throwing`
+        );
+        throw err;
+      }
+    }
+    else{
+      log(
+        `DwollaWebhookService.ts::processTransfer() Unknown Error during outer ${eventToProcess.topic} processing ${err?.message}}`
+      );
+      throw err;
+    }
   }
 }
 
