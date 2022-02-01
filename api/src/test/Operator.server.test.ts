@@ -1022,13 +1022,13 @@ describe("Operator endpoints test", () => {
             withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser1} with funding transfer ${withdrawals[i].fundedTransferId}...`
+          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdUser1} with funding transfer ${withdrawals[i].fundedTransferId}...`
         );
 
         const fundingTransferLink =
           fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser1} with funded transfer ${fundingTransferLink}...`
+          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdUser1} with funded transfer ${fundingTransferLink}...`
         );
 
         const fundingTransfer = await getDwollaResourceFromLocation(
@@ -1095,13 +1095,13 @@ describe("Operator endpoints test", () => {
             withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funded transfer ${withdrawals[i].fundedTransferId}...`
+          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdUser1} with funded transfer ${withdrawals[i].fundedTransferId}...`
         );
 
         const fundingTransferLink =
           fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funding transfer ${fundingTransferLink}...`
+          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdUser1} with funding transfer ${fundingTransferLink}...`
         );
 
         const fundingTransfer = await getDwollaResourceFromLocation(
