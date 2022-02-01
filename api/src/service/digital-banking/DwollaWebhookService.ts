@@ -107,12 +107,15 @@ function getProgressMessageForTransfer(
 ): string {
   const outOf = 4;
 
-  log(`DwollaWebhookServices()::getProgressMessageForTransfer() Statuses for this ${transfer.type} are: fundingStatus ${transfer.fundingStatus}, fundedStatus ${transfer.fundedStatus}`);
+  log(
+    `DwollaWebhookServices()::getProgressMessageForTransfer() Statuses for this ${transfer.type} are: fundingStatus ${transfer.fundingStatus}, fundedStatus ${transfer.fundedStatus}`
+  );
 
   let progress = 0;
-  
-  if(transfer.fundingStatus){
-    progress = progress + (transfer.fundingStatus?.includes("completed") ? 2 : 1);
+
+  if (transfer.fundingStatus) {
+    progress =
+      progress + (transfer.fundingStatus?.includes("completed") ? 2 : 1);
   }
   if (transfer.fundedStatus) {
     progress =
@@ -221,8 +224,7 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
         );
       }
       // Retrieve again from database to ensure it's up to date
-      transferDBOject =
-      await DwollaTransferService.getByFundingTransferId(
+      transferDBOject = await DwollaTransferService.getByFundingTransferId(
         eventToProcess.resourceId
       );
     } catch (err) {
@@ -298,7 +300,6 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
         transferDBOject = await DwollaTransferService.getByFundedTransferId(
           eventToProcess.resourceId
         );
-
       } else {
         log(
           `DwollaWebhookService.ts::processTransferCreated() Error during ${eventToProcess.topic} processing ${err}`
@@ -363,22 +364,20 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
           `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This transfer is a deposit, now minting BerkShares...`
         );
         await webhookMint(transferDBOject.fundingTransferId);
-      }
-      else{
+      } else {
         log(
           `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This transfer is a withdrawal, transfer is fully complete and nothing more to do`
-        );        
+        );
       }
     }
 
     // 4 Notify the user
     const notificationMessage = getProgressMessageForTransfer(transferDBOject);
-    log(`DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: ${notificationMessage}`);
-
-    await userNotification(
-      transferDBOject.userId, notificationMessage,
-      "INFO"
+    log(
+      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: ${notificationMessage}`
     );
+
+    await userNotification(transferDBOject.userId, notificationMessage, "INFO");
 
     return true;
   } catch (err) {

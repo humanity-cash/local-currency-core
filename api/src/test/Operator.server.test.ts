@@ -463,7 +463,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });    
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -752,7 +752,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });    
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -779,7 +779,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    }); 
+    });
 
     it("it should process a webhook for a customer_bank_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1052,7 +1052,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });    
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1198,7 +1198,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });     
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1271,7 +1271,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });      
+    });
 
     it("it should process a webhook for a customer_transfer_created event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1307,7 +1307,9 @@ describe("Operator endpoints test", () => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdBusiness1)
       )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`);
+      log(
+        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
+      );
 
       for (let i = 0; i < withdrawals?.length; i++) {
         const fundedTransfer = await getDwollaResourceFromLocation(
@@ -1346,7 +1348,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });     
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1382,7 +1384,9 @@ describe("Operator endpoints test", () => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdBusiness1)
       )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`);
+      log(
+        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
+      );
 
       for (let i = 0; i < withdrawals?.length; i++) {
         const fundedTransfer = await getDwollaResourceFromLocation(
@@ -1421,8 +1425,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });   
-
+    });
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
