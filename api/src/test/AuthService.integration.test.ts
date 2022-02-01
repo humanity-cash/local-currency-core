@@ -43,9 +43,9 @@ describe("AuthService test suite", () => {
       expect(response.data.consent).toEqual(businessData.base.consent);
       expect(response.data.business.story).toEqual(businessData.business.story);
       expect(response.data.business.tag).toEqual(businessData.business.tag);
-      expect(response.data.business.avatar).toEqual(
-        businessData.business.avatar
-      );
+      // expect(response.data.business.avatar).toEqual(
+      //   businessData.business.avatar
+      // );
       expect(response.data.business.type).toEqual(businessData.business.type);
       expect(response.data.business.rbn).toEqual(businessData.business.rbn);
       expect(response.data.business.industry).toEqual(
