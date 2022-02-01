@@ -273,6 +273,7 @@ describe("Operator endpoints test", () => {
     it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
       chai
         .request(server)
+        // eslint-disable-next-line spellcheck/spell-checker
         .post(`/users/userthatdoesntexist/deposit`)
         .send({ amount: "1.0" })
         .then((res) => {
@@ -462,7 +463,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });    
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -751,7 +752,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });    
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -778,7 +779,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    }); 
+    });
 
     it("it should process a webhook for a customer_bank_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -989,7 +990,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_created",
-          withdrawals[i].fundingTransferId,
+          withdrawals[i].fundedTransferId,
           dwollaIdUser1,
           "transfers"
         );
@@ -1015,28 +1016,28 @@ describe("Operator endpoints test", () => {
       log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
 
       for (let i = 0; i < withdrawals?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
+        const fundedTransfer = await getDwollaResourceFromLocation(
           process.env.DWOLLA_BASE_URL +
             "transfers/" +
-            withdrawals[i].fundingTransferId
+            withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser1} with funding transfer ${withdrawals[i].fundingTransferId}...`
+          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdUser1} with funding transfer ${withdrawals[i].fundedTransferId}...`
         );
 
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        const fundingTransferLink =
+          fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser1} with funded transfer ${fundedTransferLink}...`
+          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdUser1} with funded transfer ${fundingTransferLink}...`
         );
 
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          fundingTransferLink
         );
 
         const event: DwollaEvent = createDummyEvent(
           "customer_bank_transfer_created",
-          fundedTransfer.body?.id,
+          fundingTransfer.body?.id,
           dwollaIdUser1,
           "transfers"
         );
@@ -1051,7 +1052,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });    
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1062,7 +1063,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          withdrawals[i].fundingTransferId,
+          withdrawals[i].fundedTransferId,
           dwollaIdUser1,
           "transfers"
         );
@@ -1088,28 +1089,28 @@ describe("Operator endpoints test", () => {
       log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
 
       for (let i = 0; i < withdrawals?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
+        const fundedTransfer = await getDwollaResourceFromLocation(
           process.env.DWOLLA_BASE_URL +
             "transfers/" +
-            withdrawals[i].fundingTransferId
+            withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funding transfer ${withdrawals[i].fundingTransferId}...`
+          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdUser1} with funded transfer ${withdrawals[i].fundedTransferId}...`
         );
 
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        const fundingTransferLink =
+          fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funded transfer ${fundedTransferLink}...`
+          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdUser1} with funding transfer ${fundingTransferLink}...`
         );
 
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          fundingTransferLink
         );
 
         const event: DwollaEvent = createDummyEvent(
           "customer_bank_transfer_completed",
-          fundedTransfer.body?.id,
+          fundingTransfer.body?.id,
           dwollaIdUser1,
           "transfers"
         );
@@ -1124,7 +1125,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });      
+    });
 
     it("it should process a webhook for a customer_transfer_created event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1135,7 +1136,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_created",
-          withdrawals[i].fundingTransferId,
+          withdrawals[i].fundedTransferId,
           dwollaIdUser2,
           "transfers"
         );
@@ -1161,28 +1162,28 @@ describe("Operator endpoints test", () => {
       log(`Withdrawals for user2 are ${JSON.stringify(withdrawals, null, 2)}`);
 
       for (let i = 0; i < withdrawals?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
+        const fundedTransfer = await getDwollaResourceFromLocation(
           process.env.DWOLLA_BASE_URL +
             "transfers/" +
-            withdrawals[i].fundingTransferId
+            withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funding transfer ${withdrawals[i].fundingTransferId}...`
+          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funding transfer ${withdrawals[i].fundedTransferId}...`
         );
 
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        const fundingTransferLink =
+          fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funded transfer ${fundedTransferLink}...`
+          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funded transfer ${fundingTransferLink}...`
         );
 
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          fundingTransferLink
         );
 
         const event: DwollaEvent = createDummyEvent(
           "customer_bank_transfer_created",
-          fundedTransfer.body?.id,
+          fundingTransfer.body?.id,
           dwollaIdUser2,
           "transfers"
         );
@@ -1197,7 +1198,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });     
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1208,7 +1209,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          withdrawals[i].fundingTransferId,
+          withdrawals[i].fundedTransferId,
           dwollaIdUser2,
           "transfers"
         );
@@ -1234,28 +1235,28 @@ describe("Operator endpoints test", () => {
       log(`Withdrawals for user2 are ${JSON.stringify(deposits, null, 2)}`);
 
       for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
+        const fundedTransfer = await getDwollaResourceFromLocation(
           process.env.DWOLLA_BASE_URL +
             "transfers/" +
-            deposits[i].fundingTransferId
+            deposits[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${deposits[i].fundingTransferId}...`
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${deposits[i].fundedTransferId}...`
         );
 
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        const fundingTransferLink =
+          fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funded transfer ${fundedTransferLink}...`
+          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${fundingTransferLink}...`
         );
 
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          fundingTransferLink
         );
 
         const event: DwollaEvent = createDummyEvent(
           "customer_bank_transfer_completed",
-          fundedTransfer.body?.id,
+          fundingTransfer.body?.id,
           dwollaIdUser2,
           "transfers"
         );
@@ -1270,7 +1271,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });      
+    });
 
     it("it should process a webhook for a customer_transfer_created event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1283,7 +1284,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_created",
-          withdrawals[i].fundingTransferId,
+          withdrawals[i].fundedTransferId,
           dwollaIdBusiness1,
           "transfers"
         );
@@ -1306,31 +1307,33 @@ describe("Operator endpoints test", () => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdBusiness1)
       )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user2 are ${JSON.stringify(withdrawals, null, 2)}`);
+      log(
+        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
+      );
 
       for (let i = 0; i < withdrawals?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
+        const fundedTransfer = await getDwollaResourceFromLocation(
           process.env.DWOLLA_BASE_URL +
             "transfers/" +
-            withdrawals[i].fundingTransferId
+            withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdBusiness1} with funding transfer ${withdrawals[i].fundingTransferId}...`
+          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdBusiness1} with funded transfer ${withdrawals[i].fundedTransferId}...`
         );
 
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        const fundingTransferLink =
+          fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdBusiness1} with funded transfer ${fundedTransferLink}...`
+          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdBusiness1} with funding transfer ${fundingTransferLink}...`
         );
 
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          fundingTransferLink
         );
 
         const event: DwollaEvent = createDummyEvent(
           "customer_bank_transfer_created",
-          fundedTransfer.body?.id,
+          fundingTransfer.body?.id,
           dwollaIdBusiness1,
           "transfers"
         );
@@ -1345,7 +1348,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });     
+    });
 
     it("it should process a webhook for a customer_transfer_completed event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
@@ -1358,7 +1361,7 @@ describe("Operator endpoints test", () => {
       for (let i = 0; i < withdrawals?.length; i++) {
         const event: DwollaEvent = createDummyEvent(
           "customer_transfer_completed",
-          withdrawals[i].fundingTransferId,
+          withdrawals[i].fundedTransferId,
           dwollaIdBusiness1,
           "transfers"
         );
@@ -1377,35 +1380,37 @@ describe("Operator endpoints test", () => {
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
+    it("it should process a webhook for a customer_bank_transfer_completed event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdBusiness1)
       )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`);
+      log(
+        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
+      );
 
       for (let i = 0; i < withdrawals?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
+        const fundedTransfer = await getDwollaResourceFromLocation(
           process.env.DWOLLA_BASE_URL +
             "transfers/" +
-            withdrawals[i].fundingTransferId
+            withdrawals[i].fundedTransferId
         );
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdBusiness1} with funding transfer ${withdrawals[i].fundingTransferId}...`
+          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdBusiness1} with funded transfer ${withdrawals[i].fundedTransferId}...`
         );
 
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
+        const fundingTransferLink =
+          fundedTransfer?.body?._links["funding-transfer"]?.href;
         log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdBusiness1} with funded transfer ${fundedTransferLink}...`
+          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdBusiness1} with funding transfer ${fundingTransferLink}...`
         );
 
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
+        const fundingTransfer = await getDwollaResourceFromLocation(
+          fundingTransferLink
         );
 
         const event: DwollaEvent = createDummyEvent(
           "customer_bank_transfer_completed",
-          fundedTransfer.body?.id,
+          fundingTransfer.body?.id,
           dwollaIdBusiness1,
           "transfers"
         );
@@ -1420,8 +1425,7 @@ describe("Operator endpoints test", () => {
           .send(event);
         expect(res).to.have.status(codes.ACCEPTED);
       }
-    });   
-
+    });
   });
 
   describe("GET /users/:userId/withdraw (get withdrawal(s) for user)", () => {
@@ -1929,8 +1933,6 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser1}/notifications`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          console.log(res.body);
-          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {
@@ -1944,8 +1946,6 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser2}/notifications`)
         .then((res) => {
           expect(res).to.have.status(codes.OK);
-          console.log(res.body);
-          // expect(res.body.length).to.equal(4);
           done();
         })
         .catch((err) => {
