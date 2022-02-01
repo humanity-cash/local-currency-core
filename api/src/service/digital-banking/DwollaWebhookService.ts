@@ -109,7 +109,11 @@ function getProgressMessageForTransfer(
 
   log(`DwollaWebhookServices()::getProgressMessageForTransfer() Statuses for this ${transfer.type} are: fundingStatus ${transfer.fundingStatus}, fundedStatus ${transfer.fundedStatus}`);
 
-  let progress: number = transfer.fundingStatus.includes("completed") ? 2 : 1;
+  let progress = 0;
+  
+  if(transfer.fundingStatus){
+    progress = progress + (transfer.fundingStatus?.includes("completed") ? 2 : 1);
+  }
   if (transfer.fundedStatus) {
     progress =
       progress + (transfer.fundedStatus?.includes("completed") ? 2 : 1);
@@ -295,7 +299,12 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
           eventToProcess.resourceId
         );
 
-      } else throw err;
+      } else {
+        log(
+          `DwollaWebhookService.ts::processTransferCreated() Error during ${eventToProcess.topic} processing ${err}`
+        );
+        throw err;
+      }
     }
 
     // 2 Status reconciliation
