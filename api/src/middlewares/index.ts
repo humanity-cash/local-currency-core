@@ -1,15 +1,14 @@
 import express from "express";
 import { validationResult } from "express-validator";
-import { verifyCognitoToken } from "src/aws";
-import { httpUtils, log } from "src/utils";
+import { verifyCognitoToken } from "../aws";
+import { httpUtils } from "../utils";
 
-export const verifyRequest: express.RequestHandler = async (
+export async function verifyRequest(
   request: express.Request,
   response: express.Response,
   next: express.NextFunction
-) => {
-  const hack = true;
-  if (process.env.NODE_ENV == "test" || hack) {
+): Promise<void> {
+  if (process.env.NODE_ENV === "test") {
     next();
   } else {
     const authHeader = request?.headers?.authorization;
@@ -28,20 +27,19 @@ export const verifyRequest: express.RequestHandler = async (
             .send({ message: "User is Unauthorized" });
         }
       } catch (err) {
-        log("Error in verifying request", err);
         response
           .status(httpUtils.codes.SERVER_ERROR)
           .send({ message: "Internal error while verifying request!" });
       }
     }
   }
-};
+}
 
-export const mwVaildator = (
+export function mwVaildator(
   request: express.Request,
   response: express.Response,
   next: express.NextFunction
-): express.Response | void => {
+): express.Response | void {
   const errors = validationResult(request);
   if (!errors.isEmpty()) {
     return response
@@ -50,4 +48,4 @@ export const mwVaildator = (
   } else {
     next();
   }
-};
+}
