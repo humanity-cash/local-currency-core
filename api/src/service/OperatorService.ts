@@ -54,13 +54,13 @@ async function getSortedOperators(): Promise<IOperatorTotal[]> {
   const operatorStats: IOperatorTotal[] = await contracts.getFundingStatus();
   const sortedOperatorStats: IOperatorTotal[] =
     operatorStats.sort(sortOperatorsFunc);
-  log(
-    `deposit():: sorted operators are ${JSON.stringify(
-      sortedOperatorStats,
-      null,
-      2
-    )}`
-  );
+  // log(
+  //   `deposit():: sorted operators are ${JSON.stringify(
+  //     sortedOperatorStats,
+  //     null,
+  //     2
+  //   )}`
+  // );
   return sortedOperatorStats;
 }
 
@@ -104,13 +104,15 @@ async function createDwollaTransfer(
   // 4 Save to DB
   const now = Date.now();
   const transfer: DwollaTransferService.ICreateDwollaTransferDBItem = {
-    fundingTransferId: transferToUse.body.id,
+    fundingTransferId: type == "DEPOSIT" ? transferToUse.body.id : undefined,
+    fundingStatus: type == "DEPOSIT" ? transferToUse.body.status : undefined,
+    fundedTransferId: type == "WITHDRAWAL" ? transferToUse.body.id : undefined,
+    fundedStatus: type == "WITHDRAWAL" ? transferToUse.body.status : undefined,
     userId: userId,
     operatorId: operatorId,
     fundingSource: transferToUse.body._links["source-funding-source"].href,
     fundingTarget: transferToUse.body._links["destination-funding-source"].href,
     amount: transferToUse.body.amount.value,
-    fundingStatus: transferToUse.body.status,
     type: type,
     created: now,
     updated: now,
@@ -160,14 +162,20 @@ export async function deposit(
 }
 
 export async function webhookMint(fundingTransferId: string): Promise<boolean> {
-  const transfer: DwollaTransferService.IDwollaTransferDBItem =
-    await DwollaTransferService.getByFundingTransferId(fundingTransferId);
-  const result = await contracts.deposit(
-    transfer.userId,
-    transfer.amount,
-    transfer.operatorId
-  );
-  return result.status;
+  try{
+      const transfer: DwollaTransferService.IDwollaTransferDBItem =
+        await DwollaTransferService.getByFundingTransferId(fundingTransferId);
+      const result = await contracts.deposit(
+        transfer.userId,
+        transfer.amount,
+        transfer.operatorId
+      );
+      return result.status;
+  }
+  catch(err){
+    log(`OperatorService()::webhookMint() ${err}`);
+    return false;
+  }
 }
 
 export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
