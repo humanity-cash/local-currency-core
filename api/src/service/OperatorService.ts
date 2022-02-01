@@ -54,13 +54,13 @@ async function getSortedOperators(): Promise<IOperatorTotal[]> {
   const operatorStats: IOperatorTotal[] = await contracts.getFundingStatus();
   const sortedOperatorStats: IOperatorTotal[] =
     operatorStats.sort(sortOperatorsFunc);
-  log(
-    `deposit():: sorted operators are ${JSON.stringify(
-      sortedOperatorStats,
-      null,
-      2
-    )}`
-  );
+  // log(
+  //   `deposit():: sorted operators are ${JSON.stringify(
+  //     sortedOperatorStats,
+  //     null,
+  //     2
+  //   )}`
+  // );
   return sortedOperatorStats;
 }
 
@@ -162,14 +162,20 @@ export async function deposit(
 }
 
 export async function webhookMint(fundingTransferId: string): Promise<boolean> {
-  const transfer: DwollaTransferService.IDwollaTransferDBItem =
-    await DwollaTransferService.getByFundingTransferId(fundingTransferId);
-  const result = await contracts.deposit(
-    transfer.userId,
-    transfer.amount,
-    transfer.operatorId
-  );
-  return result.status;
+  try{
+      const transfer: DwollaTransferService.IDwollaTransferDBItem =
+        await DwollaTransferService.getByFundingTransferId(fundingTransferId);
+      const result = await contracts.deposit(
+        transfer.userId,
+        transfer.amount,
+        transfer.operatorId
+      );
+      return result.status;
+  }
+  catch(err){
+    log(`OperatorService()::webhookMint() ${err}`);
+    return false;
+  }
 }
 
 export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
