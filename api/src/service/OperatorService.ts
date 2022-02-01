@@ -112,7 +112,7 @@ async function createDwollaTransfer(
     operatorId: operatorId,
     fundingSource: transferToUse.body._links["source-funding-source"].href,
     fundingTarget: transferToUse.body._links["destination-funding-source"].href,
-    amount: transferToUse.body.amount.value,    
+    amount: transferToUse.body.amount.value,
     type: type,
     created: now,
     updated: now,
