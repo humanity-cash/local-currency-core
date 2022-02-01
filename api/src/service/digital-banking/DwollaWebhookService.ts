@@ -148,15 +148,15 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
     const transferDwollaObject = await getDwollaResourceFromEvent(
       eventToProcess
     );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${
-        eventToProcess.id
-      }: Found transfer in Dwolla, object is ${JSON.stringify(
-        transferDwollaObject,
-        null,
-        2
-      )}`
-    );
+    // log(
+    //   `DwollaWebhookService.ts::processTransfer() EventId ${
+    //     eventToProcess.id
+    //   }: Found transfer in Dwolla, object is ${JSON.stringify(
+    //     transferDwollaObject,
+    //     null,
+    //     2
+    //   )}`
+    // );
 
     // 1 Get transferDBObject and update status
     let transferDBOject: DwollaTransferService.IDwollaTransferDBItem;
@@ -302,7 +302,7 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
         );
       } else {
         log(
-          `DwollaWebhookService.ts::processTransferCreated() Error during ${eventToProcess.topic} processing ${err}`
+          `DwollaWebhookService.ts::processTransferCreated() Unknown error during ${eventToProcess.topic} processing ${err}`
         );
         throw err;
       }
@@ -363,7 +363,11 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
         log(
           `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This transfer is a deposit, now minting BerkShares...`
         );
-        await webhookMint(transferDBOject.fundingTransferId);
+        const success = await webhookMint(transferDBOject.fundingTransferId);
+        if(!success){
+          await contactSupport(eventToProcess);
+          return true;
+        }
       } else {
         log(
           `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This transfer is a withdrawal, transfer is fully complete and nothing more to do`
@@ -376,7 +380,6 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: ${notificationMessage}`
     );
-
     await userNotification(transferDBOject.userId, notificationMessage, "INFO");
 
     return true;
