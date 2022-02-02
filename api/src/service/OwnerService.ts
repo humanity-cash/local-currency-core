@@ -1,19 +1,24 @@
-import * as CeloUBI from "./celoubi/CeloUbi";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as contracts from "./contracts";
+import { TransactionReceipt } from "web3-core";
 
-export async function reconcile(): Promise<any> {
-  return await CeloUBI.reconcile();
+export async function transferContractOwnership(
+  newOwner: string
+): Promise<TransactionReceipt> {
+  return await contracts.transferContractOwnership(newOwner);
 }
 
-export async function transferOwnership(newOwner: string): Promise<any> {
-  return await CeloUBI.transferOwnership(newOwner);
+export async function transferWalletOwnership(
+  newOwner: string,
+  userId: string
+): Promise<TransactionReceipt> {
+  return await contracts.transferWalletOwnership(newOwner, userId);
 }
 
-export async function setCustodian(newCustodian: string): Promise<any> {
-  return await CeloUBI.setCustodian(newCustodian);
+export async function pause(): Promise<TransactionReceipt> {
+  return await contracts.pause();
 }
 
-export async function setDisbursementWei(
-  newDisbursementWei: number
-): Promise<any> {
-  return await CeloUBI.setDisbursementWei(newDisbursementWei);
+export async function unpause(): Promise<TransactionReceipt> {
+  return await contracts.unpause();
 }
