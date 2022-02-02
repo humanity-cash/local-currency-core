@@ -6,6 +6,7 @@ import {
   log,
   shouldDeletePriorWebhooks,
   userNotification,
+  sleep
 } from "src/utils";
 import {
   duplicateWebhookExists,
@@ -33,7 +34,7 @@ export async function deregisterWebhook(
   return response;
 }
 
-const MAX_WEBHOOK_RETRIES = 3;
+const MAX_WEBHOOK_RETRIES = 10;
 
 async function deregisterAllWebhooks(): Promise<void> {
   const response: dwolla.Response = await getAllWebhooks();
@@ -150,15 +151,6 @@ async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEB
     const transferDwollaObject = await getDwollaResourceFromEvent(
       eventToProcess
     );
-    // log(
-    //   `DwollaWebhookService.ts::processTransfer() EventId ${
-    //     eventToProcess.id
-    //   }: Found transfer in Dwolla, object is ${JSON.stringify(
-    //     transferDwollaObject,
-    //     null,
-    //     2
-    //   )}`
-    // );
 
     // 1 Get transferDBObject and update status
     let transferDBOject: DwollaTransferService.IDwollaTransferDBItem;
@@ -218,8 +210,24 @@ async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEB
           }
         } else {
           log(
-            `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: We haven't set a fundedTransferId yet for this transfer, but no link exists yet on the Dwolla object, nothing to do yet...`
+            `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: We haven't set a fundedTransferId yet for this transfer, but no link exists yet on the Dwolla object`
           );
+          if(eventToProcess?.topic?.includes("completed")){
+            // If we have a completed event, and haven't set the matching ID, we need to recursively retry 
+            // until the timing issue is resolved and ultimately fail and let Dwolla send this webhook again
+            log(
+              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount}`
+            );
+      
+            if(retryCount > 0){
+              log(
+                `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}, trying again...`
+              );
+              retryCount--;
+              await sleep(1000);
+              await processTransfer(eventToProcess, retryCount);
+            }
+          }
         }
       } else {
         log(
@@ -291,8 +299,24 @@ async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEB
             }
           } else {
             log(
-              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: We haven't set a fundingTransferId yet for this transfer, but no link exists yet on the Dwolla object, nothing to do yet...`
+              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: We haven't set a fundingTransferId yet for this transfer, but no link exists yet on the Dwolla object`
             );
+            if(eventToProcess?.topic?.includes("completed")){
+              // If we have a completed event, and haven't set the matching ID, we need to recursively retry 
+              // until the timing issue is resolved and ultimately fail and let Dwolla send this webhook again
+              log(
+                `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount}`
+              );
+        
+              if(retryCount > 0){
+                log(
+                  `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}, trying again...`
+                );
+                retryCount--;
+                await sleep(1000);
+                await processTransfer(eventToProcess, retryCount);
+              }
+            }
           }
         } else {
           log(
@@ -333,7 +357,6 @@ async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEB
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: amount ${transferDBOject.amount}`
     );
-
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferLink ${fundingTransferLink}`
     );
@@ -343,7 +366,6 @@ async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEB
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferStatusFromDB ${fundingTransferStatusFromDB}`
     );
-
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundedTransferLink ${fundedTransferLink}`
     );
@@ -390,13 +412,12 @@ async function processTransfer(eventToProcess: DwollaEvent, retryCount = MAX_WEB
 
     if(err?.message?.includes("No match in database")) {
       
-      // In this edge case, we receive the webhook before 
-      // the database entry has been committed
+      // In this edge case, we receive the webhook before the database entry has been committed
       log(
         `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: No match in database using either fundingTransferId or fundedTransferId`
       );
       log(
-        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount})`
+        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount}`
       );
 
       if(retryCount > 0){
