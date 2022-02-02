@@ -1,5 +1,5 @@
 
-FROM node:10.23.0-buster AS builder
+FROM node:12 AS builder
 LABEL "maintainer"="Aaron Boyd <https://github.com/aaronmboyd>"
 
 WORKDIR /app
@@ -11,11 +11,9 @@ COPY tsconfig.json /app/
 COPY src /app/src/
 RUN yarn build
 
-FROM node:slim AS runtime
+FROM node:12-slim AS runtime
 
 WORKDIR /app
-ENV NODE_ENV=production
-ENV PORT=3000
 
 COPY --from=builder "/app/dist/" "/app/dist/"
 COPY --from=builder "/app/node_modules/" "/app/node_modules/"
