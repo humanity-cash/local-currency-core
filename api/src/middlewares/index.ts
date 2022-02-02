@@ -14,7 +14,7 @@ export async function verifyRequest(
     const authHeader = request?.headers?.authorization;
     if (!authHeader) {
       response
-        .status(httpUtils.codes.UNAUTHORIZED)
+        .status(httpUtils.codes.BAD_REQUEST)
         .send({ message: "No Auth Headers In Request" });
     } else {
       try {
