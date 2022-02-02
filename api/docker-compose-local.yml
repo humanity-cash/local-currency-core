@@ -1,0 +1,51 @@
+version: "3.9"  
+services:
+
+  local-currency-db:
+    image: mongo
+    volumes:
+      - db_data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  local-currency-api:
+    depends_on:
+      - local-currency-db
+    build: ./
+    image: local-currency-core:api
+    command: ["yarn", "start"]
+    ports:
+      - "3000:3000"
+    environment:
+      DEBUG: "true"
+      PORT: 3000
+      LOCAL_CURRENCY_RPC_HOST: "https://celo-alfajores--rpc.datahub.figment.io/apikey/25daa59318b13c1f83a8a444578fdb57/"
+      LOCAL_CURRENCY_ADDRESS: "0xa493032Db59AcbcBF148F5C3660786ef8c6caa42"
+      LOCAL_CURRENCY_MNEMONIC: "truth half motor knee sad flee oxygen gossip announce train soon renew"
+      DERIVATION_PATH: "m/44'/52752'/0'"
+      NUMBER_OPERATORS: 2
+      DWOLLA_BASE_URL: "https://api-sandbox.dwolla.com/"
+      DWOLLA_APP_KEY: r25yOHtHXrmojK2XBnTUXSFjxzT1fQpmOdEAu3eo50CNqHjwDW
+      DWOLLA_APP_SECRET: uYWA0wHz5pf8Is26RfSvnZgEX5Rhyjyiq2yIxYka7m4T7xSZIl
+      DWOLLA_ENVIRONMENT: sandbox
+      WEBHOOK_SECRET: 0000000000000000000000000000000000000000000008888
+      REGISTER_WEBHOOK: "false"
+      SIMULATE_WEBHOOK: "true"
+      SIMULATE_BANKING: "false"
+      USE_MANAGED_SECRETS: "false"
+      OPERATOR_1_DWOLLA_USER_ID: "608b7adc-4c73-46f7-88ee-85095e2c63f1"
+      OPERATOR_1_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
+      OPERATOR_1_MNEMONIC_INDEX: 1
+      OPERATOR_1_DISPLAY_NAME: "Lee Bank"
+      OPERATOR_2_DWOLLA_USER_ID: "a5426c13-a2f0-4812-b7be-3fc9b5a70de3"
+      OPERATOR_2_MNEMONIC: "recall exit lawsuit early about crack empower execute outdoor artefact harbor cover"
+      OPERATOR_2_MNEMONIC_INDEX: 2
+      OPERATOR_2_DISPLAY_NAME: "Salisbury Bank"
+      USE_MONGO_TLS: "false"
+      MONGO_URL: "mongodb://root:example@local-currency-db:27017"
+      CUSTOMER_WITHDRAWAL_BALANCE_LIMIT: 5
+volumes:
+  db_data:

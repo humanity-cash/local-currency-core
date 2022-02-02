@@ -1,32 +1,38 @@
 {
-    "compilerOptions": {
-        "resolveJsonModule": true,
-        "lib": [
-            "es6",
-            "es7"
-        ],
-        "types": [
-            "mocha",
-            "node"
-        ],
-        "declaration": true,
-        "noUnusedLocals": true,
-        "module": "commonjs",
-        "noImplicitAny": false,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "outDir": "./dist/",
-        "rootDir": "./src/",
-        "sourceMap": true,
-        "skipLibCheck": true,
-        "allowJs": true,
-        "esModuleInterop": true
-    },
-    "include": [
-        "src/**/*",
-        "src/**/*.test.ts"
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "lib": [
+      "es6",
+      "es7"
     ],
-    "exclude": [
-        "node_modules"
-    ]
+    "types": [
+      "jest",
+      "node"
+    ],
+    "declaration": true,
+    "noUnusedLocals": true,
+    "module": "commonjs",
+    "noImplicitAny": false,
+        "baseUrl": "./",                             /* Base directory to resolve non-absolute module names. */
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    },
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "outDir": "./dist/",
+    "rootDir": "./src/",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*",
+    "src/**/*.test.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

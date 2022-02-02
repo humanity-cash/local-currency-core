@@ -1,102 +1,109 @@
-import * as CeloUBI from "./celoubi/CeloUbi";
-import * as Kit from "@celo/contractkit";
-import { toBytes32 } from "../utils/utils";
 import {
   HealthResponse,
-  UBIBeneficiary,
-  Authorization,
-  Settlement,
-} from "../types/types";
+  IWallet,
+  IOperatorTotal,
+  IDeposit,
+  IWithdrawal,
+  ITransferEvent,
+} from "src/types";
+import { Response } from "dwolla-v2";
+import * as contracts from "./contracts";
+import { getProvider } from "src/utils/getProvider";
+import { getDwollaCustomerById } from "./digital-banking/DwollaService";
 
 export async function health(): Promise<HealthResponse> {
-  const kit = Kit.newKit(process.env.CELO_UBI_RPC_HOST);
-  const promises = [
-    kit.web3.eth.getBlockNumber(),
-    kit.web3.eth.getChainId(),
-    kit.web3.eth.getNodeInfo(),
-    this.disbursementWei(),
-    this.cUBIAuthToken(),
-    this.cUSDToken(),
-    this.reconciliationAccount(),
-    CeloUBI.getBeneficiaryCount(),
-    CeloUBI.owner(),
-  ];
-  const results = await Promise.all(promises);
+  const { web3 } = await getProvider();
+  const [
+    blockNumber,
+    chainId,
+    nodeInfo,
+    token,
+    walletCount,
+    owner,
+    walletFactory,
+    paused,
+  ] = await Promise.all([
+    web3.eth.getBlockNumber(),
+    web3.eth.getChainId(),
+    web3.eth.getNodeInfo(),
+    this.token(),
+    contracts.getWalletCount(),
+    contracts.owner(),
+    contracts.walletFactory(),
+    contracts.paused(),
+  ]);
+
+  const controller = process.env.LOCAL_CURRENCY_ADDRESS;
+  const controllerStatus = paused ? "PAUSED" : "ACTIVE";
 
   const response: HealthResponse = {
-    blockNumber: results[0],
-    chainId: results[1],
-    nodeInfo: results[2],
-    disbursementWei: results[3],
-    cUBIAuthToken: results[4],
-    cUSDToken: results[5],
-    reconciliationAccount: results[6],
-    countOfBeneficiaries: results[7],
-    owner: results[8],
+    blockNumber,
+    chainId,
+    nodeInfo,
+    token,
+    controller,
+    walletCount,
+    owner,
+    walletFactory,
+    controllerStatus,
   };
   return response;
 }
 
-export async function disbursementWei(): Promise<number> {
-  return await CeloUBI.disbursementWei();
+export async function token(): Promise<string> {
+  return await contracts.token();
 }
 
-export async function cUSDToken(): Promise<string> {
-  return await CeloUBI.cUSDToken();
+export async function getWalletAddress(userId: string): Promise<string> {
+  return await contracts.getWalletAddress(userId);
 }
 
-export async function cUBIAuthToken(): Promise<string> {
-  return await CeloUBI.cUBIAuthToken();
+export async function balanceOfWallet(userId: string): Promise<string> {
+  return await contracts.balanceOfWallet(userId);
 }
 
-export async function reconciliationAccount(): Promise<string> {
-  return await CeloUBI.reconciliationAccount();
-}
-
-export async function beneficiaryAddress(userId: string): Promise<string> {
-  return await CeloUBI.beneficiaryAddress(toBytes32(userId));
-}
-
-export async function balanceOfUBIBeneficiary(userId: string): Promise<string> {
-  return await CeloUBI.balanceOfUBIBeneficiary(toBytes32(userId));
-}
-
-export async function authbalanceOfUBIBeneficiary(
+async function getEnrichedWallet(
+  address: string,
   userId: string
-): Promise<string> {
-  return await CeloUBI.authBalanceOfUBIBeneficiary(toBytes32(userId));
+): Promise<IWallet> {
+  const results = await Promise.all([
+    contracts.getWalletForAddress(address),
+    getDwollaCustomerById(userId),
+  ]);
+  const wallet: IWallet = results[0];
+  const customer: Response = results[1];
+  wallet.customer = customer;
+  return wallet;
 }
 
-export async function getBeneficiary(userId: string): Promise<UBIBeneficiary> {
-  const address = await this.beneficiaryAddress(userId);
-  const beneficiary: UBIBeneficiary = await CeloUBI.getUBIBeneficiaryForAddress(
-    address
-  );
-  return beneficiary;
+export async function getWallet(userId: string): Promise<IWallet> {
+  const address = await this.getWalletAddress(userId);
+  return await getEnrichedWallet(address, userId);
 }
 
-export async function getAllBeneficiaries(): Promise<UBIBeneficiary[]> {
-  const count = await CeloUBI.getBeneficiaryCount();
-  const users: UBIBeneficiary[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const address = await CeloUBI.getBeneficiaryAddressAtIndex(i);
-    const user: UBIBeneficiary = await CeloUBI.getUBIBeneficiaryForAddress(
-      address
-    );
-    users.push(user);
+export async function getAllWallets(): Promise<IWallet[]> {
+  const count = await contracts.getWalletCount();
+  const users: IWallet[] = [];
+  for (let i = 0; i < parseInt(count); i++) {
+    const address = await contracts.getWalletAddressAtIndex(i);
+    const wallet: IWallet = await contracts.getWalletForAddress(address);
+    users.push(wallet);
   }
   return users;
 }
 
-export async function getAuthorizationsForAddress(
-  address: string
-): Promise<Authorization[]> {
-  return await CeloUBI.getAuthorizationsForAddress(address);
+export async function getFundingStatus(): Promise<IOperatorTotal[]> {
+  return await contracts.getFundingStatus();
 }
 
-export async function getSettlementsForAddress(
-  address: string
-): Promise<Settlement[]> {
-  return await CeloUBI.getSettlementsForAddress(address);
+export async function getDeposits(): Promise<IDeposit[]> {
+  return await contracts.getDeposits();
+}
+
+export async function getWithdrawals(): Promise<IWithdrawal[]> {
+  return await contracts.getWithdrawals();
+}
+
+export async function getTransfers(): Promise<ITransferEvent[]> {
+  return await contracts.getTransfers();
 }
