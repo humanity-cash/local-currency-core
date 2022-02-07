@@ -105,3 +105,9 @@ export interface DwollaTransferRequest {
     value: string;
   };
 }
+
+export interface DwollaToken {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
