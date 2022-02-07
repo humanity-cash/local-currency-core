@@ -29,6 +29,18 @@ export async function getFundingSourcesById(
   return fundingSources;
 }
 
+export function getFundingSourceLinkForOperator(
+  operatorDisplayName: string
+): string {
+  let fundingSourceLink: string;
+
+  if (operatorDisplayName == process.env.OPERATOR_1_DISPLAY_NAME)
+    fundingSourceLink = process.env.OPERATOR_1_FUNDING_SOURCE;
+  else fundingSourceLink = process.env.OPERATOR_2_FUNDING_SOURCE;
+
+  return fundingSourceLink;
+}
+
 export async function getFundingSourceLinkForUser(
   userId: string
 ): Promise<string> {
