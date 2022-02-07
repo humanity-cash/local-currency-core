@@ -11,12 +11,13 @@ import {
   ITransferEvent,
   IWithdrawal,
 } from "src/types";
-import { getOperatorUserId, log, userNotification } from "src/utils";
+import { log, userNotification } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
 import {
   createTransfer,
   createUnverifiedCustomer,
+  getFundingSourceLinkForOperator,
   getFundingSourceLinkForUser,
 } from "./digital-banking/DwollaService";
 import {
@@ -131,10 +132,10 @@ export async function deposit(
   log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
 
   const fundingSourceLink: string = await getFundingSourceLinkForUser(userId);
-  const operatorUserId: string = await getOperatorUserId(operatorToUse);
-  const fundingTargetLink: string = await getFundingSourceLinkForUser(
-    operatorUserId
+  const fundingTargetLink: string = getFundingSourceLinkForOperator(
+    sortedOperatorStats[0].operatorDisplayName
   );
+
   log(
     `OperatorService()::deposit() funding source is user ${userId} with funding source ${fundingSourceLink}`
   );
@@ -162,17 +163,16 @@ export async function deposit(
 }
 
 export async function webhookMint(fundingTransferId: string): Promise<boolean> {
-  try{
-      const transfer: DwollaTransferService.IDwollaTransferDBItem =
-        await DwollaTransferService.getByFundingTransferId(fundingTransferId);
-      const result = await contracts.deposit(
-        transfer.userId,
-        transfer.amount,
-        transfer.operatorId
-      );
-      return result.status;
-  }
-  catch(err){
+  try {
+    const transfer: DwollaTransferService.IDwollaTransferDBItem =
+      await DwollaTransferService.getByFundingTransferId(fundingTransferId);
+    const result = await contracts.deposit(
+      transfer.userId,
+      transfer.amount,
+      transfer.operatorId
+    );
+    return result.status;
+  } catch (err) {
     log(`OperatorService()::webhookMint() ${err}`);
     return false;
   }
@@ -286,9 +286,8 @@ export async function withdraw(
       );
 
       // Then Dwolla withdrawal
-      const operatorUserId = await getOperatorUserId(operator.operator);
-      const fundingSourceLink: string = await getFundingSourceLinkForUser(
-        operatorUserId
+      const fundingSourceLink: string = getFundingSourceLinkForOperator(
+        operator.operatorDisplayName
       );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
@@ -324,9 +323,8 @@ export async function withdraw(
       );
 
       // Then Dwolla withdrawal
-      const operatorUserId = await getOperatorUserId(operator.operator);
-      const fundingSourceLink: string = await getFundingSourceLinkForUser(
-        operatorUserId
+      const fundingSourceLink: string = getFundingSourceLinkForOperator(
+        operator.operatorDisplayName
       );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
