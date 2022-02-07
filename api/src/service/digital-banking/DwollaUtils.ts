@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { Buffer } from "buffer";
-import { log } from "src/utils";
-import { DwollaClientOptions, DwollaEvent } from "./DwollaTypes";
+import { isDwollaProduction, log } from "src/utils";
+import { DwollaClientOptions, DwollaEvent, DwollaToken } from "./DwollaTypes";
 import * as dwolla from "dwolla-v2";
 import { DwollaEventService } from "src/database/service";
 import { v4 } from "uuid";
@@ -9,28 +9,64 @@ import { v4 } from "uuid";
 let appTokenRefreshed = 0;
 let appToken: dwolla.Client;
 
-export async function getAppToken(): Promise<dwolla.Client> {
-  const msSinceRefreshed = Date.now() - appTokenRefreshed;
-  const msInTenMinutes = 10 * 60 * 1000;
+export async function getClientToken(options:DwollaClientOptions = {
+  key: process.env.DWOLLA_APP_KEY,
+  secret: process.env.DWOLLA_APP_SECRET,
+  environment: "sandbox"
+}): Promise<dwolla.Client> {
 
-  if (msSinceRefreshed > msInTenMinutes) {
-    const options: DwollaClientOptions =
-      process.env.DWOLLA_ENVIRONMENT == "sandbox"
-        ? {
-            key: process.env.DWOLLA_APP_KEY,
-            secret: process.env.DWOLLA_APP_SECRET,
-            environment: "sandbox",
-          }
-        : {
-            key: process.env.DWOLLA_APP_KEY,
-            secret: process.env.DWOLLA_APP_SECRET,
-            environment: "production",
-          };
-    appToken = new dwolla.Client(options);
-    appTokenRefreshed = Date.now();
-    log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
+  try{
+    const appToken = new dwolla.Client(options);
+    console.log(`DwollaUtils::getClientToken() App token is ${JSON.stringify(appToken, null,2)}`);
+
+    const clients : dwolla.Response = await appToken.get(`clients`);
+    const client = clients?.body["_embedded"]?.clients[0];
+    console.log(`DwollaUtils::getClientToken() Client is ${JSON.stringify(client, null, 2)}`);
+    console.log(`DwollaUtils::getClientToken() Client ID ${client.id}`);
+
+    const res : dwolla.Response =  await appToken.post(`/clients/${client.id}/tokens`);
+    const token : DwollaToken = {
+      access_token: res?.body?.access_token,
+      token_type: res?.body?.token_type,
+      expires_in: res?.body?.expires_in
+    }
+    console.log(`DwollaUtils::getClientToken() Client token is ${JSON.stringify(token, null, 2)}`);
+
+    const clientToken = await appToken.token(token);
+    return clientToken;
   }
-  return appToken;
+  catch(err){
+    log(`DwollaUtils::getClientToken() Cannot create client token: ${err}`);
+    throw err;
+  }
+}
+
+export async function getAppToken(): Promise<dwolla.Client> {
+
+  if(isDwollaProduction()){
+    return getClientToken({
+      key: process.env.DWOLLA_APP_KEY,
+      secret: process.env.DWOLLA_APP_SECRET,
+      environment: "production"
+    })
+  }
+  else {   
+    
+    const msSinceRefreshed = Date.now() - appTokenRefreshed;
+    const msInTenMinutes = 10 * 60 * 1000;
+
+    if (msSinceRefreshed > msInTenMinutes) {
+      const options: DwollaClientOptions = {
+              key: process.env.DWOLLA_APP_KEY,
+              secret: process.env.DWOLLA_APP_SECRET,
+              environment: "sandbox"
+      }
+      appToken = new dwolla.Client(options);
+      appTokenRefreshed = Date.now();
+      log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
+    }
+    return appToken;
+  }
 }
 
 export function createSignature(
