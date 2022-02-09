@@ -44,29 +44,33 @@ export async function getClientToken(
 }
 
 export async function getAppToken(): Promise<dwolla.Client> {
-  if (isDwollaProduction()) {
-    log(`DwollaUtils.ts::getAppToken() Retrieving client token...`);
-    return getClientToken({
-      key: process.env.DWOLLA_APP_KEY,
-      secret: process.env.DWOLLA_APP_SECRET,
-      environment: "production",
-    });
-  } else {
+
     const msSinceRefreshed = Date.now() - appTokenRefreshed;
     const msInTenMinutes = 10 * 60 * 1000;
 
     if (msSinceRefreshed > msInTenMinutes) {
-      const options: DwollaClientOptions = {
-        key: process.env.DWOLLA_APP_KEY,
-        secret: process.env.DWOLLA_APP_SECRET,
-        environment: "sandbox",
-      };
-      appToken = new dwolla.Client(options);
-      appTokenRefreshed = Date.now();
-      log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
+      if (isDwollaProduction()) {
+        log(`DwollaUtils.ts::getAppToken() Retrieving client token...`);
+        appToken = await getClientToken({
+          key: process.env.DWOLLA_APP_KEY,
+          secret: process.env.DWOLLA_APP_SECRET,
+          environment: "production",
+        });
+        log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
+      } 
+      else {
+        const options: DwollaClientOptions = {
+          key: process.env.DWOLLA_APP_KEY,
+          secret: process.env.DWOLLA_APP_SECRET,
+          environment: "sandbox",
+        };
+        appToken = new dwolla.Client(options);
+        appTokenRefreshed = Date.now();
+        log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
+      }
     }
+    
     return appToken;
-  }
 }
 
 export function createSignature(
