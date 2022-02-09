@@ -56,6 +56,7 @@ export async function getAppToken(): Promise<dwolla.Client> {
           secret: process.env.DWOLLA_APP_SECRET,
           environment: "production",
         });
+        appTokenRefreshed = Date.now();
         log(`DwollaUtils.ts::getAppToken() appToken refreshed`);
       } 
       else {
