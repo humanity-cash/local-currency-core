@@ -89,16 +89,17 @@ export const getProvider = async (
   operators: string[];
 }> => {
   let defaultAccount, web3: Web3, kit: ContractKit, operators: string[];
-
+  
+  if(accountToUse)
+    log(`getProvider():: Account to use requested: ${accountToUse}`);
+    
   if (process.env.LOCAL_CURRENCY_PROVIDER === "web3") {
     // If web3 isn't defined or the accountToUse has been specified
-    if (!web3 || accountToUse) {
+    if (!web3) {
       web3 = getWeb3();
       const accounts = await web3.eth.getAccounts();
-      defaultAccount = accountToUse ? accountToUse : accounts[0];
-      operators = accounts.filter((value, index) => {
-        return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
-      });
+      defaultAccount = accounts[0];
+      operators = ["0x0000000000000000000000000000000000000001","0x0000000000000000000000000000000000000002"];
       // log(
       //   "(web3) Now using account:",
       //   defaultAccount,
@@ -108,14 +109,12 @@ export const getProvider = async (
     }
   } else {
     // If kit isn't defined or the accountToUse has been specified
-    if (!kit || accountToUse) {
+    if (!kit) {
       kit = await getKit();
       const accounts = await kit.getWallet().getAccounts();
-      kit.defaultAccount = accountToUse ? accountToUse : accounts[0];
+      kit.defaultAccount = accounts[0];
       defaultAccount = kit.defaultAccount;
-      operators = accounts.filter((value, index) => {
-        return index > 0 && index <= parseInt(process.env.NUMBER_OPERATORS);
-      });
+      operators = ["0x0000000000000000000000000000000000000001","0x0000000000000000000000000000000000000002"];
       // log(
       //   "(kit) Now using account:",
       //   defaultAccount,
