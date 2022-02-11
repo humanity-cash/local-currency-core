@@ -55,13 +55,13 @@ async function getSortedOperators(): Promise<IOperatorTotal[]> {
   const operatorStats: IOperatorTotal[] = await contracts.getFundingStatus();
   const sortedOperatorStats: IOperatorTotal[] =
     operatorStats.sort(sortOperatorsFunc);
-  // log(
-  //   `deposit():: sorted operators are ${JSON.stringify(
-  //     sortedOperatorStats,
-  //     null,
-  //     2
-  //   )}`
-  // );
+  log(
+    `deposit():: sorted operators are ${JSON.stringify(
+      sortedOperatorStats,
+      null,
+      2
+    )}`
+  );
   return sortedOperatorStats;
 }
 
