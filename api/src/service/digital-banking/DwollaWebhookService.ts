@@ -625,6 +625,22 @@ export async function consumeWebhook(
         processed = await processTransfer(eventToProcess);
         break;
 
+      case "transfer_created":
+        processed = await processTransfer(eventToProcess);
+        break;
+
+      case "transfer_completed":
+        processed = await processTransfer(eventToProcess);
+        break;
+
+      case "bank_transfer_created":
+        processed = await processTransfer(eventToProcess);
+        break;
+
+      case "bank_transfer_completed":
+        processed = await processTransfer(eventToProcess);
+        break;
+
       case "customer_bank_transfer_cancelled":
         try {
           await notifyUserWithReason(
