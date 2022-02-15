@@ -15,7 +15,7 @@ interface ChangePasswordProps {
   email: string
   newPassword: string
   oldPassword: string
-  setNewPassword: Function
+  setNewPassword: (value: string) => void
   handler: any 
 };
 
