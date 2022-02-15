@@ -11,6 +11,7 @@ const useContractsState = (): ContractsState => {
     setContractsState((pv: any) => ({ ...pv, data: MockContractsData }));
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   return contractsState;
 };
