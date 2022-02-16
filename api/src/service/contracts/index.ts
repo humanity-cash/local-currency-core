@@ -323,9 +323,12 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
 
   for (let i = 0; i < deposits.length; i++) {
     log(`Searching for transfer with txId ${deposits[i].transactionHash}`);
-    const dbItem : DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.getByTxId(deposits[i].transactionHash); 
+    const dbItem: DwollaTransferService.IDwollaTransferDBItem =
+      await DwollaTransferService.getByTxId(deposits[i].transactionHash);
     log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
-    deposits[i].toName = dbItem ? await getOperatorDisplayName(dbItem.operatorId) : ""
+    deposits[i].toName = dbItem
+      ? await getOperatorDisplayName(dbItem.operatorId)
+      : "";
     deposits[i].fromName = userDisplayName.data.name;
   }
 
@@ -349,9 +352,12 @@ export async function getWithdrawalsForUser(
 
   for (let i = 0; i < withdrawals.length; i++) {
     log(`Searching for transfer with txId ${withdrawals[i].transactionHash}`);
-    const dbItem : DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.getByTxId(withdrawals[i].transactionHash); 
+    const dbItem: DwollaTransferService.IDwollaTransferDBItem =
+      await DwollaTransferService.getByTxId(withdrawals[i].transactionHash);
     log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
-    withdrawals[i].fromName = dbItem ? await getOperatorDisplayName(dbItem.operatorId) : "";
+    withdrawals[i].fromName = dbItem
+      ? await getOperatorDisplayName(dbItem.operatorId)
+      : "";
     withdrawals[i].toName = userDisplayName.data.name;
   }
 
@@ -541,38 +547,44 @@ export async function getTransfersForUser(
   return transfers;
 }
 
-async function getWithdrawalsForOperator(
-  // operatorId: string
-): Promise<{ sum: BN; transactions: IWithdrawal[] }> {
+async function getWithdrawalsForOperator(): Promise<{
+// operatorId: string
+  sum: BN;
+  transactions: IWithdrawal[];
+}> {
   let sum: BN = new BN(0);
 
   const transactions = await getWithdrawals();
-  const filteredTransactions : IWithdrawal[] = [];
+  const filteredTransactions: IWithdrawal[] = [];
 
   for (let j = 0; j < transactions?.length; j++) {
-    const dbItem : DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.getByTxId(transactions[j].transactionHash); 
-    if(dbItem){
-        sum = sum.add(new BN(transactions[j].value));
-        filteredTransactions.push(transactions[j]);
-    }    
+    const dbItem: DwollaTransferService.IDwollaTransferDBItem =
+      await DwollaTransferService.getByTxId(transactions[j].transactionHash);
+    if (dbItem) {
+      sum = sum.add(new BN(transactions[j].value));
+      filteredTransactions.push(transactions[j]);
+    }
   }
   return { sum: sum, transactions: filteredTransactions };
 }
 
-async function getDepositsForOperator(
-  // operatorId: string
-): Promise<{ sum: BN; transactions: IDeposit[] }> {
+async function getDepositsForOperator(): Promise<{
+// operatorId: string
+  sum: BN;
+  transactions: IDeposit[];
+}> {
   let sum: BN = new BN(0);
 
   const transactions = await getDeposits();
-  const filteredTransactions : IDeposit[] = [];
+  const filteredTransactions: IDeposit[] = [];
 
   for (let j = 0; j < transactions?.length; j++) {
-    const dbItem : DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.getByTxId(transactions[j].transactionHash); 
-    if(dbItem){      
+    const dbItem: DwollaTransferService.IDwollaTransferDBItem =
+      await DwollaTransferService.getByTxId(transactions[j].transactionHash);
+    if (dbItem) {
       sum = sum.add(new BN(transactions[j].value));
-      filteredTransactions.push(transactions[j]);      
-    }    
+      filteredTransactions.push(transactions[j]);
+    }
   }
   return { sum: sum, transactions: filteredTransactions };
 }
@@ -580,10 +592,7 @@ async function getDepositsForOperator(
 async function getFundingStatusForOperator(
   operatorId: string
 ): Promise<IOperatorTotal> {
-  const promises = [
-    getWithdrawalsForOperator(),
-    getDepositsForOperator(),
-  ];
+  const promises = [getWithdrawalsForOperator(), getDepositsForOperator()];
   const results = await Promise.all(promises);
 
   const withdrawalSum: BN = results[0].sum;
