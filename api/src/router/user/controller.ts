@@ -2,6 +2,7 @@ import * as dwolla from "dwolla-v2";
 import { uploadFileToBucket } from "src/aws";
 import { Request, Response } from "express";
 import { AppNotificationService } from "src/database/service";
+import { DwollaTransferService } from "src/database/service";
 import * as AuthService from "src/service/AuthService";
 import {
   getFundingSourcesById,
@@ -24,6 +25,7 @@ import {
 } from "src/types";
 import {
   dwollaUtils,
+  getOperatorDisplayName,
   httpUtils,
   isDwollaProduction,
   log,
@@ -369,6 +371,38 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     const id = req?.params?.id;
     await PublicServices.getWallet(id);
     const deposits: IDeposit[] = await OperatorService.getDepositsForUser(id);
+
+    // Retrieve in-flight deposits and transform to IDeposit interface
+    const pendingDeposits : DwollaTransferService.IDwollaTransferDBItem[] = await DwollaTransferService.getByUserId(id);
+    
+    if(pendingDeposits.length>0){
+
+      const fundingSource : dwolla.Response = await getFundingSourcesById(id);
+      console.log(`Pending deposits found: ${pendingDeposits}`);
+
+      // Transform database records to deposits
+      for(let i = 0;i < pendingDeposits.length;i++){
+        const pendingDeposit = pendingDeposits[i];
+        if((!pendingDeposit.fundedStatus?.includes("completed")) && (!pendingDeposit.fundingStatus?.includes("completed"))){
+          const deposit : IDeposit = {
+            transactionHash: "",
+            timestamp: pendingDeposit.updated,
+            blockNumber: -1,
+            operator: pendingDeposit.operatorId,
+            userId: pendingDeposit.userId,
+            value: pendingDeposit.amount,
+            fromName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
+            toName: `Pending - ${await getOperatorDisplayName(pendingDeposit.operatorId)}`
+          }
+          deposits.push(deposit);
+        }
+      }
+      console.log(`Pending deposits transformed and added to total deposits: ${deposits}`);
+    }
+    else {
+      console.log(`No pending deposits`);
+    }
+
     if (deposits?.length > 0)
       httpUtils.createHttpResponse(deposits, codes.OK, res);
     else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
@@ -388,6 +422,37 @@ export async function getWithdrawals(
     await PublicServices.getWallet(id);
     const withdrawals: IWithdrawal[] =
       await OperatorService.getWithdrawalsForUser(id);
+
+    // Retrieve in-flight deposits and transform to IDeposit interface
+    const pendingWithdrawals : DwollaTransferService.IDwollaTransferDBItem[] = await DwollaTransferService.getByUserId(id);
+    
+    if(pendingWithdrawals.length>0){
+      const fundingSource : dwolla.Response = await getFundingSourcesById(id);
+      console.log(`Pending withdrawals found: ${pendingWithdrawals}`);
+
+      // Transform database records to withdrawals
+      for(let i = 0;i < pendingWithdrawals.length;i++){
+        const pendingWithdrawal = pendingWithdrawals[i];
+        if((!pendingWithdrawal.fundedStatus?.includes("completed")) && (!pendingWithdrawal.fundingStatus?.includes("completed"))){
+          const withdrawal : IWithdrawal = {
+            transactionHash: pendingWithdrawal.txId,
+            timestamp: pendingWithdrawal.updated,
+            blockNumber: -1,
+            operator: pendingWithdrawal.operatorId,
+            userId: pendingWithdrawal.userId,
+            value: pendingWithdrawal.amount,
+            toName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
+            fromName: `Pending - ${await getOperatorDisplayName(pendingWithdrawal.operatorId)}`
+          }
+          withdrawals.push(withdrawal);
+        }
+      }
+      console.log(`Pending withdrawals transformed and added to total withdrawals: ${withdrawals}`);
+    }
+    else {
+      console.log(`No pending withdrawals`);
+    }
+
     if (withdrawals?.length > 0)
       httpUtils.createHttpResponse(withdrawals, codes.OK, res);
     else httpUtils.createHttpResponse([], codes.NO_CONTENT, res);
