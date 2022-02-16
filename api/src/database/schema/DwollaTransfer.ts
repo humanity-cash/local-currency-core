@@ -13,7 +13,7 @@ const DwollaTransferSchema = new mongoose.Schema({
   type: String,
   created: Number,
   updated: Number,
-  txId: String
+  txId: String,
 });
 
 export default mongoose.model("DwollaTransfer", DwollaTransferSchema);
