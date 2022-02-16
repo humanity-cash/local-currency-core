@@ -378,7 +378,7 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
 
     if (pendingDeposits.length > 0) {
       const fundingSource: dwolla.Response = await getFundingSourcesById(id);
-      console.log(`Pending deposits found: ${pendingDeposits}`);
+      log(`Pending deposits found: ${pendingDeposits}`);
 
       // Transform database records to deposits
       for (let i = 0; i < pendingDeposits.length; i++) {
@@ -402,11 +402,11 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
           deposits.push(deposit);
         }
       }
-      console.log(
+      log(
         `Pending deposits transformed and added to total deposits: ${deposits}`
       );
     } else {
-      console.log(`No pending deposits`);
+      log(`No pending deposits`);
     }
 
     if (deposits?.length > 0)
@@ -435,7 +435,7 @@ export async function getWithdrawals(
 
     if (pendingWithdrawals.length > 0) {
       const fundingSource: dwolla.Response = await getFundingSourcesById(id);
-      console.log(`Pending withdrawals found: ${pendingWithdrawals}`);
+      log(`Pending withdrawals found: ${pendingWithdrawals}`);
 
       // Transform database records to withdrawals
       for (let i = 0; i < pendingWithdrawals.length; i++) {
@@ -459,11 +459,11 @@ export async function getWithdrawals(
           withdrawals.push(withdrawal);
         }
       }
-      console.log(
+      log(
         `Pending withdrawals transformed and added to total withdrawals: ${withdrawals}`
       );
     } else {
-      console.log(`No pending withdrawals`);
+      log(`No pending withdrawals`);
     }
 
     if (withdrawals?.length > 0)
