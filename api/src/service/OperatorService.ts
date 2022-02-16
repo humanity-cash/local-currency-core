@@ -11,7 +11,7 @@ import {
   ITransferEvent,
   IWithdrawal,
 } from "src/types";
-import { log, userNotification } from "src/utils";
+import { getOperatorUserId, isDwollaProduction, log, userNotification } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
 import {
@@ -55,7 +55,7 @@ async function getSortedOperators(): Promise<IOperatorTotal[]> {
   const operatorStats: IOperatorTotal[] = await contracts.getFundingStatus();
   const sortedOperatorStats: IOperatorTotal[] =
     operatorStats.sort(sortOperatorsFunc);
-  log(
+  console.log(
     `deposit():: sorted operators are ${JSON.stringify(
       sortedOperatorStats,
       null,
@@ -71,7 +71,8 @@ async function createDwollaTransfer(
   amount: string,
   type: string,
   userId: string,
-  operatorId: string
+  operatorId: string,
+  txId?:string
 ) {
   // 1 Construct transfer request
   const transferRequest: DwollaTransferRequest = {
@@ -117,6 +118,7 @@ async function createDwollaTransfer(
     type: type,
     created: now,
     updated: now,
+    txId: txId
   };
   const transferDBItem: DwollaTransferService.IDwollaTransferDBItem =
     await DwollaTransferService.create(transfer);
@@ -129,17 +131,22 @@ export async function deposit(
 ): Promise<DwollaTransferService.IDwollaTransferDBItem> {
   const sortedOperatorStats = await getSortedOperators();
   const operatorToUse = sortedOperatorStats[0].operator;
-  log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
+  console.log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
 
   const fundingSourceLink: string = await getFundingSourceLinkForUser(userId);
-  const fundingTargetLink: string = getFundingSourceLinkForOperator(
-    sortedOperatorStats[0].operatorDisplayName
-  );
-
-  log(
+  console.log(
     `OperatorService()::deposit() funding source is user ${userId} with funding source ${fundingSourceLink}`
   );
-  log(
+
+  let fundingTargetLink: string;  
+  if(isDwollaProduction()){
+    fundingTargetLink = getFundingSourceLinkForOperator(sortedOperatorStats[0].operatorDisplayName);
+  }
+  else{
+    const operatorUserId = await getOperatorUserId(operatorToUse);
+    fundingTargetLink = await getFundingSourceLinkForUser(operatorUserId);
+  }
+  console.log(
     `OperatorService()::deposit() funding target is operator ${operatorToUse} (${sortedOperatorStats[0].operatorDisplayName}) with funding target ${fundingTargetLink}`
   );
 
@@ -151,7 +158,7 @@ export async function deposit(
     userId,
     operatorToUse
   );
-  log(
+  console.log(
     `OperatorService()::deposit() Dwolla transfer created and logged to database: ${JSON.stringify(
       transfer,
       null,
@@ -164,14 +171,19 @@ export async function deposit(
 
 export async function webhookMint(fundingTransferId: string): Promise<boolean> {
   try {
-    const transfer: DwollaTransferService.IDwollaTransferDBItem =
+    let transfer: DwollaTransferService.IDwollaTransferDBItem =
       await DwollaTransferService.getByFundingTransferId(fundingTransferId);
     const result = await contracts.deposit(
       transfer.userId,
       transfer.amount,
       transfer.operatorId
     );
-    return result.status;
+    const updated = await DwollaTransferService.updateTxIdByFundingTransferId(fundingTransferId, result.transactionHash);
+    transfer = await DwollaTransferService.getByFundingTransferId(fundingTransferId);
+    console.log(`Updated transfer is ${JSON.stringify(transfer)}`);
+    transfer = await DwollaTransferService.getByTxId(result.transactionHash);
+    console.log(`[TEST] Retrieved transfer by txId is ${JSON.stringify(transfer)}`);
+    return updated && result.status;
   } catch (err) {
     log(`OperatorService()::webhookMint() ${err}`);
     return false;
@@ -279,16 +291,26 @@ export async function withdraw(
       );
 
       // Blockchain withdrawal first
-      await contracts.withdraw(
+      const transaction = await contracts.withdraw(
         userId,
         web3Utils.fromWei(amountToWithdraw.toString()),
         operator.operator
       );
+      const txId = transaction.transactionHash;
 
       // Then Dwolla withdrawal
-      const fundingSourceLink: string = getFundingSourceLinkForOperator(
-        operator.operatorDisplayName
-      );
+      let fundingSourceLink: string;  
+      if(isDwollaProduction()){
+        fundingSourceLink = getFundingSourceLinkForOperator(operator.operatorDisplayName);
+      }
+      else{
+        const operatorUserId = await getOperatorUserId(operator.operator);
+        fundingSourceLink = await getFundingSourceLinkForUser(operatorUserId);
+      }
+      console.log(
+        `OperatorService()::deposit() funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
+      );    
+
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
       );
@@ -298,7 +320,8 @@ export async function withdraw(
         web3Utils.fromWei(amountToWithdraw.toString()),
         "WITHDRAWAL",
         userId,
-        operator.operator
+        operator.operator,
+        txId
       );
 
       // Clear amountToWithdraw, we have satisfied the user's full redemption amount
@@ -316,16 +339,25 @@ export async function withdraw(
       );
 
       // Blockchain withdrawal first
-      await contracts.withdraw(
+      const transaction = await contracts.withdraw(
         userId,
         web3Utils.fromWei(operatorOutstandingFunds.toString()),
         operator.operator
       );
+      const txId = transaction.transactionHash;
 
       // Then Dwolla withdrawal
-      const fundingSourceLink: string = getFundingSourceLinkForOperator(
-        operator.operatorDisplayName
-      );
+      let fundingSourceLink: string;  
+      if(isDwollaProduction()){
+        fundingSourceLink = getFundingSourceLinkForOperator(operator.operatorDisplayName);
+      }
+      else{
+        const operatorUserId = await getOperatorUserId(operator.operator);
+        fundingSourceLink = await getFundingSourceLinkForUser(operatorUserId);
+      }
+      console.log(
+        `OperatorService()::deposit() funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
+      );  
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
       );
@@ -335,7 +367,8 @@ export async function withdraw(
         web3Utils.fromWei(operatorOutstandingFunds.toString()),
         "WITHDRAWAL",
         userId,
-        operator.operator
+        operator.operator,
+        txId
       );
 
       // Reduce the amount remaining to withdraw and iterate to the next operator
