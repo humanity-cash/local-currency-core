@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface LoginScreenProps{
-  setLoginDetails: Function
+  setLoginDetails: (val: any) => void
   email: string
   password: string
   loginHandler: any 
