@@ -392,6 +392,28 @@ describe("Operator endpoints test", () => {
         });
     });
 
+    it("it should return 3 pending deposits for user2 even though they haven't been processed yet , HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser2}/deposit`)
+        .send()
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body.length).to.equal(3);
+          console.log(res.body);
+          for (let i = 0; i < res.body.length; i++) {
+            expectIDeposit(res.body[i]);
+            expect(res.body[i].fromName?.includes("Pending"));
+            expect(res.body[i].toName?.includes("Pending"));
+          }
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
     it("it should process a webhook for a customer_transfer_created event for user1's deposits, HTTP 202", async (): Promise<void> => {
       const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
         await DwollaTransferService.getByUserId(dwollaIdUser1)
@@ -832,6 +854,7 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser1}/deposit`)
         .send()
         .then((res) => {
+          console.log(res.body);
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(1);
@@ -849,6 +872,7 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser2}/deposit`)
         .send()
         .then((res) => {
+          console.log(res.body);
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(3);
@@ -939,6 +963,7 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ amount: "3.33" })
         .then((res) => {
+          console.log(res.body);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
