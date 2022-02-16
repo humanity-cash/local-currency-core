@@ -373,18 +373,21 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     const deposits: IDeposit[] = await OperatorService.getDepositsForUser(id);
 
     // Retrieve in-flight deposits and transform to IDeposit interface
-    const pendingDeposits : DwollaTransferService.IDwollaTransferDBItem[] = await DwollaTransferService.getByUserId(id);
-    
-    if(pendingDeposits.length>0){
+    const pendingDeposits: DwollaTransferService.IDwollaTransferDBItem[] =
+      await DwollaTransferService.getByUserId(id);
 
-      const fundingSource : dwolla.Response = await getFundingSourcesById(id);
+    if (pendingDeposits.length > 0) {
+      const fundingSource: dwolla.Response = await getFundingSourcesById(id);
       console.log(`Pending deposits found: ${pendingDeposits}`);
 
       // Transform database records to deposits
-      for(let i = 0;i < pendingDeposits.length;i++){
+      for (let i = 0; i < pendingDeposits.length; i++) {
         const pendingDeposit = pendingDeposits[i];
-        if((!pendingDeposit.fundedStatus?.includes("completed")) && (!pendingDeposit.fundingStatus?.includes("completed"))){
-          const deposit : IDeposit = {
+        if (
+          !pendingDeposit.fundedStatus?.includes("completed") &&
+          !pendingDeposit.fundingStatus?.includes("completed")
+        ) {
+          const deposit: IDeposit = {
             transactionHash: "",
             timestamp: pendingDeposit.updated,
             blockNumber: -1,
@@ -392,14 +395,17 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
             userId: pendingDeposit.userId,
             value: pendingDeposit.amount,
             fromName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
-            toName: `Pending - ${await getOperatorDisplayName(pendingDeposit.operatorId)}`
-          }
+            toName: `Pending - ${await getOperatorDisplayName(
+              pendingDeposit.operatorId
+            )}`,
+          };
           deposits.push(deposit);
         }
       }
-      console.log(`Pending deposits transformed and added to total deposits: ${deposits}`);
-    }
-    else {
+      console.log(
+        `Pending deposits transformed and added to total deposits: ${deposits}`
+      );
+    } else {
       console.log(`No pending deposits`);
     }
 
@@ -424,17 +430,21 @@ export async function getWithdrawals(
       await OperatorService.getWithdrawalsForUser(id);
 
     // Retrieve in-flight deposits and transform to IDeposit interface
-    const pendingWithdrawals : DwollaTransferService.IDwollaTransferDBItem[] = await DwollaTransferService.getByUserId(id);
-    
-    if(pendingWithdrawals.length>0){
-      const fundingSource : dwolla.Response = await getFundingSourcesById(id);
+    const pendingWithdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
+      await DwollaTransferService.getByUserId(id);
+
+    if (pendingWithdrawals.length > 0) {
+      const fundingSource: dwolla.Response = await getFundingSourcesById(id);
       console.log(`Pending withdrawals found: ${pendingWithdrawals}`);
 
       // Transform database records to withdrawals
-      for(let i = 0;i < pendingWithdrawals.length;i++){
+      for (let i = 0; i < pendingWithdrawals.length; i++) {
         const pendingWithdrawal = pendingWithdrawals[i];
-        if((!pendingWithdrawal.fundedStatus?.includes("completed")) && (!pendingWithdrawal.fundingStatus?.includes("completed"))){
-          const withdrawal : IWithdrawal = {
+        if (
+          !pendingWithdrawal.fundedStatus?.includes("completed") &&
+          !pendingWithdrawal.fundingStatus?.includes("completed")
+        ) {
+          const withdrawal: IWithdrawal = {
             transactionHash: pendingWithdrawal.txId,
             timestamp: pendingWithdrawal.updated,
             blockNumber: -1,
@@ -442,14 +452,17 @@ export async function getWithdrawals(
             userId: pendingWithdrawal.userId,
             value: pendingWithdrawal.amount,
             toName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
-            fromName: `Pending - ${await getOperatorDisplayName(pendingWithdrawal.operatorId)}`
-          }
+            fromName: `Pending - ${await getOperatorDisplayName(
+              pendingWithdrawal.operatorId
+            )}`,
+          };
           withdrawals.push(withdrawal);
         }
       }
-      console.log(`Pending withdrawals transformed and added to total withdrawals: ${withdrawals}`);
-    }
-    else {
+      console.log(
+        `Pending withdrawals transformed and added to total withdrawals: ${withdrawals}`
+      );
+    } else {
       console.log(`No pending withdrawals`);
     }
 
