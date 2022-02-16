@@ -14,6 +14,7 @@ export interface ICreateDwollaTransferDBItem {
   type: string;
   created: number;
   updated: number;
+  txId?: string;
 }
 
 export interface IDwollaTransferDBItem extends ICreateDwollaTransferDBItem {
@@ -36,6 +37,7 @@ export async function create(
     type: input.type,
     created: input.created,
     updated: input.updated,
+    txId: input.txId
   });
   const response = await dwollaTransferItem.save();
   return removeMongoMeta(response.toObject());
@@ -143,4 +145,32 @@ export async function updateStatusByFundedTransferId(
       `No match in database for DwollaTransfer with fundedTransferId ${fundedTransferId}`
     );
   return true;
+}
+
+export async function updateTxIdByFundingTransferId(
+  fundingTransferId: string,
+  txId: string
+): Promise<boolean> {
+  const response = await DwollaTransfer.updateOne(
+    { fundingTransferId: fundingTransferId },
+    { txId: txId, updated: Date.now() }
+  );
+  if (response.n == 0 || response.nModified == 0)
+    throw Error(
+      `No match in database for DwollaTransfer with fundingTransferId ${fundingTransferId}`
+    );
+  return true;
+}
+
+export async function getByTxId(
+  txId: string
+): Promise<IDwollaTransferDBItem> {
+  const response = await DwollaTransfer.find({
+    txId: txId,
+  });
+  if (response?.length > 0) return removeMongoMeta(response[0].toObject());
+  else
+    throw Error(
+      `No match in database for DwollaTransfer with txId ${txId}`
+    );
 }
