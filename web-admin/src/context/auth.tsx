@@ -36,7 +36,7 @@ const defaultState: IAuth = {
   sessionInfo: {},
   authStatus: AuthStatus.Loading,
   signInDetails: { password: "", email: ""},
-  setSignInDetails: () => {},
+  setSignInDetails: () => {console.log('setSignInDetails')},
   newPassword: ""
 };
 
@@ -119,28 +119,16 @@ const AuthProvider: React.FunctionComponent = ({ children }) => {
   }
 
   const getSession = async () => {
-    try {
-      const session = await AWSService.getSession()
-      return session
-    } catch (err) {
-      throw err
-    }
+    const session = await AWSService.getSession()
+    return session
   }
 
   const forgotPassword = async (username: string, code: string, password: string) => {
-    try {
-      await AWSService.forgotPassword(username, code, password)
-    } catch (err) {
-      throw err
-    }
+    await AWSService.forgotPassword(username, code, password)
   }
 
   const changePassword = async (username: string, oldPassword: string, newPassword: string) => {
-    try {
-      await AWSService.changePassword(username, oldPassword, newPassword)
-    } catch (err) {
-      throw err
-    }
+    await AWSService.changePassword(username, oldPassword, newPassword)
   }
 
   const state: IAuth = {
