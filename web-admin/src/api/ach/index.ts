@@ -1,7 +1,7 @@
 import { STATS_DEPOSITS, STATS_OPERATOR, STATS_WITHDRAWAL } from "consts";
 import * as BaseAPI from "../base";
-import { formatWithdrawals, formatDeposits } from "../../formatters/index";
-import { IACHTransaction } from "../../types";
+import { formatWithdrawals, formatDeposits, formatOperators } from "../../formatters/index";
+import { IACHTransaction, OperatorData } from "../../types";
 
 export const getAllWithdrawals = async (): Promise<IACHTransaction[]> => {
   try {
@@ -25,12 +25,13 @@ export const getAllDeposits = async (): Promise<IACHTransaction[]> => {
   }
 };
 
-export const getAllOperators = async () => {
+export const getAllOperators = async (): Promise<OperatorData[]> => {
   try {
     const response = await BaseAPI.getRequest(STATS_OPERATOR);
 
-    return response;
+    return formatOperators(response);
   } catch (err) {
     console.log("err", err);
+    return [];
   }
 };
