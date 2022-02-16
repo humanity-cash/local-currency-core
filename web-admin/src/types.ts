@@ -66,6 +66,25 @@ export interface ACHData {
   status: TransactionStatus;
 }
 
+export interface OperatorData {
+  operator: string,
+  operatorDisplayName: string,
+  totalDeposits: number,
+  totalWithdrawals: number,
+  currentOutstanding: number,
+  deposits: ITransaction[],
+  withdrawals: ITransaction[]
+}
+
+export interface ITransaction {
+  transactionHash: string;
+  blockNumber: number;
+  timestamp: number;
+  userId: string;
+  operator: string;
+  value: string;
+}
+
 export interface IACHTransaction {
   transactionHash: string;
   blockNumber: number;
@@ -90,6 +109,10 @@ export interface IBlockchainTransaction {
 
 export interface ACHDataState {
   data: ACHData[];
+}
+
+export interface OperatorDataState {
+  data: OperatorData[];
 }
 
 export enum UserTables {
