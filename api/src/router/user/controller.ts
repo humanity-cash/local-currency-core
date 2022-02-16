@@ -376,7 +376,7 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     const pendingDeposits: DwollaTransferService.IDwollaTransferDBItem[] =
       await DwollaTransferService.getByUserId(id);
 
-    if (pendingDeposits.length > 0) {
+    if (pendingDeposits?.length > 0) {
       const fundingSource: dwolla.Response = await getFundingSourcesById(id);
       log(`Pending deposits found: ${pendingDeposits}`);
 
@@ -433,7 +433,7 @@ export async function getWithdrawals(
     const pendingWithdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
       await DwollaTransferService.getByUserId(id);
 
-    if (pendingWithdrawals.length > 0) {
+    if (pendingWithdrawals?.length > 0) {
       const fundingSource: dwolla.Response = await getFundingSourcesById(id);
       log(`Pending withdrawals found: ${pendingWithdrawals}`);
 
