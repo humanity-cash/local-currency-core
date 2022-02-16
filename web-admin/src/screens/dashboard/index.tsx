@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { BandedTable, BarChart, LineChart, PieChart } from 'components';
+import useOperatorData from '../../hooks/useOperatorData';
+import { ITransaction } from '../../types';
 
 const useStyles = makeStyles({
   wrapper: {
@@ -13,14 +16,34 @@ const useStyles = makeStyles({
 });
 
 const Dashboard = () => {
-  const classes = useStyles();
+	const [depositData, setDepositData] = useState<any[]>([])
+	const [withdrawData, setWithdrawData] = useState<any[]>([])
+	const classes = useStyles();
+	const operators = useOperatorData()
+	  
+	useEffect(() => {
+		let deposits: any[] = []
+		let withdrawals: any[] = []
 
-  return (
+		operators.data.forEach((operator) => {
+			deposits = deposits.concat(operator.deposits.map((deposit: ITransaction) => {
+				return {bank: operator.operatorDisplayName, ...deposit}
+			}))
+			withdrawals = withdrawals.concat(operator.withdrawals.map((withdraw: ITransaction) => {
+				return {bank: operator.operatorDisplayName, ...withdraw}
+			}))
+		})
+
+		setDepositData(deposits)
+		setWithdrawData(withdrawals)
+ 	}, [operators])
+
+  	return (
 		<div className={classes.wrapper}>
 			<BandedTable />
 			<PieChart />
-			<BarChart title={'Deposits Per Bank'} />
-			<BarChart title={'Withdrawals Per Bank'} />
+			<BarChart title={'Deposits Per Bank'} data={depositData}/>
+			<BarChart title={'Withdrawals Per Bank'} data={withdrawData} />
 			<LineChart title={'Redepmtion Fees'} yAxis='Y - Fees' />
 			<LineChart title={'Community Chest'} yAxis='Y - Contributions' />
 			{/* {CardsData.map(c => <DataCard key={c.title} title={c.title} body={c.body} additional={c?.additional} />)} */}
@@ -29,63 +52,3 @@ const Dashboard = () => {
 }
 
 export default Dashboard;
-
-// const CardsData: Card[] = [
-// 	{
-// 		title: 'Berkshares Outstanding',
-// 		body: '123004B',
-// 	},
-// 	{
-// 		title: 'Fiat Deposit',
-// 		body: '234B',
-// 		additional: 'Bank I'
-// 	},
-// 	{
-// 		title: 'Fiat Deposit',
-// 		body: '234B',
-// 		additional: 'Bank II'
-// 	},
-// 	{
-// 		title: 'Berkshares Minted',
-// 		body: '234B',
-// 	},
-// 	{
-// 		title: 'Berkshares Burned',
-// 		body: '234B',
-// 	},
-// 	{
-// 		title: 'Transactions Today',
-// 		body: '1020'
-// 	},
-// 	{
-// 		title: 'Total Transactions',
-// 		body: '100034'
-// 	},
-// 	{
-// 		title: 'Pending Deposits',
-// 		body: '250'
-// 	},
-// 	{
-// 		title: 'Total Buisnesses',
-// 		body: '200'
-// 	},
-// 	{
-// 		title: 'Total Users',
-// 		body: '10000'
-// 	},
-// 	{
-// 		title: 'Redemption Fees Paid',
-// 		body: '123004B',
-// 	},
-// 	{
-// 		title: 'Donations',
-// 		body: '123004B',
-// 	},
-// ]
-
-
-// interface Card {
-// 	title: string;
-// 	body: string;
-// 	additional?: string;
-// }
