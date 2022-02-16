@@ -37,7 +37,7 @@ export async function create(
     type: input.type,
     created: input.created,
     updated: input.updated,
-    txId: input.txId
+    txId: input.txId,
   });
   const response = await dwollaTransferItem.save();
   return removeMongoMeta(response.toObject());
@@ -162,15 +162,10 @@ export async function updateTxIdByFundingTransferId(
   return true;
 }
 
-export async function getByTxId(
-  txId: string
-): Promise<IDwollaTransferDBItem> {
+export async function getByTxId(txId: string): Promise<IDwollaTransferDBItem> {
   const response = await DwollaTransfer.find({
     txId: txId,
   });
   if (response?.length > 0) return removeMongoMeta(response[0].toObject());
-  else
-    throw Error(
-      `No match in database for DwollaTransfer with txId ${txId}`
-    );
+  else throw Error(`No match in database for DwollaTransfer with txId ${txId}`);
 }
