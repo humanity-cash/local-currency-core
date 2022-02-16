@@ -321,7 +321,7 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
   const walletAddress = await getWalletAddress(userId);
   const userDisplayName = await getUserData(walletAddress);
 
-  for (let i = 0; i < deposits.length; i++) {
+  for (let i = 0; i < deposits?.length; i++) {
     log(`Searching for transfer with txId ${deposits[i].transactionHash}`);
     const dbItem: DwollaTransferService.IDwollaTransferDBItem =
       await DwollaTransferService.getByTxId(deposits[i].transactionHash);
@@ -350,7 +350,7 @@ export async function getWithdrawalsForUser(
   const walletAddress = await getWalletAddress(userId);
   const userDisplayName = await getUserData(walletAddress);
 
-  for (let i = 0; i < withdrawals.length; i++) {
+  for (let i = 0; i < withdrawals?.length; i++) {
     log(`Searching for transfer with txId ${withdrawals[i].transactionHash}`);
     const dbItem: DwollaTransferService.IDwollaTransferDBItem =
       await DwollaTransferService.getByTxId(withdrawals[i].transactionHash);
