@@ -132,7 +132,7 @@ const Sidebar = () => {
 					<IconButton
 						color='inherit'
 						aria-label='open drawer'
-						onClick={() => {}}
+						onClick={() => {console.log('open drawer')}}
 						edge='start'
 						className={clsx(
 							classes.menuButton,

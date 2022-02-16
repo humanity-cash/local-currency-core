@@ -18,7 +18,7 @@ export const getRequest = (query: Query) => ErrorHandler(_getRequest(query));
 export const postRequest = (path: Path, body: Body) =>
   ErrorHandler(_postRequest(path, body));
 
-const ErrorHandler = async (requestHandler: Function) => {
+const ErrorHandler = async (requestHandler: () => void) => {
   try {
     const response = await requestHandler();
     return response;
