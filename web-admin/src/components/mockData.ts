@@ -478,29 +478,6 @@ export const population = [
   },
 ];
 
-export const olimpicMedals = [
-  {
-    country: "January",
-    gold: 1000,
-    silver: 2000,
-  },
-  {
-    country: "February",
-    gold: 7000,
-    silver: 4000,
-  },
-  {
-    country: "March",
-    gold: 1000,
-    silver: 5000,
-  },
-  {
-    country: "April",
-    gold: 2000,
-    silver: 2000,
-  },
-];
-
 export const confidence = [
   {
     year: 10,
@@ -1511,36 +1488,3 @@ export const sales = {
     { month: "Dec", sale: 12, total: 2410 },
   ],
 };
-
-export const countries = [
-  {
-    ID: 1,
-    bank: "Lee Bank",
-    completedDeposits: "10,000$",
-    pendingDeposits: "10,000$",
-    completedWithdrawals: "10,000$",
-    pendingWithdrawals: "10,000$",
-    currentOutstandingBerkshares: "10,000$",
-    pendingOutstandingBerkshares: "10,000$",
-  },
-  {
-    ID: 2,
-    bank: "Salisbury Bank",
-    completedDeposits: "10,000$",
-    pendingDeposits: "10,000$",
-    completedWithdrawals: "10,000$",
-    pendingWithdrawals: "10,000$",
-    currentOutstandingBerkshares: "10,000$",
-    pendingOutstandingBerkshares: "10,000$",
-  },
-  {
-    ID: 3,
-    bank: "BerkShares",
-    completedDeposits: "10,000$",
-    pendingDeposits: "10,000$",
-    completedWithdrawals: "10,000$",
-    pendingWithdrawals: "10,000$",
-    currentOutstandingBerkshares: "10,000$",
-    pendingOutstandingBerkshares: "10,000$",
-  },
-];
