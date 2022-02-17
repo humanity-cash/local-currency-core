@@ -1,21 +1,20 @@
 import { ACHAPI } from "api";
 import { useEffect } from "react";
 import { useStore } from "react-hookstore";
-import { MockACHData } from "../mock";
 import { OPERATOR_DATA_STORE } from "../store";
-import { OperatorData } from "../types";
+import { OperatorDataState } from '../types';
 
-const useOperatorData = (): OperatorData[] => {
-  const [operatorDataState, setOperatorDataState]: [OperatorData[], any] =
+const useOperatorData = (): OperatorDataState => {
+  const [operatorDataState, setOperatorDataState]: [OperatorDataState, any] =
     useStore(OPERATOR_DATA_STORE);
   useEffect(() => {
     updateOperatorData();
   }, [setOperatorDataState]);
 
   const updateOperatorData = async () => {
-    const operators = await ACHAPI.getAllOperators();
+    const data = await ACHAPI.getAllOperators();
   
-    setOperatorDataState((pv: any) => ({ ...pv, ...operators }));
+    setOperatorDataState((pv: any) => ({ ...pv, data: data }));
   };
 
   return operatorDataState;
