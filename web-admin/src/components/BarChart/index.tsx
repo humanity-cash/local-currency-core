@@ -63,7 +63,6 @@ const BarChart = ({title, data}: any) => {
 
 		setBanks(banks)
 		setChartData(chartDatas)
-		console.log(chartData)
 	}, [data])
 
 	return (
