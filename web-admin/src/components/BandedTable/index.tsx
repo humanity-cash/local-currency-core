@@ -9,7 +9,7 @@ import {
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { useState } from 'react';
-import { countries } from '../mockData';
+import useOperatorData from '../../hooks/useOperatorData';
 
 const useStyles = makeStyles({
   root: {
@@ -19,38 +19,42 @@ const useStyles = makeStyles({
 	}
 });
 
+const thousandSeperator = (val: number) => {
+	return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
 
 const BandedTable =  () => {
 	const [columns] = useState([
-		{ name: 'bank', title: 'Bank' },
-		{ name: 'completedDeposits', title: 'Completed' },
+		{ name: 'operatorDisplayName', title: 'Bank' },
+		{ name: 'totalDeposits', title: 'Completed', getCellValue: (row: any, columnName: string) => {return `${thousandSeperator(row.totalDeposits)}$`} },
 		{ name: 'pendingDeposits', title: 'Pending' },
-		{ name: 'completedWithdrawals', title: 'Completed' },
+		{ name: 'totalWithdrawals', title: 'Completed', getCellValue: (row: any, columnName: string) => {return `${thousandSeperator(row.totalWithdrawals)}$`} },
 		{ name: 'pendingWithdrawals', title: 'Pending' },
-		{ name: 'currentOutstandingBerkshares', title: 'Current'},
+		{ name: 'currentOutstanding', title: 'Current', getCellValue: (row: any, columnName: string) => {return `${thousandSeperator(row.currentOutstanding)}$`}},
 		{ name: 'pendingOutstandingBerkshares', title: 'Pending'},
 	]);
-  const classes = useStyles();
+	const classes = useStyles();
+	const operatorState = useOperatorData()
 
 	const [columnBands] = useState([
 		{
 			title: 'Deposits',
 			children: [
-				{ columnName: 'completedDeposits' },
+				{ columnName: 'totalDeposits' },
 				{ columnName: 'pendingDeposits' },
 			],
 		},
 		{
 			title: 'Withdrawals',
 			children: [
-				{ columnName: 'completedWithdrawals' },
+				{ columnName: 'totalWithdrawals' },
 				{ columnName: 'pendingWithdrawals' },
 			],
 		},
 		{
 			title: 'Outstanding B$',
 			children: [
-				{ columnName: 'currentOutstandingBerkshares' },
+				{ columnName: 'currentOutstanding' },
 				{ columnName: 'pendingOutstandingBerkshares' },
 			],
 		},
@@ -65,10 +69,10 @@ const BandedTable =  () => {
 
 	const [tableColumnExtensions] = useState([
 		{ columnName: 'pendingWithdrawals', align: 'right' },
-		{ columnName: 'completedWithdrawals', align: 'right' },
+		{ columnName: 'totalWithdrawals', align: 'right' },
 		{ columnName: 'pendingDeposits', align: 'right' },
-		{ columnName: 'completedDeposits', align: 'right' },
-		{ columnName: 'currentOutstandingBerkshares', align: 'right' },
+		{ columnName: 'totalDeposits', align: 'right' },
+		{ columnName: 'currentOutstanding', align: 'right' },
 		{ columnName: 'pendingOutstandingBerkshares', align: 'right' },
 	]);
 
@@ -76,7 +80,7 @@ const BandedTable =  () => {
 		// <div className={classes.wrapper}>
 		<Paper className={classes.root}>
 			<Grid
-				rows={countries}
+				rows={operatorState.data}
 				columns={columns}
 				style={{ paddingLeft: '20em' }}>
 				<Table columnExtensions={tableColumnExtensions} />
