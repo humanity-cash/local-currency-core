@@ -28,7 +28,7 @@ let web3: Web3;
 let contractsSetup = false;
 
 const MINTER_ROLE = web3Utils.keccak256("MINTER_ROLE");
-const OPERATOR_ROLE = web3Utils.keccak256("OPERATOR_ROLE");
+// const OPERATOR_ROLE = web3Utils.keccak256("OPERATOR_ROLE");
 
 export function getSalt(): string {
   return new Date().getTime().toString();
@@ -268,15 +268,23 @@ export async function setupContracts(): Promise<void> {
   );
   log("Controller deployed: ", Controller.options.address);
 
-  const { operators } = await getProvider();
-  for (let i = 0; i < operators.length; i++) {
-    await Controller.methods
-      .grantRole(OPERATOR_ROLE, operators[i])
-      .send(sendOptions);
-    log(
-      `Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`
-    );
-  }
+  // const { operators } = await getProvider();  // const { operators } = await getProvider();
+  // for (let i = 0; i < operators.length; i++) {
+  //   await Controller.methods
+  //     .grantRole(OPERATOR_ROLE, operators[i])
+  //     .send(sendOptions);
+  //   log(
+  //     `Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`
+  //   );
+  // }
+  // for (let i = 0; i < operators.length; i++) {
+  //   await Controller.methods
+  //     .grantRole(OPERATOR_ROLE, operators[i])
+  //     .send(sendOptions);
+  //   log(
+  //     `Added operator ${operators[i]} to list of OPERATOR_ROLE in the Controller contract`
+  //   );
+  // }
 
   // Make controller own factory
   await WalletFactory.methods
