@@ -298,7 +298,7 @@ export async function withdraw(
     // If this operator has enough, then withdraw the full amount
     if (operatorOutstandingFunds.gte(amountToWithdraw)) {
       log(
-        `OperatorService::withdraw():: withdrawing ${amountToWithdraw.toString()} entire withdrawal from operator ${
+        `OperatorService::withdraw(): withdrawing ${amountToWithdraw.toString()} entire withdrawal from operator ${
           operator.operator
         } (${
           operator.operatorDisplayName
@@ -324,7 +324,7 @@ export async function withdraw(
         fundingSourceLink = await getFundingSourceLinkForUser(operatorUserId);
       }
       log(
-        `OperatorService()::deposit() funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
+        `OperatorService::withdraw(): funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
       );
 
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
@@ -347,7 +347,7 @@ export async function withdraw(
     // Otherwise only withdraw the total this operator has
     else {
       log(
-        `withdraw():: withdrawing partial amount ${operatorOutstandingFunds.toString()} from operator ${
+        `OperatorService::withdraw(): withdrawing partial amount ${operatorOutstandingFunds.toString()} from operator ${
           operator.operator
         } (${
           operator.operator
@@ -373,7 +373,7 @@ export async function withdraw(
         fundingSourceLink = await getFundingSourceLinkForUser(operatorUserId);
       }
       log(
-        `OperatorService()::deposit() funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
+        `OperatorService::withdraw(): funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
       );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
@@ -393,7 +393,7 @@ export async function withdraw(
 
       if (index >= sortedOperatorStats?.length)
         throw Error(
-          `withdraw():: Critical - cannot fulfill withdrawal ${amount} for userId ${userId}`
+          `OperatorService::withdraw(): Critical - cannot fulfill withdrawal ${amount} for userId ${userId}`
         );
     }
   }
