@@ -33,6 +33,7 @@ import {
 } from "src/utils";
 import { createDummyEvent } from "../../test/utils";
 import { serverError } from "src/utils/http";
+import { toWei } from "web3-utils";
 
 export const PROFILE_PICTURES_BUCKET = "profile-picture-user";
 const codes = httpUtils.codes;
@@ -400,11 +401,11 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
         if (!(pendingDeposit.fundedStatus?.includes("completed") && pendingDeposit.fundingStatus?.includes("completed"))) {
           const deposit: IDeposit = {
             transactionHash: "Pending",
-            timestamp: pendingDeposit.updated,
+            timestamp: pendingDeposit.updated/1000, // MongoDB timestamps are in milliseconds but app is expecting seconds
             blockNumber: -1,
             operator: pendingDeposit.operatorId,
             userId: pendingDeposit.userId,
-            value: pendingDeposit.amount,
+            value: toWei(pendingDeposit.amount, "ether"),
             fromName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
             toName: `Pending - ${await getOperatorDisplayName(
               pendingDeposit.operatorId
@@ -457,11 +458,11 @@ export async function getWithdrawals(
         ) {
           const withdrawal: IWithdrawal = {
             transactionHash: pendingWithdrawal.txId,
-            timestamp: pendingWithdrawal.updated,
+            timestamp: pendingWithdrawal.updated/1000, // MongoDB timestamps are in milliseconds but app is expecting seconds 
             blockNumber: -1,
             operator: pendingWithdrawal.operatorId,
             userId: pendingWithdrawal.userId,
-            value: pendingWithdrawal.amount,
+            value: toWei(pendingWithdrawal.amount, "ether"),
             toName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
             fromName: `Pending - ${await getOperatorDisplayName(
               pendingWithdrawal.operatorId
