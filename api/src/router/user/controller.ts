@@ -401,7 +401,7 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
         if (!(pendingDeposit.fundedStatus?.includes("completed") && pendingDeposit.fundingStatus?.includes("completed"))) {
           const deposit: IDeposit = {
             transactionHash: "Pending",
-            timestamp: Math.floor(pendingDeposit.updated/1000), // MongoDB timestamps are in milliseconds but app is expecting seconds
+            timestamp: Math.floor(pendingDeposit.created/1000), // MongoDB timestamps are in milliseconds but app is expecting seconds
             blockNumber: -1,
             operator: pendingDeposit.operatorId,
             userId: pendingDeposit.userId,
@@ -458,7 +458,7 @@ export async function getWithdrawals(
         ) {
           const withdrawal: IWithdrawal = {
             transactionHash: pendingWithdrawal.txId,
-            timestamp: Math.floor(pendingWithdrawal.updated/1000), // MongoDB timestamps are in milliseconds but app is expecting seconds 
+            timestamp: Math.floor(pendingWithdrawal.created/1000), // MongoDB timestamps are in milliseconds but app is expecting seconds 
             blockNumber: -1,
             operator: pendingWithdrawal.operatorId,
             userId: pendingWithdrawal.userId,
