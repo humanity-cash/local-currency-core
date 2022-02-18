@@ -88,6 +88,11 @@ export function shouldUseMongoTLS(): boolean {
     process.env.USE_MONGO_TLS == "true" || process.env.USE_MONGO_TLS == "TRUE"
   );
 }
+export function shouldRunTransferReconciliation(): boolean {
+  return (
+    process.env.TRANSFER_RECONCILE_ON_STARTUP == "true" || process.env.TRANSFER_RECONCILE_ON_STARTUP == "TRUE"
+  );
+}
 
 export function logSettings(): void {
   console.log(`shouldRegisterWebhook()     == ${shouldRegisterWebhook()}`);
