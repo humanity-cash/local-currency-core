@@ -19,7 +19,6 @@ import { reconcileDwollaDeposits } from "./service/digital-banking/DwollaService
 const app = getApp();
 
 const runApp = async () => {
-  
   logSettings();
 
   if (shouldUseManagedSecrets()) {
@@ -61,12 +60,12 @@ const runApp = async () => {
     startDatabase(async (err) => {
       if (err) throw err;
       else log("App with database started");
-      
-      if(shouldRunTransferReconciliation()){
-        await reconcileDwollaDeposits();
-      }      
     });
   });
+
+  if (shouldRunTransferReconciliation()) {
+    await reconcileDwollaDeposits();
+  }
 };
 
 runApp();
