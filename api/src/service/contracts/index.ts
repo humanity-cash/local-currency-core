@@ -322,19 +322,17 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
   const userDisplayName = await getUserData(walletAddress);
 
   for (let i = 0; i < deposits?.length; i++) {
-    try{
+    try {
       log(`Searching for transfer with txId ${deposits[i].transactionHash}`);
       const dbItem: DwollaTransferService.IDwollaTransferDBItem =
         await DwollaTransferService.getByTxId(deposits[i].transactionHash);
       log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
       deposits[i].toName = await getOperatorDisplayName(dbItem.operatorId);
-    }
-    catch(err){
+    } catch (err) {
       deposits[i].toName = "Participating local bank";
-    }
-    finally{
+    } finally {
       deposits[i].fromName = userDisplayName.data.name;
-    }    
+    }
   }
 
   log(`UserDeposit logs: ${JSON.stringify(deposits, null, 2)}`);
@@ -356,19 +354,17 @@ export async function getWithdrawalsForUser(
   const userDisplayName = await getUserData(walletAddress);
 
   for (let i = 0; i < withdrawals?.length; i++) {
-    try{
+    try {
       log(`Searching for transfer with txId ${withdrawals[i].transactionHash}`);
       const dbItem: DwollaTransferService.IDwollaTransferDBItem =
         await DwollaTransferService.getByTxId(withdrawals[i].transactionHash);
       log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
       withdrawals[i].fromName = await getOperatorDisplayName(dbItem.operatorId);
-    }
-    catch(err){
+    } catch (err) {
       withdrawals[i].fromName = "Participating local bank";
-    }
-    finally{
+    } finally {
       withdrawals[i].toName = userDisplayName.data.name;
-    }    
+    }
   }
 
   log(`UserWithdrawal logs: ${JSON.stringify(withdrawals, null, 2)}`);
@@ -558,7 +554,7 @@ export async function getTransfersForUser(
 }
 
 async function getWithdrawalsForOperator(): Promise<{
-// operatorId: string
+  // operatorId: string
   sum: BN;
   transactions: IWithdrawal[];
 }> {
@@ -568,24 +564,25 @@ async function getWithdrawalsForOperator(): Promise<{
   const filteredTransactions: IWithdrawal[] = [];
 
   for (let j = 0; j < transactions?.length; j++) {
-    try{
+    try {
       const dbItem: DwollaTransferService.IDwollaTransferDBItem =
-      await DwollaTransferService.getByTxId(transactions[j].transactionHash);
+        await DwollaTransferService.getByTxId(transactions[j].transactionHash);
       if (dbItem) {
         sum = sum.add(new BN(transactions[j].value));
         transactions[j].operator = dbItem.operatorId;
         filteredTransactions.push(transactions[j]);
       }
-    }
-    catch(err){
-      log(`txId ${transactions[j].transactionHash} not found in withdrawal database`);
+    } catch (err) {
+      log(
+        `txId ${transactions[j].transactionHash} not found in withdrawal database`
+      );
     }
   }
   return { sum: sum, transactions: filteredTransactions };
 }
 
 async function getDepositsForOperator(): Promise<{
-// operatorId: string
+  // operatorId: string
   sum: BN;
   transactions: IDeposit[];
 }> {
@@ -595,7 +592,7 @@ async function getDepositsForOperator(): Promise<{
   const filteredTransactions: IDeposit[] = [];
 
   for (let j = 0; j < transactions?.length; j++) {
-    try{
+    try {
       const dbItem: DwollaTransferService.IDwollaTransferDBItem =
         await DwollaTransferService.getByTxId(transactions[j].transactionHash);
       if (dbItem) {
@@ -603,9 +600,10 @@ async function getDepositsForOperator(): Promise<{
         transactions[j].operator = dbItem.operatorId;
         filteredTransactions.push(transactions[j]);
       }
-    }
-    catch(err){
-      log(`txId ${transactions[j].transactionHash} not found in deposit database`);
+    } catch (err) {
+      log(
+        `txId ${transactions[j].transactionHash} not found in deposit database`
+      );
     }
   }
   return { sum: sum, transactions: filteredTransactions };

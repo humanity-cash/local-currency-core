@@ -48,13 +48,11 @@ export async function get(dbId: string): Promise<IDwollaTransferDBItem> {
   return removeMongoMeta(response.toObject());
 }
 
-export async function getAll(type?:string): Promise<IDwollaTransferDBItem[]> {
+export async function getAll(type?: string): Promise<IDwollaTransferDBItem[]> {
   let response;
-  
-  if(type)
-    response = await DwollaTransfer.find({type: type});
-  else
-    response = await DwollaTransfer.find({});
+
+  if (type) response = await DwollaTransfer.find({ type: type });
+  else response = await DwollaTransfer.find({});
 
   if (response?.length > 0) {
     const result: IDwollaTransferDBItem[] = [];

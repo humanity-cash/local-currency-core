@@ -90,7 +90,8 @@ export function shouldUseMongoTLS(): boolean {
 }
 export function shouldRunTransferReconciliation(): boolean {
   return (
-    process.env.TRANSFER_RECONCILE_ON_STARTUP == "true" || process.env.TRANSFER_RECONCILE_ON_STARTUP == "TRUE"
+    process.env.TRANSFER_RECONCILE_ON_STARTUP == "true" ||
+    process.env.TRANSFER_RECONCILE_ON_STARTUP == "TRUE"
   );
 }
 

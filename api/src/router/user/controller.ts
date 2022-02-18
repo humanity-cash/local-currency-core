@@ -129,16 +129,24 @@ export async function getFundingSources(
 ): Promise<void> {
   try {
     const id = req?.params?.id;
-    
+
     // Get wallet simply to check if user exists
     await PublicServices.getWallet(id);
     const fundingSources: dwolla.Response = await getFundingSourcesById(id);
-    
+
     // Only return verified bank funding sources
-    if(fundingSources?.body?._embedded["funding-sources"]?.length > 0){
-      for(let i = 0; i < fundingSources.body._embedded["funding-sources"].length;i++){
-        const fundingSource = fundingSources.body._embedded["funding-sources"][i];
-        if(fundingSource.type == "bank" && fundingSource.status == "unverified"){
+    if (fundingSources?.body?._embedded["funding-sources"]?.length > 0) {
+      for (
+        let i = 0;
+        i < fundingSources.body._embedded["funding-sources"].length;
+        i++
+      ) {
+        const fundingSource =
+          fundingSources.body._embedded["funding-sources"][i];
+        if (
+          fundingSource.type == "bank" &&
+          fundingSource.status == "unverified"
+        ) {
           delete fundingSources.body._embedded["funding-sources"][i];
         }
       }
@@ -389,19 +397,28 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     let pendingDeposits: DwollaTransferService.IDwollaTransferDBItem[] =
       await DwollaTransferService.getByUserId(id);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pendingDeposits = pendingDeposits.filter((value, index) => {return value.type == "DEPOSIT"});
+    pendingDeposits = pendingDeposits.filter((value, index) => {
+      return value.type == "DEPOSIT";
+    });
 
     if (pendingDeposits?.length > 0) {
       const fundingSource: dwolla.Response = await getFundingSourcesById(id);
-      log(`Pending deposits found: ${JSON.stringify(pendingDeposits, null,2)}`);
-    
+      log(
+        `Pending deposits found: ${JSON.stringify(pendingDeposits, null, 2)}`
+      );
+
       // Transform database records to deposits
       for (let i = 0; i < pendingDeposits.length; i++) {
         const pendingDeposit = pendingDeposits[i];
-        if (!(pendingDeposit.fundedStatus?.includes("completed") && pendingDeposit.fundingStatus?.includes("completed"))) {
+        if (
+          !(
+            pendingDeposit.fundedStatus?.includes("completed") &&
+            pendingDeposit.fundingStatus?.includes("completed")
+          )
+        ) {
           const deposit: IDeposit = {
             transactionHash: "Pending",
-            timestamp: Math.floor(pendingDeposit.created/1000), // MongoDB timestamps are in milliseconds but app is expecting seconds
+            timestamp: Math.floor(pendingDeposit.created / 1000), // MongoDB timestamps are in milliseconds but app is expecting seconds
             blockNumber: -1,
             operator: pendingDeposit.operatorId,
             userId: pendingDeposit.userId,
@@ -415,7 +432,11 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
         }
       }
       log(
-        `Pending deposits transformed and added to total deposits: ${JSON.stringify(deposits, null,2)}`
+        `Pending deposits transformed and added to total deposits: ${JSON.stringify(
+          deposits,
+          null,
+          2
+        )}`
       );
     } else {
       log(`No pending deposits`);
@@ -443,22 +464,34 @@ export async function getWithdrawals(
 
     // Retrieve in-flight withdrawals and transform to IDeposit interface
     let pendingWithdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
-      await DwollaTransferService.getByUserId(id);    
+      await DwollaTransferService.getByUserId(id);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pendingWithdrawals = pendingWithdrawals.filter((value, index) => {return value.type == "WITHDRAWAL"});
+    pendingWithdrawals = pendingWithdrawals.filter((value, index) => {
+      return value.type == "WITHDRAWAL";
+    });
 
     if (pendingWithdrawals?.length > 0) {
       const fundingSource: dwolla.Response = await getFundingSourcesById(id);
-      log(`Pending withdrawals found: ${JSON.stringify(pendingWithdrawals, null,2)}`);
+      log(
+        `Pending withdrawals found: ${JSON.stringify(
+          pendingWithdrawals,
+          null,
+          2
+        )}`
+      );
 
       // Transform database records to withdrawals
       for (let i = 0; i < pendingWithdrawals.length; i++) {
         const pendingWithdrawal = pendingWithdrawals[i];
-        if (!(pendingWithdrawal.fundedStatus?.includes("completed") && pendingWithdrawal.fundingStatus?.includes("completed"))
+        if (
+          !(
+            pendingWithdrawal.fundedStatus?.includes("completed") &&
+            pendingWithdrawal.fundingStatus?.includes("completed")
+          )
         ) {
           const withdrawal: IWithdrawal = {
             transactionHash: pendingWithdrawal.txId,
-            timestamp: Math.floor(pendingWithdrawal.created/1000), // MongoDB timestamps are in milliseconds but app is expecting seconds 
+            timestamp: Math.floor(pendingWithdrawal.created / 1000), // MongoDB timestamps are in milliseconds but app is expecting seconds
             blockNumber: -1,
             operator: pendingWithdrawal.operatorId,
             userId: pendingWithdrawal.userId,
@@ -472,7 +505,11 @@ export async function getWithdrawals(
         }
       }
       log(
-        `Pending withdrawals transformed and added to total withdrawals: ${JSON.stringify(withdrawals,null,2)}`
+        `Pending withdrawals transformed and added to total withdrawals: ${JSON.stringify(
+          withdrawals,
+          null,
+          2
+        )}`
       );
     } else {
       log(`No pending withdrawals`);
