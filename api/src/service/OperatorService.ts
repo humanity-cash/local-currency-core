@@ -136,9 +136,7 @@ export async function deposit(
 ): Promise<DwollaTransferService.IDwollaTransferDBItem> {
   const sortedOperatorStats = await getSortedOperators();
   const operatorToUse = sortedOperatorStats[0].operator;
-  log(
-    `OperatorService()::deposit() depositing to operator ${operatorToUse}`
-  );
+  log(`OperatorService()::deposit() depositing to operator ${operatorToUse}`);
 
   const fundingSourceLink: string = await getFundingSourceLinkForUser(userId);
   log(
