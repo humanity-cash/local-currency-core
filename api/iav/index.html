@@ -23,9 +23,9 @@
     dwolla.configure('prod');
     dwolla.iav.start(findGetParameter("iavToken"), {
         container: 'dwolla',
-        microDeposits: false,
-        fallbackToMicroDeposits: false,
-        backButton: false,
+        microDeposits: true,
+        fallbackToMicroDeposits: true,
+        backButton: true,
         subscriber: ({ currentPage, error }) => {
             console.log('currentPage:', currentPage, 'error:', JSON.stringify(error))
         }
