@@ -6,6 +6,7 @@ import {
   log,
   logSettings,
   shouldRegisterWebhook,
+  shouldRunTransferReconciliation,
   shouldSimulateBanking,
   shouldSimulateWebhook,
   shouldUseManagedSecrets,
@@ -13,10 +14,12 @@ import {
 import { configureEnvironment } from "./utils/configuration";
 import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
 import { processDwollaSandboxSimulations } from "./test/utils";
+import { reconcileDwollaDeposits } from "./service/digital-banking/DwollaService";
 
 const app = getApp();
 
 const runApp = async () => {
+  
   logSettings();
 
   if (shouldUseManagedSecrets()) {
@@ -55,9 +58,13 @@ const runApp = async () => {
       process.env.DERIVATION_PATH
     );
     log(`App listening at http://localhost:${process.env.PORT}`);
-    startDatabase((err) => {
+    startDatabase(async (err) => {
       if (err) throw err;
       else log("App with database started");
+      
+      if(shouldRunTransferReconciliation()){
+        await reconcileDwollaDeposits();
+      }      
     });
   });
 };
