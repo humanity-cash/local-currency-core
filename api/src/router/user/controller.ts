@@ -128,9 +128,21 @@ export async function getFundingSources(
 ): Promise<void> {
   try {
     const id = req?.params?.id;
+    
     // Get wallet simply to check if user exists
     await PublicServices.getWallet(id);
     const fundingSources: dwolla.Response = await getFundingSourcesById(id);
+    
+    // Only return verified bank funding sources
+    if(fundingSources?.body?._embedded["funding-sources"]?.length > 0){
+      for(let i = 0; i < fundingSources.body._embedded["funding-sources"].length;i++){
+        const fundingSource = fundingSources.body._embedded["funding-sources"][i];
+        if(fundingSource.type == "bank" && fundingSource.status == "unverified"){
+          delete fundingSources.body._embedded["funding-sources"][i];
+        }
+      }
+    }
+
     httpUtils.createHttpResponse(fundingSources, codes.OK, res);
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
