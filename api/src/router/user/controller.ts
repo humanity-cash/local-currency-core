@@ -501,7 +501,18 @@ export async function getWithdrawals(
               pendingWithdrawal.operatorId
             )}`,
           };
-          withdrawals.push(withdrawal);
+          // Pending withdrawals are only pending in the Dwolla sense
+          // They will actually appear as blockchain completed transactions
+          // But not yet fully completed banking, so we need to overwrite them
+          // in the withdrawals array here, not push a completely new item
+          for(let j = 0;j<withdrawals.length;j++){
+            if(withdrawals[j].transactionHash==withdrawal.transactionHash){
+              withdrawal.blockNumber = withdrawals[j].blockNumber;
+              withdrawal.timestamp = withdrawals[j].timestamp;
+              withdrawals[j] = withdrawal;
+            }              
+          }
+          // withdrawals.push(withdrawal);
         }
       }
       log(

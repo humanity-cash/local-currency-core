@@ -553,8 +553,7 @@ export async function getTransfersForUser(
   return transfers;
 }
 
-async function getWithdrawalsForOperator(): Promise<{
-  // operatorId: string
+async function getWithdrawalsForOperator(operatorId: string): Promise<{
   sum: BN;
   transactions: IWithdrawal[];
 }> {
@@ -567,7 +566,7 @@ async function getWithdrawalsForOperator(): Promise<{
     try {
       const dbItem: DwollaTransferService.IDwollaTransferDBItem =
         await DwollaTransferService.getByTxId(transactions[j].transactionHash);
-      if (dbItem) {
+      if (dbItem?.operatorId == operatorId) {
         sum = sum.add(new BN(transactions[j].value));
         transactions[j].operator = dbItem.operatorId;
         filteredTransactions.push(transactions[j]);
@@ -581,8 +580,7 @@ async function getWithdrawalsForOperator(): Promise<{
   return { sum: sum, transactions: filteredTransactions };
 }
 
-async function getDepositsForOperator(): Promise<{
-  // operatorId: string
+async function getDepositsForOperator(operatorId: string): Promise<{
   sum: BN;
   transactions: IDeposit[];
 }> {
@@ -595,7 +593,7 @@ async function getDepositsForOperator(): Promise<{
     try {
       const dbItem: DwollaTransferService.IDwollaTransferDBItem =
         await DwollaTransferService.getByTxId(transactions[j].transactionHash);
-      if (dbItem) {
+      if (dbItem?.operatorId == operatorId) {
         sum = sum.add(new BN(transactions[j].value));
         transactions[j].operator = dbItem.operatorId;
         filteredTransactions.push(transactions[j]);
@@ -612,7 +610,7 @@ async function getDepositsForOperator(): Promise<{
 async function getFundingStatusForOperator(
   operatorId: string
 ): Promise<IOperatorTotal> {
-  const promises = [getWithdrawalsForOperator(), getDepositsForOperator()];
+  const promises = [getWithdrawalsForOperator(operatorId), getDepositsForOperator(operatorId)];
   const results = await Promise.all(promises);
 
   const withdrawalSum: BN = results[0].sum;
@@ -642,5 +640,6 @@ export async function getFundingStatus(): Promise<IOperatorTotal[]> {
     promises.push(getFundingStatusForOperator(operators[i]));
   }
   const results = await Promise.all(promises);
+  // console.log(JSON.stringify(results, null, 2));
   return results;
 }
