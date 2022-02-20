@@ -990,6 +990,28 @@ describe("Operator endpoints test", () => {
         });
     });
 
+    it("it should return 2 pending withdrawals for user1 even though they haven't been processed yet , HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdUser1}/withdraw`)
+        .send()
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body.length).to.equal(2);
+          console.log(res.body);
+          for (let i = 0; i < res.body.length; i++) {
+            expectIDeposit(res.body[i]);
+            expect(res.body[i].fromName?.includes("Pending"));
+            expect(res.body[i].toName?.includes("Pending"));
+          }
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
     it("it should withdraw from business1 for $888.88, even though their balance is above the threshold, HTTP 202", (done) => {
       chai
         .request(server)
