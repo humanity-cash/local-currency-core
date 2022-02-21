@@ -136,18 +136,25 @@ export async function getFundingSources(
     const fundingSources: dwolla.Response = await getFundingSourcesById(id);
 
     // Only return verified bank funding sources
+    // OR
+    // Funding sources that have micro deposits
     if (fundingSources?.body?._embedded["funding-sources"]?.length > 0) {
       for (
         let i = 0;
         i < fundingSources.body._embedded["funding-sources"].length;
         i++
       ) {
-        const fundingSource =
-          fundingSources.body._embedded["funding-sources"][i];
-        if (
-          fundingSource.type == "bank" &&
-          fundingSource.status == "unverified"
-        ) {
+        const fundingSource = fundingSources.body._embedded["funding-sources"][i];        
+        const microDepositsInitiated = fundingSource["_links"]["micro-deposits"] ? true : false;
+        const microDepositsReadyToVerify = fundingSource["_links"]["verify-micro-deposits"] ? true : false;
+        const fundingSourceUnverified = fundingSource.status == "unverified";
+        const fundingSourceIsBank = fundingSource.type == "bank";
+        
+        if  ( fundingSourceIsBank && 
+              fundingSourceUnverified && 
+              (!(microDepositsInitiated || microDepositsReadyToVerify))
+            ) 
+        {
           delete fundingSources.body._embedded["funding-sources"][i];
         }
       }
