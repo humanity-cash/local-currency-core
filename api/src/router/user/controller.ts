@@ -7,6 +7,7 @@ import * as AuthService from "src/service/AuthService";
 import {
   getFundingSourcesById,
   getIAVTokenById,
+  verifyMicroDepositsForUser,
 } from "src/service/digital-banking/DwollaService";
 import { DwollaEvent } from "src/service/digital-banking/DwollaTypes";
 import { consumeWebhook } from "src/service/digital-banking/DwollaWebhookService";
@@ -169,6 +170,34 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
     await PublicServices.getWallet(id);
     const iavToken: string = await getIAVTokenById(id);
     httpUtils.createHttpResponse({ iavToken: iavToken }, codes.OK, res);
+  } catch (err) {
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
+  }
+}
+
+export async function verifyMicroDeposits(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    
+    // Get wallet simply to check if user exists
+    await PublicServices.getWallet(id);
+
+    // Get micro deposit amounts from body
+    const amount1: string = req?.body?.amount1;
+    const amount2: string = req?.body?.amount2;
+
+    // Verify
+    const verified: boolean = await verifyMicroDepositsForUser(id, amount1, amount2);
+
+    if(verified)
+      httpUtils.createHttpResponse({ message: `Micro-deposits verified for user ${id}` }, codes.ACCEPTED, res);
+    else
+      httpUtils.serverError(`Could not verify micro-deposits for user ${id}`, res);
+
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);

@@ -3,8 +3,8 @@ import {
   createFundingSource,
   createPersonalVerifiedCustomer,
   getFundingSourceLinkForUser,
-  initiateMicroDepositsForUser,
-  verifyMicroDepositsForUser,
+  initiateMicroDepositsForTestUser,
+  verifyMicroDepositsForTestUser,
 } from "src/service/digital-banking/DwollaService";
 import {
   getAppToken,
@@ -189,8 +189,8 @@ export async function createFundingSourceForTest(
   };
   await createFundingSource(fundingSource, userId);
   await sleep(2000);
-  await initiateMicroDepositsForUser(userId);
-  await verifyMicroDepositsForUser(userId);
+  await initiateMicroDepositsForTestUser(userId);
+  await verifyMicroDepositsForTestUser(userId);
 }
 
 export function createDummyEvent(

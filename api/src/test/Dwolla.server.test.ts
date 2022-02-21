@@ -9,14 +9,17 @@ import {
 } from "src/service/digital-banking/DwollaWebhookService";
 import { getApp } from "../server";
 import {
+  createFundingSource,
   createPersonalVerifiedCustomer,
   createUnverifiedCustomer,
   getFundingSourcesById,
+  initiateMicroDepositsForTestUser,
 } from "../service/digital-banking/DwollaService";
 import {
   DwollaEvent,
   DwollaPersonalVerifiedCustomerRequest,
   DwollaUnverifiedCustomerRequest,
+  DwollaFundingSourceRequest
 } from "../service/digital-banking/DwollaTypes";
 import {
   createSignature,
@@ -24,7 +27,7 @@ import {
   validSignature,
 } from "../service/digital-banking/DwollaUtils";
 import { IDwollaNewUserResponse } from "../types";
-import { httpUtils, log } from "../utils";
+import { httpUtils, log, sleep } from "../utils";
 import { codes } from "../utils/http";
 import { mockDatabase } from "./setup/setup-db-integration";
 import { createDummyEvent, getSalt, setupContracts } from "./utils";
@@ -314,6 +317,30 @@ describe("Dwolla test suite", () => {
         .catch((err) => {
           done(err);
         });
+    });
+
+    it("it should create a funding source for user1 and verify micro-deposits", async () => {
+      
+      const fundingSource: DwollaFundingSourceRequest = {
+        routingNumber: "222222226",
+        accountNumber: Date.now().toString(),
+        bankAccountType: "savings",
+        name: "Test Funding Source - Savings",
+        channels: ["ACH"],
+      };
+      await createFundingSource(fundingSource, user.userId);
+      await sleep(2000);
+      await initiateMicroDepositsForTestUser(user.userId);
+
+      const body = { 
+        amount1: "0.03",
+        amount2: "0.09",
+      }
+      
+      const result = await chai.request(server).post(`/users/${user.userId}/verify-micro-deposits`).send(body);
+      log(JSON.stringify(result, null, 2));
+      expect(result).to.have.status(codes.ACCEPTED);
+
     });
   });
 });
