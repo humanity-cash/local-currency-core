@@ -71,11 +71,11 @@ export async function getFundingSourceLinkForUser(
   return fundingSourceLink;
 }
 
-export async function initiateMicroDepositsForUser(
+export async function initiateMicroDepositsForTestUser(
   userId: string
 ): Promise<boolean> {
   if (isDwollaProduction())
-    throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
+    throw "DwollaService.ts::initiateMicroDepositsForUser is not for production use, test only";
 
   const fundingSourceLink = await getFundingSourceLinkForUser(userId);
   const appToken: dwolla.Client = await getAppToken();
@@ -88,25 +88,33 @@ export async function initiateMicroDepositsForUser(
   return true;
 }
 
-export async function verifyMicroDepositsForUser(
+export async function verifyMicroDepositsForTestUser(
   userId: string
 ): Promise<boolean> {
   if (isDwollaProduction())
-    throw "DwollaService.ts::creatingFundingSource is not for production use, test only";
+    throw "DwollaService.ts::verifyMicroDepositsForTestUser is not for production use, test only";
+    
+  return verifyMicroDepositsForUser(userId, ".01", ".02");
+}
 
+export async function verifyMicroDepositsForUser(
+  userId: string,
+  amount1: string,
+  amount2: string
+): Promise<boolean> {
   const fundingSourceLink = await getFundingSourceLinkForUser(userId);
   const appToken: dwolla.Client = await getAppToken();
   const body = {
     amount1: {
-      value: "0.03", //any random amount below 10c will confirm the micro deposit in sandbox
+      value: amount1,
       currency: "USD",
     },
     amount2: {
-      value: "0.09", //any random amount below 10c will confirm the micro deposit in sandbox
+      value: amount2,
       currency: "USD",
     },
   };
-  await appToken.post(fundingSourceLink + "/micro-deposits", body);
+  await appToken.post(fundingSourceLink + "/micro-deposits", body, getIdempotencyHeader());
   return true;
 }
 
