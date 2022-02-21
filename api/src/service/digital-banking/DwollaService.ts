@@ -36,7 +36,7 @@ export async function getFundingSourcesById(
 ): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
   const fundingSources: dwolla.Response = await appToken.get(
-    process.env.DWOLLA_BASE_URL + "customers/" + id + "/funding-sources"
+    process.env.DWOLLA_BASE_URL + "customers/" + id + "/funding-sources?removed=false"
   );
   return fundingSources;
 }

@@ -397,7 +397,7 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
     let pendingDeposits: DwollaTransferService.IDwollaTransferDBItem[] =
       await DwollaTransferService.getByUserId(id);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pendingDeposits = pendingDeposits.filter((value, index) => {
+    pendingDeposits = pendingDeposits?.filter((value, index) => {
       return value.type == "DEPOSIT";
     });
 
@@ -466,7 +466,7 @@ export async function getWithdrawals(
     let pendingWithdrawals: DwollaTransferService.IDwollaTransferDBItem[] =
       await DwollaTransferService.getByUserId(id);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pendingWithdrawals = pendingWithdrawals.filter((value, index) => {
+    pendingWithdrawals = pendingWithdrawals?.filter((value, index) => {
       return value.type == "WITHDRAWAL";
     });
 
@@ -505,7 +505,7 @@ export async function getWithdrawals(
           // They will actually appear as blockchain completed transactions
           // But not yet fully completed banking, so we need to overwrite them
           // in the withdrawals array here, not push a completely new item
-          for(let j = 0;j<withdrawals.length;j++){
+          for(let j = 0;j<withdrawals?.length;j++){
             if(withdrawals[j].transactionHash==withdrawal.transactionHash){
               withdrawal.blockNumber = withdrawals[j].blockNumber;
               withdrawal.timestamp = withdrawals[j].timestamp;
