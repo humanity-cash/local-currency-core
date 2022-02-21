@@ -115,4 +115,11 @@ export const transfer = [
   mwVaildator,
 ];
 
+export const verifyMicroDeposits = [
+  ...idInParams,
+  body("amount1").isString(),
+  body("amount2").isString(),
+  mwVaildator
+]
+
 export const uploadProfilePicture = [...idInParams, mwVaildator];

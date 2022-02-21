@@ -66,6 +66,14 @@ user.post(
   controller.getIAVToken
 );
 
+// Verify micro deposits for a user's funding source
+user.post(
+  "/users/:id/verify-micro-deposits",
+  verifyRequest,
+  validators.verifyMicroDeposits,
+  controller.verifyMicroDeposits
+);
+
 // Get funding sources for a user
 user.get(
   "/users/:id/funding-sources",
