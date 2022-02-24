@@ -136,7 +136,7 @@ function getProgressMessageForTransfer(
 async function contactSupport(event: DwollaEvent): Promise<void> {
   await notifyUserWithReason(
     event,
-    "Your account has encountered a problem that cannot be resolved automatically\nPlease contact support",
+    "Your account has encountered a problem that cannot be resolved automatically. Please contact support",
     "ERR"
   );
 }
@@ -637,7 +637,7 @@ export async function consumeWebhook(
         try {
           await notifyUserWithReason(
             eventToProcess,
-            "Your bank transfer has been cancelled\nPlease contact support for assistance",
+            "Your bank transfer has been cancelled. Please contact support for assistance",
             "ERR"
           );
           await DwollaTransferService.updateStatusByFundedTransferId(
@@ -657,7 +657,7 @@ export async function consumeWebhook(
         try {
           await notifyUserWithReason(
             eventToProcess,
-            "Your bank transfer has failed\nPlease contact support for assistance",
+            "Your bank transfer has failed. Please contact support for assistance",
             "ERR"
           );
           await DwollaTransferService.updateStatusByFundedTransferId(
@@ -677,7 +677,7 @@ export async function consumeWebhook(
         try {
           await notifyUserWithReason(
             eventToProcess,
-            "Could not create a bank transfer\nPlease contact support for assistance",
+            "Could not create a bank transfer. Please contact support for assistance",
             "ERR"
           );
           await DwollaTransferService.updateStatusByFundedTransferId(
@@ -697,7 +697,7 @@ export async function consumeWebhook(
         try {
           await notifyUserWithReason(
             eventToProcess,
-            "Your bank transfer was cancelled\nPlease contact support for assistance",
+            "Your bank transfer was cancelled. Please contact support for assistance",
             "ERR"
           );
           await DwollaTransferService.updateStatusByFundingTransferId(
@@ -717,7 +717,7 @@ export async function consumeWebhook(
         try {
           await notifyUserWithReason(
             eventToProcess,
-            "Your bank transfer has failed\nPlease contact support for assistance",
+            "Your bank transfer has failed. Please contact support for assistance",
             "ERR"
           );
           await DwollaTransferService.updateStatusByFundingTransferId(
