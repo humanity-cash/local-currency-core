@@ -19,7 +19,7 @@ import {
   DwollaEvent,
   DwollaPersonalVerifiedCustomerRequest,
   DwollaUnverifiedCustomerRequest,
-  DwollaFundingSourceRequest
+  DwollaFundingSourceRequest,
 } from "../service/digital-banking/DwollaTypes";
 import {
   createSignature,
@@ -320,7 +320,6 @@ describe("Dwolla test suite", () => {
     });
 
     it("it should create a funding source for user1 and verify micro-deposits", async () => {
-      
       const fundingSource: DwollaFundingSourceRequest = {
         routingNumber: "222222226",
         accountNumber: Date.now().toString(),
@@ -332,15 +331,17 @@ describe("Dwolla test suite", () => {
       await sleep(2000);
       await initiateMicroDepositsForTestUser(user.userId);
 
-      const body = { 
+      const body = {
         amount1: "0.03",
         amount2: "0.09",
-      }
-      
-      const result = await chai.request(server).post(`/users/${user.userId}/verify-micro-deposits`).send(body);
+      };
+
+      const result = await chai
+        .request(server)
+        .post(`/users/${user.userId}/verify-micro-deposits`)
+        .send(body);
       log(JSON.stringify(result, null, 2));
       expect(result).to.have.status(codes.ACCEPTED);
-
     });
   });
 });

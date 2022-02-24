@@ -174,10 +174,11 @@ async function processTransfer(
       );
 
       // 1B Update the status of the transfer to the current topic
-      transferDBObject = await DwollaTransferService.updateStatusByFundingTransferId(
-        eventToProcess.resourceId,
-        eventToProcess.topic
-      );
+      transferDBObject =
+        await DwollaTransferService.updateStatusByFundingTransferId(
+          eventToProcess.resourceId,
+          eventToProcess.topic
+        );
       log(
         `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Updated status of transfer with fundingTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`
       );
@@ -259,10 +260,11 @@ async function processTransfer(
         );
 
         // 1E Update the status of the transfer to the current topic
-        transferDBObject = await DwollaTransferService.updateStatusByFundedTransferId(
-          eventToProcess.resourceId,
-          eventToProcess.topic
-        );
+        transferDBObject =
+          await DwollaTransferService.updateStatusByFundedTransferId(
+            eventToProcess.resourceId,
+            eventToProcess.topic
+          );
         log(
           `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Updated status of transfer with fundedTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`
         );
@@ -284,10 +286,11 @@ async function processTransfer(
               log(
                 `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Successfully retrieved Dwolla object from link ${fundingTransferLink}`
               );
-              transferDBObject = await DwollaTransferService.setFundingTransferId(
-                transferDBObject.fundedTransferId,
-                fundingTransferDwollaObject?.body?.id
-              );
+              transferDBObject =
+                await DwollaTransferService.setFundingTransferId(
+                  transferDBObject.fundedTransferId,
+                  fundingTransferDwollaObject?.body?.id
+                );
               log(
                 `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Successfully updated database with fundingTransferId ${fundingTransferDwollaObject?.body?.id} for fundedTransferId ${eventToProcess.resourceId}`
               );
@@ -400,7 +403,11 @@ async function processTransfer(
     log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: ${notificationMessage}`
     );
-    await userNotification(transferDBObject.userId, notificationMessage, "INFO");
+    await userNotification(
+      transferDBObject.userId,
+      notificationMessage,
+      "INFO"
+    );
 
     return true;
   } catch (err) {
