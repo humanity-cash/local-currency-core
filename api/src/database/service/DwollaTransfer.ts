@@ -1,4 +1,9 @@
-import { FilterQuery, QueryOptions, UpdateQuery, UpdateWithAggregationPipeline } from "mongoose";
+import {
+  FilterQuery,
+  QueryOptions,
+  UpdateQuery,
+  UpdateWithAggregationPipeline,
+} from "mongoose";
 import { DwollaTransfer } from "../schema";
 import { removeMongoMeta } from "../utils/index";
 
@@ -111,21 +116,35 @@ export async function getByTxId(txId: string): Promise<IDwollaTransferDBItem> {
   else throw Error(`No match in database for DwollaTransfer with txId ${txId}`);
 }
 
-async function findOneAndUpdate(query:FilterQuery<unknown>, update: UpdateWithAggregationPipeline | UpdateQuery<unknown>, options: QueryOptions) : Promise<IDwollaTransferDBItem> {
-  const response = await DwollaTransfer.findOneAndUpdate(query, update, options);
-  if(!response)
-    throw Error(`No match in database for DwollaTransfer with query ${JSON.stringify(query)}`);
-  else
-    return removeMongoMeta(response.toObject());
+async function findOneAndUpdate(
+  query: FilterQuery<unknown>,
+  update: UpdateWithAggregationPipeline | UpdateQuery<unknown>,
+  options: QueryOptions
+): Promise<IDwollaTransferDBItem> {
+  const response = await DwollaTransfer.findOneAndUpdate(
+    query,
+    update,
+    options
+  );
+  if (!response)
+    throw Error(
+      `No match in database for DwollaTransfer with query ${JSON.stringify(
+        query
+      )}`
+    );
+  else return removeMongoMeta(response.toObject());
 }
 
 export async function updateStatusByFundingTransferId(
   fundingTransferId: string,
   fundingStatus: string
 ): Promise<IDwollaTransferDBItem> {
-  const query : FilterQuery<unknown> = { fundingTransferId: fundingTransferId };
-  const update : UpdateWithAggregationPipeline | UpdateQuery<unknown> = { fundingStatus: fundingStatus, updated: Date.now() };
-  const options : QueryOptions = { new: true };
+  const query: FilterQuery<unknown> = { fundingTransferId: fundingTransferId };
+  const update: UpdateWithAggregationPipeline | UpdateQuery<unknown> = {
+    fundingStatus: fundingStatus,
+    updated: Date.now(),
+  };
+  const options: QueryOptions = { new: true };
   return findOneAndUpdate(query, update, options);
 }
 
@@ -133,20 +152,25 @@ export async function updateStatusByFundedTransferId(
   fundedTransferId: string,
   fundedStatus: string
 ): Promise<IDwollaTransferDBItem> {
-  const query : FilterQuery<unknown> = { fundedTransferId: fundedTransferId };
-  const update : UpdateWithAggregationPipeline | UpdateQuery<unknown> = { fundedStatus: fundedStatus, updated: Date.now() };
-  const options : QueryOptions = { new: true };
+  const query: FilterQuery<unknown> = { fundedTransferId: fundedTransferId };
+  const update: UpdateWithAggregationPipeline | UpdateQuery<unknown> = {
+    fundedStatus: fundedStatus,
+    updated: Date.now(),
+  };
+  const options: QueryOptions = { new: true };
   return findOneAndUpdate(query, update, options);
 }
-
 
 export async function setFundedTransferId(
   fundingTransferId: string,
   fundedTransferId: string
 ): Promise<IDwollaTransferDBItem> {
-  const query : FilterQuery<unknown> = { fundingTransferId: fundingTransferId };
-  const update : UpdateWithAggregationPipeline | UpdateQuery<unknown> = { fundedTransferId: fundedTransferId, updated: Date.now() };
-  const options : QueryOptions = { new: true };
+  const query: FilterQuery<unknown> = { fundingTransferId: fundingTransferId };
+  const update: UpdateWithAggregationPipeline | UpdateQuery<unknown> = {
+    fundedTransferId: fundedTransferId,
+    updated: Date.now(),
+  };
+  const options: QueryOptions = { new: true };
   return findOneAndUpdate(query, update, options);
 }
 
@@ -154,9 +178,12 @@ export async function setFundingTransferId(
   fundedTransferId: string,
   fundingTransferId: string
 ): Promise<IDwollaTransferDBItem> {
-  const query : FilterQuery<unknown> = { fundedTransferId: fundedTransferId };
-  const update : UpdateWithAggregationPipeline | UpdateQuery<unknown> = { fundingTransferId: fundingTransferId, updated: Date.now() };
-  const options : QueryOptions = { new: true };
+  const query: FilterQuery<unknown> = { fundedTransferId: fundedTransferId };
+  const update: UpdateWithAggregationPipeline | UpdateQuery<unknown> = {
+    fundingTransferId: fundingTransferId,
+    updated: Date.now(),
+  };
+  const options: QueryOptions = { new: true };
   return findOneAndUpdate(query, update, options);
 }
 
@@ -164,8 +191,11 @@ export async function updateTxIdByFundingTransferId(
   fundingTransferId: string,
   txId: string
 ): Promise<IDwollaTransferDBItem> {
-  const query : FilterQuery<unknown> = { fundingTransferId: fundingTransferId };
-  const update : UpdateWithAggregationPipeline | UpdateQuery<unknown> = { txId: txId, updated: Date.now() };
-  const options : QueryOptions = { new: true };
+  const query: FilterQuery<unknown> = { fundingTransferId: fundingTransferId };
+  const update: UpdateWithAggregationPipeline | UpdateQuery<unknown> = {
+    txId: txId,
+    updated: Date.now(),
+  };
+  const options: QueryOptions = { new: true };
   return findOneAndUpdate(query, update, options);
 }

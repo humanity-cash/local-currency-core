@@ -13,6 +13,8 @@
           "templates": true,
           "lang": "en_US",
           "skipWords": [
+            "microdeposits",
+            "maxattempts",
             "Href",
             "checksum",
             "cancelled",
