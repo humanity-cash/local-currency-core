@@ -144,17 +144,24 @@ export async function getFundingSources(
         i < fundingSources.body._embedded["funding-sources"].length;
         i++
       ) {
-        const fundingSource = fundingSources.body._embedded["funding-sources"][i];        
-        const microDepositsInitiated = fundingSource["_links"]["micro-deposits"] ? true : false;
-        const microDepositsReadyToVerify = fundingSource["_links"]["verify-micro-deposits"] ? true : false;
+        const fundingSource =
+          fundingSources.body._embedded["funding-sources"][i];
+        const microDepositsInitiated = fundingSource["_links"]["micro-deposits"]
+          ? true
+          : false;
+        const microDepositsReadyToVerify = fundingSource["_links"][
+          "verify-micro-deposits"
+        ]
+          ? true
+          : false;
         const fundingSourceUnverified = fundingSource.status == "unverified";
         const fundingSourceIsBank = fundingSource.type == "bank";
-        
-        if  ( fundingSourceIsBank && 
-              fundingSourceUnverified && 
-              (!(microDepositsInitiated || microDepositsReadyToVerify))
-            ) 
-        {
+
+        if (
+          fundingSourceIsBank &&
+          fundingSourceUnverified &&
+          !(microDepositsInitiated || microDepositsReadyToVerify)
+        ) {
           delete fundingSources.body._embedded["funding-sources"][i];
         }
       }
@@ -186,10 +193,13 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function verifyMicroDeposits(req: Request, res: Response): Promise<void> {
+export async function verifyMicroDeposits(
+  req: Request,
+  res: Response
+): Promise<void> {
   try {
     const id = req?.params?.id;
-    
+
     // Get wallet simply to check if user exists
     await PublicServices.getWallet(id);
 
@@ -198,13 +208,23 @@ export async function verifyMicroDeposits(req: Request, res: Response): Promise<
     const amount2: string = req?.body?.amount2;
 
     // Verify
-    const verified: boolean = await verifyMicroDepositsForUser(id, amount1, amount2);
+    const verified: boolean = await verifyMicroDepositsForUser(
+      id,
+      amount1,
+      amount2
+    );
 
-    if(verified)
-      httpUtils.createHttpResponse({ message: `Micro-deposits verified for user ${id}` }, codes.ACCEPTED, res);
+    if (verified)
+      httpUtils.createHttpResponse(
+        { message: `Micro-deposits verified for user ${id}` },
+        codes.ACCEPTED,
+        res
+      );
     else
-      httpUtils.serverError(`Could not verify micro-deposits for user ${id}`, res);
-
+      httpUtils.serverError(
+        `Could not verify micro-deposits for user ${id}`,
+        res
+      );
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);
@@ -541,12 +561,12 @@ export async function getWithdrawals(
           // They will actually appear as blockchain completed transactions
           // But not yet fully completed banking, so we need to overwrite them
           // in the withdrawals array here, not push a completely new item
-          for(let j = 0;j<withdrawals?.length;j++){
-            if(withdrawals[j].transactionHash==withdrawal.transactionHash){
+          for (let j = 0; j < withdrawals?.length; j++) {
+            if (withdrawals[j].transactionHash == withdrawal.transactionHash) {
               withdrawal.blockNumber = withdrawals[j].blockNumber;
               withdrawal.timestamp = withdrawals[j].timestamp;
               withdrawals[j] = withdrawal;
-            }              
+            }
           }
           // withdrawals.push(withdrawal);
         }

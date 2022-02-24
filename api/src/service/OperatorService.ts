@@ -79,16 +79,21 @@ async function createDwollaTransfer(
   operatorId: string,
   txId?: string
 ) {
-
   // 0 Parse input because it comes in as a long fractional string
   // This will only be relevant for withdrawals, where a fractional redemption fee has been applied
   log(`OperatorService::createDwollaTransfer() Input amount ${amount}`);
   const numberAmount = parseFloat(amount);
-  log(`OperatorService::createDwollaTransfer() Converted (parseFloat) amount ${numberAmount}`);
+  log(
+    `OperatorService::createDwollaTransfer() Converted (parseFloat) amount ${numberAmount}`
+  );
   const decimalAmount = numberAmount.toFixed(2);
-  log(`OperatorService::createDwollaTransfer() Converted (toFixed(2)) amount ${decimalAmount}`);
+  log(
+    `OperatorService::createDwollaTransfer() Converted (toFixed(2)) amount ${decimalAmount}`
+  );
   const stringAmount = decimalAmount.toString();
-  log(`OperatorService::createDwollaTransfer() Converted final (toString) amount ${stringAmount}`);
+  log(
+    `OperatorService::createDwollaTransfer() Converted final (toString) amount ${stringAmount}`
+  );
 
   // 1 Construct transfer request
   const transferRequest: DwollaTransferRequest = {
@@ -317,14 +322,20 @@ export async function withdraw(
         operator.operator
       );
       const txId = transaction.transactionHash;
-      
+
       // Retrieve redemption if it exists
       const events = transaction.events;
-      let redemptionFee : BN = new BN("0");
-      if(events && events["RedemptionFee"]){
+      let redemptionFee: BN = new BN("0");
+      if (events && events["RedemptionFee"]) {
         const redemptionFeeEvent = events["RedemptionFee"];
-        redemptionFee = new BN(redemptionFeeEvent.returnValues["_redemptionFee"]);
-        console.log(`Reducing Dwolla transfer request of ${web3Utils.fromWei(amountToWithdraw)} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`);        
+        redemptionFee = new BN(
+          redemptionFeeEvent.returnValues["_redemptionFee"]
+        );
+        console.log(
+          `Reducing Dwolla transfer request of ${web3Utils.fromWei(
+            amountToWithdraw
+          )} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`
+        );
       }
 
       // Then Dwolla withdrawal
@@ -378,11 +389,17 @@ export async function withdraw(
 
       // Retrieve redemption if it exists
       const events = transaction.events;
-      let redemptionFee : BN = new BN("0");
-      if(events && events["RedemptionFee"]){
+      let redemptionFee: BN = new BN("0");
+      if (events && events["RedemptionFee"]) {
         const redemptionFeeEvent = events["RedemptionFee"];
-        redemptionFee = new BN(redemptionFeeEvent.returnValues["_redemptionFee"]);
-        console.log(`Reducing Dwolla transfer request of ${web3Utils.fromWei(operatorOutstandingFunds)} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`);        
+        redemptionFee = new BN(
+          redemptionFeeEvent.returnValues["_redemptionFee"]
+        );
+        console.log(
+          `Reducing Dwolla transfer request of ${web3Utils.fromWei(
+            operatorOutstandingFunds
+          )} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`
+        );
       }
 
       // Then Dwolla withdrawal
