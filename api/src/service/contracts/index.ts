@@ -610,7 +610,10 @@ async function getDepositsForOperator(operatorId: string): Promise<{
 async function getFundingStatusForOperator(
   operatorId: string
 ): Promise<IOperatorTotal> {
-  const promises = [getWithdrawalsForOperator(operatorId), getDepositsForOperator(operatorId)];
+  const promises = [
+    getWithdrawalsForOperator(operatorId),
+    getDepositsForOperator(operatorId),
+  ];
   const results = await Promise.all(promises);
 
   const withdrawalSum: BN = results[0].sum;

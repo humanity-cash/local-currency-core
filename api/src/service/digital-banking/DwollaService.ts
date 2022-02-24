@@ -36,7 +36,10 @@ export async function getFundingSourcesById(
 ): Promise<dwolla.Response> {
   const appToken: dwolla.Client = await getAppToken();
   const fundingSources: dwolla.Response = await appToken.get(
-    process.env.DWOLLA_BASE_URL + "customers/" + id + "/funding-sources?removed=false"
+    process.env.DWOLLA_BASE_URL +
+      "customers/" +
+      id +
+      "/funding-sources?removed=false"
   );
   return fundingSources;
 }
@@ -93,7 +96,7 @@ export async function verifyMicroDepositsForTestUser(
 ): Promise<boolean> {
   if (isDwollaProduction())
     throw "DwollaService.ts::verifyMicroDepositsForTestUser is not for production use, test only";
-    
+
   return verifyMicroDepositsForUser(userId, ".01", ".02");
 }
 
@@ -114,7 +117,11 @@ export async function verifyMicroDepositsForUser(
       currency: "USD",
     },
   };
-  await appToken.post(fundingSourceLink + "/micro-deposits", body, getIdempotencyHeader());
+  await appToken.post(
+    fundingSourceLink + "/micro-deposits",
+    body,
+    getIdempotencyHeader()
+  );
   return true;
 }
 
