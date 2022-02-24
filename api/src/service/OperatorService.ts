@@ -79,6 +79,17 @@ async function createDwollaTransfer(
   operatorId: string,
   txId?: string
 ) {
+
+  // 0 Parse input because it comes in as a long fractional string
+  // This will only be relevant for withdrawals, where a fractional redemption fee has been applied
+  log(`OperatorService::createDwollaTransfer() Input amount ${amount}`);
+  const numberAmount = parseFloat(amount);
+  log(`OperatorService::createDwollaTransfer() Converted (parseFloat) amount ${numberAmount}`);
+  const decimalAmount = numberAmount.toFixed(2);
+  log(`OperatorService::createDwollaTransfer() Converted (toFixed(2)) amount ${decimalAmount}`);
+  const stringAmount = decimalAmount.toString();
+  log(`OperatorService::createDwollaTransfer() Converted final (toString) amount ${stringAmount}`);
+
   // 1 Construct transfer request
   const transferRequest: DwollaTransferRequest = {
     _links: {
@@ -91,7 +102,7 @@ async function createDwollaTransfer(
     },
     amount: {
       currency: "USD",
-      value: amount,
+      value: stringAmount,
     },
   };
 
@@ -119,7 +130,7 @@ async function createDwollaTransfer(
     operatorId: operatorId,
     fundingSource: transferToUse.body._links["source-funding-source"].href,
     fundingTarget: transferToUse.body._links["destination-funding-source"].href,
-    amount: transferToUse.body.amount.value,
+    amount: amount,
     type: type,
     created: now,
     updated: now,
@@ -184,7 +195,7 @@ export async function webhookMint(fundingTransferId: string): Promise<boolean> {
       transfer.amount,
       transfer.operatorId
     );
-    const updated = await DwollaTransferService.updateTxIdByFundingTransferId(
+    transfer = await DwollaTransferService.updateTxIdByFundingTransferId(
       fundingTransferId,
       result.transactionHash
     );
@@ -192,11 +203,7 @@ export async function webhookMint(fundingTransferId: string): Promise<boolean> {
       fundingTransferId
     );
     log(`Updated transfer is ${JSON.stringify(transfer)}`);
-    transfer = await DwollaTransferService.getByTxId(result.transactionHash);
-    log(
-      `Verification: retrieved transfer by txId is ${JSON.stringify(transfer)}`
-    );
-    return updated && result.status;
+    return result.status;
   } catch (err) {
     log(`OperatorService()::webhookMint() ${err}`);
     return false;
@@ -310,6 +317,15 @@ export async function withdraw(
         operator.operator
       );
       const txId = transaction.transactionHash;
+      
+      // Retrieve redemption if it exists
+      const events = transaction.events;
+      let redemptionFee : BN = new BN("0");
+      if(events && events["RedemptionFee"]){
+        const redemptionFeeEvent = events["RedemptionFee"];
+        redemptionFee = new BN(redemptionFeeEvent.returnValues["_redemptionFee"]);
+        console.log(`Reducing Dwolla transfer request of ${web3Utils.fromWei(amountToWithdraw)} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`);        
+      }
 
       // Then Dwolla withdrawal
       let fundingSourceLink: string;
@@ -331,7 +347,7 @@ export async function withdraw(
       await createDwollaTransfer(
         fundingSourceLink,
         fundingTargetLink,
-        web3Utils.fromWei(amountToWithdraw.toString()),
+        web3Utils.fromWei(amountToWithdraw.sub(redemptionFee)),
         "WITHDRAWAL",
         userId,
         operator.operator,
@@ -360,6 +376,15 @@ export async function withdraw(
       );
       const txId = transaction.transactionHash;
 
+      // Retrieve redemption if it exists
+      const events = transaction.events;
+      let redemptionFee : BN = new BN("0");
+      if(events && events["RedemptionFee"]){
+        const redemptionFeeEvent = events["RedemptionFee"];
+        redemptionFee = new BN(redemptionFeeEvent.returnValues["_redemptionFee"]);
+        console.log(`Reducing Dwolla transfer request of ${web3Utils.fromWei(operatorOutstandingFunds)} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`);        
+      }
+
       // Then Dwolla withdrawal
       let fundingSourceLink: string;
       if (isDwollaProduction()) {
@@ -379,7 +404,7 @@ export async function withdraw(
       await createDwollaTransfer(
         fundingSourceLink,
         fundingTargetLink,
-        web3Utils.fromWei(operatorOutstandingFunds.toString()),
+        web3Utils.fromWei(operatorOutstandingFunds.sub(redemptionFee)),
         "WITHDRAWAL",
         userId,
         operator.operator,
