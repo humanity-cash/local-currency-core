@@ -733,6 +733,42 @@ export async function consumeWebhook(
         }
         break;
 
+      case "customer_microdeposits_added":
+        await notifyUserWithReason(
+          eventToProcess,
+          "You have opted to link your bank accounts via micro-deposits. Please check your bank account in 1-2 days for two small deposits and return to the app to finalize linking",
+          "INFO"
+        );
+        processed = true;
+        break;
+
+      case "customer_microdeposits_failed":
+        await notifyUserWithReason(
+          eventToProcess,
+          "We could not send micro-deposits successfully to the bank account you entered. Please contact support for assistance linking your bank account",
+          "ERR"
+        );
+        processed = true;
+        break;
+
+      case "customer_microdeposits_completed":
+        await notifyUserWithReason(
+          eventToProcess,
+          "You have successfully verified your bank account via micro-deposits",
+          "INFO"
+        );
+        processed = true;
+        break;
+
+      case "customer_microdeposits_maxattempts":
+        await notifyUserWithReason(
+          eventToProcess,
+          "You have failed micro-deposit verification too many times. Please contact support for assistance linking your bank account",
+          "ERR"
+        );
+        processed = true;
+        break;
+
       default:
         throw `Unknown topic ${eventToProcess.topic}, don't know how to process...`;
     }
