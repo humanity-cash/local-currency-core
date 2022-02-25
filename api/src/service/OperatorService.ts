@@ -195,20 +195,27 @@ export async function webhookMint(fundingTransferId: string): Promise<boolean> {
   try {
     let transfer: DwollaTransferService.IDwollaTransferDBItem =
       await DwollaTransferService.getByFundingTransferId(fundingTransferId);
-    const result = await contracts.deposit(
-      transfer.userId,
-      transfer.amount,
-      transfer.operatorId
-    );
-    transfer = await DwollaTransferService.updateTxIdByFundingTransferId(
-      fundingTransferId,
-      result.transactionHash
-    );
-    transfer = await DwollaTransferService.getByFundingTransferId(
-      fundingTransferId
-    );
-    log(`Updated transfer is ${JSON.stringify(transfer)}`);
-    return result.status;
+
+    // Safety check! Do not mint if we already have a txId 
+    // this means the blockchain minting has already occurred
+    if(transfer?.txId){
+      log(`OperatorService::webhookMint() This deposit with fundingTransferId ${fundingTransferId} already has txId of ${transfer?.txId}, and has already been minted. Exiting.`);
+      return false;
+    }
+    else{
+      //Proceed with on-chain minting
+      const result = await contracts.deposit(
+        transfer.userId,
+        transfer.amount,
+        transfer.operatorId
+      );
+      transfer = await DwollaTransferService.updateTxIdByFundingTransferId(
+        fundingTransferId,
+        result.transactionHash
+      );
+      log(`OperatorService::webhookMint() Updated transfer is ${JSON.stringify(transfer, null, 2)}`);
+      return result.status;
+    }
   } catch (err) {
     log(`OperatorService()::webhookMint() ${err}`);
     return false;
