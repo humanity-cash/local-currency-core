@@ -108,27 +108,18 @@ async function notifyUserWithReason(
 function getProgressMessageForTransfer(
   transfer: DwollaTransferService.IDwollaTransferDBItem
 ): string {
-  const outOf = 4;
 
   log(
     `DwollaWebhookServices()::getProgressMessageForTransfer() Statuses for this ${transfer.type} are: fundingStatus ${transfer.fundingStatus}, fundedStatus ${transfer.fundedStatus}`
   );
 
-  let progress = 0;
-
-  if (transfer.fundingStatus) {
-    progress =
-      progress + (transfer.fundingStatus?.includes("completed") ? 2 : 1);
-  }
-  if (transfer.fundedStatus) {
-    progress =
-      progress + (transfer.fundedStatus?.includes("completed") ? 2 : 1);
-  }
-
+  const fundingTransferComplete = transfer.fundingStatus?.includes("completed");
+  const fundedTransferCompleted = transfer.fundedStatus?.includes("completed");
   const type: string = transfer.type == "DEPOSIT" ? "deposit" : "withdrawal";
-  let message = `Your ${type} of $${transfer.amount} has progressed (${progress}/${outOf})`;
-  if (progress == outOf) {
-    message = `Your ${type} of $${transfer.amount} has completed (${progress}/${outOf})`;
+  let message = `Your ${type} of $${transfer.amount} is still in flight and has progressed further...`;
+
+  if (fundedTransferCompleted && fundingTransferComplete) {
+    message = `Your ${type} of $${transfer.amount} has completed!`;
   }
   return message;
 }
