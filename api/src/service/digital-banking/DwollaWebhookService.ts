@@ -108,7 +108,6 @@ async function notifyUserWithReason(
 function getProgressMessageForTransfer(
   transfer: DwollaTransferService.IDwollaTransferDBItem
 ): string {
-
   log(
     `DwollaWebhookServices()::getProgressMessageForTransfer() Statuses for this ${transfer.type} are: fundingStatus ${transfer.fundingStatus}, fundedStatus ${transfer.fundedStatus}`
   );
