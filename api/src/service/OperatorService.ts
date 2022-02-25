@@ -16,6 +16,7 @@ import {
   isDwollaProduction,
   log,
   userNotification,
+  textUtils
 } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
@@ -245,8 +246,8 @@ async function isHumanityCash(walletAddress: string) {
 }
 
 async function getDisplayNameFromAddress(walletAddress: string) {
-  if (await isCommunityChest(walletAddress)) return "Community Chest";
-  else if (await isHumanityCash(walletAddress)) return "Humanity Cash";
+  if (await isCommunityChest(walletAddress)) return textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
+  else if (await isHumanityCash(walletAddress)) return textUtils.HUMANITY_CASH_DISPLAY_NAME;
   else {
     const userData = await getUserData(walletAddress);
     return userData?.data?.name;
@@ -265,15 +266,15 @@ export async function getTransfersForUser(
     transfers.map(async function (t) {
       const fromName =
         t.fromAddress == communityChestAddress
-          ? "Community Chest"
+          ? textUtils.COMMUNITY_CHEST_DISPLAY_NAME
           : t.fromAddress == humanityCashAddress
-          ? "Humanity Cash"
+          ? textUtils.HUMANITY_CASH_DISPLAY_NAME
           : (await getUserData(t.fromAddress))?.data?.name;
       const toName =
         t.toAddress == communityChestAddress
-          ? "Community Chest"
+          ? textUtils.COMMUNITY_CHEST_DISPLAY_NAME
           : t.toAddress == humanityCashAddress
-          ? "Humanity Cash"
+          ? textUtils.HUMANITY_CASH_DISPLAY_NAME
           : (await getUserData(t.toAddress))?.data?.name;
       return {
         ...t,
@@ -315,7 +316,7 @@ export async function withdraw(
     // If this operator has enough, then withdraw the full amount
     if (operatorOutstandingFunds.gte(amountToWithdraw)) {
       log(
-        `OperatorService::withdraw(): withdrawing ${amountToWithdraw.toString()} entire withdrawal from operator ${
+        `OperatorService::withdraw() withdrawing ${amountToWithdraw.toString()} entire withdrawal from operator ${
           operator.operator
         } (${
           operator.operatorDisplayName
@@ -339,7 +340,7 @@ export async function withdraw(
           redemptionFeeEvent.returnValues["_redemptionFee"]
         );
         console.log(
-          `Reducing Dwolla transfer request of ${web3Utils.fromWei(
+          `OperatorService::withdraw() Reducing Dwolla transfer request of ${web3Utils.fromWei(
             amountToWithdraw
           )} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`
         );
@@ -356,7 +357,7 @@ export async function withdraw(
         fundingSourceLink = await getFundingSourceLinkForUser(operatorUserId);
       }
       log(
-        `OperatorService::withdraw(): funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
+        `OperatorService::withdraw() funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
       );
 
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
@@ -379,7 +380,7 @@ export async function withdraw(
     // Otherwise only withdraw the total this operator has
     else {
       log(
-        `OperatorService::withdraw(): withdrawing partial amount ${operatorOutstandingFunds.toString()} from operator ${
+        `OperatorService::withdraw() withdrawing partial amount ${operatorOutstandingFunds.toString()} from operator ${
           operator.operator
         } (${
           operator.operator
@@ -403,7 +404,7 @@ export async function withdraw(
           redemptionFeeEvent.returnValues["_redemptionFee"]
         );
         console.log(
-          `Reducing Dwolla transfer request of ${web3Utils.fromWei(
+          `OperatorService::withdraw() Reducing Dwolla transfer request of ${web3Utils.fromWei(
             operatorOutstandingFunds
           )} by redemption fee of ${web3Utils.fromWei(redemptionFee)}`
         );
@@ -420,7 +421,7 @@ export async function withdraw(
         fundingSourceLink = await getFundingSourceLinkForUser(operatorUserId);
       }
       log(
-        `OperatorService::withdraw(): funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
+        `OperatorService::withdraw() funding target is operator ${operator.operator} (${sortedOperatorStats[0].operatorDisplayName}) with funding source ${fundingSourceLink}`
       );
       const fundingTargetLink: string = await getFundingSourceLinkForUser(
         userId
@@ -440,7 +441,7 @@ export async function withdraw(
 
       if (index >= sortedOperatorStats?.length)
         throw Error(
-          `OperatorService::withdraw(): Critical - cannot fulfill withdrawal ${amount} for userId ${userId}`
+          `OperatorService::withdraw() Critical - cannot fulfill withdrawal ${amount} for userId ${userId}`
         );
     }
   }
