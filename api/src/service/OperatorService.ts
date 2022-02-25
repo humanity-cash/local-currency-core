@@ -16,7 +16,7 @@ import {
   isDwollaProduction,
   log,
   userNotification,
-  textUtils
+  textUtils,
 } from "src/utils";
 import * as web3Utils from "web3-utils";
 import * as contracts from "./contracts";
@@ -197,13 +197,14 @@ export async function webhookMint(fundingTransferId: string): Promise<boolean> {
     let transfer: DwollaTransferService.IDwollaTransferDBItem =
       await DwollaTransferService.getByFundingTransferId(fundingTransferId);
 
-    // Safety check! Do not mint if we already have a txId 
+    // Safety check! Do not mint if we already have a txId
     // this means the blockchain minting has already occurred
-    if(transfer?.txId){
-      log(`OperatorService::webhookMint() This deposit with fundingTransferId ${fundingTransferId} already has txId of ${transfer?.txId}, and has already been minted. Exiting.`);
+    if (transfer?.txId) {
+      log(
+        `OperatorService::webhookMint() This deposit with fundingTransferId ${fundingTransferId} already has txId of ${transfer?.txId}, and has already been minted. Exiting.`
+      );
       return false;
-    }
-    else{
+    } else {
       //Proceed with on-chain minting
       const result = await contracts.deposit(
         transfer.userId,
@@ -214,7 +215,13 @@ export async function webhookMint(fundingTransferId: string): Promise<boolean> {
         fundingTransferId,
         result.transactionHash
       );
-      log(`OperatorService::webhookMint() Updated transfer is ${JSON.stringify(transfer, null, 2)}`);
+      log(
+        `OperatorService::webhookMint() Updated transfer is ${JSON.stringify(
+          transfer,
+          null,
+          2
+        )}`
+      );
       return result.status;
     }
   } catch (err) {
@@ -246,8 +253,10 @@ async function isHumanityCash(walletAddress: string) {
 }
 
 async function getDisplayNameFromAddress(walletAddress: string) {
-  if (await isCommunityChest(walletAddress)) return textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
-  else if (await isHumanityCash(walletAddress)) return textUtils.HUMANITY_CASH_DISPLAY_NAME;
+  if (await isCommunityChest(walletAddress))
+    return textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
+  else if (await isHumanityCash(walletAddress))
+    return textUtils.HUMANITY_CASH_DISPLAY_NAME;
   else {
     const userData = await getUserData(walletAddress);
     return userData?.data?.name;
