@@ -3,9 +3,10 @@ import * as cryptoUtils from "./crypto";
 import * as httpUtils from "./http";
 import * as csvUtils from "./csv";
 import * as dwollaUtils from "./dwolla";
+import * as textUtils from "./text";
 import { getProvider } from "./getProvider";
 
-export { cryptoUtils, httpUtils, csvUtils, dwollaUtils };
+export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sleep(ms) {
