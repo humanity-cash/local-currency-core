@@ -194,17 +194,23 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function purgeProfilePictureCache(req: Request, res: Response): Promise<void> {
+export async function purgeProfilePictureCache(
+  req: Request,
+  res: Response
+): Promise<void> {
   try {
     const id = req?.params?.id;
-    
+
     // Get wallet simply to check if user exists
     // Don't do this in test though
-    if(isDwollaProduction())
-      await PublicServices.getWallet(id);
+    if (isDwollaProduction()) await PublicServices.getWallet(id);
 
     const responseCode: number = await purgeImageForUser(id);
-    httpUtils.createHttpResponse({ message: "Image purge requested" }, responseCode, res);
+    httpUtils.createHttpResponse(
+      { message: "Image purge requested" },
+      responseCode,
+      res
+    );
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);
