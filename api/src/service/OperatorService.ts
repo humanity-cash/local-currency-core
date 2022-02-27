@@ -266,29 +266,60 @@ async function getDisplayNameFromAddress(walletAddress: string) {
 export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
+
   // Need to manually get display names here to avoid API limits on calls
   const communityChestAddress = await contracts.communityChestAddress();
   const humanityCashAddress = await contracts.humanityCashAddress();
 
   const transfers = await contracts.getTransfersForUser(userId);
+  
   return Promise.all(
+    
     transfers.map(async function (t) {
-      const fromName =
-        t.fromAddress == communityChestAddress
-          ? textUtils.COMMUNITY_CHEST_DISPLAY_NAME
-          : t.fromAddress == humanityCashAddress
-          ? textUtils.HUMANITY_CASH_DISPLAY_NAME
-          : (await getUserData(t.fromAddress))?.data?.name;
-      const toName =
-        t.toAddress == communityChestAddress
-          ? textUtils.COMMUNITY_CHEST_DISPLAY_NAME
-          : t.toAddress == humanityCashAddress
-          ? textUtils.HUMANITY_CASH_DISPLAY_NAME
-          : (await getUserData(t.toAddress))?.data?.name;
+
+      const fromIsCommunityChest : boolean = t.fromAddress == communityChestAddress;
+      const fromIsHumanityCash : boolean = t.fromAddress == humanityCashAddress;
+      const toIsCommunityChest : boolean = t.toAddress == communityChestAddress;
+      const toIsHumanityCash : boolean = t.toAddress == humanityCashAddress;
+
+      // Get "from" user's additional information
+      let fromName, fromDwollaUserId;
+      if(fromIsCommunityChest){
+        fromName = textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
+        fromDwollaUserId = "";
+      }
+      else if(fromIsHumanityCash){
+        fromName = textUtils.HUMANITY_CASH_DISPLAY_NAME;
+        fromDwollaUserId = "";
+      }
+      else {
+        const fromUserData = (await getUserData(t.fromAddress))?.data;
+        fromName = fromUserData.name;
+        fromDwollaUserId = fromUserData.dwollaId;
+      }
+
+      // Get "to" user's additional information
+      let toName, toDwollaUserId;
+      if(toIsCommunityChest){
+        toName = textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
+        toDwollaUserId = "";
+      }
+      else if(toIsHumanityCash){
+        toName = textUtils.HUMANITY_CASH_DISPLAY_NAME;
+        toDwollaUserId = "";
+      }
+      else {
+        const toUserData = (await getUserData(t.toAddress))?.data;
+        toName = toUserData.name;
+        toDwollaUserId = toUserData.dwollaId;
+      }
+
       return {
         ...t,
         fromName: fromName,
         toName: toName,
+        fromDwollaUserId: fromDwollaUserId,
+        toDwollaUserId: toDwollaUserId
       };
     })
   );
