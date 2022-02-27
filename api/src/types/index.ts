@@ -173,6 +173,8 @@ export interface ITransferEvent extends IEventBase {
   fromUserId: string;
   fromName?: string;
   toName?: string;
+  fromDwollaUserId?: string;
+  toDwollaUserId?: string;
   fromAddress: string;
   toUserId: string;
   toAddress: string;
