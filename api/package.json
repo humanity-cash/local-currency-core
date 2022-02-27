@@ -24,6 +24,7 @@
   "test:mw": "yarn test --testPathPattern='Middlewares'",
   "test:public": "yarn test --testPathPattern='public'",
   "test:operator": "yarn test --testPathPattern='operator'",
+  "test:external": "yarn test --testPathPattern='ExternalService'",
   "test:auth": "yarn test --testPathPattern='APIAuthService.integration.test'",
   "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
   "test:user-pp": "yarn test --testPathPattern='UserProfilePicture'",
