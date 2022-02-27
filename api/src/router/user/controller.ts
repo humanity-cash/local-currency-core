@@ -35,6 +35,7 @@ import {
 import { createDummyEvent } from "../../test/utils";
 import { serverError } from "src/utils/http";
 import { toWei } from "web3-utils";
+import { purgeImageForUser } from "src/service/ExternalService";
 
 export const PROFILE_PICTURES_BUCKET = "profile-picture-user";
 const codes = httpUtils.codes;
@@ -184,6 +185,26 @@ export async function getIAVToken(req: Request, res: Response): Promise<void> {
     await PublicServices.getWallet(id);
     const iavToken: string = await getIAVTokenById(id);
     httpUtils.createHttpResponse({ iavToken: iavToken }, codes.OK, res);
+  } catch (err) {
+    if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
+      httpUtils.notFound("Get user failed: user does not exist", res);
+    else {
+      httpUtils.serverError(err, res);
+    }
+  }
+}
+
+export async function purgeProfilePictureCache(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req?.params?.id;
+    
+    // Get wallet simply to check if user exists
+    // Don't do this in test though
+    if(isDwollaProduction())
+      await PublicServices.getWallet(id);
+
+    const responseCode: number = await purgeImageForUser(id);
+    httpUtils.createHttpResponse({ message: "Image purge requested" }, responseCode, res);
   } catch (err) {
     if (err.message && err.message.includes("ERR_USER_NOT_EXIST"))
       httpUtils.notFound("Get user failed: user does not exist", res);
