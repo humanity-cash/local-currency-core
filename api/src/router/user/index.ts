@@ -137,4 +137,12 @@ user.post(
   controller.uploadProfilePicture
 );
 
+// Purge profile picture cache
+user.post(
+  "/users/:id/cache/profilePicture",
+  verifyRequest,
+  validators.getUser,
+  controller.purgeProfilePictureCache
+);
+
 export default user;
