@@ -226,26 +226,30 @@ export async function getUserByWalletAddress(
 
 interface UserData {
   name: string;
+  dwollaId: string;
 }
 
 export async function getUserData(
-  walletAdderss: WalletAddress
+  walletAddress: WalletAddress
 ): Promise<GenericDatabaseResponse<UserData>> {
   try {
     const result: UserData = {
       name: "",
+      dwollaId: ""
     };
-    const response = await getUserByWalletAddress(walletAdderss);
+    const response = await getUserByWalletAddress(walletAddress);
     if (!response.data || !response.success || response.error) {
-      return { success: true, data: result };
+      return { success: false, data: result };
     }
     const user = response.data;
-    const isCustomer = user?.customer?.walletAddress === walletAdderss;
-    const isBusiness = user?.business?.walletAddress === walletAdderss;
+    const isCustomer = user?.customer?.walletAddress === walletAddress;
+    const isBusiness = user?.business?.walletAddress === walletAddress;
     if (isCustomer) {
       result.name = `${user.customer.firstName} ${user.customer.lastName}`;
+      result.dwollaId = user.customer.dwollaId;
     } else if (isBusiness) {
       result.name = user.business.rbn;
+      result.dwollaId = user.business.dwollaId;
     } else {
       return { success: false, error: "User not found!" };
     }

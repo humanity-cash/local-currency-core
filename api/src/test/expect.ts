@@ -54,6 +54,10 @@ export function expectITransferEvent(transfer: unknown): void {
   expect(transfer).to.have.property("toAddress");
   expect(transfer).to.have.property("value");
   expect(transfer).to.have.property("type");
+  expect(transfer).to.have.property("fromName");
+  expect(transfer).to.have.property("toName");
+  expect(transfer).to.have.property("fromDwollaUserId");
+  expect(transfer).to.have.property("toDwollaUserId");
 }
 
 export function expectBusiness(business: unknown): void {
