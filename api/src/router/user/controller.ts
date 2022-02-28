@@ -203,7 +203,7 @@ export async function purgeProfilePictureCache(
 
     // Get wallet simply to check if user exists
     // Don't do this in test though
-    if (isDwollaProduction()) await PublicServices.getWallet(id);
+    // if (isDwollaProduction()) await PublicServices.getWallet(id);
 
     const responseCode: number = await purgeImageForUser(id);
     httpUtils.createHttpResponse(
