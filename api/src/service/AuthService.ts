@@ -235,7 +235,7 @@ export async function getUserData(
   try {
     const result: UserData = {
       name: "",
-      dwollaId: ""
+      dwollaId: "",
     };
     const response = await getUserByWalletAddress(walletAddress);
     if (!response.data || !response.success || response.error) {
