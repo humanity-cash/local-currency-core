@@ -242,7 +242,8 @@ export interface HomeScreenContent {
     | "Heroes"
     | "DidYouKnow"
     | "Values"
-    | "FeaturedArtists";
+    | "FeaturedArtists"
+    | "FeaturedBusiness";
   image: string;
   links?: HomeScreenContentLink[];
   textTitle?: string;
