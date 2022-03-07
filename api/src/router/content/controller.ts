@@ -5,6 +5,7 @@ import { DidYouKnow } from "src/content/DidYouKnow";
 import { FeaturedArtists } from "src/content/FeaturedArtists";
 import { Heroes } from "src/content/Heroes";
 import { Values } from "src/content/Values";
+import { FeaturedBusiness } from "src/content/FeaturedBusiness";
 
 const codes = httpUtils.codes;
 
@@ -52,6 +53,7 @@ export async function getContent(_req: Request, res: Response): Promise<void> {
       if (type == "FEATUREDARTISTS") content = FeaturedArtists;
       if (type == "HEROES") content = Heroes;
       if (type == "VALUES") content = Values;
+      if (type == "FEATUREDBUSINESS") content = FeaturedBusiness;
     }
 
     content = selectContentFromSource(content, random);
