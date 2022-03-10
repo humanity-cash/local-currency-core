@@ -1739,7 +1739,6 @@ describe("Operator endpoints test", () => {
           done(err);
         });
     });
-
   });
 
   describe("GET /users (get user(s))", () => {
