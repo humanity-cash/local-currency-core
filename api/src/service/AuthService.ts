@@ -356,7 +356,9 @@ export async function updateBusinessProfile({
         city: update.city ? update.city : business.city,
         postalCode: update.postalCode ? update.postalCode : business.postalCode,
         state: update.state ? update.state : business.state,
-        phoneNumber: update.phoneNumber ? update.phoneNumber : business.phoneNumber,
+        phoneNumber: update.phoneNumber
+          ? update.phoneNumber
+          : business.phoneNumber,
       },
     };
     return updateUser(businessDwollaId, u);
