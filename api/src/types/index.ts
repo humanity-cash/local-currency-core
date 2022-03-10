@@ -181,6 +181,7 @@ export interface ITransferEvent extends IEventBase {
   value: string;
   type?: TransferType;
   roundUp?: boolean;
+  isRedemptionFee?: boolean;
 }
 
 export interface IOperatorTotal {
