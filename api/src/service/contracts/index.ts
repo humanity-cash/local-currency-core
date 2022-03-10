@@ -23,6 +23,17 @@ const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
   toBlock: "latest",
 };
 
+async function getReceiptForTransaction(txId:string) {
+  const { web3 } = await getProvider();
+  const txReceipt : TransactionReceipt = await web3.eth.getTransactionReceipt(txId);
+  return txReceipt;
+}
+
+async function decodeParameter(type:string, hexString:string) : Promise<{[key:string]:any}> {
+  const { web3 } = await getProvider();
+  return web3.eth.abi.decodeParameter(type, hexString);
+}
+
 const getControllerContract = async (): Promise<Contract> => {
   const { web3 } = await getProvider();
   const controller = new web3.eth.Contract(
@@ -530,6 +541,43 @@ async function getIncomingTransfersForUser(
   return incomingTransfers;
 }
 
+async function getRedemptionFeeTransfersForUser(userId:string) : Promise<ITransferEvent[]> {
+  
+  const withdrawals : IWithdrawal[] = await getWithdrawalsForUser(userId);
+  const redemptionFees : ITransferEvent[] = [];
+  const walletAddress = await getWalletAddress(userId);
+  const topic : string = toBytes32("RedemptionFee(address,uint256)");
+  
+  for(let i=0;i<withdrawals?.length;i++){
+    
+    const withdrawal = withdrawals[i];
+    const txReceipt : TransactionReceipt = await getReceiptForTransaction(withdrawal.transactionHash);
+    const events = txReceipt?.logs?.filter((value) => {return value.topics[0] == topic});
+
+    if(events?.length > 0) {
+      
+      const event = events[0];
+      const redemptionFeeAmount = web3Utils.hexToNumberString(event.data);
+      const redemptionFeeAddress = (await decodeParameter("address", event.topics[1]));
+      
+      const redemptionFee : ITransferEvent = {
+        transactionHash: withdrawal.transactionHash,
+        blockNumber: withdrawal.blockNumber,
+        timestamp: withdrawal.timestamp,
+        fromUserId: toBytes32(userId),
+        fromAddress: walletAddress,
+        toUserId: "",
+        toAddress: redemptionFeeAddress.toString(),
+        value: redemptionFeeAmount,
+        type: TransferType.OUT,
+        isRedemptionFee: true
+      };
+      redemptionFees.push(redemptionFee);    
+    }
+  }
+  return redemptionFees;
+}
+
 export async function getTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
@@ -537,15 +585,18 @@ export async function getTransfersForUser(
     getOutoingTransfersForUser(userId),
     getIncomingTransfersForUser(userId),
     getRoundUpTransfersForUser(userId),
+    getRedemptionFeeTransfersForUser(userId)
   ];
   const results = await Promise.all(promises);
   const outgoingTransfers: ITransferEvent[] = results[0];
   const incomingTransfers: ITransferEvent[] = results[1];
   const roundUps: ITransferEvent[] = results[2];
+  const redemptionFees: ITransferEvent[] = results[3];
   const transfers: ITransferEvent[] = [
     ...outgoingTransfers,
     ...incomingTransfers,
     ...roundUps,
+    ...redemptionFees
   ];
   transfers.sort((a, b) => {
     return parseInt(a.timestamp.toString()) - parseInt(b.timestamp.toString());
