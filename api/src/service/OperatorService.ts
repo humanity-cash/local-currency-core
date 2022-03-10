@@ -286,7 +286,9 @@ export async function getTransfersForUser(
         fromName = textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
         fromDwollaUserId = "";
       } else if (fromIsHumanityCash) {
-        fromName = textUtils.HUMANITY_CASH_DISPLAY_NAME;
+        fromName = t.isRedemptionFee
+          ? textUtils.HUMANITY_CASH_REDEMPTION_FEE_DISPLAY_NAME
+          : textUtils.HUMANITY_CASH_DISPLAY_NAME;
         fromDwollaUserId = "";
       } else {
         const fromUserData = (await getUserData(t.fromAddress))?.data;
@@ -300,7 +302,9 @@ export async function getTransfersForUser(
         toName = textUtils.COMMUNITY_CHEST_DISPLAY_NAME;
         toDwollaUserId = "";
       } else if (toIsHumanityCash) {
-        toName = textUtils.HUMANITY_CASH_DISPLAY_NAME;
+        toName = t.isRedemptionFee
+          ? textUtils.HUMANITY_CASH_REDEMPTION_FEE_DISPLAY_NAME
+          : textUtils.HUMANITY_CASH_DISPLAY_NAME;
         toDwollaUserId = "";
       } else {
         const toUserData = (await getUserData(t.toAddress))?.data;
