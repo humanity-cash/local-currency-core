@@ -70,14 +70,14 @@ export const updateCustomerProfile = [
 
 export const updateBusinessProfile = [
   ...idInParams,
-  body("business.story").isString(),
-  body("business.tag").isString(),
-  body("business.address1").isString(),
-  body("business.address2").isString(),
-  body("business.city").isString(),
-  body("business.state").isString(),
-  body("business.postalCode").isString(),
-  body("business.phoneNumber").isString(),
+  body("business.story").optional().isString(),
+  body("business.tag").optional().isString(),
+  body("business.address1").optional().isString(),
+  body("business.address2").optional().isString(),
+  body("business.city").optional().isString(),
+  body("business.state").optional().isString(),
+  body("business.postalCode").optional().isString(),
+  body("business.phoneNumber").optional().isString(),
   mwVaildator,
 ];
 
