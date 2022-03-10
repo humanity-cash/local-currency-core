@@ -23,13 +23,18 @@ const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
   toBlock: "latest",
 };
 
-async function getReceiptForTransaction(txId:string) {
+async function getReceiptForTransaction(txId: string) {
   const { web3 } = await getProvider();
-  const txReceipt : TransactionReceipt = await web3.eth.getTransactionReceipt(txId);
+  const txReceipt: TransactionReceipt = await web3.eth.getTransactionReceipt(
+    txId
+  );
   return txReceipt;
 }
 
-async function decodeParameter(type:string, hexString:string) : Promise<{[key:string]:any}> {
+async function decodeParameter(
+  type: string,
+  hexString: string
+): Promise<{ [key: string]: any }> {
   const { web3 } = await getProvider();
   return web3.eth.abi.decodeParameter(type, hexString);
 }
@@ -541,26 +546,32 @@ async function getIncomingTransfersForUser(
   return incomingTransfers;
 }
 
-async function getRedemptionFeeTransfersForUser(userId:string) : Promise<ITransferEvent[]> {
-  
-  const withdrawals : IWithdrawal[] = await getWithdrawalsForUser(userId);
-  const redemptionFees : ITransferEvent[] = [];
+async function getRedemptionFeeTransfersForUser(
+  userId: string
+): Promise<ITransferEvent[]> {
+  const withdrawals: IWithdrawal[] = await getWithdrawalsForUser(userId);
+  const redemptionFees: ITransferEvent[] = [];
   const walletAddress = await getWalletAddress(userId);
-  const topic : string = toBytes32("RedemptionFee(address,uint256)");
-  
-  for(let i=0;i<withdrawals?.length;i++){
-    
-    const withdrawal = withdrawals[i];
-    const txReceipt : TransactionReceipt = await getReceiptForTransaction(withdrawal.transactionHash);
-    const events = txReceipt?.logs?.filter((value) => {return value.topics[0] == topic});
+  const topic: string = toBytes32("RedemptionFee(address,uint256)");
 
-    if(events?.length > 0) {
-      
+  for (let i = 0; i < withdrawals?.length; i++) {
+    const withdrawal = withdrawals[i];
+    const txReceipt: TransactionReceipt = await getReceiptForTransaction(
+      withdrawal.transactionHash
+    );
+    const events = txReceipt?.logs?.filter((value) => {
+      return value.topics[0] == topic;
+    });
+
+    if (events?.length > 0) {
       const event = events[0];
       const redemptionFeeAmount = web3Utils.hexToNumberString(event.data);
-      const redemptionFeeAddress = (await decodeParameter("address", event.topics[1]));
-      
-      const redemptionFee : ITransferEvent = {
+      const redemptionFeeAddress = await decodeParameter(
+        "address",
+        event.topics[1]
+      );
+
+      const redemptionFee: ITransferEvent = {
         transactionHash: withdrawal.transactionHash,
         blockNumber: withdrawal.blockNumber,
         timestamp: withdrawal.timestamp,
@@ -570,9 +581,9 @@ async function getRedemptionFeeTransfersForUser(userId:string) : Promise<ITransf
         toAddress: redemptionFeeAddress.toString(),
         value: redemptionFeeAmount,
         type: TransferType.OUT,
-        isRedemptionFee: true
+        isRedemptionFee: true,
       };
-      redemptionFees.push(redemptionFee);    
+      redemptionFees.push(redemptionFee);
     }
   }
   return redemptionFees;
@@ -585,7 +596,7 @@ export async function getTransfersForUser(
     getOutoingTransfersForUser(userId),
     getIncomingTransfersForUser(userId),
     getRoundUpTransfersForUser(userId),
-    getRedemptionFeeTransfersForUser(userId)
+    getRedemptionFeeTransfersForUser(userId),
   ];
   const results = await Promise.all(promises);
   const outgoingTransfers: ITransferEvent[] = results[0];
@@ -596,7 +607,7 @@ export async function getTransfersForUser(
     ...outgoingTransfers,
     ...incomingTransfers,
     ...roundUps,
-    ...redemptionFees
+    ...redemptionFees,
   ];
   transfers.sort((a, b) => {
     return parseInt(a.timestamp.toString()) - parseInt(b.timestamp.toString());
