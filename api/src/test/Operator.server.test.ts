@@ -401,7 +401,6 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(3);
-          console.log(res.body);
           for (let i = 0; i < res.body.length; i++) {
             expectIDeposit(res.body[i]);
             expect(res.body[i].fromName?.includes("Pending"));
@@ -854,7 +853,6 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser1}/deposit`)
         .send()
         .then((res) => {
-          console.log(res.body);
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(1);
@@ -872,7 +870,6 @@ describe("Operator endpoints test", () => {
         .get(`/users/${dwollaIdUser2}/deposit`)
         .send()
         .then((res) => {
-          console.log(res.body);
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(3);
@@ -963,7 +960,6 @@ describe("Operator endpoints test", () => {
         .post(`/users/${dwollaIdUser1}/withdraw`)
         .send({ amount: "3.33" })
         .then((res) => {
-          console.log(res.body);
           expect(res).to.have.status(codes.ACCEPTED);
           expect(res).to.be.json;
           expectIWallet(res.body);
@@ -999,7 +995,6 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
           expect(res.body.length).to.equal(2);
-          console.log(res.body);
           for (let i = 0; i < res.body.length; i++) {
             expectIDeposit(res.body[i]);
             expect(res.body[i].fromName?.includes("Pending"));
@@ -1688,7 +1683,7 @@ describe("Operator endpoints test", () => {
       await processDwollaSandboxSimulations();
     });
 
-    it("it should get 5 transfer for user1 (including 1 round-ups), HTTP 200", (done) => {
+    it("it should get 7 transfer for user1 (including 1 round-ups and 2 redemption fees), HTTP 200", (done) => {
       chai
         .request(server)
         .get(`/users/${dwollaIdUser1}/transfer`)
@@ -1696,8 +1691,7 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
-          log(res.body);
-          expect(res.body.length).to.equal(5);
+          expect(res.body.length).to.equal(7);
           for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
@@ -1716,8 +1710,26 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.OK);
           expect(res).to.be.json;
-          log(res.body);
           expect(res.body.length).to.equal(5);
+          for (let i = 0; i < res.body.length; i++) {
+            expectITransferEvent(res.body[i]);
+          }
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should get 1 transfer for business1 (only 1 redemption fee), HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdBusiness1}/transfer`)
+        .send()
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body.length).to.equal(1);
           for (let i = 0; i < res.body.length; i++) {
             expectITransferEvent(res.body[i]);
           }
