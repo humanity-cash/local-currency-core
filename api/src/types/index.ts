@@ -167,6 +167,7 @@ export interface IWithdrawal extends IEventBase {
   value: string;
   fromName?: string;
   toName?: string;
+  redemptionFee?: ITransferEvent
 }
 
 export interface ITransferEvent extends IEventBase {
@@ -181,6 +182,7 @@ export interface ITransferEvent extends IEventBase {
   value: string;
   type?: TransferType;
   roundUp?: boolean;
+  isRedemptionFee?: boolean;
 }
 
 export interface IOperatorTotal {
