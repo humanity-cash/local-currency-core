@@ -23,7 +23,9 @@ const DEFAULT_EVENT_OPTIONS: PastEventOptions = {
   toBlock: "latest",
 };
 
-async function getReceiptForTransaction(txId: string) {
+async function getReceiptForTransaction(
+  txId: string
+): Promise<TransactionReceipt> {
   const { web3 } = await getProvider();
   const txReceipt: TransactionReceipt = await web3.eth.getTransactionReceipt(
     txId
@@ -34,6 +36,7 @@ async function getReceiptForTransaction(txId: string) {
 async function decodeParameter(
   type: string,
   hexString: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<{ [key: string]: any }> {
   const { web3 } = await getProvider();
   return web3.eth.abi.decodeParameter(type, hexString);
