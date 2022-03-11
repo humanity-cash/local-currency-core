@@ -42,18 +42,18 @@ async function decodeParameter(
   return web3.eth.abi.decodeParameter(type, hexString);
 }
 
-async function getRedemptionFeeFromWithdrawal(transactionHash:string) : Promise<Log>{
+async function getRedemptionFeeFromWithdrawal(
+  transactionHash: string
+): Promise<Log> {
   const topic: string = toBytes32("RedemptionFee(address,uint256)");
   const txReceipt: TransactionReceipt = await getReceiptForTransaction(
     transactionHash
   );
-  const events : Log[] = txReceipt?.logs?.filter((value) => {
+  const events: Log[] = txReceipt?.logs?.filter((value) => {
     return value.topics[0] == topic;
   });
-  if(events?.length > 0)
-    return events[0];
-  else
-    return undefined;
+  if (events?.length > 0) return events[0];
+  else return undefined;
 }
 
 const getControllerContract = async (): Promise<Contract> => {
@@ -399,10 +399,14 @@ export async function getWithdrawalsForUser(
       withdrawals[i].toName = userDisplayName.data.name;
     }
 
-    const redemptionFeeEvent = await getRedemptionFeeFromWithdrawal(withdrawals[i].transactionHash);
-    
-    if(redemptionFeeEvent){
-      const redemptionFeeAmount = web3Utils.hexToNumberString(redemptionFeeEvent.data);
+    const redemptionFeeEvent = await getRedemptionFeeFromWithdrawal(
+      withdrawals[i].transactionHash
+    );
+
+    if (redemptionFeeEvent) {
+      const redemptionFeeAmount = web3Utils.hexToNumberString(
+        redemptionFeeEvent.data
+      );
       const redemptionFeeAddress = await decodeParameter(
         "address",
         redemptionFeeEvent.topics[1]
@@ -420,11 +424,19 @@ export async function getWithdrawalsForUser(
         isRedemptionFee: true,
       };
       withdrawals[i].redemptionFee = redemptionFee;
-      const adjustedWithdrawalAmount = new BN(withdrawals[i].value).sub(new BN(redemptionFeeAmount));
-      withdrawals[i].value = adjustedWithdrawalAmount.toString();   
+      const adjustedWithdrawalAmount = new BN(withdrawals[i].value).sub(
+        new BN(redemptionFeeAmount)
+      );
+      withdrawals[i].value = adjustedWithdrawalAmount.toString();
     }
   }
-  log(`getWithdrawals() UserWithdrawal for ${userId} are: ${JSON.stringify(withdrawals, null, 2)}`);
+  log(
+    `getWithdrawals() UserWithdrawal for ${userId} are: ${JSON.stringify(
+      withdrawals,
+      null,
+      2
+    )}`
+  );
   return withdrawals;
 }
 
@@ -590,17 +602,20 @@ async function getIncomingTransfersForUser(
 async function getRedemptionFeeTransfersForUser(
   userId: string
 ): Promise<ITransferEvent[]> {
-  
   const withdrawals: IWithdrawal[] = await getWithdrawalsForUser(userId);
   const redemptionFees: ITransferEvent[] = [];
   const walletAddress = await getWalletAddress(userId);
 
   for (let i = 0; i < withdrawals?.length; i++) {
     const withdrawal = withdrawals[i];
-    const redemptionFeeEvent : Log = await getRedemptionFeeFromWithdrawal(withdrawal.transactionHash);
+    const redemptionFeeEvent: Log = await getRedemptionFeeFromWithdrawal(
+      withdrawal.transactionHash
+    );
 
     if (redemptionFeeEvent) {
-      const redemptionFeeAmount = web3Utils.hexToNumberString(redemptionFeeEvent.data);
+      const redemptionFeeAmount = web3Utils.hexToNumberString(
+        redemptionFeeEvent.data
+      );
       const redemptionFeeAddress = await decodeParameter(
         "address",
         redemptionFeeEvent.topics[1]

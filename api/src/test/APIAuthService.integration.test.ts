@@ -142,8 +142,8 @@ describe("Auth Service API Test", () => {
           avatar: "Latest Avatar",
           story: "Latest Story",
           address1: "Latest address1",
-          address2: "de32de",
-          phoneNumber: "dee21e",
+          // address2: "de32de",
+          // phoneNumber: "dee21e",
           city: "dedew21",
           website: "deadea",
           postalCode: "podea",
@@ -152,8 +152,12 @@ describe("Auth Service API Test", () => {
       })
       .then((res) => {
         expect(res).to.have.status(200);
+        // console.log(res.body);
         // expect(res.body.data.business.avatar).to.eql("Latest Avatar");
         expect(res.body.data.business.tag).to.eql("Latest Tag");
+        expect(res.body.data.business.story).to.eql("Latest Story");
+        expect(res.body.data.business.address1).to.eql("Latest address1");
+        expect(res.body.data.business.address2).to.exist;
         expect(res.body.data.business.dwollaId).to.exist;
         expect(res.body.data.customer.dwollaId).to.exist;
         expect(res.body.data.business.resourceUri).to.exist;

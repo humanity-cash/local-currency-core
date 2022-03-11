@@ -66,13 +66,13 @@ export interface IDBMiniNewBusinessInput {
   type: string;
   rbn: string;
   industry: string;
-  ein: string;
+  ein?: string;
   address1: string;
-  address2: string;
+  address2?: string;
   city: string;
   state: string;
   postalCode: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   owner: BaseUser;
 }
 
@@ -125,13 +125,13 @@ export interface Business {
   walletAddress?: WalletAddress;
   rbn: string;
   industry: string;
-  ein: string;
+  ein?: string;
   address1: string;
-  address2: string;
+  address2?: string;
   city: string;
   state: string;
   postalCode: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   dwollaId?: DwollaId;
   resourceUri?: string;
   owner: BaseUser;
@@ -167,7 +167,7 @@ export interface IWithdrawal extends IEventBase {
   value: string;
   fromName?: string;
   toName?: string;
-  redemptionFee?: ITransferEvent
+  redemptionFee?: ITransferEvent;
 }
 
 export interface ITransferEvent extends IEventBase {
