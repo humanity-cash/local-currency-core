@@ -5,8 +5,7 @@ import {
   isDwollaProduction,
   log,
   shouldDeletePriorWebhooks,
-  userNotification,
-  sleep,
+  userNotification
 } from "src/utils";
 import {
   duplicateWebhookExists,
@@ -33,9 +32,6 @@ export async function deregisterWebhook(
   log(`Webhook ${webhookUrl} successfully deregistered`);
   return response;
 }
-
-const MAX_WEBHOOK_RETRIES = 10;
-
 async function deregisterAllWebhooks(): Promise<void> {
   const response: dwolla.Response = await getAllWebhooks();
   const webhooks = response.body._embedded["webhook-subscriptions"];
@@ -131,303 +127,316 @@ async function contactSupport(event: DwollaEvent): Promise<void> {
   );
 }
 
-async function processTransfer(
-  eventToProcess: DwollaEvent,
-  retryCount = MAX_WEBHOOK_RETRIES
-): Promise<boolean> {
-  try {
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Begin processing...`
-    );
-
-    // Get this transfer, in theory this should never fail
-    const transferDwollaObject = await getDwollaResourceFromEvent(
-      eventToProcess
-    );
-
-    // 1 Get transferDBObject and update status
-    let transferDBObject: DwollaTransferService.IDwollaTransferDBItem;
-
-    try {
-      // 1A Attempt to get transfer from database for logging by fundingTransferId
-      transferDBObject = await DwollaTransferService.getByFundingTransferId(
-        eventToProcess.resourceId
-      );
-      log(
-        `DwollaWebhookService.ts::processTransfer() EventId ${
-          eventToProcess.id
-        }: Found transfer in database by fundingTransferId, object is ${JSON.stringify(
-          transferDBObject,
-          null,
-          2
-        )}`
-      );
-
-      // 1B Update the status of the transfer to the current topic
-      transferDBObject =
-        await DwollaTransferService.updateStatusByFundingTransferId(
-          eventToProcess.resourceId,
-          eventToProcess.topic
-        );
-      log(
-        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Updated status of transfer with fundingTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`
-      );
-
-      // 1C Update the fundedTransferId on the database, if it doesn't exist yet
-      if (!transferDBObject.fundedTransferId) {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundedTransferId has not been set in our database for fundingTransferId ${eventToProcess.resourceId}`
-        );
-        const fundedTransferLink =
-          transferDwollaObject.body?._links["funded-transfer"]?.href;
-        if (fundedTransferLink) {
-          log(
-            `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: However, fundedTransferId does exist in the _links for this fundingTransferId ${eventToProcess.resourceId}`
-          );
-          const fundedTransferDwollaObject =
-            await getDwollaResourceFromLocation(fundedTransferLink);
-          if (fundedTransferDwollaObject) {
-            log(
-              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Successfully retrieved Dwolla object from link ${fundedTransferLink}`
-            );
-            transferDBObject = await DwollaTransferService.setFundedTransferId(
-              transferDBObject.fundingTransferId,
-              fundedTransferDwollaObject?.body?.id
-            );
-            log(
-              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Successfully updated database with fundedTransferId ${fundedTransferDwollaObject?.body?.id} for fundingTransferId ${eventToProcess.resourceId}`
-            );
-          } else {
-            const message = `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Error, we had a fundedTransferLink but could not retrieve the object from Dwolla`;
-            log(message);
-            throw message;
-          }
-        } else {
-          log(
-            `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: We haven't set a fundedTransferId yet for this transfer, but no link exists yet on the Dwolla object`
-          );
-          if (eventToProcess?.topic?.includes("completed")) {
-            // If we have a completed event, and haven't set the matching ID, we need to recursively retry
-            // until the timing issue is resolved and ultimately fail and let Dwolla send this webhook again
-            log(
-              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount}`
-            );
-
-            if (retryCount > 0) {
-              log(
-                `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}, trying again...`
-              );
-              retryCount--;
-              await sleep(1000);
-              await processTransfer(eventToProcess, retryCount);
-            }
-          }
-        }
-      } else {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundedTransferId ${transferDBObject.fundedTransferId} already set for fundingTransferId ${transferDBObject.fundingTransferId}, no need to set it again`
-        );
-      }
-    } catch (err) {
-      // If ths object doesn't exist by fundingTransferId, it should exist by fundedTransferId
-      if (err?.message?.includes("No match in database")) {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: No match in database, so switching to fundedTransferId search`
-        );
-
-        // 1D Attempt to get transfer from database for logging by fundedTransferId
-        transferDBObject = await DwollaTransferService.getByFundedTransferId(
-          eventToProcess.resourceId
-        );
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${
-            eventToProcess.id
-          }: Found transfer in database by fundedTransferId, object is ${JSON.stringify(
-            transferDBObject,
-            null,
-            2
-          )}`
-        );
-
-        // 1E Update the status of the transfer to the current topic
-        transferDBObject =
-          await DwollaTransferService.updateStatusByFundedTransferId(
-            eventToProcess.resourceId,
-            eventToProcess.topic
-          );
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Updated status of transfer with fundedTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`
-        );
-
-        // 1E Update the fundedTransferId on the database, if it doesn't exist yet
-        if (!transferDBObject.fundingTransferId) {
-          log(
-            `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferId has not been set in our database for fundedTransferId ${eventToProcess.resourceId}`
-          );
-          const fundingTransferLink =
-            transferDwollaObject.body?._links["funding-transfer"]?.href;
-          if (fundingTransferLink) {
-            log(
-              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: However, fundingTransferId does exist in the _links for this fundedTransferId ${eventToProcess.resourceId}`
-            );
-            const fundingTransferDwollaObject =
-              await getDwollaResourceFromLocation(fundingTransferLink);
-            if (fundingTransferDwollaObject) {
-              log(
-                `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Successfully retrieved Dwolla object from link ${fundingTransferLink}`
-              );
-              transferDBObject =
-                await DwollaTransferService.setFundingTransferId(
-                  transferDBObject.fundedTransferId,
-                  fundingTransferDwollaObject?.body?.id
-                );
-              log(
-                `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Successfully updated database with fundingTransferId ${fundingTransferDwollaObject?.body?.id} for fundedTransferId ${eventToProcess.resourceId}`
-              );
-            } else {
-              const message = `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Error, we had a fundingTransferLink but could not retrieve the object from Dwolla`;
-              log(message);
-              throw message;
-            }
-          } else {
-            log(
-              `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: We haven't set a fundingTransferId yet for this transfer, but no link exists yet on the Dwolla object`
-            );
-            if (eventToProcess?.topic?.includes("completed")) {
-              // If we have a completed event, and haven't set the matching ID, we need to recursively retry
-              // until the timing issue is resolved and ultimately fail and let Dwolla send this webhook again
-              log(
-                `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount}`
-              );
-
-              if (retryCount > 0) {
-                log(
-                  `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}, trying again...`
-                );
-                retryCount--;
-                await sleep(1000);
-                await processTransfer(eventToProcess, retryCount);
-              }
-            }
-          }
-        } else {
-          log(
-            `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferId ${transferDBObject.fundingTransferId} already set for fundedTransferId ${transferDBObject.fundedTransferId}, no need to set it again`
-          );
-        }
-      } else {
-        log(
-          `DwollaWebhookService.ts::processTransfer() Unknown error during inner ${eventToProcess.topic} processing ${err?.message}`
-        );
-        throw err;
-      }
-    }
-
-    // 2 Status reconciliation
-    const fundedTransferLink =
-      transferDwollaObject.body?._links["funded-transfer"]?.href;
-    const fundingTransferLink =
-      transferDwollaObject.body?._links["funding-transfer"]?.href;
+function logTransferStatus(
+  transferDwollaObject:dwolla.Response, 
+  transferDBObject:DwollaTransferService.IDwollaTransferDBItem, 
+  detailedLog: (logMessage:string) => void ) : void 
+{    
+    const fundedTransferLink = transferDwollaObject.body?._links["funded-transfer"]?.href;
+    const fundingTransferLink = transferDwollaObject.body?._links["funding-transfer"]?.href;
     const fundingTransferIdFromDB = transferDBObject.fundingTransferId;
     const fundedTransferIdFromDB = transferDBObject.fundedTransferId;
     const fundedTransferStatusFromDB = transferDBObject.fundedStatus;
     const fundingTransferStatusFromDB = transferDBObject.fundingStatus;
 
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: --- Status reconciliation --------------------------------------`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: type ${transferDBObject.type}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: userId ${transferDBObject.userId}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: amount ${transferDBObject.amount}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferLink ${fundingTransferLink}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferIdFromDB ${fundingTransferIdFromDB}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundingTransferStatusFromDB ${fundingTransferStatusFromDB}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundedTransferLink ${fundedTransferLink}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundedTransferIdFromDB ${fundedTransferIdFromDB}`
-    );
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: fundedTransferStatusFromDB ${fundedTransferStatusFromDB}`
-    );
+   detailedLog(`--- Status reconciliation --------------------------------------` );
+   detailedLog(`type ${transferDBObject.type}`);
+   detailedLog(`userId ${transferDBObject.userId}`);
+   detailedLog(`amount ${transferDBObject.amount}`);
+   detailedLog(`fundingTransferLink ${fundingTransferLink}`);
+   detailedLog(`fundingTransferIdFromDB ${fundingTransferIdFromDB}`);
+   detailedLog(`fundingTransferStatusFromDB ${fundingTransferStatusFromDB}`);
+   detailedLog(`fundedTransferLink ${fundedTransferLink}`);
+   detailedLog(`fundedTransferIdFromDB ${fundedTransferIdFromDB}`);
+   detailedLog(`fundedTransferStatusFromDB ${fundedTransferStatusFromDB}`);
+}
 
-    // 3 If both legs are complete
-    if (
-      fundingTransferStatusFromDB?.includes("completed") &&
-      fundedTransferStatusFromDB?.includes("completed")
-    ) {
-      log(
-        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Both legs of this transfer are completed, this transfer can be considered complete`
+async function processTransfer(
+  eventToProcess: DwollaEvent
+): Promise<boolean> {
+
+  const detailedLog = (logMessage:string) => {
+    console.log(`DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}, ResourceId ${eventToProcess.resourceId}: ${logMessage}`);
+  }
+
+  const enum DwollaTransferLeg {FUNDING, FUNDED};
+  let transferType : DwollaTransferLeg;
+
+  try {
+    
+    detailedLog(`Begin processing...`);
+
+    // ****************************************
+    // Get transfer resource from Dwolla
+    // ****************************************
+    let transferDwollaObject : dwolla.Response;
+    try{
+        transferDwollaObject = await getDwollaResourceFromEvent(eventToProcess);
+    }
+    catch(err){
+      detailedLog("Critical - could not find Dwolla resource");
+      throw err;
+    }
+
+    let transferDBObject: DwollaTransferService.IDwollaTransferDBItem;
+
+    // ****************************************
+    // Find in database by fundingTransferId?
+    // ****************************************
+    try {      
+      transferDBObject = await DwollaTransferService.getByFundingTransferId(eventToProcess.resourceId);
+      detailedLog(
+        `Found transfer in database by fundingTransferId, object is ${JSON.stringify(
+          transferDBObject,
+          null,
+          2
+        )}`
       );
-      if (transferDBObject.type == "DEPOSIT") {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This transfer is a deposit, now minting BerkShares...`
+      transferType = DwollaTransferLeg.FUNDING;
+    }
+    catch(err){
+      if (err?.message?.includes("No match in database"))
+        detailedLog(`No match in database when searching by resourceId == fundingTransferId`);
+      else
+        throw err;
+    }
+
+    // ****************************************
+    // Find in database by fundedTransferId?
+    // ****************************************
+    if(!transferDBObject){
+      try{
+        transferDBObject = await DwollaTransferService.getByFundedTransferId(eventToProcess.resourceId);
+        detailedLog(
+            `DwollaWebhookService.ts::processTransfer() EventId ${
+              eventToProcess.id
+            }: Found transfer in database by fundedTransferId, object is ${JSON.stringify(
+              transferDBObject,
+              null,
+              2
+            )}`
         );
+        transferType = DwollaTransferLeg.FUNDED;
+      }
+      catch(err){
+        if (err?.message?.includes("No match in database"))
+          detailedLog(`No match in database when searching by resourceId == fundedTransferId`);
+        else
+          throw err;
+      }
+    }
+
+    // ****************************************
+    // Try by funding-transfer object link
+    //
+    // This would mean we never linked the 
+    // two legs together correctly, due to 
+    // timing of the Dwolla events
+    // ****************************************
+    if(!transferDBObject){      
+      try{        
+        const fundingTransferLink = transferDwollaObject.body?._links["funding-transfer"]?.href;
+        
+        if(fundingTransferLink){
+
+          detailedLog(`There was no funding transfer or funded transfer match, however, a funding-transfer object exists for this resource`);
+          detailedLog(`This means no link was ever made in our database, but the link relationship exists on Dwolla's side`);
+          detailedLog(`Let's make the link in our database, get the object, and continue ...`);
+
+          const fundingTransferDwollaObject =  await getDwollaResourceFromLocation(fundingTransferLink);
+          if (fundingTransferDwollaObject) {
+            detailedLog(`Successfully retrieved Dwolla object from link ${fundingTransferLink}`);
+            
+            transferDBObject = await DwollaTransferService.setFundedTransferId(
+              fundingTransferDwollaObject?.body?.id,
+              eventToProcess.resourceId     
+            );
+            transferType = DwollaTransferLeg.FUNDED;
+          }
+          else
+            throw `Critical - could not find Dwolla resource during funding-transfer link search`;
+        }
+        else
+          detailedLog(`There is no funding-transfer link on this transfer Dwolla resource`);
+      }
+      catch(err){
+        detailedLog(`Error during attempt to use funding-transfer link on a Dwolla resource, we might not have this transfer recorded...`);
+        throw err;
+      }
+    }
+
+    // ****************************************
+    // Try by funded-transfer object link
+    //
+    // This would mean we never linked the 
+    // two legs together correctly, due to 
+    // timing of the Dwolla events
+    // ****************************************
+    if(!transferDBObject){
+      
+      try{        
+        const fundedTransferLink = transferDwollaObject.body?._links["funded-transfer"]?.href;
+        
+        if(fundedTransferLink){
+
+          detailedLog(`There was no funding transfer or funded transfer match, however, a funded-transfer object exists for this resource`);
+          detailedLog(`This means no link was ever made in our database, but the link relationship exists on Dwolla's side`);
+          detailedLog(`Let's make the link in our database, get the object, and continue ...`);
+
+          const fundedTransferDwollaObject =  await getDwollaResourceFromLocation(fundedTransferLink);
+          if (fundedTransferDwollaObject) {
+            detailedLog(`Successfully retrieved Dwolla object from link ${fundedTransferLink}`);
+            
+            transferDBObject = await DwollaTransferService.setFundingTransferId(
+              fundedTransferDwollaObject?.body?.id,
+              eventToProcess.resourceId     
+            );
+            transferType = DwollaTransferLeg.FUNDING;
+          }
+          else
+            throw `Critical - could not find Dwolla resource during funded-transfer link search`;
+        }
+        else
+          detailedLog(`There is no funded-transfer link on this transfer Dwolla resource`);
+      }
+      catch(err){
+        detailedLog(`Error during attempt to use funded-transfer link on a Dwolla resource, we might not have this transfer recorded...`);
+        throw err;
+      }
+    }
+
+    // ****************************************
+    // Error check - do we have an object?
+    // ****************************************
+    if(!transferDBObject){
+      detailedLog(`Cannot find a matching database record for this transfer`);
+      detailedLog(`This could be a timing issue, e.g. we are still writing to the database and a webhook has instantly appeared before database consistency.`);
+      detailedLog(`Stop execution here, Dwolla will progressively retry the webhook`);
+      throw `Could not find database record matching this transfer`;
+    }
+
+    // ****************************************
+    // Funding transfer processing
+    // ****************************************
+    if(transferType == DwollaTransferLeg.FUNDING){
+      
+      transferDBObject =
+        await DwollaTransferService.updateStatusByFundingTransferId(
+          eventToProcess.resourceId,
+          eventToProcess.topic
+        );
+      detailedLog(`Updated status of transfer with fundingTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`);
+
+      if (!transferDBObject.fundedTransferId) {
+        
+        detailedLog(`fundedTransferId has not been set in our database for fundingTransferId ${eventToProcess.resourceId}`);
+        const fundedTransferLink = transferDwollaObject.body?._links["funded-transfer"]?.href;
+        
+        if (fundedTransferLink) {          
+          
+          detailedLog(`However, fundedTransferId does exist in the _links for this fundingTransferId ${eventToProcess.resourceId}`);
+          const fundedTransferDwollaObject = await getDwollaResourceFromLocation(fundedTransferLink);
+          
+          if (fundedTransferDwollaObject) {
+            detailedLog(`Successfully retrieved Dwolla object from link ${fundedTransferLink}`);
+            transferDBObject = await DwollaTransferService.setFundedTransferId(
+              transferDBObject.fundingTransferId,
+              fundedTransferDwollaObject?.body?.id
+            );
+            detailedLog(`Successfully updated database with fundedTransferId ${fundedTransferDwollaObject?.body?.id} for fundingTransferId ${eventToProcess.resourceId}`);
+          } 
+          else
+            throw `Critical - could not find Dwolla resource during funded-transfer link search`;
+
+        } else {
+          detailedLog(`Haven't set a fundedTransferId yet for this transfer, but no link exists yet on the Dwolla object`);
+          detailedLog(`No issue - link the legs together later when the funded transfer is created and webhook sent by Dwolla`);
+        }
+
+      } else
+        detailedLog(`fundedTransferId ${transferDBObject.fundedTransferId} already set for fundingTransferId ${transferDBObject.fundingTransferId}, no need to set it again`);
+
+    } // Funding transfer processing
+    
+    // ****************************************
+    // Funded transfer processing
+    // ****************************************
+    if(transferType == DwollaTransferLeg.FUNDED){
+      
+      transferDBObject =
+        await DwollaTransferService.updateStatusByFundedTransferId(
+          eventToProcess.resourceId,
+          eventToProcess.topic
+        );
+      detailedLog(`Updated status of transfer with fundedTransferId ${eventToProcess.resourceId} to ${eventToProcess.topic}`);
+
+      if (!transferDBObject.fundingTransferId) {
+
+        detailedLog(`fundingTransferId has not been set in our database for fundedTransferId ${eventToProcess.resourceId}`);         
+        const fundingTransferLink = transferDwollaObject.body?._links["funding-transfer"]?.href;
+
+         if (fundingTransferLink) {
+
+          detailedLog(`However, fundingTransferId does exist in the _links for this fundedTransferId ${eventToProcess.resourceId}`);
+          const fundingTransferDwollaObject = await getDwollaResourceFromLocation(fundingTransferLink);
+          
+          if (fundingTransferDwollaObject) {
+            detailedLog(`Successfully retrieved Dwolla object from link ${fundingTransferLink}`);            
+            transferDBObject = await DwollaTransferService.setFundingTransferId(
+                 transferDBObject.fundedTransferId,
+                 fundingTransferDwollaObject?.body?.id
+            );            
+            detailedLog(`Successfully updated database with fundingTransferId ${fundingTransferDwollaObject?.body?.id} for fundedTransferId ${eventToProcess.resourceId}`);
+          } 
+          else
+            throw `Critical - could not find Dwolla resource during funding-transfer link search`;
+
+          } else {
+            detailedLog(`Haven't set a fundingTransferId yet for this transfer, but no link exists yet on the Dwolla object`);
+            detailedLog(`No issue - link the legs together later when the funding transfer is created and webhook sent by Dwolla`);
+          }
+
+      } else
+        detailedLog(`fundingTransferId ${transferDBObject.fundingTransferId} already set for fundedTransferId ${transferDBObject.fundedTransferId}, no need to set it again`);
+
+    } // Funded transfer processing
+
+    // ****************************************
+    // Log status
+    // ****************************************
+    logTransferStatus(transferDwollaObject, transferDBObject, detailedLog);
+
+    // ****************************************
+    // Completion processing
+    // ****************************************
+    if (transferDBObject?.fundedStatus?.includes("completed") && transferDBObject?.fundingStatus?.includes("completed")) {
+      
+      detailedLog(`Both legs of this transfer are completed, this transfer can be considered complete`);
+      
+      if (transferDBObject.type == "DEPOSIT") {
+        detailedLog(`This transfer is a deposit, now minting BerkShares...`);
         const success = await webhookMint(transferDBObject.fundingTransferId);
         if (!success) {
           await contactSupport(eventToProcess);
           return true;
         }
-      } else {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This transfer is a withdrawal, transfer is fully complete and nothing more to do`
-        );
-      }
+      } else 
+        detailedLog(`This transfer is a withdrawal, transfer is fully complete and nothing more to do`);
     }
 
-    // 4 Notify the user
+    // Notify the user
     const notificationMessage = getProgressMessageForTransfer(transferDBObject);
-    log(
-      `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: ${notificationMessage}`
-    );
+    detailedLog(notificationMessage);
     await userNotification(
       transferDBObject.userId,
       notificationMessage,
       "INFO"
     );
-
     return true;
-  } catch (err) {
-    if (err?.message?.includes("No match in database")) {
-      // In this edge case, we receive the webhook before the database entry has been committed
-      log(
-        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: No match in database using either fundingTransferId or fundedTransferId`
-      );
-      log(
-        `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: This is a database timing issue, retries remaining is ${retryCount}`
-      );
 
-      if (retryCount > 0) {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}, trying again...`
-        );
-        retryCount--;
-        await processTransfer(eventToProcess, retryCount);
-      } else {
-        log(
-          `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}: Retries remaining is ${retryCount}. Perhaps there is an unknown error here? Throwing`
-        );
-        throw err;
-      }
-    } else {
-      log(
-        `DwollaWebhookService.ts::processTransfer() Unknown Error during outer ${eventToProcess.topic} processing ${err?.message}}`
-      );
+  } catch (err) {
+      detailedLog(`Error during ${eventToProcess.topic} processing ${err?.message}}`);
       throw err;
-    }
   }
 }
 
