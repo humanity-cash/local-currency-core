@@ -205,7 +205,7 @@ describe("Test low-level smart contract functions", () => {
       const transfers = await contracts.getTransfersForUser(userId3);
       log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
       expect(transfers).toBeDefined();
-      expect(transfers.length).toEqual(3);
+      expect(transfers.length).toEqual(4);
     });
 
     it("Should perform a launch bonus transfer (1 usage) for a user", async () => {
@@ -219,7 +219,7 @@ describe("Test low-level smart contract functions", () => {
       const transfers = await contracts.getTransfersForUser(userId3);
       log(`transfers == ${JSON.stringify(transfers, null, 2)}`);
       expect(transfers).toBeDefined();
-      expect(transfers.length).toEqual(4);
+      expect(transfers.length).toEqual(5);
     });
   });
 
