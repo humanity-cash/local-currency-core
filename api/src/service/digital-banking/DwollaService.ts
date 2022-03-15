@@ -223,6 +223,8 @@ export async function reconcileDwollaDeposits(): Promise<boolean> {
     const deposits: DwollaTransferService.IDwollaTransferDBItem[] =
       await DwollaTransferService.getAll("DEPOSIT");
 
+    log(`reconcileDwollaDeposits() Total number of deposits is ${deposits?.length}`);
+
     for (let i = 0; i < deposits?.length; i++) {
       try {
         let deposit = deposits[i];
@@ -372,7 +374,7 @@ export async function reconcileDwollaDeposits(): Promise<boolean> {
             );
             await userNotification(
               deposit.userId,
-              `Your deposit of ${deposit.amount} created on ${new Date(
+              `Your deposit of $${deposit.amount} created on ${new Date(
                 deposit.created
               ).toLocaleDateString()} has completed!`
             );
