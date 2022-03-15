@@ -13,14 +13,10 @@ import {
 import { codes } from "../utils/http";
 import { log } from "../utils";
 import { IAPINewUser } from "../types";
-import {
-  createSignature
-} from "../service/digital-banking/DwollaUtils";
+import { createSignature } from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { mockDatabase } from "./setup/setup-db-integration";
-import {
-  AppNotificationService,
-} from "src/database/service";
+import { AppNotificationService } from "src/database/service";
 
 import {
   expectBusiness,
@@ -412,11 +408,16 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should process a webhook for a customer_transfer_created event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {      
+    it("it should process a webhook for a customer_transfer_created event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
       await processDwollaSandboxSimulations();
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","customer_transfer_created", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "DEPOSIT",
+          "customer_transfer_created",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -430,8 +431,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a transfer_created event for user1, users2, and business1's deposits, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","transfer_created", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "DEPOSIT",
+          "transfer_created",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -445,8 +451,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a customer_transfer_completed event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","customer_transfer_completed", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "DEPOSIT",
+          "customer_transfer_completed",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -460,8 +471,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a transfer_completed event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","transfer_completed", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "DEPOSIT",
+          "transfer_completed",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -476,8 +492,13 @@ describe("Operator endpoints test", () => {
     it("it should process a webhook for a bank_transfer_created event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
       await processDwollaSandboxSimulations();
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","bank_transfer_created", true);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "DEPOSIT",
+          "bank_transfer_created",
+          true
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -491,8 +512,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a bank_transfer_completed event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","bank_transfer_completed", true);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "DEPOSIT",
+          "bank_transfer_completed",
+          true
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -502,7 +528,7 @@ describe("Operator endpoints test", () => {
           expect(res).to.have.status(codes.ACCEPTED);
         }
       }
-    });   
+    });
 
     it("it should return 1 deposit for user1, HTTP 200", (done) => {
       chai
@@ -556,7 +582,6 @@ describe("Operator endpoints test", () => {
           done(err);
         });
     });
-
   });
 
   describe("POST /users/:userId/withdraw (withdraw for user)", () => {
@@ -700,8 +725,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a bank_transfer_created event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","bank_transfer_created", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "WITHDRAWAL",
+          "bank_transfer_created",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -715,8 +745,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a transfer_created event for user1, users2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","transfer_created", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "WITHDRAWAL",
+          "transfer_created",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -728,11 +763,16 @@ describe("Operator endpoints test", () => {
       }
     });
 
-    it("it should process a webhook for a customer_transfer_created event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {      
+    it("it should process a webhook for a customer_transfer_created event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
       await processDwollaSandboxSimulations();
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","customer_transfer_created", true);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "WITHDRAWAL",
+          "customer_transfer_created",
+          true
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -746,8 +786,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a bank_transfer_completed event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","bank_transfer_completed", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "WITHDRAWAL",
+          "bank_transfer_completed",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -761,8 +806,13 @@ describe("Operator endpoints test", () => {
 
     it("it should process a webhook for a transfer_completed event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","transfer_completed", false);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "WITHDRAWAL",
+          "transfer_completed",
+          false
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
@@ -777,8 +827,13 @@ describe("Operator endpoints test", () => {
     it("it should process a webhook for a customer_transfer_completed event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
       await processDwollaSandboxSimulations();
       const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
-      for(let j = 0; j < users.length; j++){
-        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","customer_transfer_completed", true);
+      for (let j = 0; j < users.length; j++) {
+        const mockWebhooks: MockWebhook[] = await mockTransferWebhook(
+          users[j],
+          "WITHDRAWAL",
+          "customer_transfer_completed",
+          true
+        );
         for (let i = 0; i < mockWebhooks?.length; i++) {
           const res = await chai
             .request(server)
