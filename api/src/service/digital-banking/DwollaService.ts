@@ -260,23 +260,39 @@ export async function reconcileDwollaDeposits(): Promise<boolean> {
           dwollaFundedTransfer = await getDwollaResourceFromLocation(
             `${process.env.DWOLLA_BASE_URL}transfers/${deposit.fundedTransferId}`
           );
-        else{
-          const fundedTransferLink = dwollaFundingTransfer?.body?._links["funded-transfer"]?.href;
-          if(fundedTransferLink){
-            log(`reconcileDwollaDeposits() Deposit is in an unstable state, no fundedTransferId exists on the database object, but it does on the funding Dwolla object`);
-            log(`reconcileDwollaDeposits() Let's update the fundedTransferId and then retrieve the Dwolla object again...`);
-            dwollaFundedTransfer = await getDwollaResourceFromLocation(fundedTransferLink);
-            if(dwollaFundedTransfer){
-              deposit = await DwollaTransferService.setFundedTransferId(deposit.fundingTransferId, dwollaFundedTransfer?.body?.id);
-              log(`reconcileDwollaDeposits() Updated fundedTransferId on database object to ${dwollaFundedTransfer?.body?.id}`);
-              log(`reconcileDwollaDeposits() Database status - fundedTransferId: ${deposit.fundedTransferId} fundedTransferStatus: ${deposit.fundedStatus}`);
-            } 
-            else {
-              log(`reconcileDwollaDeposits() Error! Could not find a funded transfer on Dwolla for location ${fundedTransferLink}`);
-            }           
-          }
-          else
-            log(`reconcileDwollaDeposits() There is no funded transfer referenced both in the database or in the Dwolla object, this transfer is still in progress...`);
+        else {
+          const fundedTransferLink =
+            dwollaFundingTransfer?.body?._links["funded-transfer"]?.href;
+          if (fundedTransferLink) {
+            log(
+              `reconcileDwollaDeposits() Deposit is in an unstable state, no fundedTransferId exists on the database object, but it does on the funding Dwolla object`
+            );
+            log(
+              `reconcileDwollaDeposits() Let's update the fundedTransferId and then retrieve the Dwolla object again...`
+            );
+            dwollaFundedTransfer = await getDwollaResourceFromLocation(
+              fundedTransferLink
+            );
+            if (dwollaFundedTransfer) {
+              deposit = await DwollaTransferService.setFundedTransferId(
+                deposit.fundingTransferId,
+                dwollaFundedTransfer?.body?.id
+              );
+              log(
+                `reconcileDwollaDeposits() Updated fundedTransferId on database object to ${dwollaFundedTransfer?.body?.id}`
+              );
+              log(
+                `reconcileDwollaDeposits() Database status - fundedTransferId: ${deposit.fundedTransferId} fundedTransferStatus: ${deposit.fundedStatus}`
+              );
+            } else {
+              log(
+                `reconcileDwollaDeposits() Error! Could not find a funded transfer on Dwolla for location ${fundedTransferLink}`
+              );
+            }
+          } else
+            log(
+              `reconcileDwollaDeposits() There is no funded transfer referenced both in the database or in the Dwolla object, this transfer is still in progress...`
+            );
         }
 
         const fundingStatusCompleteDwolla =
