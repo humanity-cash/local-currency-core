@@ -111,7 +111,7 @@ function getProgressMessageForTransfer(
   const fundingTransferComplete = transfer.fundingStatus?.includes("completed");
   const fundedTransferCompleted = transfer.fundedStatus?.includes("completed");
   const type: string = transfer.type == "DEPOSIT" ? "deposit" : "withdrawal";
-  let message = `Your ${type} of $${transfer.amount} is still in flight and has progressed further...`;
+  let message = `Your ${type} of $${parseFloat(transfer.amount).toFixed(2)} is still in flight and has progressed further...`;
 
   if (fundedTransferCompleted && fundingTransferComplete) {
     message = `Your ${type} of $${transfer.amount} has completed!`;
