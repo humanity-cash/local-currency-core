@@ -14,13 +14,11 @@ import { codes } from "../utils/http";
 import { log } from "../utils";
 import { IAPINewUser } from "../types";
 import {
-  createSignature,
-  getDwollaResourceFromLocation,
+  createSignature
 } from "../service/digital-banking/DwollaUtils";
 import { DwollaEvent } from "../service/digital-banking/DwollaTypes";
 import { mockDatabase } from "./setup/setup-db-integration";
 import {
-  DwollaTransferService,
   AppNotificationService,
 } from "src/database/service";
 
@@ -33,6 +31,7 @@ import {
   expectIWithdrawal,
 } from "./expect";
 import { getUser } from "src/service/AuthService";
+import { mockTransferWebhook, MockWebhook } from "./processTransferMock";
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -251,9 +250,9 @@ describe("Operator endpoints test", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    afterEach(async (): Promise<void> => {
-      await processDwollaSandboxSimulations();
-    });
+    // afterEach(async (): Promise<void> => {
+    //   await processDwollaSandboxSimulations();
+    // });
 
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
@@ -373,9 +372,9 @@ describe("Operator endpoints test", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    afterEach(async (): Promise<void> => {
-      await processDwollaSandboxSimulations();
-    });
+    // afterEach(async (): Promise<void> => {
+    //     await processDwollaSandboxSimulations();
+    // });
 
     it("it should return HTTP 404 with Solidity reversion (user doesn't exist)", (done) => {
       chai
@@ -413,439 +412,97 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should process a webhook for a customer_transfer_created event for user1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "DEPOSIT");
-      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_created",
-          deposits[i].fundingTransferId,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a customer_transfer_created event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {      
+      await processDwollaSandboxSimulations();
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","customer_transfer_created", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_created event for user1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "DEPOSIT");
-
-      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundingTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser1} with funding transfer ${deposits[i].fundingTransferId}...`
-        );
-
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser1} with funded transfer ${fundedTransferLink}...`
-        );
-
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
-        );
-        log(JSON.stringify(fundedTransfer));
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_created",
-          fundedTransfer.body?.id,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a transfer_created event for user1, users2, and business1's deposits, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","transfer_created", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "DEPOSIT");
-      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_completed",
-          deposits[i].fundingTransferId,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a customer_transfer_completed event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","customer_transfer_completed", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_completed event for user1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "DEPOSIT");
-
-      log(`Deposits for user1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundingTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funding transfer ${deposits[i].fundingTransferId}...`
-        );
-
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser1} with funded transfer ${fundedTransferLink}...`
-        );
-
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
-        );
-        log(JSON.stringify(fundedTransfer));
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_completed",
-          fundedTransfer.body?.id,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a transfer_completed event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","transfer_completed", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_transfer_created event for user2's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "DEPOSIT");
-
-      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_created",
-          deposits[i].fundingTransferId,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a bank_transfer_created event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","bank_transfer_created", true);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_created event for user2's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "DEPOSIT");
-      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundingTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funding transfer ${deposits[i].fundingTransferId}...`
-        );
-
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funded transfer ${fundedTransferLink}...`
-        );
-
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_created",
-          fundedTransfer.body?.id,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a bank_transfer_completed event for user1, user2, and business1's deposits, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "DEPOSIT","bank_transfer_completed", true);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
-    });
-
-    it("it should process a webhook for a customer_transfer_completed event for user2's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "DEPOSIT");
-
-      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_completed",
-          deposits[i].fundingTransferId,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_bank_transfer_completed event for user2's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "DEPOSIT");
-      log(`Deposits for user2 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundingTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${deposits[i].fundingTransferId}...`
-        );
-
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funded transfer ${fundedTransferLink}...`
-        );
-
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_completed",
-          fundedTransfer.body?.id,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_transfer_created event for business1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "DEPOSIT");
-
-      log(`Deposits for business1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_created",
-          deposits[i].fundingTransferId,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_bank_transfer_created event for business1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "DEPOSIT");
-      log(`Deposits for business1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundingTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdBusiness1} with funding transfer ${deposits[i].fundingTransferId}...`
-        );
-
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdBusiness1} with funded transfer ${fundedTransferLink}...`
-        );
-
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_created",
-          fundedTransfer.body?.id,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "DEPOSIT");
-
-      log(`Deposits for business1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_completed",
-          deposits[i].fundingTransferId,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_bank_transfer_completed event for business1's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "DEPOSIT");
-      log(`Deposits for business1 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundingTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdBusiness1} with funding transfer ${deposits[i].fundingTransferId}...`
-        );
-
-        const fundedTransferLink =
-          fundingTransfer?.body?._links["funded-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdBusiness1} with funded transfer ${fundedTransferLink}...`
-        );
-
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          fundedTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_completed",
-          fundedTransfer.body?.id,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
+    });   
 
     it("it should return 1 deposit for user1, HTTP 200", (done) => {
       chai
@@ -882,6 +539,24 @@ describe("Operator endpoints test", () => {
           done(err);
         });
     });
+
+    it("it should return 1 deposit for business1, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdBusiness1}/deposit`)
+        .send()
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body.length).to.equal(1);
+          expectIDeposit(res.body[0]);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
   });
 
   describe("POST /users/:userId/withdraw (withdraw for user)", () => {
@@ -890,9 +565,9 @@ describe("Operator endpoints test", () => {
       await mockDatabase.openNewMongooseConnection();
     });
 
-    afterEach(async (): Promise<void> => {
-      await processDwollaSandboxSimulations();
-    });
+    // afterEach(async (): Promise<void> => {
+    //   await processDwollaSandboxSimulations();
+    // });
 
     it("it should return HTTP 400 with invalid body", (done) => {
       chai
@@ -1023,449 +698,95 @@ describe("Operator endpoints test", () => {
         });
     });
 
-    it("it should process a webhook for a customer_transfer_created event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_created",
-          withdrawals[i].fundedTransferId,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
+    it("it should process a webhook for a bank_transfer_created event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","bank_transfer_created", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_created event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            withdrawals[i].fundedTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdUser1} with funding transfer ${withdrawals[i].fundedTransferId}...`
-        );
-
-        const fundingTransferLink =
-          fundedTransfer?.body?._links["funding-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdUser1} with funded transfer ${fundingTransferLink}...`
-        );
-
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          fundingTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_created",
-          fundingTransfer.body?.id,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a transfer_created event for user1, users2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","transfer_created", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_transfer_completed event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_completed",
-          withdrawals[i].fundedTransferId,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
+    it("it should process a webhook for a customer_transfer_created event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {      
+      await processDwollaSandboxSimulations();
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","customer_transfer_created", true);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_created event for user1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user1 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            withdrawals[i].fundedTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdUser1} with funded transfer ${withdrawals[i].fundedTransferId}...`
-        );
-
-        const fundingTransferLink =
-          fundedTransfer?.body?._links["funding-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdUser1} with funding transfer ${fundingTransferLink}...`
-        );
-
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          fundingTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_completed",
-          fundingTransfer.body?.id,
-          dwollaIdUser1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a bank_transfer_completed event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","bank_transfer_completed", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_transfer_created event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user2 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_created",
-          withdrawals[i].fundedTransferId,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
+    it("it should process a webhook for a transfer_completed event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","transfer_completed", false);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
 
-    it("it should process a webhook for a customer_bank_transfer_created event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user2 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            withdrawals[i].fundedTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funding transfer ${withdrawals[i].fundedTransferId}...`
-        );
-
-        const fundingTransferLink =
-          fundedTransfer?.body?._links["funding-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_created event for deposit for user ${dwollaIdUser2} with funded transfer ${fundingTransferLink}...`
-        );
-
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          fundingTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_created",
-          fundingTransfer.body?.id,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_transfer_completed event for user2's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user2 are ${JSON.stringify(withdrawals, null, 2)}`);
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_completed",
-          withdrawals[i].fundedTransferId,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
-      }
-    });
-
-    it("it should process a webhook for a customer_bank_transfer_completed event for user2's deposits, HTTP 202", async (): Promise<void> => {
-      const deposits: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdUser2)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(`Withdrawals for user2 are ${JSON.stringify(deposits, null, 2)}`);
-
-      for (let i = 0; i < deposits?.length; i++) {
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            deposits[i].fundedTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${deposits[i].fundedTransferId}...`
-        );
-
-        const fundingTransferLink =
-          fundedTransfer?.body?._links["funding-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for deposit for user ${dwollaIdUser2} with funding transfer ${fundingTransferLink}...`
-        );
-
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          fundingTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_completed",
-          fundingTransfer.body?.id,
-          dwollaIdUser2,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_transfer_created event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(
-        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
-      );
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_created",
-          withdrawals[i].fundedTransferId,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
-      }
-    });
-
-    it("it should process a webhook for a customer_bank_transfer_created event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(
-        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
-      );
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            withdrawals[i].fundedTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdBusiness1} with funded transfer ${withdrawals[i].fundedTransferId}...`
-        );
-
-        const fundingTransferLink =
-          fundedTransfer?.body?._links["funding-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_created event for withdrawal for user ${dwollaIdBusiness1} with funding transfer ${fundingTransferLink}...`
-        );
-
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          fundingTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_created",
-          fundingTransfer.body?.id,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
-      }
-    });
-
-    it("it should process a webhook for a customer_transfer_completed event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(
-        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
-      );
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const event: DwollaEvent = createDummyEvent(
-          "customer_transfer_completed",
-          withdrawals[i].fundedTransferId,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event)
-          .then((res) => {
-            expect(res).to.have.status(codes.ACCEPTED);
-          });
-      }
-    });
-
-    it("it should process a webhook for a customer_bank_transfer_completed event for business1's withdrawals, HTTP 202", async (): Promise<void> => {
-      const withdrawals: DwollaTransferService.IDwollaTransferDBItem[] = (
-        await DwollaTransferService.getByUserId(dwollaIdBusiness1)
-      )?.filter((element) => element.type == "WITHDRAWAL");
-      log(
-        `Withdrawals for business1 are ${JSON.stringify(withdrawals, null, 2)}`
-      );
-
-      for (let i = 0; i < withdrawals?.length; i++) {
-        const fundedTransfer = await getDwollaResourceFromLocation(
-          process.env.DWOLLA_BASE_URL +
-            "transfers/" +
-            withdrawals[i].fundedTransferId
-        );
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdBusiness1} with funded transfer ${withdrawals[i].fundedTransferId}...`
-        );
-
-        const fundingTransferLink =
-          fundedTransfer?.body?._links["funding-transfer"]?.href;
-        log(
-          `**** TEST **** customer_bank_transfer_completed event for withdrawal for user ${dwollaIdBusiness1} with funding transfer ${fundingTransferLink}...`
-        );
-
-        const fundingTransfer = await getDwollaResourceFromLocation(
-          fundingTransferLink
-        );
-
-        const event: DwollaEvent = createDummyEvent(
-          "customer_bank_transfer_completed",
-          fundingTransfer.body?.id,
-          dwollaIdBusiness1,
-          "transfers"
-        );
-        const signature = createSignature(
-          process.env.WEBHOOK_SECRET,
-          JSON.stringify(event)
-        );
-        const res = await chai
-          .request(server)
-          .post("/webhook")
-          .set({ "X-Request-Signature-SHA-256": signature })
-          .send(event);
-        expect(res).to.have.status(codes.ACCEPTED);
+    it("it should process a webhook for a customer_transfer_completed event for user1, user2, and business1's withdrawals, HTTP 202", async (): Promise<void> => {
+      await processDwollaSandboxSimulations();
+      const users = [dwollaIdUser1, dwollaIdUser2, dwollaIdBusiness1];
+      for(let j = 0; j < users.length; j++){
+        const mockWebhooks : MockWebhook[] = await mockTransferWebhook(users[j], "WITHDRAWAL","customer_transfer_completed", true);
+        for (let i = 0; i < mockWebhooks?.length; i++) {
+          const res = await chai
+            .request(server)
+            .post("/webhook")
+            .set({ "X-Request-Signature-SHA-256": mockWebhooks[i].signature })
+            .send(mockWebhooks[i].event);
+          expect(res).to.have.status(codes.ACCEPTED);
+        }
       }
     });
   });
@@ -1474,10 +795,6 @@ describe("Operator endpoints test", () => {
     beforeEach(async (): Promise<void> => {
       if (mockDatabase.isConnectionOpen()) return;
       await mockDatabase.openNewMongooseConnection();
-    });
-
-    afterEach(async (): Promise<void> => {
-      await processDwollaSandboxSimulations();
     });
 
     it("it should return HTTP 422 with Solidity reversion (user doesn't exist)", (done) => {
@@ -1522,6 +839,25 @@ describe("Operator endpoints test", () => {
         .then((res) => {
           expect(res).to.have.status(codes.NO_CONTENT);
           expect(res).to.be.json;
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("it should return 1 withdrawals for business1, HTTP 200", (done) => {
+      chai
+        .request(server)
+        .get(`/users/${dwollaIdBusiness1}/withdraw`)
+        .send()
+        .then((res) => {
+          expect(res).to.have.status(codes.OK);
+          expect(res).to.be.json;
+          expect(res.body.length).to.equal(1);
+          for (let i = 0; i < res.body.length; i++) {
+            expectIWithdrawal(res.body[i]);
+          }
           done();
         })
         .catch((err) => {
