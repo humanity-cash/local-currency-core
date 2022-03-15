@@ -157,7 +157,7 @@ function logTransferStatus(
 
 async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
   const detailedLog = (logMessage: string) => {
-    console.log(
+    log(
       `DwollaWebhookService.ts::processTransfer() EventId ${eventToProcess.id}, ResourceId ${eventToProcess.resourceId}: ${logMessage}`
     );
   };
