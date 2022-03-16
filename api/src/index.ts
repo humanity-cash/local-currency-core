@@ -19,18 +19,18 @@ import { reconcileDwollaDeposits, reconcileLinkedFundingSourceBonus } from "./se
 
 const app = getApp();
 
-const runApp = async () => {
+const runApp = () => {
   logSettings();
 
   if (shouldUseManagedSecrets()) {
-    await configureEnvironment();
+    configureEnvironment().then(() => {log(`Environment configured`)});
   }
   if (shouldRegisterWebhook()) {
     if (shouldSimulateWebhook())
       throw Error(
         `Invalid configuration, REGISTER_WEBHOOK and SIMULATE_WEBHOOK cannot both be "true"`
       );
-    await registerWebhook();
+    registerWebhook().then((webhook) => {log(`Webhook registered ${webhook}`)});
   }
   if (shouldSimulateBanking()) {
     if (isDwollaProduction())
