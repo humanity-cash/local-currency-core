@@ -95,15 +95,23 @@ export function shouldRunTransferReconciliation(): boolean {
     process.env.TRANSFER_RECONCILE_ON_STARTUP == "TRUE"
   );
 }
+export function shouldRunPromotionReconciliation(): boolean {
+  return (
+    process.env.PROMOTION_RECONCILE_ON_STARTUP == "true" ||
+    process.env.PROMOTION_RECONCILE_ON_STARTUP == "TRUE"
+  );
+}
 
 export function logSettings(): void {
-  console.log(`shouldRegisterWebhook()     == ${shouldRegisterWebhook()}`);
-  console.log(`shouldSimulateWebhook()     == ${shouldSimulateWebhook()}`);
-  console.log(`shouldSimulateBanking()     == ${shouldSimulateBanking()}`);
-  console.log(`isDwollaProduction()        == ${isDwollaProduction()}`);
-  console.log(`shouldUseManagedSecrets()   == ${shouldUseManagedSecrets()}`);
-  console.log(`shouldDeletePriorWebhooks() == ${shouldDeletePriorWebhooks()}`);
-  console.log(`shouldUseMongoTLS()         == ${shouldUseMongoTLS()}`);
+  console.log(`shouldRegisterWebhook()            == ${shouldRegisterWebhook()}`);
+  console.log(`shouldSimulateWebhook()            == ${shouldSimulateWebhook()}`);
+  console.log(`shouldSimulateBanking()            == ${shouldSimulateBanking()}`);
+  console.log(`isDwollaProduction()               == ${isDwollaProduction()}`);
+  console.log(`shouldUseManagedSecrets()          == ${shouldUseManagedSecrets()}`);
+  console.log(`shouldDeletePriorWebhooks()        == ${shouldDeletePriorWebhooks()}`);
+  console.log(`shouldUseMongoTLS()                == ${shouldUseMongoTLS()}`);
+  console.log(`shouldRunTransferReconciliation()  == ${shouldRunTransferReconciliation()}`);
+  console.log(`shouldRunPromotionReconciliation() == ${shouldRunPromotionReconciliation()}`);
 }
 
 function isObject(obj) {

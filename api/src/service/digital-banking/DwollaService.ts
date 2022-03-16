@@ -5,7 +5,7 @@ import {
   DwollaTransferRequest,
   DwollaUnverifiedCustomerRequest,
 } from "./DwollaTypes";
-import { IDwollaNewUserResponse } from "../../types";
+import { IDwollaNewUserResponse, IDBUser } from "../../types";
 import {
   isDwollaProduction,
   log,
@@ -17,9 +17,10 @@ import {
   getDwollaResourceFromLocation,
   getIdempotencyHeader,
 } from "./DwollaUtils";
-import { DwollaTransferService } from "src/database/service";
+import { DwollaTransferService, LaunchPromotionService, UserService } from "src/database/service";
 import { getWallet } from "../PublicService";
 import { webhookMint } from "../OperatorService";
+import { transferLaunchPoolBonus } from "../contracts";
 
 export async function getDwollaCustomerById(
   id: string
@@ -216,6 +217,120 @@ export async function createUnverifiedCustomer(
     log("DwollaService.ts::createUnverifiedCustomer(), error " + e);
     throw e;
   }
+}
+
+export async function processLaunchPromotionForUser(dwollaUserId:string, fingerprint:string) : Promise<boolean> {
+  log(
+    `Funding source verified for user ${dwollaUserId}, with fingerprint ${fingerprint}`
+  );
+  const launchPromotionRecord = await LaunchPromotionService.findByFingerprint(fingerprint);
+  let success = false;
+
+  if (!launchPromotionRecord) {
+    log(
+      `Funding source with fingerprint ${fingerprint} has not had promotional value applied`
+    );
+    const promotionsApplied = await LaunchPromotionService.getCount();
+    log(`Number of promotions applied so far is ${promotionsApplied}`);
+
+    if (promotionsApplied < 5000) {
+      log(
+        `Applying promotional bonus of B$10 to user ${dwollaUserId} with funding source fingerprint ${fingerprint}`
+      );
+      const launchPoolBonusTransferred = await transferLaunchPoolBonus(
+        dwollaUserId
+      );
+      if (launchPoolBonusTransferred) {
+        await LaunchPromotionService.create({
+          fingerprint: fingerprint,
+          promotionAmount: "10.0",
+        });
+        await userNotification(dwollaUserId, "Thank you for linking your bank account! You've received a promotional deposit of B$10");   
+        success = true;               
+      }
+      else{
+        log(`Warning: Promotional bonus was not transferred, was there a blockchain error?`);
+      }
+    } else {
+      log(
+        `${promotionsApplied} promotions have already been applied, no more can be spent, skipping`
+      );
+    }
+  } else {
+    log(
+      `Funding source with fingerprint ${fingerprint} has already had promotional amount applied, skipping launch promotion`
+    );
+  }
+  return success;
+}
+
+export async function reconcileLinkedFundingSourceBonus() : Promise<boolean> {
+  
+  const users: IDBUser[] = await UserService.getAll();
+  log(`reconcileLinkedFundingSourceBonus() Total number of users is ${users?.length}`);
+
+  for (let i = 0; i < users?.length; i++) {
+    try {      
+      const user = users[i];
+
+      // Check funding sources for users
+      if(user?.verifiedCustomer && user?.customer?.dwollaId){
+        const fundingSources : dwolla.Response = await getFundingSourcesById(user.customer.dwollaId);
+        log(`reconcileLinkedFundingSourceBonus() User ${user.email} (${user.customer.dwollaId}) is a verified customer with ${fundingSources?.body?._embedded["funding-sources"]?.length} funding sources...`);        
+        let promotionCount = 0;
+
+        for(let j = 0;j < fundingSources?.body?._embedded["funding-sources"]?.length; j++){          
+          const fundingSource = fundingSources.body._embedded["funding-sources"][j];          
+          const fingerprint = fundingSource.fingerprint;
+          if(promotionCount == 0){
+            if(fundingSource.status == "verified"){            
+              const launchBonusApplied = await processLaunchPromotionForUser(user.customer.dwollaId, fingerprint);
+              if(launchBonusApplied)
+                promotionCount++;
+            }
+            else{
+              log(`reconcileLinkedFundingSourceBonus() Funding source with fingerprint ${fingerprint} is in status ${fundingSource.status} and is not yet valid to receive promotion`);
+            }
+          }
+          else{
+            log(`reconcileLinkedFundingSourceBonus() We've already applied a new promotion for this user in this reconciliation batch, they should not have another applied`);
+          }
+        }
+      }
+
+      // Check funding sources for businesses
+      if(user?.verifiedBusiness && user?.business?.dwollaId){
+        const fundingSources : dwolla.Response = await getFundingSourcesById(user.business.dwollaId);
+        log(`reconcileLinkedFundingSourceBonus() User ${user.email} (${user.business.dwollaId}) is a verified business with ${fundingSources?.body?._embedded["funding-sources"]?.length} funding sources...`);        
+        let promotionCount = 0;
+
+        for(let j = 0;j < fundingSources?.body?._embedded["funding-sources"]?.length; j++){          
+          const fundingSource = fundingSources.body._embedded["funding-sources"][j];          
+          const fingerprint = fundingSource.fingerprint;
+          if(promotionCount == 0){
+            if(fundingSource.status == "verified"){            
+              const launchBonusApplied = await processLaunchPromotionForUser(user.business.dwollaId, fingerprint);
+              if(launchBonusApplied)
+                promotionCount++;
+            }
+            else{
+              log(`reconcileLinkedFundingSourceBonus() Funding source with fingerprint ${fingerprint} is in status ${fundingSource.status} and is yet valid to receive promotion`);
+            }
+          }
+          else{
+            log(`reconcileLinkedFundingSourceBonus() We've already applied a new promotion for this user in this reconciliation batch, they should not have another applied`);
+          }
+        }
+      }
+    }
+    catch(err){
+      log(
+        `reconcileLinkedFundingSourceBonus() Critical error ${err} during linked funding source bonus reconciliation...`
+      );
+      return false;
+    }
+  }
+  return true;
 }
 
 export async function reconcileDwollaDeposits(): Promise<boolean> {
