@@ -1,6 +1,6 @@
 import * as dwolla from "dwolla-v2";
 import { DwollaEvent } from "./DwollaTypes";
-import { newWallet, transferLaunchPoolBonus } from "../contracts";
+import { newWallet } from "../contracts";
 import {
   isDwollaProduction,
   log,
@@ -17,12 +17,11 @@ import {
 } from "./DwollaUtils";
 import {
   DwollaEventService,
-  DwollaTransferService,
-  LaunchPromotionService,
+  DwollaTransferService
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
 import { updateWalletAddress } from "../AuthService";
-import { getFundingSourcesById } from "./DwollaService";
+import { getFundingSourcesById, processLaunchPromotionForUser } from "./DwollaService";
 
 export async function deregisterWebhook(
   webhookUrl: string
@@ -582,48 +581,7 @@ export async function consumeWebhook(
             // In sandbox, fingerprints are not fully unique
             fingerprint = fingerprint + customer.id;
           }
-
-          log(
-            `Funding source verified for user ${customer.id}, with fingerprint ${fingerprint}`
-          );
-          const launchPromotionRecord =
-            await LaunchPromotionService.findByFingerprint(fingerprint);
-
-          if (!launchPromotionRecord) {
-            log(
-              `Funding source with fingerprint ${fingerprint} has not had promotional value applied`
-            );
-            const promotionsApplied = await LaunchPromotionService.getCount();
-            log(`Number fo promotions applied so far is ${promotionsApplied}`);
-
-            if (promotionsApplied < 5000) {
-              log(
-                `Applying promotional bonus of B$10 to user ${customer.id} with funding source fingerprint ${fingerprint}`
-              );
-              const launchPoolBonusTransferred = await transferLaunchPoolBonus(
-                customer.id
-              );
-              if (launchPoolBonusTransferred) {
-                await LaunchPromotionService.create({
-                  fingerprint: fingerprint,
-                  promotionAmount: "10.0",
-                });
-                await notifyUserWithReason(
-                  eventToProcess,
-                  "Thank you for linking your bank account! You've received a promotional deposit of B$10"
-                );
-              }
-            } else {
-              log(
-                `${promotionsApplied} promotions have already been applied, no more can be spent, skipping`
-              );
-            }
-          } else {
-            log(
-              `Funding source with fingerprint ${fingerprint} has already had promotional amount applied, skipping launch promotion`
-            );
-          }
-          processed = true;
+          processed = await processLaunchPromotionForUser(customer.id, fingerprint);
         } catch (err) {
           log(
             `DwollaWebhookService.ts::consumeWebhook() Error during ${eventToProcess.topic} topic processing ${err}`

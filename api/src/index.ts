@@ -6,6 +6,7 @@ import {
   log,
   logSettings,
   shouldRegisterWebhook,
+  shouldRunPromotionReconciliation,
   shouldRunTransferReconciliation,
   shouldSimulateBanking,
   shouldSimulateWebhook,
@@ -14,7 +15,7 @@ import {
 import { configureEnvironment } from "./utils/configuration";
 import { registerWebhook } from "./service/digital-banking/DwollaWebhookService";
 import { processDwollaSandboxSimulations } from "./test/utils";
-import { reconcileDwollaDeposits } from "./service/digital-banking/DwollaService";
+import { reconcileDwollaDeposits, reconcileLinkedFundingSourceBonus } from "./service/digital-banking/DwollaService";
 
 const app = getApp();
 
@@ -29,7 +30,6 @@ const runApp = async () => {
       throw Error(
         `Invalid configuration, REGISTER_WEBHOOK and SIMULATE_WEBHOOK cannot both be "true"`
       );
-
     await registerWebhook();
   }
   if (shouldSimulateBanking()) {
@@ -64,7 +64,14 @@ const runApp = async () => {
   });
 
   if (shouldRunTransferReconciliation()) {
-    await reconcileDwollaDeposits();
+    reconcileDwollaDeposits().then((success) => {
+      log(`reconcileDwollaDeposits() executed with response ${success}`);
+    });    
+  }
+  if (shouldRunPromotionReconciliation()) {
+    reconcileLinkedFundingSourceBonus().then((success) => {
+      log(`reconcileLinkedFundingSourceBonus() executed with response ${success}`);
+    });    
   }
 };
 
