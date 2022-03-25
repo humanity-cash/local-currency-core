@@ -17,11 +17,14 @@ import {
 } from "./DwollaUtils";
 import {
   DwollaEventService,
-  DwollaTransferService
+  DwollaTransferService,
 } from "src/database/service";
 import { webhookMint } from "../OperatorService";
 import { updateWalletAddress } from "../AuthService";
-import { getFundingSourcesById, processLaunchPromotionForUser } from "./DwollaService";
+import {
+  getFundingSourcesById,
+  processLaunchPromotionForUser,
+} from "./DwollaService";
 
 export async function deregisterWebhook(
   webhookUrl: string
@@ -110,10 +113,14 @@ function getProgressMessageForTransfer(
   const fundingTransferComplete = transfer.fundingStatus?.includes("completed");
   const fundedTransferCompleted = transfer.fundedStatus?.includes("completed");
   const type: string = transfer.type == "DEPOSIT" ? "deposit" : "withdrawal";
-  let message = `Your ${type} of $${parseFloat(transfer.amount).toFixed(2)} is still in flight and has progressed further...`;
+  let message = `Your ${type} of $${parseFloat(transfer.amount).toFixed(
+    2
+  )} is still in flight and has progressed further...`;
 
   if (fundedTransferCompleted && fundingTransferComplete) {
-    message = `Your ${type} of $${parseFloat(transfer.amount).toFixed(2)} has completed!`;
+    message = `Your ${type} of $${parseFloat(transfer.amount).toFixed(
+      2
+    )} has completed!`;
   }
   return message;
 }
@@ -581,7 +588,10 @@ export async function consumeWebhook(
             // In sandbox, fingerprints are not fully unique
             fingerprint = fingerprint + customer.id;
           }
-          processed = await processLaunchPromotionForUser(customer.id, fingerprint);
+          processed = await processLaunchPromotionForUser(
+            customer.id,
+            fingerprint
+          );
         } catch (err) {
           log(
             `DwollaWebhookService.ts::consumeWebhook() Error during ${eventToProcess.topic} topic processing ${err}`
