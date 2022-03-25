@@ -14,7 +14,13 @@ import {
   PutObjectCommandOutput,
   GetObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { SESClient, SendTemplatedEmailCommand, SendTemplatedEmailCommandInput, SendTemplatedEmailCommandOutput, SESClientConfig } from "@aws-sdk/client-ses";
+import {
+  SESClient,
+  SendTemplatedEmailCommand,
+  SendTemplatedEmailCommandInput,
+  SendTemplatedEmailCommandOutput,
+  SESClientConfig,
+} from "@aws-sdk/client-ses";
 import { log } from "./utils";
 
 /**AWS-S3 Client**/
@@ -137,31 +143,36 @@ export async function verifyCognitoToken(
 }
 
 export interface DepositEmailTemplate {
-  amount: string,
-  userId: string,
-  transactionId: string,
-  timestamp: string,
-  randomness: string
+  amount: string;
+  userId: string;
+  transactionId: string;
+  timestamp: string;
+  randomness: string;
 }
 
 export interface WithdrawalEmailTemplate {
-  amount: string,
-  feeAmount: string,
-  netAmount: string,
-  userId: string,
-  transactionId: string,
-  timestamp: string,
-  randomness: string
+  amount: string;
+  feeAmount: string;
+  netAmount: string;
+  userId: string;
+  transactionId: string;
+  timestamp: string;
+  randomness: string;
 }
 
-export async function sendTemplatedEmail (templateName: string, templateData:DepositEmailTemplate | WithdrawalEmailTemplate, destinationAddress:string, sendFrom = "notify@mail.berkshares.humanity.cash") : Promise<boolean> {
-  try{
-    const config : SESClientConfig = {
+export async function sendTemplatedEmail(
+  templateName: string,
+  templateData: DepositEmailTemplate | WithdrawalEmailTemplate,
+  destinationAddress: string,
+  sendFrom = "notify@mail.berkshares.humanity.cash"
+): Promise<boolean> {
+  try {
+    const config: SESClientConfig = {
       apiVersion: "2010-12-01",
-      region: "us-east-1"
-    }
-    const ses : SESClient = new SESClient(config);
-    const input : SendTemplatedEmailCommandInput = {
+      region: "us-east-1",
+    };
+    const ses: SESClient = new SESClient(config);
+    const input: SendTemplatedEmailCommandInput = {
       Source: sendFrom,
       Destination: {
         ToAddresses: [destinationAddress],
@@ -169,18 +180,19 @@ export async function sendTemplatedEmail (templateName: string, templateData:Dep
       },
       Template: templateName,
       TemplateData: JSON.stringify(templateData),
-      ReplyToAddresses: ["info@berkshares.org"]
-    }
-    const command : SendTemplatedEmailCommand = new SendTemplatedEmailCommand(input);
+      ReplyToAddresses: ["info@berkshares.org"],
+    };
+    const command: SendTemplatedEmailCommand = new SendTemplatedEmailCommand(
+      input
+    );
     log(`SendTemplatedEmailCommand ${JSON.stringify(command, null, 2)}`);
-  
-    const response : SendTemplatedEmailCommandOutput = await ses.send(command);
+
+    const response: SendTemplatedEmailCommandOutput = await ses.send(command);
     log(`SendTemplatedEmailCommandOutput ${JSON.stringify(response, null, 2)}`);
-    
+
     return true;
+  } catch (err) {
+    log(err);
+    return false;
   }
-	catch(err){
-		log(err);
-		return false;    
-	}
-};
+}
