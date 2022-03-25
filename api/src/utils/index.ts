@@ -8,6 +8,10 @@ import { getProvider } from "./getProvider";
 
 export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils };
 
+export function epochTimestampToLocaleString(epochTimestamp:number, locale ="en-US", timeZone = "EST") : string {
+  return new Date(epochTimestamp).toLocaleString(locale, {timeZone: timeZone});
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
