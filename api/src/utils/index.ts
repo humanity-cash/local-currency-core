@@ -103,15 +103,29 @@ export function shouldRunPromotionReconciliation(): boolean {
 }
 
 export function logSettings(): void {
-  console.log(`shouldRegisterWebhook()            == ${shouldRegisterWebhook()}`);
-  console.log(`shouldSimulateWebhook()            == ${shouldSimulateWebhook()}`);
-  console.log(`shouldSimulateBanking()            == ${shouldSimulateBanking()}`);
+  console.log(
+    `shouldRegisterWebhook()            == ${shouldRegisterWebhook()}`
+  );
+  console.log(
+    `shouldSimulateWebhook()            == ${shouldSimulateWebhook()}`
+  );
+  console.log(
+    `shouldSimulateBanking()            == ${shouldSimulateBanking()}`
+  );
   console.log(`isDwollaProduction()               == ${isDwollaProduction()}`);
-  console.log(`shouldUseManagedSecrets()          == ${shouldUseManagedSecrets()}`);
-  console.log(`shouldDeletePriorWebhooks()        == ${shouldDeletePriorWebhooks()}`);
+  console.log(
+    `shouldUseManagedSecrets()          == ${shouldUseManagedSecrets()}`
+  );
+  console.log(
+    `shouldDeletePriorWebhooks()        == ${shouldDeletePriorWebhooks()}`
+  );
   console.log(`shouldUseMongoTLS()                == ${shouldUseMongoTLS()}`);
-  console.log(`shouldRunTransferReconciliation()  == ${shouldRunTransferReconciliation()}`);
-  console.log(`shouldRunPromotionReconciliation() == ${shouldRunPromotionReconciliation()}`);
+  console.log(
+    `shouldRunTransferReconciliation()  == ${shouldRunTransferReconciliation()}`
+  );
+  console.log(
+    `shouldRunPromotionReconciliation() == ${shouldRunPromotionReconciliation()}`
+  );
 }
 
 function isObject(obj) {
