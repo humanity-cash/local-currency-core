@@ -21,7 +21,7 @@ describe("Email testing", () => {
     const success = await sendTemplatedEmail(
       "DepositCompleted",
       params,
-      "tech@humanity.cash"
+      "aaron@humanity.cash"
     );
     expect(success);
   });
@@ -39,7 +39,7 @@ describe("Email testing", () => {
     const success: boolean = await sendTemplatedEmail(
       "WithdrawalCompleted",
       params,
-      "tech@humanity.cash"
+      "aaron@humanity.cash"
     );
     expect(success);
   });
