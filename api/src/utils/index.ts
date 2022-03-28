@@ -8,6 +8,10 @@ import { getProvider } from "./getProvider";
 
 export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils };
 
+export function epochTimestampToLocaleString(epochTimestamp:number, locale ="en-US", timeZone = "EST") : string {
+  return new Date(epochTimestamp).toLocaleString(locale, {timeZone: timeZone});
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -103,15 +107,29 @@ export function shouldRunPromotionReconciliation(): boolean {
 }
 
 export function logSettings(): void {
-  console.log(`shouldRegisterWebhook()            == ${shouldRegisterWebhook()}`);
-  console.log(`shouldSimulateWebhook()            == ${shouldSimulateWebhook()}`);
-  console.log(`shouldSimulateBanking()            == ${shouldSimulateBanking()}`);
+  console.log(
+    `shouldRegisterWebhook()            == ${shouldRegisterWebhook()}`
+  );
+  console.log(
+    `shouldSimulateWebhook()            == ${shouldSimulateWebhook()}`
+  );
+  console.log(
+    `shouldSimulateBanking()            == ${shouldSimulateBanking()}`
+  );
   console.log(`isDwollaProduction()               == ${isDwollaProduction()}`);
-  console.log(`shouldUseManagedSecrets()          == ${shouldUseManagedSecrets()}`);
-  console.log(`shouldDeletePriorWebhooks()        == ${shouldDeletePriorWebhooks()}`);
+  console.log(
+    `shouldUseManagedSecrets()          == ${shouldUseManagedSecrets()}`
+  );
+  console.log(
+    `shouldDeletePriorWebhooks()        == ${shouldDeletePriorWebhooks()}`
+  );
   console.log(`shouldUseMongoTLS()                == ${shouldUseMongoTLS()}`);
-  console.log(`shouldRunTransferReconciliation()  == ${shouldRunTransferReconciliation()}`);
-  console.log(`shouldRunPromotionReconciliation() == ${shouldRunPromotionReconciliation()}`);
+  console.log(
+    `shouldRunTransferReconciliation()  == ${shouldRunTransferReconciliation()}`
+  );
+  console.log(
+    `shouldRunPromotionReconciliation() == ${shouldRunPromotionReconciliation()}`
+  );
 }
 
 function isObject(obj) {
