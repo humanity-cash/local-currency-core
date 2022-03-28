@@ -25,6 +25,7 @@
   "test:public": "yarn test --testPathPattern='public'",
   "test:operator": "yarn test --testPathPattern='operator'",
   "test:external": "yarn test --testPathPattern='ExternalService'",
+  "test:email": "yarn test --testPathPattern='email'",
   "test:auth": "yarn test --testPathPattern='APIAuthService.integration.test'",
   "test:db": "jest --passWithNoTests --forceExit --detectOpenHandles --testPathPattern='integration' --config=jest.db.config.js",
   "test:user-pp": "yarn test --testPathPattern='UserProfilePicture'",
@@ -39,13 +40,14 @@
   "start:watch": "ts-node-dev  --respawn --transpile-only src/index.ts",
   "eslint": "npx eslint src/*.ts src/**/*.ts src/**/**/*.ts",
   "prettier": "prettier --write ./src/*.ts ./src/**/**/*.ts ./src/**/*.ts",
-  "patch-dwolla-v2": "cp src/utils/index.d.ts.patch node_modules/dwolla-v2/src/index.d.ts",  
+  "patch-dwolla-v2": "cp src/utils/index.d.ts.patch node_modules/dwolla-v2/src/index.d.ts",
   "snyk-protect": "snyk protect",
   "prepare": "npm run snyk-protect"
  },
  "dependencies": {
   "@aws-sdk/client-s3": "^3.47.0",
   "@aws-sdk/client-secrets-manager": "^3.47.0",
+  "@aws-sdk/client-ses": "^3.55.0",
   "@celo/contractkit": "^1.2.0",
   "@southlane/cognito-jwt-verifier": "^0.1.7",
   "@types/express": "^4.17.13",
