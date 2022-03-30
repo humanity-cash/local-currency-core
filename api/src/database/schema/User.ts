@@ -10,6 +10,7 @@ export const BusinessSchema = new mongoose.Schema(
     rbn: String,
     industry: String,
     ein: String,
+    ssn: String,
     address1: String,
     address2: String,
     city: String,
