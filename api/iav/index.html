@@ -20,7 +20,7 @@
 	    return result;
 	}
 
-    dwolla.configure('prod');
+    dwolla.configure('sandbox');
     dwolla.iav.start(findGetParameter("iavToken"), {
         container: 'dwolla',
         microDeposits: true,
