@@ -67,6 +67,7 @@ export interface IDBMiniNewBusinessInput {
   rbn: string;
   industry: string;
   ein?: string;
+  ssn?: string;
   address1: string;
   address2?: string;
   city: string;
@@ -126,6 +127,7 @@ export interface Business {
   rbn: string;
   industry: string;
   ein?: string;
+  ssn?: string;
   address1: string;
   address2?: string;
   city: string;
