@@ -372,7 +372,7 @@ export async function updateBusinessProfile(
         phoneNumber: business.phoneNumber,
         ein: business.ein,
         ssn: business.ssn,
-        industry: business.industry
+        industry: business.industry,
       },
     });
 
