@@ -46,6 +46,7 @@ export function newBusinessData(): Business {
     story: faker.lorem.paragraph(),
     type: "type",
     rbn: faker.company.companyName(),
+    ssn: faker.random.alphaNumeric(),
     industry: faker.commerce.department(),
     ein: faker.random.alphaNumeric(),
     phoneNumber: faker.phone.phoneNumber(),
