@@ -353,6 +353,9 @@ export async function updateBusinessProfile(
       | "website"
       | "postalCode"
       | "state"
+      | "ssn"
+      | "ein"
+      | "industry"
     > = req?.body?.business;
     const businessDwollaId = req?.params?.id;
     const dbUser = await AuthService.updateBusinessProfile({
@@ -367,6 +370,9 @@ export async function updateBusinessProfile(
         state: business.state,
         website: business.website,
         phoneNumber: business.phoneNumber,
+        ein: business.ein,
+        ssn: business.ssn,
+        industry: business.industry
       },
     });
 

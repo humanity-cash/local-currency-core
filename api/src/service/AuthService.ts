@@ -334,6 +334,9 @@ export interface UpdateBusinessProfile {
     postalCode: string;
     state: string;
     phoneNumber: string;
+    ein: string;
+    ssn: string;
+    industry: string;
   };
 }
 
@@ -359,6 +362,9 @@ export async function updateBusinessProfile({
         phoneNumber: update.phoneNumber
           ? update.phoneNumber
           : business.phoneNumber,
+        ein: update.ein ? update.ein : business.ein,
+        ssn: update.ssn ? update.ssn : business.ssn,
+        industry: update.industry ? update.industry : business.industry
       },
     };
     return updateUser(businessDwollaId, u);
