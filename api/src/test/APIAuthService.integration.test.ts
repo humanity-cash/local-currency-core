@@ -144,6 +144,9 @@ describe("Auth Service API Test", () => {
           address1: "Latest address1",
           // address2: "de32de",
           // phoneNumber: "dee21e",
+          industry: "Updated industry",
+          ssn: "Updated SSN",
+          ein: "Updated EIN",
           city: "dedew21",
           website: "deadea",
           postalCode: "podea",
@@ -157,6 +160,9 @@ describe("Auth Service API Test", () => {
         expect(res.body.data.business.tag).to.eql("Latest Tag");
         expect(res.body.data.business.story).to.eql("Latest Story");
         expect(res.body.data.business.address1).to.eql("Latest address1");
+        expect(res.body.data.business.ssn).to.eql("Updated SSN");
+        expect(res.body.data.business.ein).to.eql("Updated EIN");
+        expect(res.body.data.business.industry).to.eql("Updated industry");
         expect(res.body.data.business.address2).to.exist;
         expect(res.body.data.business.dwollaId).to.exist;
         expect(res.body.data.customer.dwollaId).to.exist;
