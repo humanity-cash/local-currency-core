@@ -364,7 +364,7 @@ export async function updateBusinessProfile({
           : business.phoneNumber,
         ein: update.ein ? update.ein : business.ein,
         ssn: update.ssn ? update.ssn : business.ssn,
-        industry: update.industry ? update.industry : business.industry
+        industry: update.industry ? update.industry : business.industry,
       },
     };
     return updateUser(businessDwollaId, u);
