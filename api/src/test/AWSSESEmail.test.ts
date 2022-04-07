@@ -1,5 +1,6 @@
 import { describe, it } from "@jest/globals";
 import chai from "chai";
+import { epochTimestampToLocaleString } from "src/utils";
 import { v4 } from "uuid";
 import {
   DepositEmailTemplate,
@@ -15,7 +16,7 @@ describe("Email testing", () => {
       amount: "1.23",
       userId: v4(),
       transactionId: v4(),
-      timestamp: new Date().toLocaleString(),
+      timestamp: epochTimestampToLocaleString(Date.now()),
       randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
     };
     const success = await sendTemplatedEmail(
@@ -31,7 +32,7 @@ describe("Email testing", () => {
       amount: "94.56",
       userId: v4(),
       transactionId: v4(),
-      timestamp: new Date().toLocaleString(),
+      timestamp: epochTimestampToLocaleString(Date.now()),
       feeAmount: "0.50",
       netAmount: "94.06",
       randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
