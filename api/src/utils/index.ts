@@ -5,17 +5,14 @@ import * as csvUtils from "./csv";
 import * as dwollaUtils from "./dwolla";
 import * as textUtils from "./text";
 import { getProvider } from "./getProvider";
+import { DateTime } from "luxon";
 
 export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils };
 
-export function epochTimestampToLocaleString(
-  epochTimestamp: number,
-  locale = "en-US",
-  timeZone = "EST"
-): string {
-  return new Date(epochTimestamp).toLocaleString(locale, {
-    timeZone: timeZone,
-  });
+export function epochTimestampToLocaleString(epochTimestamp: number): string {
+  const dateTime : DateTime = DateTime.fromMillis(epochTimestamp);
+  const rezoned = dateTime.setZone("America/New_York");
+  return rezoned.setLocale("en-US").toLocaleString(DateTime.DATETIME_FULL);
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
