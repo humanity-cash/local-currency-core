@@ -4,13 +4,14 @@ import * as httpUtils from "./http";
 import * as csvUtils from "./csv";
 import * as dwollaUtils from "./dwolla";
 import * as textUtils from "./text";
+import * as blockList from "./blocklist";
 import { getProvider } from "./getProvider";
 import { DateTime } from "luxon";
 
-export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils };
+export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils, blockList };
 
 export function epochTimestampToLocaleString(epochTimestamp: number): string {
-  const dateTime : DateTime = DateTime.fromMillis(epochTimestamp);
+  const dateTime: DateTime = DateTime.fromMillis(epochTimestamp);
   const rezoned = dateTime.setZone("America/New_York");
   return rezoned.setLocale("en-US").toLocaleString(DateTime.DATETIME_FULL);
 }
