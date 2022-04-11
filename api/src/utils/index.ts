@@ -11,7 +11,7 @@ import { DateTime } from "luxon";
 export { cryptoUtils, httpUtils, csvUtils, dwollaUtils, textUtils, blockList };
 
 export function epochTimestampToLocaleString(epochTimestamp: number): string {
-  const dateTime : DateTime = DateTime.fromMillis(epochTimestamp);
+  const dateTime: DateTime = DateTime.fromMillis(epochTimestamp);
   const rezoned = dateTime.setZone("America/New_York");
   return rezoned.setLocale("en-US").toLocaleString(DateTime.DATETIME_FULL);
 }
