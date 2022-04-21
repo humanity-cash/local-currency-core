@@ -1,11 +1,11 @@
 import { describe, it } from "@jest/globals";
 import chai from "chai";
 import { v4 } from "uuid";
-import { WelcomeEmailTemplate } from '../aws';
 import {
   DepositEmailTemplate,
   WithdrawalEmailTemplate,
   sendTemplatedEmail,
+  WelcomeEmailTemplate
 } from "../aws";
 
 const expect = chai.expect;
