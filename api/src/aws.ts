@@ -160,9 +160,13 @@ export interface WithdrawalEmailTemplate {
   randomness: string;
 }
 
+export interface WelcomeEmailTemplate {
+  randomness: string;
+}
+
 export async function sendTemplatedEmail(
   templateName: string,
-  templateData: DepositEmailTemplate | WithdrawalEmailTemplate,
+  templateData: DepositEmailTemplate | WithdrawalEmailTemplate | WelcomeEmailTemplate,
   destinationAddress: string,
   sendFrom = "notify@mail.berkshares.humanity.cash"
 ): Promise<boolean> {
