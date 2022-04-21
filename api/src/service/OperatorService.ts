@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BN from "bn.js";
 import { Response } from "dwolla-v2";
-import { sendTemplatedEmail } from "src/aws";
 import { DwollaTransferService } from "src/database/service";
 import { getUserData } from "src/service/AuthService";
 import {

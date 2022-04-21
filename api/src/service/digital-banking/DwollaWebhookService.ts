@@ -30,9 +30,9 @@ import {
   DepositEmailTemplate,
   sendTemplatedEmail,
   WithdrawalEmailTemplate,
+  WelcomeEmailTemplate
 } from "src/aws";
 import { v4 } from "uuid";
-import { WelcomeEmailTemplate } from 'src/aws';
 
 export async function deregisterWebhook(
   webhookUrl: string
