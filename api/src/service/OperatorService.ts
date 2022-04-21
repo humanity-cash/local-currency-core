@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BN from "bn.js";
 import { Response } from "dwolla-v2";
+import { sendTemplatedEmail } from "src/aws";
 import { DwollaTransferService } from "src/database/service";
 import { getUserData } from "src/service/AuthService";
 import {
@@ -31,6 +32,8 @@ import {
   DwollaUnverifiedCustomerRequest,
 } from "./digital-banking/DwollaTypes";
 import { getDwollaResourceFromLocation } from "./digital-banking/DwollaUtils";
+import { WelcomeEmailTemplate } from '../aws';
+import { v4 } from 'uuid';
 
 // Do not convert to bytes32 here, it is done in the lower-level functions under ./contracts
 export async function createUser(
@@ -48,6 +51,20 @@ export async function createUser(
     request
   );
   log(`Created new customer in Dwolla: ${JSON.stringify(response)}`);
+
+  const params: WelcomeEmailTemplate = {
+    randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
+  }
+  const emailSuccess = await sendTemplatedEmail(
+    "AccountCreated",
+    params,
+    newUser.email
+  );
+  if (!emailSuccess)
+    log(
+      `Warning: account created but welcome email could not be sent to ${newUser.email}`
+    );
+
   return response;
 }
 
