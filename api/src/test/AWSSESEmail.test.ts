@@ -1,6 +1,7 @@
 import { describe, it } from "@jest/globals";
 import chai from "chai";
 import { v4 } from "uuid";
+import { WelcomeEmailTemplate } from '../aws';
 import {
   DepositEmailTemplate,
   WithdrawalEmailTemplate,
@@ -10,6 +11,18 @@ import {
 const expect = chai.expect;
 
 describe("Email testing", () => {
+  it("should send a AccountCreated template email", async () => {
+    const params: WelcomeEmailTemplate = {
+      randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
+    };
+    const success = await sendTemplatedEmail(
+      "AccountCreated",
+      params,
+      "aaron@humanity.cash"
+    );
+    expect(success);
+  });
+
   it("should send a DepositCompleted template email", async () => {
     const params: DepositEmailTemplate = {
       amount: "1.23",
