@@ -10,6 +10,7 @@ import { Response } from "dwolla-v2";
 import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 import { getDwollaCustomerById } from "./digital-banking/DwollaService";
+import { UserService } from "src/database/service/index";
 
 export async function health(): Promise<HealthResponse> {
   const { web3 } = await getProvider();
@@ -82,14 +83,24 @@ export async function getWallet(userId: string): Promise<IWallet> {
 }
 
 export async function getAllWallets(): Promise<IWallet[]> {
-  const count = await contracts.getWalletCount();
-  const users: IWallet[] = [];
-  for (let i = 0; i < parseInt(count); i++) {
-    const address = await contracts.getWalletAddressAtIndex(i);
-    const wallet: IWallet = await contracts.getWalletForAddress(address);
-    users.push(wallet);
+  const users = await UserService.getAll();
+  const enrichedUsers : IWallet[] = [];
+
+  for (let i = 0; i < users.length; i++) {
+    const currentUser = users[i];
+
+    if(currentUser.verifiedCustomer && currentUser.customer.walletAddress){
+      const enrichedWallet = await getEnrichedWallet(currentUser.customer.walletAddress, currentUser.customer.dwollaId);
+      console.log(`Enriched user is ${JSON.stringify(enrichedWallet, null, 2)}`);
+      enrichedUsers.push(enrichedWallet);
+    }
+    if(currentUser.verifiedBusiness && currentUser.business.walletAddress){
+      const enrichedWallet = await getEnrichedWallet(currentUser.business.walletAddress, currentUser.business.dwollaId);
+      console.log(`Enriched user is ${JSON.stringify(enrichedWallet, null, 2)}`);
+      enrichedUsers.push(enrichedWallet);
+    }    
   }
-  return users;
+  return enrichedUsers;
 }
 
 export async function getFundingStatus(): Promise<IOperatorTotal[]> {
