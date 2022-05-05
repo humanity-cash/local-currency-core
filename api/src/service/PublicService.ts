@@ -11,6 +11,7 @@ import * as contracts from "./contracts";
 import { getProvider } from "src/utils/getProvider";
 import { getDwollaCustomerById } from "./digital-banking/DwollaService";
 import { UserService } from "src/database/service/index";
+import { log } from "src/utils";
 
 export async function health(): Promise<HealthResponse> {
   const { web3 } = await getProvider();
@@ -84,21 +85,27 @@ export async function getWallet(userId: string): Promise<IWallet> {
 
 export async function getAllWallets(): Promise<IWallet[]> {
   const users = await UserService.getAll();
-  const enrichedUsers : IWallet[] = [];
+  const enrichedUsers: IWallet[] = [];
 
   for (let i = 0; i < users.length; i++) {
     const currentUser = users[i];
 
-    if(currentUser.verifiedCustomer && currentUser.customer.walletAddress){
-      const enrichedWallet = await getEnrichedWallet(currentUser.customer.walletAddress, currentUser.customer.dwollaId);
-      console.log(`Enriched user is ${JSON.stringify(enrichedWallet, null, 2)}`);
+    if (currentUser.verifiedCustomer && currentUser.customer.walletAddress) {
+      const enrichedWallet = await getEnrichedWallet(
+        currentUser.customer.walletAddress,
+        currentUser.customer.dwollaId
+      );
+      log(`Enriched user is ${JSON.stringify(enrichedWallet, null, 2)}`);
       enrichedUsers.push(enrichedWallet);
     }
-    if(currentUser.verifiedBusiness && currentUser.business.walletAddress){
-      const enrichedWallet = await getEnrichedWallet(currentUser.business.walletAddress, currentUser.business.dwollaId);
-      console.log(`Enriched user is ${JSON.stringify(enrichedWallet, null, 2)}`);
+    if (currentUser.verifiedBusiness && currentUser.business.walletAddress) {
+      const enrichedWallet = await getEnrichedWallet(
+        currentUser.business.walletAddress,
+        currentUser.business.dwollaId
+      );
+      log(`Enriched user is ${JSON.stringify(enrichedWallet, null, 2)}`);
       enrichedUsers.push(enrichedWallet);
-    }    
+    }
   }
   return enrichedUsers;
 }
