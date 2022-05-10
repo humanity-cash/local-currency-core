@@ -30,6 +30,7 @@ import {
   DepositEmailTemplate,
   sendTemplatedEmail,
   WithdrawalEmailTemplate,
+  WelcomeEmailTemplate
 } from "src/aws";
 import { v4 } from "uuid";
 
@@ -613,6 +614,20 @@ export async function consumeWebhook(
           log(
             `DwollaWebhookService.ts::consumeWebhook() Address ${address} created on-chain for userId ${customer.id}`
           );
+
+          const params: WelcomeEmailTemplate = {
+            randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
+          }
+          const emailSuccess = await sendTemplatedEmail(
+            "AccountCreated",
+            params,
+            customer.email
+          );
+          if (!emailSuccess)
+            log(
+              `Warning: account created but welcome email could not be sent to ${customer.email}`
+            );
+        
           processed = true;
         } catch (err) {
           log(
