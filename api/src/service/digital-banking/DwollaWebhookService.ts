@@ -517,45 +517,48 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
             );
           }
         }
-      } else
-        detailedLog(
-          `This transfer is a withdrawal, transfer is fully complete and nothing more to do`
-        );
-      try {
-        // Re-get the withdrawal from the smart-contract service
-        // which retrieves the redemption fee from event logs
-        const userWithdrawals = await getWithdrawalsForUser(
-          transferDBObject?.userId
-        );
-        const withdrawal = userWithdrawals?.filter((w) => {
-          return w.transactionHash == transferDBObject?.txId;
-        })[0];
-        if (!withdrawal) throw `Cannot proceed without on-chain withdrawal`;
-
-        const params: WithdrawalEmailTemplate = {
-          amount: transferDBObject?.amount,
-          feeAmount: withdrawal?.redemptionFee?.value,
-          netAmount: withdrawal?.value,
-          userId: transferDBObject?.userId,
-          transactionId: transferDBObject?.txId,
-          timestamp: epochTimestampToLocaleString(transferDBObject?.updated),
-          randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
-        };
-        const user = await getUser(transferDBObject?.userId);
-        const userEmail = user.data?.email;
-        const emailSuccess = await sendTemplatedEmail(
-          "WithdrawalCompleted",
-          params,
-          userEmail
-        );
-        if (!emailSuccess)
+      } else {
           detailedLog(
-            `Warning: withdrawal completed but notification email could not be sent to ${userEmail}`
-          );
-      } catch (err) {
-        detailedLog(
-          `Warning: error during withdrawal email processing - ${err}`
+          `This transfer is a withdrawal, transfer is fully complete, now attempting to send completion email`
         );
+
+        try {
+          
+          // Re-get the withdrawal from the smart-contract service
+          // which retrieves the redemption fee from event logs
+          const userWithdrawals = await getWithdrawalsForUser(
+            transferDBObject?.userId
+          );
+          const withdrawal = userWithdrawals?.filter((w) => {
+            return w.transactionHash == transferDBObject?.txId;
+          })[0];
+          if (!withdrawal) throw `Cannot proceed without on-chain withdrawal`;
+  
+          const params: WithdrawalEmailTemplate = {
+            amount: transferDBObject?.amount,
+            feeAmount: withdrawal?.redemptionFee?.value,
+            netAmount: withdrawal?.value,
+            userId: transferDBObject?.userId,
+            transactionId: transferDBObject?.txId,
+            timestamp: epochTimestampToLocaleString(transferDBObject?.updated),
+            randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
+          };
+          const user = await getUser(transferDBObject?.userId);
+          const userEmail = user.data?.email;
+          const emailSuccess = await sendTemplatedEmail(
+            "WithdrawalCompleted",
+            params,
+            userEmail
+          );
+          if (!emailSuccess)
+            detailedLog(
+              `Warning: withdrawal completed but notification email could not be sent to ${userEmail}`
+            );
+        } catch (err) {
+          detailedLog(
+            `Warning: error during withdrawal email processing - ${err}`
+          );
+        }
       }
     }
 
