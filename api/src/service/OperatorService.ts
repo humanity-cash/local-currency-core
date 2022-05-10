@@ -48,6 +48,7 @@ export async function createUser(
     request
   );
   log(`Created new customer in Dwolla: ${JSON.stringify(response)}`);
+
   return response;
 }
 
