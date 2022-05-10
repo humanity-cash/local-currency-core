@@ -518,12 +518,11 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
           }
         }
       } else {
-          detailedLog(
+        detailedLog(
           `This transfer is a withdrawal, transfer is fully complete, now attempting to send completion email`
         );
 
         try {
-          
           // Re-get the withdrawal from the smart-contract service
           // which retrieves the redemption fee from event logs
           const userWithdrawals = await getWithdrawalsForUser(
@@ -533,7 +532,7 @@ async function processTransfer(eventToProcess: DwollaEvent): Promise<boolean> {
             return w.transactionHash == transferDBObject?.txId;
           })[0];
           if (!withdrawal) throw `Cannot proceed without on-chain withdrawal`;
-  
+
           const params: WithdrawalEmailTemplate = {
             amount: transferDBObject?.amount,
             feeAmount: withdrawal?.redemptionFee?.value,
