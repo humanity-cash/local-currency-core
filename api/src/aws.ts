@@ -166,7 +166,10 @@ export interface WelcomeEmailTemplate {
 
 export async function sendTemplatedEmail(
   templateName: string,
-  templateData: DepositEmailTemplate | WithdrawalEmailTemplate | WelcomeEmailTemplate,
+  templateData:
+    | DepositEmailTemplate
+    | WithdrawalEmailTemplate
+    | WelcomeEmailTemplate,
   destinationAddress: string,
   sendFrom = "notify@mail.berkshares.humanity.cash"
 ): Promise<boolean> {

@@ -6,7 +6,7 @@ import {
   DepositEmailTemplate,
   WithdrawalEmailTemplate,
   sendTemplatedEmail,
-  WelcomeEmailTemplate
+  WelcomeEmailTemplate,
 } from "../aws";
 
 const expect = chai.expect;
