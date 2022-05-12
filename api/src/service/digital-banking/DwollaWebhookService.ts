@@ -30,7 +30,7 @@ import {
   DepositEmailTemplate,
   sendTemplatedEmail,
   WithdrawalEmailTemplate,
-  WelcomeEmailTemplate
+  WelcomeEmailTemplate,
 } from "src/aws";
 import { v4 } from "uuid";
 
@@ -617,7 +617,7 @@ export async function consumeWebhook(
 
           const params: WelcomeEmailTemplate = {
             randomness: v4(), //required so Gmail doesn't bundle the emails and trim the footer
-          }
+          };
           const emailSuccess = await sendTemplatedEmail(
             "AccountCreated",
             params,
@@ -627,7 +627,7 @@ export async function consumeWebhook(
             log(
               `Warning: account created but welcome email could not be sent to ${customer.email}`
             );
-        
+
           processed = true;
         } catch (err) {
           log(
