@@ -1,0 +1,76 @@
+name: Build
+
+on: [ push, pull_request ]
+
+jobs:
+  build-api:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Pre-install
+        run: |
+          yarn install --check-files --cache-folder .ycache
+          npx ganache-cli -m $LOCAL_CURRENCY_MNEMONIC &
+          rm -rf .ycache
+        env:
+          LOCAL_CURRENCY_MNEMONIC: ${{ secrets.LOCAL_CURRENCY_MNEMONIC }}
+      - name: Run Checks
+        run: |
+          yarn prettier
+          yarn eslint
+      - name: Run build
+        run: |
+          yarn build
+      - name: Run tests
+        run: |
+          touch .env.test
+          yarn coverage
+        env:
+          DEBUG: "false"
+          NODE_ENV: "test"
+          PORT: 3000
+          LOCAL_CURRENCY_PROVIDER: "web3"
+          LOCAL_CURRENCY_RPC_HOST: "http://localhost:8545"
+          LOCAL_CURRENCY_ADDRESS: ""
+          LOCAL_CURRENCY_MNEMONIC: ${{ secrets.LOCAL_CURRENCY_MNEMONIC }}
+          LOCAL_CURRENCY_MNEMONIC_INDEX: 0
+          NUMBER_OPERATORS: 2
+          OPERATOR_1_DWOLLA_USER_ID: ${{ secrets.OPERATOR_1_DWOLLA_USER_ID }}
+          OPERATOR_1_MNEMONIC: ${{ secrets.OPERATOR_1_MNEMONIC }}
+          OPERATOR_1_MNEMONIC_INDEX: 0
+          OPERATOR_1_DISPLAY_NAME: "Participating Bank 1"
+          OPERATOR_2_DWOLLA_USER_ID: ${{ secrets.OPERATOR_2_DWOLLA_USER_ID }}
+          OPERATOR_2_MNEMONIC: ${{ secrets.OPERATOR_2_MNEMONIC }}
+          OPERATOR_2_MNEMONIC_INDEX: 0
+          OPERATOR_2_DISPLAY_NAME: "Participating Bank 2"
+          DERIVATION_PATH: "m/44'/60'/0'"
+          CUSTOMER_WITHDRAWAL_BALANCE_LIMIT: 5
+          DWOLLA_BASE_URL: "https://api-sandbox.dwolla.com/"
+          DWOLLA_APP_KEY: ${{ secrets.DWOLLA_APP_KEY }}
+          DWOLLA_APP_SECRET: ${{ secrets.DWOLLA_APP_SECRET }}
+          DWOLLA_ENVIRONMENT: sandbox
+          WEBHOOK_SECRET: 0000000000000000000000000000000000000000000099
+          REGISTER_WEBHOOK: "false"
+          SIMULATE_WEBHOOK: "false"
+          SIMULATE_BANKING: "false"
+          USE_MANAGED_SECRETS: "false"
+          USE_MONGO_TLS: "false"
+          TRANSFER_RECONCILE_ON_STARTUP: "false"
+          CUSTOMER_DEFAULT_AVATAR_URL: ""
+          BUSINESS_DEFAULT_AVATAR_URL: ""
+          IMGIX_PROFILE_PICTURE_URL: "https://profile-picture-user.imgix.net/"
+          IMGIX_API_TOKEN: ${{ secrets.IMGIX_API_TOKEN }}
+          AWS_REGION: us-west-1
+          AWS_TOKEN_TYPE: access
+          AWS_POOL_ID: ${{ secrets.AWS_POOL_ID }}
+          AWS_CLIENT_ID: ${{ secrets.AWS_CLIENT_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      - name: Run check git
+        run: |
+          git diff --quiet --exit-code --cached
