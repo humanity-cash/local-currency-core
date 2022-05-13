@@ -2,7 +2,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { log } from "../../utils";
 
-jest.setTimeout(30000);
+jest.setTimeout(120000);
 
 beforeAll(async () => {
   await mockDatabase.init();
