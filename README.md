@@ -124,7 +124,7 @@ The following environment variables are expected to be set for the project. In l
 | DWOLLA_APP_KEY | "sdflkjlDHlk1345kjlkdnMAAALkjj12002" | Application key for Dwolla API calls |
 | DWOLLA_APP_SECRET | "455098fjuhhXCklkhdV3335T7xSZIl" | Application secret for Dwolla API calls |
 | DWOLLA_ENVIRONMENT | "sandbox" / "production" | Using a sandbox Dwolla account allows test cases to simulate some off-chain activities (notably: simulate ACH processing) |
-| WEBHOOK_SECRET | "0000000000000000000000000000000000000000000001" | Register a Dwolla webhook with this secret, which will be used by Dwolla to sign POSTs to the `/webhook` endpoint for security |
+| WEBHOOK_SECRET | "000000000...0001" | Register a Dwolla webhook with this secret, which will be used by Dwolla to sign POSTs to the `/webhook` endpoint for security. See https://developers.dwolla.com/guides/webhooks/validating-webhooks for details |
 | REGISTER_WEBHOOK    | "true" / "false"  | Whether or not to register a webhook with the Dwolla API. Registering a webhook deletes all previously existing webhooks |
 | SIMULATE_WEBHOOK    | "true" / "false"  | Whether or not to simulate webhook behaviour in development or test. Mutually exclusive with REGISTER_WEBHOOK |
 | SIMULATE_BANKING    | "true" / "false"  | Whether or not to process fake banking (ACH) records in the Dwolla sandbox environment. Only relevant for sandbox |
@@ -137,7 +137,7 @@ The following environment variables are expected to be set for the project. In l
 | IMGIX_API_TOKEN | "ak_310734l5bbbbdddaaafffeee477878sdf" | Imgix API token |
 | MONGO_DB_USER | "root" | Username for MongoDB to connect to. In test this will be ignored and an emphemeral in-memory MongoDB used instead |
 MONGO_DB_PASSWORD | "sdflkjsd0809sdlfkjsl13" | MongoDB password |
-MONGO_URL | "mongodb://sample.cluster-cs0fmojpbf7j.us-east-1.docdb.amazonaws.com:27017/?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false" | MongoDB URL | In test this will be ignored and an emphemeral in-memory MongoDB used instead |
+MONGO_URL | "mongodb://sample.cluster.amazonaws.com:27017/" | MongoDB URL | In test this will be ignored and an emphemeral in-memory MongoDB used instead |
 USE_MONGO_TLS | "true" / "false" | Whether or not to use TLS when connecting to a remote MongoDB cluster. In AWS, the public certificate `rds-combined-ca-bundle.pem` (included in this repository) is used |
 
 ## Note
