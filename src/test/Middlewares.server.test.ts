@@ -1,7 +1,5 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
-import dotenv from "dotenv";
-import path from "path";
 import { getApp } from "../server";
 import { log } from "../utils";
 import { codes } from "../utils/http";
@@ -13,14 +11,6 @@ const expiredToken =
 const expect = chai.expect;
 chai.use(chaiHttp);
 const server = getApp();
-
-const result = dotenv.config({
-  path: path.resolve(process.cwd(), ".env.test"),
-});
-
-if (result.error) {
-  throw result.error;
-}
 
 describe.skip("Middlewares", () => {
   beforeAll(async () => {
