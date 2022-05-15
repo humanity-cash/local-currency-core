@@ -1,6 +1,6 @@
 {
  "name": "local-currency-core-api",
- "version": "0.0.1",
+ "version": "1.1.12",
  "description": "Simple REST API to query and inititate actions on the Humanity Cash local currency smart contracts",
  "main": "index.js",
  "engines": {
