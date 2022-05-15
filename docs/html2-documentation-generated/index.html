@@ -696,17 +696,26 @@ margin-bottom: 20px;
   <script>
     // Script section to load models into a JS Var
     var defs = {}
+        defs["IAppNotification"] = {"type":"object","required":["closed","dbId","level","message","timestamp","userId"],"properties":{"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"timestamp":{"type":"number","example":1.6676703E7},"message":{"type":"string","example":"Your deposit of $54.23 has been credited"},"closed":{"type":"boolean","example":false},"level":{"type":"string","example":"INFO"},"dbId":{"type":"string","example":"7a9f0926acd5"}}};
+        defs["IAppNotificationClosed"] = {"type":"object","required":["message"],"properties":{"message":{"type":"string","example":"Notification 7a9f0926acd5 closed"}}};
+        defs["IBusinessResponse"] = {"type":"object","required":["address1","avatar","city","industry","owner","postalCode","rbn","state","story","tag"],"properties":{"website":{"type":"string","example":"https://jaredsjumpropes.com"},"story":{"type":"string","example":"Best skipping ropes in the east!"},"tag":{"type":"string","example":"jaredsjumpropes"},"avatar":{"type":"string","example":"https://linkedin.com/in/jaredjumpropes/profile.jpg"},"atype":{"type":"string","example":"Leisure"},"walletAddress":{"type":"string","example":"0x000000012312312313123123"},"rbn":{"type":"string","example":"102983-dsfj"},"industry":{"type":"string","example":"Health"},"ein":{"type":"string","example":"12324-324234"},"ssn":{"type":"string","example":"234234"},"address1":{"type":"string","example":"1 Main Street"},"address":{"type":"string","example":"South"},"city":{"type":"string","example":"Egremont"},"state":{"type":"string","example":"MA"},"postalCode":{"type":"string","example":"10111"},"phoneNumber":{"type":"string","example":"555-4326"},"dwollaId":{"type":"string","example":"212312-slkffddads-3420942"},"resourceUri":{"type":"string","example":"https://url.com"},"owner":{"type":"object","example":{"firstName":"Sample","lastName":"Owner","address1":"2 Main Street","address2":"","city":"Great Barrington","state":"MA","postalCode":"902190"},"properties":{}}}};
         defs["IDepositRequest"] = {"type":"object","required":["amount"],"properties":{"amount":{"type":"string","example":"1000"}}};
         defs["IDepositResponse"] = {"type":"object","required":["blockNumber","operator","timestamp","transactionHash","userId","value"],"properties":{"transactionHash":{"type":"string","example":"0xcd88fba9277b4cc2a99e7a9f0926acd50909bbbde"},"blockNumber":{"type":"number","example":9.81092832E8},"timestamp":{"type":"string","example":"1654546760"},"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"value":{"type":"string","example":"123.45"},"operator":{"type":"string","example":"d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"}}};
-        defs["IDwollaEventRequest"] = {"type":"object","required":["_links","created","id","resourceId","topic"],"properties":{"_links":{"type":"object","example":{"$ref":"#/definitions/IDwollaLinks"},"properties":{}},"id":{"type":"string","example":"f8e70f48-b7ff-47d0-9d3d-62a099363a76"},"created":{"type":"string","example":"2015-10-16T15:58:15.000Z"},"topic":{"type":"string","example":"transfer_created"},"resourceId":{"type":"string","example":"48CFDDB4-1E74-E511-80DB-0AA34A9B2388"}}};
+        defs["IDwollaCustomerBody"] = {"type":"object","required":["_links","correlationId","created","email","firstName","id","lastName","status","type"],"properties":{"_links":{"$ref":"#/definitions/IDwollaLinks"},"id":{"type":"string","example":"ecc3a466-f4c6-4470-aa74-a83060bdebf3"},"firstName":{"type":"string","example":"Irma"},"lastName":{"type":"string","example":"Green"},"email":{"type":"string","example":"irma@mail.com"},"type":{"type":"string","example":"unverified"},"status":{"type":"string","example":"unverified"},"created":{"type":"string","example":"2021-09-27T13:31:33.693Z"},"correlationId":{"type":"string","example":"p_0x7d78730aeb44f5a04a2b299f56d9e3ff473365a843c794c68de9279b3e667d8f"}}};
+        defs["IDwollaCustomerResponse"] = {"type":"object","required":["body","headers","status"],"properties":{"headers":{"type":"object","example":{},"properties":{}},"status":{"type":"number","example":200.0},"body":{"$ref":"#/definitions/IDwollaCustomerBody"}}};
+        defs["IDwollaEventRequest"] = {"type":"object","required":["_links","created","id","resourceId","topic"],"properties":{"_links":{"$ref":"#/definitions/IDwollaLinks"},"id":{"type":"string","example":"f8e70f48-b7ff-47d0-9d3d-62a099363a76"},"created":{"type":"string","example":"2015-10-16T15:58:15.000Z"},"topic":{"type":"string","example":"transfer_created"},"resourceId":{"type":"string","example":"48CFDDB4-1E74-E511-80DB-0AA34A9B2388"}}};
+        defs["IDwollaFundingLinks"] = {"type":"object","example":"{ \"transfer-from-balance\": { \"href\": \"https://api-sandbox.dwolla.com/transfers\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"transfer\" }, \"on-demand-authorization\": { \"href\": \"https://api-sandbox.dwolla.com/on-demand-authorizations/115dfbf9-8a1b-ec11-8138-fd945f81a1fa\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"on-demand-authorization\" }, \"self\": { \"href\": \"https://api-sandbox.dwolla.com/funding-sources/e11cd1de-bcd0-4265-8053-78c3d48fac3f\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"funding-source\" }, \"transfer-to-balance\": { \"href\": \"https://api-sandbox.dwolla.com/transfers\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"transfer\" }, \"balance\": { \"href\": \"https://api-sandbox.dwolla.com/funding-sources/e11cd1de-bcd0-4265-8053-78c3d48fac3f/balance\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"balance\" }, \"transfer-send\": { \"href\": \"https://api-sandbox.dwolla.com/transfers\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"transfer\" }, \"remove\": { \"href\": \"https://api-sandbox.dwolla.com/funding-sources/e11cd1de-bcd0-4265-8053-78c3d48fac3f\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"funding-source\" }, \"customer\": { \"href\": \"https://api-sandbox.dwolla.com/customers/460852fc-c986-4d2d-aedb-e71d9e5aad37\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"customer\" }, \"transfer-receive\": { \"href\": \"https://api-sandbox.dwolla.com/transfers\", \"type\": \"application/vnd.dwolla.v1.hal+json\", \"resource-type\": \"transfer\" } }"};
+        defs["IDwollaFundingSource"] = {"type":"object","required":["_links","bankAccountType","bankName","channels","created","fingerprint","iavAccountHolders","name","removed","status","type"],"properties":{"_links":{"$ref":"#/definitions/IDwollaFundingLinks"},"status":{"type":"string","example":"verified"},"type":{"type":"string","example":"bank"},"bankAccountType":{"type":"string","example":"savings"},"name":{"type":"string","example":"Your Account #2 - SAVINGS"},"created":{"type":"string","example":"2021-09-22T09:53:43.214Z"},"removed":{"type":"boolean","example":false},"channels":{"type":"array","items":{"example":"ach"}},"bankName":{"type":"string","example":"SANDBOX TEST BANK"},"iavAccountHolders":{"type":"object","example":"{\"selected\":\"account holder\"}","properties":{}},"fingerprint":{"type":"string","example":"8f90f6ed1be72fac980d0249e92cf5f78b22e9e8f56873b098169b37fc3bd9d5"}}};
+        defs["IDwollaFundingSourceBody"] = {"type":"object","required":["_embedded","_links"],"properties":{"_links":{"$ref":"#/definitions/IDwollaLinks"},"_embedded":{"type":"object","properties":{"funding-sources":{"type":"array","items":{"$ref":"#/definitions/IDwollaFundingSource"}}}}}};
+        defs["IDwollaFundingSourceResponse"] = {"type":"object","required":["body","headers","status"],"properties":{"headers":{"type":"object","example":{},"properties":{}},"status":{"type":"number","example":200.0},"body":{"$ref":"#/definitions/IDwollaFundingSourceBody"}}};
         defs["IDwollaLinks"] = {"type":"object","required":["account","resource","self"],"properties":{"self":{"type":"object","example":{"href":"https://api.dwolla.com/events/f8e70f48-b7ff-47d0-9d3d-62a099363a76"},"properties":{}},"resource":{"type":"object","example":{"href":"https://api.dwolla.com/transfers/48CFDDB4-1E74-E511-80DB-0AA34A9B2388"},"properties":{}},"account":{"type":"object","example":{"href":"https://api.dwolla.com/accounts/ca32853c-48fa-40be-ae75-77b37504581b"},"properties":{}}}};
         defs["IHealthResponse"] = {"type":"object","required":["blockNumber","chainId","countOfUsers","localCurrencyToken","nodeInfo"],"properties":{"blockNumber":{"type":"number","example":1.45689901E8},"chainId":{"type":"number","example":1337.0},"nodeInfo":{"type":"string","example":"EthereumJS TestRPC/v2.7.0/ethereum-js"},"localCurrencyToken":{"type":"string","example":"0x8552545cE2CE5cFDE1500A0C2421E21A68b643b7"},"countOfUsers":{"type":"string","example":"537"}}};
         defs["IOperatorTotalResponse"] = {"type":"object","required":["currentOutstanding","deposits","operator","totalDeposits","totalWithdrawals","withdrawals"],"properties":{"operator":{"type":"string","example":"d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"},"totalDeposits":{"type":"string","example":"123.45"},"totalWithdrawals":{"type":"string","example":"23.45"},"currentOutstanding":{"type":"string","example":"100.00"},"deposits":{"type":"array","items":{"$ref":"#/definitions/IDepositResponse"}},"withdrawals":{"type":"array","items":{"$ref":"#/definitions/IWithdrawalResponse"}}}};
         defs["ITransferEventResponse"] = {"type":"object","required":["blockNumber","fromAddress","fromUserId","timestamp","toAddress","toUserId","transactionHash","value"],"properties":{"transactionHash":{"type":"string","example":"0xcd88fba9277b4cc2a99e7a9f0926acd50909bbbde"},"blockNumber":{"type":"number","example":9.81092832E8},"timestamp":{"type":"string","example":"1654546760"},"fromUserId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"fromAddress":{"type":"string","example":"0x000000000000000000000000000000000000001"},"toUserId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"toAddress":{"type":"string","example":"0x000000000000000000000000000000000000001"},"value":{"type":"string","example":"123.45"}}};
         defs["ITransferOwnerRequest"] = {"type":"object","required":["newOwner"],"properties":{"newOwner":{"type":"string","example":"0x0000000000000000000000000000000000000001"},"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"}}};
-        defs["ITransferRequest"] = {"type":"object","required":["amount","toUserId"],"properties":{"toUserId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"amount":{"type":"number","example":123.45},"comment":{"type":"string","example":"Buffalo Bill's Fine Leather Goods"}}};
-        defs["IWalletRequest"] = {"type":"object","required":["address1","city","email","firstName","lastName","postalCode","state","userId"],"properties":{"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"firstName":{"type":"string","example":"Florian"},"lastName":{"type":"string","example":"Schneider"},"email":{"type":"string","example":"schneidf@gmx.de"},"address1":{"type":"string","example":"Muellerstrasse 123"},"address2":{"type":"string","example":""},"city":{"type":"string","example":"Great Barrington"},"state":{"type":"string","example":"MA"},"postalCode":{"type":"string","example":"90210"}}};
-        defs["IWalletResponse"] = {"type":"object","required":["address","balance","createdBlock","userId"],"properties":{"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"address":{"type":"string","example":"0x0000000000000000000000000000000000000001"},"balance":{"type":"number","example":191.45},"createdBlock":{"type":"string","example":"1322324355"}}};
+        defs["ITransferRequest"] = {"type":"object","required":["amount","toUserId"],"properties":{"toUserId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"amount":{"type":"number","example":123.45},"round-up-amount":{"type":"number","example":2.57},"comment":{"type":"string","example":"Buffalo Bill's Fine Leather Goods"}}};
+        defs["IWalletRequest"] = {"type":"object","required":["address1","city","email","firstName","lastName","postalCode","state","userId"],"properties":{"userId":{"type":"string","example":"pcd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"firstName":{"type":"string","example":"Florian"},"lastName":{"type":"string","example":"Schneider"},"email":{"type":"string","example":"schneidf@gmx.de"},"address1":{"type":"string","example":"Muellerstrasse 123"},"address2":{"type":"string","example":""},"city":{"type":"string","example":"Great Barrington"},"state":{"type":"string","example":"MA"},"postalCode":{"type":"string","example":"90210"}}};
+        defs["IWalletResponse"] = {"type":"object","required":["address","balance","createdBlock","userId"],"properties":{"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"address":{"type":"string","example":"0x0000000000000000000000000000000000000001"},"balance":{"type":"number","example":191.45},"createdBlock":{"type":"string","example":"1322324355"},"createdTimestamp":{"type":"string","example":"16654541337"},"customer":{"$ref":"#/definitions/IDwollaCustomerResponse"}}};
         defs["IWithdrawalRequest"] = {"type":"object","required":["amount"],"properties":{"amount":{"type":"string","example":"1000"}}};
         defs["IWithdrawalResponse"] = {"type":"object","required":["blockNumber","operator","timestamp","transactionHash","userId","value"],"properties":{"transactionHash":{"type":"string","example":"0xcd88fba9277b4cc2a99e7a9f0926acd50909bbbde"},"blockNumber":{"type":"number","example":9.81092832E8},"timestamp":{"type":"string","example":"1654546760"},"userId":{"type":"string","example":"cd88fba9-277b-4cc2-a99e-7a9f0926acd5"},"value":{"type":"string","example":"123.45"},"operator":{"type":"string","example":"d19c5dc5-3e45-4a9f-8c01-74003dfa8c71"}}};
   </script>
@@ -726,6 +735,12 @@ margin-bottom: 20px;
             <li class="nav-fixed nav-header active" data-group="_"><a href="#api-_">API Summary</a></li>
 
                   <li class="nav-header" data-group="AuthorizedToOwner"><a href="#api-AuthorizedToOwner">API Methods - AuthorizedToOwner</a></li>
+                    <li data-group="AuthorizedToOwner" data-name="businesses" class="">
+                      <a href="#api-AuthorizedToOwner-businesses">businesses</a>
+                    </li>
+                    <li data-group="AuthorizedToOwner" data-name="closeNotifications" class="">
+                      <a href="#api-AuthorizedToOwner-closeNotifications">closeNotifications</a>
+                    </li>
                     <li data-group="AuthorizedToOwner" data-name="createDeposit" class="">
                       <a href="#api-AuthorizedToOwner-createDeposit">createDeposit</a>
                     </li>
@@ -737,6 +752,18 @@ margin-bottom: 20px;
                     </li>
                     <li data-group="AuthorizedToOwner" data-name="createWithdrawal" class="">
                       <a href="#api-AuthorizedToOwner-createWithdrawal">createWithdrawal</a>
+                    </li>
+                    <li data-group="AuthorizedToOwner" data-name="getFundingSources" class="">
+                      <a href="#api-AuthorizedToOwner-getFundingSources">getFundingSources</a>
+                    </li>
+                    <li data-group="AuthorizedToOwner" data-name="getIAVToken" class="">
+                      <a href="#api-AuthorizedToOwner-getIAVToken">getIAVToken</a>
+                    </li>
+                    <li data-group="AuthorizedToOwner" data-name="getNotifications" class="">
+                      <a href="#api-AuthorizedToOwner-getNotifications">getNotifications</a>
+                    </li>
+                    <li data-group="AuthorizedToOwner" data-name="health" class="">
+                      <a href="#api-AuthorizedToOwner-health">health</a>
                     </li>
                     <li data-group="AuthorizedToOwner" data-name="pause" class="">
                       <a href="#api-AuthorizedToOwner-pause">pause</a>
@@ -782,9 +809,6 @@ margin-bottom: 20px;
                     <li data-group="Public" data-name="getWithdrawals" class="">
                       <a href="#api-Public-getWithdrawals">getWithdrawals</a>
                     </li>
-                    <li data-group="Public" data-name="health" class="">
-                      <a href="#api-Public-health">health</a>
-                    </li>
           </ul>
         </nav>
       </div>
@@ -806,6 +830,554 @@ margin-bottom: 20px;
         <div id="sections">
                 <section id="api-AuthorizedToOwner">
                   <h1>AuthorizedToOwner</h1>
+                    <div id="api-AuthorizedToOwner-businesses">
+                      <article id="api-AuthorizedToOwner-businesses-0" data-group="User" data-name="businesses" data-version="0">
+                        <div class="pull-left">
+                          <h1>businesses</h1>
+                          <p>List of all verified businesses</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked"></p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/businesses</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-AuthorizedToOwner-businesses-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-java">Java</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-businesses-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-businesses-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-businesses-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-AuthorizedToOwner-businesses-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/businesses"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedToOwnerApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            array[IBusinessResponse] result = apiInstance.businesses();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#businesses");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedToOwnerApi;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            array[IBusinessResponse] result = apiInstance.businesses();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#businesses");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+AuthorizedToOwnerApi *apiInstance = [[AuthorizedToOwnerApi alloc] init];
+
+// List of all verified businesses
+[apiInstance businessesWithCompletionHandler: 
+              ^(array[IBusinessResponse] output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedToOwnerApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.businesses(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class businessesExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedToOwnerApi();
+
+            try
+            {
+                // List of all verified businesses
+                array[IBusinessResponse] result = apiInstance.businesses();
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedToOwnerApi.businesses: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedToOwnerApi();
+
+try {
+    $result = $api_instance->businesses();
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedToOwnerApi->businesses: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedToOwnerApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedToOwnerApi->new();
+
+eval { 
+    my $result = $api_instance->businesses();
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedToOwnerApi->businesses: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-businesses-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedToOwnerApi()
+
+try: 
+    # List of all verified businesses
+    api_response = api_instance.businesses()
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthorizedToOwnerApi->businesses: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - OK </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-businesses-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-businesses-200-schema">
+                                  <div id='responses-businesses-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "OK",
+  "schema" : {
+    "type" : "array",
+    "items" : {
+      "$ref" : "#/definitions/IBusinessResponse"
+    }
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = defs;
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-businesses-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-businesses-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-businesses-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-AuthorizedToOwner-closeNotifications">
+                      <article id="api-AuthorizedToOwner-closeNotifications-0" data-group="User" data-name="closeNotifications" data-version="0">
+                        <div class="pull-left">
+                          <h1>closeNotifications</h1>
+                          <p>Close a notification for a user</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Close notifications for a user
+</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/users/:id/notifications/:notificationId</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-AuthorizedToOwner-closeNotifications-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-java">Java</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-closeNotifications-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-AuthorizedToOwner-closeNotifications-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X DELETE "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/notifications/:notificationId"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedToOwnerApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            IAppNotificationClosed result = apiInstance.closeNotifications();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#closeNotifications");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedToOwnerApi;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            IAppNotificationClosed result = apiInstance.closeNotifications();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#closeNotifications");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+AuthorizedToOwnerApi *apiInstance = [[AuthorizedToOwnerApi alloc] init];
+
+// Close a notification for a user
+[apiInstance closeNotificationsWithCompletionHandler: 
+              ^(IAppNotificationClosed output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedToOwnerApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.closeNotifications(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class closeNotificationsExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedToOwnerApi();
+
+            try
+            {
+                // Close a notification for a user
+                IAppNotificationClosed result = apiInstance.closeNotifications();
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedToOwnerApi.closeNotifications: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedToOwnerApi();
+
+try {
+    $result = $api_instance->closeNotifications();
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedToOwnerApi->closeNotifications: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedToOwnerApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedToOwnerApi->new();
+
+eval { 
+    my $result = $api_instance->closeNotifications();
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedToOwnerApi->closeNotifications: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-closeNotifications-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedToOwnerApi()
+
+try: 
+    # Close a notification for a user
+    api_response = api_instance.close_notifications()
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthorizedToOwnerApi->closeNotifications: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - OK </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-closeNotifications-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-closeNotifications-200-schema">
+                                  <div id='responses-closeNotifications-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "OK",
+  "schema" : {
+    "$ref" : "#/definitions/IAppNotificationClosed"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = defs;
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-closeNotifications-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-closeNotifications-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-closeNotifications-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad Request </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 403 - Forbidden </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 404 - User Not Found </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-AuthorizedToOwner-createDeposit">
                       <article id="api-AuthorizedToOwner-createDeposit-0" data-group="User" data-name="createDeposit" data-version="0">
                         <div class="pull-left">
@@ -1743,7 +2315,7 @@ $(document).ready(function() {
 </p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/users/:id/withdrawal</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/users/:id/withdraw</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -1763,7 +2335,7 @@ $(document).ready(function() {
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-AuthorizedToOwner-createWithdrawal-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X POST "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/withdrawal"</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X POST "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/withdraw"</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-AuthorizedToOwner-createWithdrawal-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -2011,6 +2583,1087 @@ $(document).ready(function() {
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-AuthorizedToOwner-getFundingSources">
+                      <article id="api-AuthorizedToOwner-getFundingSources-0" data-group="User" data-name="getFundingSources" data-version="0">
+                        <div class="pull-left">
+                          <h1>getFundingSources</h1>
+                          <p>Retrieves funding sources for a user</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Get a new Dwolla funding sources for a user
+</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/users/:id/funding-sources</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-AuthorizedToOwner-getFundingSources-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-java">Java</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getFundingSources-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-AuthorizedToOwner-getFundingSources-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/funding-sources"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedToOwnerApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            IDwollaFundingSourceResponse result = apiInstance.getFundingSources();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#getFundingSources");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedToOwnerApi;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            IDwollaFundingSourceResponse result = apiInstance.getFundingSources();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#getFundingSources");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+AuthorizedToOwnerApi *apiInstance = [[AuthorizedToOwnerApi alloc] init];
+
+// Retrieves funding sources for a user
+[apiInstance getFundingSourcesWithCompletionHandler: 
+              ^(IDwollaFundingSourceResponse output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedToOwnerApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.getFundingSources(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class getFundingSourcesExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedToOwnerApi();
+
+            try
+            {
+                // Retrieves funding sources for a user
+                IDwollaFundingSourceResponse result = apiInstance.getFundingSources();
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedToOwnerApi.getFundingSources: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedToOwnerApi();
+
+try {
+    $result = $api_instance->getFundingSources();
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedToOwnerApi->getFundingSources: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedToOwnerApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedToOwnerApi->new();
+
+eval { 
+    my $result = $api_instance->getFundingSources();
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedToOwnerApi->getFundingSources: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getFundingSources-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedToOwnerApi()
+
+try: 
+    # Retrieves funding sources for a user
+    api_response = api_instance.get_funding_sources()
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthorizedToOwnerApi->getFundingSources: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - OK </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getFundingSources-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getFundingSources-200-schema">
+                                  <div id='responses-getFundingSources-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "OK",
+  "schema" : {
+    "$ref" : "#/definitions/IDwollaFundingSourceResponse"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = defs;
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-getFundingSources-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-getFundingSources-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getFundingSources-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 404 - Not Found </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-AuthorizedToOwner-getIAVToken">
+                      <article id="api-AuthorizedToOwner-getIAVToken-0" data-group="User" data-name="getIAVToken" data-version="0">
+                        <div class="pull-left">
+                          <h1>getIAVToken</h1>
+                          <p>Retrieve a new Dwolla IAV token for a user</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Get a new Dwolla IAV token for a user
+</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/users/:id/iav-token</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-AuthorizedToOwner-getIAVToken-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-java">Java</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getIAVToken-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-AuthorizedToOwner-getIAVToken-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X POST "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/iav-token"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedToOwnerApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            Object result = apiInstance.getIAVToken();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#getIAVToken");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedToOwnerApi;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            Object result = apiInstance.getIAVToken();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#getIAVToken");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+AuthorizedToOwnerApi *apiInstance = [[AuthorizedToOwnerApi alloc] init];
+
+// Retrieve a new Dwolla IAV token for a user
+[apiInstance getIAVTokenWithCompletionHandler: 
+              ^(Object output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedToOwnerApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.getIAVToken(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class getIAVTokenExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedToOwnerApi();
+
+            try
+            {
+                // Retrieve a new Dwolla IAV token for a user
+                Object result = apiInstance.getIAVToken();
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedToOwnerApi.getIAVToken: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedToOwnerApi();
+
+try {
+    $result = $api_instance->getIAVToken();
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedToOwnerApi->getIAVToken: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedToOwnerApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedToOwnerApi->new();
+
+eval { 
+    my $result = $api_instance->getIAVToken();
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedToOwnerApi->getIAVToken: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getIAVToken-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedToOwnerApi()
+
+try: 
+    # Retrieve a new Dwolla IAV token for a user
+    api_response = api_instance.get_iav_token()
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthorizedToOwnerApi->getIAVToken: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - OK </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getIAVToken-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getIAVToken-200-schema">
+                                  <div id='responses-getIAVToken-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "OK",
+  "schema" : {
+    "type" : "object",
+    "example" : {
+      "iavToken" : "980980df23090980adfffe"
+    }
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = defs;
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-getIAVToken-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-getIAVToken-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getIAVToken-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 404 - Not Found </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-AuthorizedToOwner-getNotifications">
+                      <article id="api-AuthorizedToOwner-getNotifications-0" data-group="User" data-name="getNotifications" data-version="0">
+                        <div class="pull-left">
+                          <h1>getNotifications</h1>
+                          <p>Retrieve notifications for a user</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Get notifications for a user
+</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/users/:id/notifications</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-AuthorizedToOwner-getNotifications-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-java">Java</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-getNotifications-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-AuthorizedToOwner-getNotifications-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/notifications"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedToOwnerApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            array[IAppNotification] result = apiInstance.getNotifications();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#getNotifications");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedToOwnerApi;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            array[IAppNotification] result = apiInstance.getNotifications();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#getNotifications");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+AuthorizedToOwnerApi *apiInstance = [[AuthorizedToOwnerApi alloc] init];
+
+// Retrieve notifications for a user
+[apiInstance getNotificationsWithCompletionHandler: 
+              ^(array[IAppNotification] output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedToOwnerApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.getNotifications(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class getNotificationsExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedToOwnerApi();
+
+            try
+            {
+                // Retrieve notifications for a user
+                array[IAppNotification] result = apiInstance.getNotifications();
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedToOwnerApi.getNotifications: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedToOwnerApi();
+
+try {
+    $result = $api_instance->getNotifications();
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedToOwnerApi->getNotifications: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedToOwnerApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedToOwnerApi->new();
+
+eval { 
+    my $result = $api_instance->getNotifications();
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedToOwnerApi->getNotifications: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-getNotifications-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedToOwnerApi()
+
+try: 
+    # Retrieve notifications for a user
+    api_response = api_instance.get_notifications()
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthorizedToOwnerApi->getNotifications: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - OK </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getNotifications-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getNotifications-200-schema">
+                                  <div id='responses-getNotifications-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "OK",
+  "schema" : {
+    "type" : "array",
+    "items" : {
+      "$ref" : "#/definitions/IAppNotification"
+    }
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = defs;
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-getNotifications-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-getNotifications-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getNotifications-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 403 - Forbidden </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 404 - Not Found </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Server Error </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-AuthorizedToOwner-health">
+                      <article id="api-AuthorizedToOwner-health-0" data-group="User" data-name="health" data-version="0">
+                        <div class="pull-left">
+                          <h1>health</h1>
+                          <p>Endpoint and health information</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked"></p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/health</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-AuthorizedToOwner-health-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-java">Java</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-health-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-AuthorizedToOwner-health-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-AuthorizedToOwner-health-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-AuthorizedToOwner-health-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/health"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthorizedToOwnerApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            IHealthResponse result = apiInstance.health();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#health");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthorizedToOwnerApi;
+
+public class AuthorizedToOwnerApiExample {
+
+    public static void main(String[] args) {
+        AuthorizedToOwnerApi apiInstance = new AuthorizedToOwnerApi();
+        try {
+            IHealthResponse result = apiInstance.health();
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthorizedToOwnerApi#health");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+AuthorizedToOwnerApi *apiInstance = [[AuthorizedToOwnerApi alloc] init];
+
+// Endpoint and health information
+[apiInstance healthWithCompletionHandler: 
+              ^(IHealthResponse output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
+
+var api = new LocalCurrencyApi.AuthorizedToOwnerApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.health(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-AuthorizedToOwner-health-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class healthExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new AuthorizedToOwnerApi();
+
+            try
+            {
+                // Endpoint and health information
+                IHealthResponse result = apiInstance.health();
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthorizedToOwnerApi.health: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\AuthorizedToOwnerApi();
+
+try {
+    $result = $api_instance->health();
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthorizedToOwnerApi->health: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthorizedToOwnerApi;
+
+my $api_instance = WWW::SwaggerClient::AuthorizedToOwnerApi->new();
+
+eval { 
+    my $result = $api_instance->health();
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthorizedToOwnerApi->health: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-AuthorizedToOwner-health-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthorizedToOwnerApi()
+
+try: 
+    # Endpoint and health information
+    api_response = api_instance.health()
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthorizedToOwnerApi->health: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - OK </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-health-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-health-200-schema">
+                                  <div id='responses-health-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "OK",
+  "schema" : {
+    "$ref" : "#/definitions/IHealthResponse"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = defs;
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-health-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-health-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-health-200-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 500 - Server Error </h3>
@@ -5503,7 +7156,7 @@ except ApiException as e:
 </p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/users/:id/withdrawal</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/users/:id/withdraw</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -5523,7 +7176,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Public-getWithdrawals-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/withdrawal"</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/users/:id/withdraw"</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Public-getWithdrawals-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -5749,266 +7402,6 @@ except ApiException as e:
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
-                            </div>
-
-                            <h3> Status: 500 - Server Error </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
-                            </div>
-
-                        </article>
-                      </div>
-                      <hr>
-                    <div id="api-Public-health">
-                      <article id="api-Public-health-0" data-group="User" data-name="health" data-version="0">
-                        <div class="pull-left">
-                          <h1>health</h1>
-                          <p>Endpoint and health information</p>
-                        </div>
-                        <div class="pull-right"></div>
-                        <div class="clearfix"></div>
-                        <p></p>
-                        <p class="marked"></p>
-                        <p></p>
-                        <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/health</span></code></pre>
-                        <p>
-                          <h3>Usage and SDK Samples</h3>
-                        </p>
-                        <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Public-health-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Public-health-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Public-health-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Public-health-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Public-health-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Public-health-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Public-health-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Public-health-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Public-health-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Public-health-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Public-health-0-python">Python</a></li>
-                        </ul>
-
-                        <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Public-health-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X GET "https://virtserver.swaggerhub.com/Humanity.Cash/local-currency/1.0.1/health"</code></pre>
-                          </div>
-                          <div class="tab-pane" id="examples-Public-health-0-java">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
-import io.swagger.client.auth.*;
-import io.swagger.client.model.*;
-import io.swagger.client.api.PublicApi;
-
-import java.io.File;
-import java.util.*;
-
-public class PublicApiExample {
-
-    public static void main(String[] args) {
-        
-        PublicApi apiInstance = new PublicApi();
-        try {
-            IHealthResponse result = apiInstance.health();
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling PublicApi#health");
-            e.printStackTrace();
-        }
-    }
-}</code></pre>
-                          </div>
-
-                          <div class="tab-pane" id="examples-Public-health-0-android">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.PublicApi;
-
-public class PublicApiExample {
-
-    public static void main(String[] args) {
-        PublicApi apiInstance = new PublicApi();
-        try {
-            IHealthResponse result = apiInstance.health();
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling PublicApi#health");
-            e.printStackTrace();
-        }
-    }
-}</code></pre>
-                          </div>
-  <!--
-  <div class="tab-pane" id="examples-Public-health-0-groovy">
-  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
-  </div> -->
-                            <div class="tab-pane" id="examples-Public-health-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">
-PublicApi *apiInstance = [[PublicApi alloc] init];
-
-// Endpoint and health information
-[apiInstance healthWithCompletionHandler: 
-              ^(IHealthResponse output, NSError* error) {
-                            if (output) {
-                                NSLog(@"%@", output);
-                            }
-                            if (error) {
-                                NSLog(@"Error: %@", error);
-                            }
-                        }];
-</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Public-health-0-javascript">
-                              <pre class="prettyprint"><code class="language-js">var LocalCurrencyApi = require('local_currency_api');
-
-var api = new LocalCurrencyApi.PublicApi()
-
-var callback = function(error, data, response) {
-  if (error) {
-    console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
-  }
-};
-api.health(callback);
-</code></pre>
-                            </div>
-
-                            <!--<div class="tab-pane" id="examples-Public-health-0-angular">
-              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
-            </div>-->
-                            <div class="tab-pane" id="examples-Public-health-0-csharp">
-                              <pre class="prettyprint"><code class="language-cs">using System;
-using System.Diagnostics;
-using IO.Swagger.Api;
-using IO.Swagger.Client;
-using IO.Swagger.Model;
-
-namespace Example
-{
-    public class healthExample
-    {
-        public void main()
-        {
-            
-            var apiInstance = new PublicApi();
-
-            try
-            {
-                // Endpoint and health information
-                IHealthResponse result = apiInstance.health();
-                Debug.WriteLine(result);
-            }
-            catch (Exception e)
-            {
-                Debug.Print("Exception when calling PublicApi.health: " + e.Message );
-            }
-        }
-    }
-}
-</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Public-health-0-php">
-                              <pre class="prettyprint"><code class="language-php"><&#63;php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-$api_instance = new Swagger\Client\Api\PublicApi();
-
-try {
-    $result = $api_instance->health();
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling PublicApi->health: ', $e->getMessage(), PHP_EOL;
-}
-?></code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Public-health-0-perl">
-                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
-use WWW::SwaggerClient::Configuration;
-use WWW::SwaggerClient::PublicApi;
-
-my $api_instance = WWW::SwaggerClient::PublicApi->new();
-
-eval { 
-    my $result = $api_instance->health();
-    print Dumper($result);
-};
-if ($@) {
-    warn "Exception when calling PublicApi->health: $@\n";
-}</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Public-health-0-python">
-                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
-import time
-import swagger_client
-from swagger_client.rest import ApiException
-from pprint import pprint
-
-# create an instance of the API class
-api_instance = swagger_client.PublicApi()
-
-try: 
-    # Endpoint and health information
-    api_response = api_instance.health()
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling PublicApi->health: %s\n" % e)</code></pre>
-                            </div>
-                          </div>
-
-                          <h2>Parameters</h2>
-
-
-
-
-
-
-                          <h2>Responses</h2>
-                            <h3> Status: 200 - OK </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                                <li class="active">
-                                  <a data-toggle="tab" href="#responses-health-200-schema">Schema</a>
-                                </li>
-
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
-                                <div class="tab-pane active" id="responses-health-200-schema">
-                                  <div id='responses-health-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
-                                    <script>
-                                      $(document).ready(function() {
-                                        var schemaWrapper = {
-  "description" : "OK",
-  "schema" : {
-    "$ref" : "#/definitions/IHealthResponse"
-  }
-};
-                                        var schema = schemaWrapper.schema;
-                                        if (schema.$ref != null) {
-                                          schema = defsParser.$refs.get(schema.$ref);
-                                        } else {
-                                          schemaWrapper.definitions = defs;
-                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
-                                            console.log(err);
-                                          });
-                                        }
-
-                                        //console.log(JSON.stringify(schema));
-                                        var view = new JSONSchemaView(schema, 3);
-                                        $('#responses-health-200-schema-data').val(stringify(schema));
-                                        var result = $('#responses-health-200-schema-200');
-                                        result.empty();
-                                        result.append(view.render());
-                                      });
-                                    </script>
-                                  </div>
-                                  <input id='responses-health-200-schema-data' type='hidden' value=''></input>
-                                </div>
                             </div>
 
                             <h3> Status: 500 - Server Error </h3>

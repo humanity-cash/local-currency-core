@@ -23,10 +23,28 @@ tags:
 schemes:
 - https
 paths:
+  /businesses:
+    get:
+      tags:
+      - Authorized to Owner
+      summary: List of all verified businesses
+      operationId: businesses
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IBusinessResponse'
+        "500":
+          description: Server Error
   /health:
     get:
       tags:
-      - Public
+      - Authorized to Owner
       summary: Endpoint and health information
       operationId: health
       produces:
@@ -240,7 +258,7 @@ paths:
           description: Unprocessable
         "500":
           description: Server Error
-  /users/:id/withdrawal:
+  /users/:id/withdraw:
     get:
       tags:
       - Public
@@ -289,6 +307,96 @@ paths:
           description: Forbidden
         "422":
           description: Unprocessable
+        "500":
+          description: Server Error
+  /users/:id/notifications:
+    get:
+      tags:
+      - Authorized to Owner
+      summary: Retrieve notifications for a user
+      description: |
+        Get notifications for a user
+      operationId: getNotifications
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IAppNotification'
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+  /users/:id/notifications/:notificationId:
+    delete:
+      tags:
+      - Authorized to Owner
+      summary: Close a notification for a user
+      description: |
+        Close notifications for a user
+      operationId: closeNotifications
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/IAppNotificationClosed'
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+        "404":
+          description: User Not Found
+        "500":
+          description: Server Error
+  /users/:id/iav-token:
+    post:
+      tags:
+      - Authorized to Owner
+      summary: Retrieve a new Dwolla IAV token for a user
+      description: |
+        Get a new Dwolla IAV token for a user
+      operationId: getIAVToken
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            example:
+              iavToken: 980980df23090980adfffe
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+  /users/:id/funding-sources:
+    get:
+      tags:
+      - Authorized to Owner
+      summary: Retrieves funding sources for a user
+      description: |
+        Get a new Dwolla funding sources for a user
+      operationId: getFundingSources
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/IDwollaFundingSourceResponse'
+        "404":
+          description: Not Found
         "500":
           description: Server Error
   /users/:id/transfer:
@@ -458,6 +566,85 @@ paths:
         "500":
           description: Server Error
 definitions:
+  IBusinessResponse:
+    type: object
+    required:
+    - address1
+    - avatar
+    - city
+    - industry
+    - owner
+    - postalCode
+    - rbn
+    - state
+    - story
+    - tag
+    properties:
+      website:
+        type: string
+        example: https://jaredsjumpropes.com
+      story:
+        type: string
+        example: Best skipping ropes in the east!
+      tag:
+        type: string
+        example: jaredsjumpropes
+      avatar:
+        type: string
+        example: https://linkedin.com/in/jaredjumpropes/profile.jpg
+      atype:
+        type: string
+        example: Leisure
+      walletAddress:
+        type: string
+        example: 0x000000012312312313123123
+      rbn:
+        type: string
+        example: 102983-dsfj
+      industry:
+        type: string
+        example: Health
+      ein:
+        type: string
+        example: 12324-324234
+      ssn:
+        type: string
+        example: "234234"
+      address1:
+        type: string
+        example: 1 Main Street
+      address:
+        type: string
+        example: South
+      city:
+        type: string
+        example: Egremont
+      state:
+        type: string
+        example: MA
+      postalCode:
+        type: string
+        example: "10111"
+      phoneNumber:
+        type: string
+        example: 555-4326
+      dwollaId:
+        type: string
+        example: 212312-slkffddads-3420942
+      resourceUri:
+        type: string
+        example: https://url.com
+      owner:
+        type: object
+        example:
+          firstName: Sample
+          lastName: Owner
+          address1: 2 Main Street
+          address2: ""
+          city: Great Barrington
+          state: MA
+          postalCode: "902190"
+        properties: {}
   IDwollaLinks:
     type: object
     required:
@@ -480,6 +667,9 @@ definitions:
         example:
           href: https://api.dwolla.com/accounts/ca32853c-48fa-40be-ae75-77b37504581b
         properties: {}
+  IDwollaFundingLinks:
+    type: object
+    example: '{ "transfer-from-balance": { "href": "https://api-sandbox.dwolla.com/transfers", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "transfer" }, "on-demand-authorization": { "href": "https://api-sandbox.dwolla.com/on-demand-authorizations/115dfbf9-8a1b-ec11-8138-fd945f81a1fa", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "on-demand-authorization" }, "self": { "href": "https://api-sandbox.dwolla.com/funding-sources/e11cd1de-bcd0-4265-8053-78c3d48fac3f", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "funding-source" }, "transfer-to-balance": { "href": "https://api-sandbox.dwolla.com/transfers", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "transfer" }, "balance": { "href": "https://api-sandbox.dwolla.com/funding-sources/e11cd1de-bcd0-4265-8053-78c3d48fac3f/balance", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "balance" }, "transfer-send": { "href": "https://api-sandbox.dwolla.com/transfers", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "transfer" }, "remove": { "href": "https://api-sandbox.dwolla.com/funding-sources/e11cd1de-bcd0-4265-8053-78c3d48fac3f", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "funding-source" }, "customer": { "href": "https://api-sandbox.dwolla.com/customers/460852fc-c986-4d2d-aedb-e71d9e5aad37", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "customer" }, "transfer-receive": { "href": "https://api-sandbox.dwolla.com/transfers", "type": "application/vnd.dwolla.v1.hal+json", "resource-type": "transfer" } }'
   IDwollaEventRequest:
     type: object
     required:
@@ -490,10 +680,7 @@ definitions:
     - topic
     properties:
       _links:
-        type: object
-        example:
-          $ref: '#/definitions/IDwollaLinks'
-        properties: {}
+        $ref: '#/definitions/IDwollaLinks'
       id:
         type: string
         example: f8e70f48-b7ff-47d0-9d3d-62a099363a76
@@ -506,6 +693,136 @@ definitions:
       resourceId:
         type: string
         example: 48CFDDB4-1E74-E511-80DB-0AA34A9B2388
+  IDwollaCustomerBody:
+    type: object
+    required:
+    - _links
+    - correlationId
+    - created
+    - email
+    - firstName
+    - id
+    - lastName
+    - status
+    - type
+    properties:
+      _links:
+        $ref: '#/definitions/IDwollaLinks'
+      id:
+        type: string
+        example: ecc3a466-f4c6-4470-aa74-a83060bdebf3
+      firstName:
+        type: string
+        example: Irma
+      lastName:
+        type: string
+        example: Green
+      email:
+        type: string
+        example: irma@mail.com
+      type:
+        type: string
+        example: unverified
+      status:
+        type: string
+        example: unverified
+      created:
+        type: string
+        example: 2021-09-27T13:31:33.693Z
+      correlationId:
+        type: string
+        example: p_0x7d78730aeb44f5a04a2b299f56d9e3ff473365a843c794c68de9279b3e667d8f
+  IDwollaCustomerResponse:
+    type: object
+    required:
+    - body
+    - headers
+    - status
+    properties:
+      headers:
+        type: object
+        example: {}
+        properties: {}
+      status:
+        type: number
+        example: 200.0
+      body:
+        $ref: '#/definitions/IDwollaCustomerBody'
+  IDwollaFundingSource:
+    type: object
+    required:
+    - _links
+    - bankAccountType
+    - bankName
+    - channels
+    - created
+    - fingerprint
+    - iavAccountHolders
+    - name
+    - removed
+    - status
+    - type
+    properties:
+      _links:
+        $ref: '#/definitions/IDwollaFundingLinks'
+      status:
+        type: string
+        example: verified
+      type:
+        type: string
+        example: bank
+      bankAccountType:
+        type: string
+        example: savings
+      name:
+        type: string
+        example: 'Your Account #2 - SAVINGS'
+      created:
+        type: string
+        example: 2021-09-22T09:53:43.214Z
+      removed:
+        type: boolean
+        example: false
+      channels:
+        type: array
+        items:
+          example: ach
+      bankName:
+        type: string
+        example: SANDBOX TEST BANK
+      iavAccountHolders:
+        type: object
+        example: '{"selected":"account holder"}'
+        properties: {}
+      fingerprint:
+        type: string
+        example: 8f90f6ed1be72fac980d0249e92cf5f78b22e9e8f56873b098169b37fc3bd9d5
+  IDwollaFundingSourceBody:
+    type: object
+    required:
+    - _embedded
+    - _links
+    properties:
+      _links:
+        $ref: '#/definitions/IDwollaLinks'
+      _embedded:
+        $ref: '#/definitions/IDwollaFundingSourceBody__embedded'
+  IDwollaFundingSourceResponse:
+    type: object
+    required:
+    - body
+    - headers
+    - status
+    properties:
+      headers:
+        type: object
+        example: {}
+        properties: {}
+      status:
+        type: number
+        example: 200.0
+      body:
+        $ref: '#/definitions/IDwollaFundingSourceBody'
   IWalletRequest:
     type: object
     required:
@@ -520,7 +837,7 @@ definitions:
     properties:
       userId:
         type: string
-        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+        example: pcd88fba9-277b-4cc2-a99e-7a9f0926acd5
       firstName:
         type: string
         example: Florian
@@ -565,6 +882,11 @@ definitions:
       createdBlock:
         type: string
         example: "1322324355"
+      createdTimestamp:
+        type: string
+        example: "16654541337"
+      customer:
+        $ref: '#/definitions/IDwollaCustomerResponse'
   ITransferRequest:
     type: object
     required:
@@ -577,6 +899,9 @@ definitions:
       amount:
         type: number
         example: 123.45
+      round-up-amount:
+        type: number
+        example: 2.57
       comment:
         type: string
         example: Buffalo Bill's Fine Leather Goods
@@ -753,3 +1078,46 @@ definitions:
       countOfUsers:
         type: string
         example: "537"
+  IAppNotification:
+    type: object
+    required:
+    - closed
+    - dbId
+    - level
+    - message
+    - timestamp
+    - userId
+    properties:
+      userId:
+        type: string
+        example: cd88fba9-277b-4cc2-a99e-7a9f0926acd5
+      timestamp:
+        type: number
+        example: 1.6676703E7
+      message:
+        type: string
+        example: Your deposit of $54.23 has been credited
+      closed:
+        type: boolean
+        example: false
+      level:
+        type: string
+        example: INFO
+      dbId:
+        type: string
+        example: 7a9f0926acd5
+  IAppNotificationClosed:
+    type: object
+    required:
+    - message
+    properties:
+      message:
+        type: string
+        example: Notification 7a9f0926acd5 closed
+  IDwollaFundingSourceBody__embedded:
+    type: object
+    properties:
+      funding-sources:
+        type: array
+        items:
+          $ref: '#/definitions/IDwollaFundingSource'
