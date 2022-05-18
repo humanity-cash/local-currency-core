@@ -362,7 +362,7 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
       log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
       deposits[i].toName = await getOperatorDisplayName(dbItem.operatorId);
     } catch (err) {
-      deposits[i].toName = "Participating local bank";
+      deposits[i].toName = `Participating Local Bank`;
     } finally {
       deposits[i].fromName = userDisplayName.data.name;
     }
