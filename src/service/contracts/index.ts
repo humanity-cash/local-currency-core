@@ -355,12 +355,19 @@ export async function getDepositsForUser(userId: string): Promise<IDeposit[]> {
   const userDisplayName = await getUserData(walletAddress);
 
   for (let i = 0; i < deposits?.length; i++) {
-    log(`Searching for transfer with txId ${deposits[i].transactionHash}`);
-    const dbItem: DwollaTransferService.IDwollaTransferDBItem =
-      await DwollaTransferService.getByTxId(deposits[i].transactionHash);
-    log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
-    deposits[i].toName = await getOperatorDisplayName(dbItem.operatorId);
-    deposits[i].fromName = userDisplayName.data.name;
+    try{
+      log(`Searching for transfer with txId ${deposits[i].transactionHash}`);
+      const dbItem: DwollaTransferService.IDwollaTransferDBItem =  await DwollaTransferService.getByTxId(deposits[i].transactionHash);
+      log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
+      deposits[i].toName = await getOperatorDisplayName(dbItem.operatorId);
+    }
+    catch(err){
+      log(err);
+      deposits[i].toName = await getOperatorDisplayName(deposits[i].operator);
+    }
+    finally {
+      deposits[i].fromName = userDisplayName.data.name;
+    }
   }
 
   log(`UserDeposit logs: ${JSON.stringify(deposits, null, 2)}`);
@@ -383,11 +390,19 @@ export async function getWithdrawalsForUser(
 
   for (let i = 0; i < withdrawals?.length; i++) {
     log(`Searching for transfer with txId ${withdrawals[i].transactionHash}`);
-    const dbItem: DwollaTransferService.IDwollaTransferDBItem =
-      await DwollaTransferService.getByTxId(withdrawals[i].transactionHash);
-    log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
-    withdrawals[i].fromName = await getOperatorDisplayName(dbItem.operatorId);
-    withdrawals[i].toName = userDisplayName.data.name;
+    
+    try{
+      const dbItem : DwollaTransferService.IDwollaTransferDBItem = await DwollaTransferService.getByTxId(withdrawals[i].transactionHash);
+      log(`dbItem returned for this deposit is ${JSON.stringify(dbItem)}`);
+      withdrawals[i].fromName = await getOperatorDisplayName(dbItem.operatorId);
+    }
+    catch(err){
+      log(err);
+      withdrawals[i].fromName = await getOperatorDisplayName(withdrawals[i].operator);
+    }
+    finally {
+      withdrawals[i].toName = userDisplayName.data.name;
+    }   
 
     const redemptionFeeEvent = await getRedemptionFeeFromWithdrawal(
       withdrawals[i].transactionHash
