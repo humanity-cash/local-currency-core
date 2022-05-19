@@ -505,14 +505,6 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
             pendingDeposit.fundingStatus?.includes("completed")
           )
         ) {
-          let operatorDisplayName;
-          try {
-            operatorDisplayName = await getOperatorDisplayName(
-              pendingDeposit.operatorId
-            );
-          } catch (err) {
-            operatorDisplayName = `Local Bank ${pendingDeposit.operatorId}`;
-          }
           const deposit: IDeposit = {
             transactionHash: "Pending",
             timestamp: Math.floor(pendingDeposit.created / 1000), // MongoDB timestamps are in milliseconds but app is expecting seconds
@@ -521,7 +513,9 @@ export async function getDeposits(req: Request, res: Response): Promise<void> {
             userId: pendingDeposit.userId,
             value: toWei(pendingDeposit.amount, "ether"),
             fromName: `Pending - ${fundingSource?.body._embedded["funding-sources"][0].bankName}`,
-            toName: `Pending - ${operatorDisplayName}`,
+            toName: `Pending - ${await getOperatorDisplayName(
+              pendingDeposit.operatorId
+            )}`,
           };
           deposits.push(deposit);
         }

@@ -163,8 +163,7 @@ export async function getOperatorDisplayName(
     }
   }
 
-  if (!displayName)
-    throw `Display name for operator ${fromAddress} cannot be found, incorrect environment variable configuration`;
+  if (!displayName) displayName = `Local Bank ${fromAddress}`;
 
   return displayName;
 }
