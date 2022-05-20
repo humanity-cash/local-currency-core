@@ -44,13 +44,14 @@ export async function configureEnvironment(): Promise<void> {
     "LOCAL_CURRENCY_ADDRESS",
     "LOCAL_CURRENCY_MNEMONIC",
     "LOCAL_CURRENCY_MNEMONIC_INDEX",
+    "DERIVATION_PATH",
 
     "DWOLLA_BASE_URL",
     "DWOLLA_APP_KEY",
     "DWOLLA_APP_SECRET",
     "DWOLLA_ENVIRONMENT",
     "WEBHOOK_SECRET",
-    "WEBHHOK_URL",
+    "WEBHOOK_URL",
 
     "REGISTER_WEBHOOK",
     "SIMULATE_WEBHOOK",
