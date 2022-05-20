@@ -32,14 +32,17 @@ export async function configureEnvironment(): Promise<void> {
     `Retrieving ${process.env.SECRET_NAME} from region ${process.env.AWS_SECRET_REGION}`
   );
 
-  const secrets = await getSecrets(process.env.SECRET_NAME, process.env.AWS_SECRET_REGION);
+  const secrets = await getSecrets(
+    process.env.SECRET_NAME,
+    process.env.AWS_SECRET_REGION
+  );
   const secretsParsed = JSON.parse(secrets);
 
   const configurationItems: string[] = [
     "DEBUG",
     "NODE_ENV",
     "PORT",
-    
+
     "LOCAL_CURRENCY_RPC_HOST",
     "LOCAL_CURRENCY_ADDRESS",
     "LOCAL_CURRENCY_MNEMONIC",
@@ -88,7 +91,7 @@ export async function configureEnvironment(): Promise<void> {
     "IMGIX_API_TOKEN",
 
     "TRANSFER_RECONCILE_ON_STARTUP",
-    "PROMOTION_RECONCILE_ON_STARTUP"
+    "PROMOTION_RECONCILE_ON_STARTUP",
   ];
 
   configurationItems.forEach((element) => {
