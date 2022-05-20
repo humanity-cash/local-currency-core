@@ -20,25 +20,36 @@ import {
   reconcileLinkedFundingSourceBonus,
 } from "./service/digital-banking/DwollaService";
 
-const app = getApp();
+void (async function() {
 
-const runApp = () => {
+  const app = getApp();
+  
+  if (shouldUseManagedSecrets()) {
+    try{
+      await configureEnvironment();
+      log(`Environment configured`);
+    }
+    catch(err){
+      log(`Error during secret configuration ${err}`);
+    }
+  }
+
   logSettings();
 
-  if (shouldUseManagedSecrets()) {
-    configureEnvironment().then(() => {
-      log(`Environment configured`);
-    });
-  }
   if (shouldRegisterWebhook()) {
     if (shouldSimulateWebhook())
       throw Error(
         `Invalid configuration, REGISTER_WEBHOOK and SIMULATE_WEBHOOK cannot both be "true"`
       );
-    registerWebhook().then((webhook) => {
+    try{
+      const webhook = await registerWebhook();
       log(`Webhook registered ${webhook}`);
-    });
+    }
+    catch(err){
+      log(`Error during registering webhook ${err}`);
+    }
   }
+
   if (shouldSimulateBanking()) {
     if (isDwollaProduction())
       throw Error(
@@ -46,7 +57,12 @@ const runApp = () => {
       );
 
     setInterval(async () => {
-      await processDwollaSandboxSimulations();
+      try{
+        await processDwollaSandboxSimulations();
+      }
+      catch(err){
+        log(`Error during processing Dwolla sandbox banking simulations ${err}`);
+      }
     }, 60000);
   }
 
@@ -64,6 +80,7 @@ const runApp = () => {
       process.env.DERIVATION_PATH
     );
     log(`App listening at http://localhost:${process.env.PORT}`);
+    
     startDatabase(async (err) => {
       if (err) throw err;
       else log("App with database started");
@@ -71,17 +88,23 @@ const runApp = () => {
   });
 
   if (shouldRunTransferReconciliation()) {
-    reconcileDwollaDeposits().then((success) => {
+    try{
+      const success = await reconcileDwollaDeposits();
       log(`reconcileDwollaDeposits() executed with response ${success}`);
-    });
+    }
+    catch(err){
+      log(`Error during deposit reconciliation ${err}`);
+    }
   }
-  if (shouldRunPromotionReconciliation()) {
-    reconcileLinkedFundingSourceBonus().then((success) => {
-      log(
-        `reconcileLinkedFundingSourceBonus() executed with response ${success}`
-      );
-    });
-  }
-};
 
-runApp();
+  if (shouldRunPromotionReconciliation()) {
+    try{
+      const success = await reconcileLinkedFundingSourceBonus();
+      log(`reconcileLinkedFundingSourceBonus() executed with response ${success}`);
+    }
+    catch(err){
+      log(`Error during linked bank account promotion reconciliation ${err}`);
+    }
+  }
+
+})()
