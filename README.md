@@ -11,13 +11,19 @@ This project is very tighly coupled with United States [payments solution provid
 This project requires the Truffle artifacts of the matching smart contract suite in repository https://github.com/humanity-cash/local-currency-contracts to be copied into the `src/service/contracts/artifacts` folder before any tests or execution will work, and a connection to a full-node or third-party archive node provider. (In local testing, provide your own `ganache` node to connect to.)
 
 Finally, this project connects to a MongoDB compatible database defined in the environment settings for stored state that isn't recorded on-chain. (In test, an in-memory equivalent is provided.)
-
 ## Architecture Overview
 
 ![High Level Architecture](./docs/high_level_architecture.png)
 
+## Webhook Hosting
+The static HTML `/iav/index.html` implements the Dwolla Instant Account Verification page which, when navigated to in a frame in the React Native app (along with a single-use token that identifies the Dwolla user), allows a user to sign-in to their US bank account and Dwolla to verify their routing and account information, for import into the Dwolla platform.
 
-
+This page is configured in the current Elastic Beanstalk deployment structure as a static page using a file under the `/.ebextensions/staticfiles.config`
+```
+option_settings:
+  aws:elasticbeanstalk:environment:proxy:staticfiles:
+    /iav: iav
+```
 ## Install
 ```
 nvm use 12
