@@ -12,6 +12,12 @@ This project requires the Truffle artifacts of the matching smart contract suite
 
 Finally, this project connects to a MongoDB compatible database defined in the environment settings for stored state that isn't recorded on-chain. (In test, an in-memory equivalent is provided.)
 
+## Architecture Overview
+
+![High Level Architecture](./docs/high_level_architecture.png)
+
+
+
 ## Install
 ```
 nvm use 12
@@ -140,6 +146,26 @@ MONGO_DB_PASSWORD | "sdflkjsd0809sdlfkjsl13" | MongoDB password |
 MONGO_URL | "mongodb://sample.cluster.amazonaws.com:27017/" | MongoDB URL | In test this will be ignored and an emphemeral in-memory MongoDB used instead |
 USE_MONGO_TLS | "true" / "false" | Whether or not to use TLS when connecting to a remote MongoDB cluster. In AWS, the public certificate `rds-combined-ca-bundle.pem` (included in this repository) is used |
 
-## Note
-
+### Appendix A
 There is a manual `yarn` task `"patch-dwolla-v2": "cp src/utils/index.d.ts.patch node_modules/dwolla-v2/src/index.d.ts"` which copies a patched version of the `dwolla-v2` Typescript index file, which was missing some definitions around access token management. This should be suggested as an upstream patch to the `dwolla-v2` Node package.
+
+### Appendix B
+If using managed secrets (i.e. via AWS Secrets Manager) you must always manually supply the following variables to your environment:
+```
+AWS_SECRET_REGION: "secret region"
+SECRET_NAME: "YOUR SECRET NAME"
+USE_MANAGED_SECRETS: true
+AWS_REGION: "wwwwwwwwwww"
+AWS_CLIENT_ID: "xxxxxxxxxxxxxxxxxx"
+AWS_POOL_ID: "yyyyyyyyyyyyy"
+AWS_TOKEN_TYPE: access
+```
+In a containerized environment these could be injected environment variables at runtime, or a Kubernetes secret.
+
+The execution environment (in this implementation, an Elastic Beanstalk role) must have read access to the named secret.
+
+The Cognito client and pool must always be supplied because API header authentication is instantiated as a middleware on the Express server, and is one of the first modules to be read and processed in the project (before the managed secrets are parsed).
+
+### Appendix C
+
+`rds-combined-ca-bundle.pem` is a public certificate used by AWS for database cluster TLS connections and is provided here for simplicity when (as in this implementation) using TLS with MongoDB.
